@@ -9,18 +9,18 @@ import java.util.*
 
 @Rpc
 interface ISongService {
-    suspend fun setLiked(id: UUID, userId: UUID, liked: Boolean, addedAt: Instant? = null): UserSong?
-    suspend fun byId(id: UUID, userId: UUID): UserSong?
-    suspend fun byIds(ids: Collection<UUID>, userId: UUID): PaginatedResponse<UserSong>
-    suspend fun byTitle(page: Int, pageSize: Int, title: String, userId: UUID): PaginatedResponse<UserSong>
-    suspend fun byArtist(page: Int, pageSize: Int, artistId: UUID, userId: UUID): PaginatedResponse<UserSong>
-    suspend fun byAlbum(page: Int, pageSize: Int, albumId: UUID, userId: UUID): PaginatedResponse<UserSong>
-    suspend fun byPlaylist(page: Int, pageSize: Int, playlistId: UUID, userId: UUID): PaginatedResponse<UserSong>
-    suspend fun byUserPlaylist(page: Int, pageSize: Int, playlistId: UUID, userId: UUID): PaginatedResponse<UserSong>
-    suspend fun byTidalTrackIds(ids: Collection<String>, userId: UUID): List<UserSong>
-    suspend fun byTidalTracks(tracks: Collection<IMetadataService.Track>, userId: UUID): List<UserSong>
-    suspend fun likedSongs(page: Int, pageSize: Int, explicit: Boolean, userId: UUID): PaginatedResponse<UserSong>
-    suspend fun allSongs(page: Int, pageSize: Int, explicit: Boolean, userId: UUID): PaginatedResponse<UserSong>
+    suspend fun setLiked(id: UUID, liked: Boolean, addedAt: Instant? = null): UserSong?
+    suspend fun byId(id: UUID): UserSong?
+    suspend fun byIds(ids: Collection<UUID>): PaginatedResponse<UserSong>
+    suspend fun byTitle(page: Int, pageSize: Int, title: String): PaginatedResponse<UserSong>
+    suspend fun byArtist(page: Int, pageSize: Int, artistId: UUID): PaginatedResponse<UserSong>
+    suspend fun byAlbum(page: Int, pageSize: Int, albumId: UUID): PaginatedResponse<UserSong>
+    suspend fun byPlaylist(page: Int, pageSize: Int, playlistId: UUID): PaginatedResponse<UserSong>
+    suspend fun byUserPlaylist(page: Int, pageSize: Int, playlistId: UUID): PaginatedResponse<UserSong>
+    suspend fun byTidalTrackIds(ids: Collection<String>): List<UserSong>
+    suspend fun byTidalTracks(tracks: Collection<IMetadataService.Track>): List<UserSong>
+    suspend fun likedSongs(page: Int, pageSize: Int, explicit: Boolean): PaginatedResponse<UserSong>
+    suspend fun allSongs(page: Int, pageSize: Int, explicit: Boolean): PaginatedResponse<UserSong>
 
     suspend fun deleteSongs(ids: Collection<UUID>): Boolean
 
@@ -29,7 +29,6 @@ interface ISongService {
         pageSize: Int,
         query: String,
         explicit: Boolean,
-        userId: UUID,
         liked: Boolean = false
     ): PaginatedResponse<UserSong>
 }

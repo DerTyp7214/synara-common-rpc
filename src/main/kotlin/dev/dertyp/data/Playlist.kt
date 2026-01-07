@@ -1,5 +1,6 @@
 package dev.dertyp.data
 
+import dev.dertyp.serializers.DateSerializer
 import dev.dertyp.serializers.UUIDListSerializer
 import dev.dertyp.serializers.UUIDSerializer
 import kotlinx.serialization.Serializable
@@ -43,6 +44,8 @@ data class UserPlaylist(
     val creator: UUID,
     val description: String,
     val origin: String? = null,
+    @Serializable(with = DateSerializer::class)
+    val modifiedAt: Date? = null,
 ): BasePlaylist()
 
 @Serializable
