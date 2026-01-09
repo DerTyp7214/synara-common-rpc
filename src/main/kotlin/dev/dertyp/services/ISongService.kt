@@ -10,6 +10,7 @@ import java.util.*
 @Rpc
 interface ISongService {
     suspend fun setLiked(id: UUID, liked: Boolean, addedAt: Instant? = null): UserSong?
+    suspend fun setLyrics(id: UUID, lyrics: List<String>): UserSong?
     suspend fun byId(id: UUID): UserSong?
     suspend fun byIds(ids: Collection<UUID>): PaginatedResponse<UserSong>
     suspend fun byTitle(page: Int, pageSize: Int, title: String): PaginatedResponse<UserSong>
