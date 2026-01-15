@@ -34,5 +34,5 @@ interface ISongService {
         liked: Boolean = false
     ): PaginatedResponse<UserSong>
 
-    suspend fun streamSong(id: UUID): Flow<ByteArray>?
+    fun streamSong(id: UUID): Flow<ByteArray>?
 }
