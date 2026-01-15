@@ -6,4 +6,5 @@ import kotlinx.rpc.annotations.Rpc
 @Rpc
 interface IServerStatsService {
     suspend fun getStats(): ServerStats
+    suspend fun health(): Boolean
 }
