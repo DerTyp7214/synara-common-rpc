@@ -19,11 +19,7 @@ interface IDownloadService {
     suspend fun finishedDownloads(): List<FinishedDownloadQueueEntry>
     suspend fun syncFavouritesAvailable(): Boolean
     suspend fun syncFavourites(): CompletableJob
-    suspend fun downloadTidalIds(
-        ids: List<String>,
-        type: Type = Type.SONG,
-        callback: suspend (List<String>) -> Unit = {}
-    )
+    suspend fun downloadTidalIds(ids: List<String>, type: Type = Type.SONG)
 }
 
 data class IdsWrapper(
