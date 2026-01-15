@@ -3,6 +3,7 @@ package dev.dertyp.services
 import dev.dertyp.data.PaginatedResponse
 import dev.dertyp.data.UserSong
 import dev.dertyp.services.metadata.IMetadataService
+import kotlinx.coroutines.flow.Flow
 import kotlinx.rpc.annotations.Rpc
 import java.time.Instant
 import java.util.*
@@ -32,4 +33,6 @@ interface ISongService {
         explicit: Boolean,
         liked: Boolean = false
     ): PaginatedResponse<UserSong>
+
+    suspend fun streamSong(id: UUID): Flow<ByteArray>?
 }
