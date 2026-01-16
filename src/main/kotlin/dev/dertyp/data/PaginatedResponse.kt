@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class PaginatedResponse<T>(
     val data: List<T>,
     val page: Int = 0,
+    val total: Int = 0,
     val pageSize: Int = 150,
     val hasNextPage: Boolean = false,
 )
