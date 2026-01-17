@@ -1,14 +1,19 @@
 package dev.dertyp.data
 
+import dev.dertyp.serializers.UUIDSerializer
+import kotlinx.serialization.Serializable
 import java.util.*
 
+@Serializable
 data class Image(
+    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val path: String,
     val imageHash: String,
     val origin: String,
 )
 
+@Serializable
 data class InsertableImage(
     val data: ByteArray,
     val imageHash: String,
