@@ -36,4 +36,10 @@ interface ISongService {
 
     fun streamSong(id: UUID, offset: Long = 0): Flow<ByteArray>?
     suspend fun getStreamSize(id: UUID): Long
+
+    fun likedSongIds(explicit: Boolean): Flow<UUID>
+    fun songIdsByArtist(artistId: UUID): Flow<UUID>
+    fun songIdsByAlbum(albumId: UUID): Flow<UUID>
+    fun songIdsByPlaylist(playlistId: UUID): Flow<UUID>
+    fun songIdsByUserPlaylist(playlistId: UUID): Flow<UUID>
 }
