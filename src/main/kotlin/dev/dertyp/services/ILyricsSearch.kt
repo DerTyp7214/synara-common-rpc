@@ -7,7 +7,6 @@ interface ILyricsSearch {
     suspend fun searchLyrics(
         artist: String,
         title: String,
-        syncedOnly: Boolean = true,
-        onLineReceived: suspend (String) -> Unit = {}
+        syncedOnly: Boolean = true
     ): List<String>
 }
