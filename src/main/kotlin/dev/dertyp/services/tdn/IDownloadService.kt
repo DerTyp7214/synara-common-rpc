@@ -9,7 +9,7 @@ import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import java.util.*
+import java.util.UUID
 
 @Rpc
 interface IDownloadService {
@@ -20,8 +20,8 @@ interface IDownloadService {
     suspend fun syncFavouritesAvailable(): Boolean
     suspend fun syncFavourites(): CompletableJob
     suspend fun downloadTidalIds(ids: List<String>, type: Type = Type.SONG)
-    fun setTidalDownloadService(service: TidalDownloadService)
-    fun getTidalDownloadService(): TidalDownloadService
+    suspend fun setTidalDownloadService(service: TidalDownloadService)
+    suspend fun getTidalDownloadService(): TidalDownloadService
 }
 
 data class IdsWrapper(
