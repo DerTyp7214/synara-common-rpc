@@ -3,11 +3,11 @@ package dev.dertyp.services.tdn
 import kotlinx.serialization.Serializable
 
 @Suppress("EnumEntryName")
-enum class TdnFavoriteType {
+enum class TidalFavType {
     tracks,
     artists,
     albums,
-    videos
+    videos,
 }
 
 @Serializable

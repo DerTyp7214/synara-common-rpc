@@ -20,6 +20,8 @@ interface IDownloadService {
     suspend fun syncFavouritesAvailable(): Boolean
     suspend fun syncFavourites(): CompletableJob
     suspend fun downloadTidalIds(ids: List<String>, type: Type = Type.SONG)
+    fun setTidalDownloadService(service: TidalDownloadService)
+    fun getTidalDownloadService(): TidalDownloadService
 }
 
 data class IdsWrapper(
@@ -114,7 +116,7 @@ data class UrlDownloadQueueEntry(
 
 @Serializable
 data class FavouriteDownloadQueueEntry(
-    val tdnFavoriteType: TdnFavoriteType,
+    val tdnFavoriteType: TidalFavType,
     @Serializable(with = UUIDSerializer::class)
     override val byUser: UUID? = null,
     override val type: Type? = null,
