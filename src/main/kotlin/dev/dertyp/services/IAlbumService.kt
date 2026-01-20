@@ -3,11 +3,12 @@ package dev.dertyp.services
 import dev.dertyp.data.Album
 import dev.dertyp.data.PaginatedResponse
 import kotlinx.rpc.annotations.Rpc
-import java.util.*
+import java.util.UUID
 
 @Rpc
 interface IAlbumService {
     suspend fun byId(id: UUID): Album?
+    suspend fun byIds(ids: List<UUID>): List<Album>
     suspend fun byName(page: Int, pageSize: Int, name: String): PaginatedResponse<Album>
     suspend fun rankedSearch(page: Int, pageSize: Int, query: String): PaginatedResponse<Album>
     suspend fun allAlbums(page: Int, pageSize: Int): PaginatedResponse<Album>

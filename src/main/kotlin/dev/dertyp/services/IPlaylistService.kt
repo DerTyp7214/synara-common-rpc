@@ -4,11 +4,12 @@ import dev.dertyp.data.PaginatedResponse
 import dev.dertyp.data.Playlist
 import dev.dertyp.data.PlaylistEntry
 import kotlinx.rpc.annotations.Rpc
-import java.util.*
+import java.util.UUID
 
 @Rpc
 interface IPlaylistService {
     suspend fun byId(id: UUID): Playlist?
+    suspend fun byIds(ids: List<UUID>): List<Playlist>
     suspend fun byIdFull(id: UUID): Pair<String, List<PlaylistEntry>>?
     suspend fun byName(name: String): Playlist?
     suspend fun rankedSearch(page: Int, pageSize: Int, query: String): PaginatedResponse<Playlist>
