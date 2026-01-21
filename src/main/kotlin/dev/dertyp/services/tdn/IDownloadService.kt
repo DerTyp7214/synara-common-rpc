@@ -9,7 +9,7 @@ import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import java.util.UUID
+import java.util.*
 
 @Rpc
 interface IDownloadService {
@@ -22,6 +22,12 @@ interface IDownloadService {
     suspend fun downloadTidalIds(ids: List<String>, type: Type = Type.SONG)
     suspend fun setTidalDownloadService(service: TidalDownloadService)
     suspend fun getTidalDownloadService(): TidalDownloadService
+
+    suspend fun tidalDownloadAuthorized(): Boolean
+    fun tidalDownloadLogin(): Flow<String>
+
+    suspend fun tidalSyncAuthorized(): Boolean
+    suspend fun getAuthUrl(): String
 }
 
 data class IdsWrapper(
