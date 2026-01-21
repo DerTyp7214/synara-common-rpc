@@ -1,12 +1,12 @@
 package dev.dertyp.data
 
-import dev.dertyp.serializers.UUIDByteSerializer
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.util.*
 
 @Serializable
 data class Image(
-    @Serializable(with = UUIDByteSerializer::class)
+    @Contextual
     val id: UUID,
     val path: String,
     val imageHash: String,

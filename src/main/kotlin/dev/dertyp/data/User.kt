@@ -1,12 +1,12 @@
 package dev.dertyp.data
 
-import dev.dertyp.serializers.UUIDByteSerializer
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.util.*
 
 @Serializable
 data class User(
-    @Serializable(with = UUIDByteSerializer::class)
+    @Contextual
     val id: UUID,
     val username: String,
     val passwordHash: String,
@@ -14,7 +14,7 @@ data class User(
 
 @Serializable
 data class UserInfo(
-    @Serializable(with = UUIDByteSerializer::class)
+    @Contextual
     val id: UUID,
     val username: String,
 ) {
