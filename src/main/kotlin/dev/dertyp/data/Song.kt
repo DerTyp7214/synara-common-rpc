@@ -3,14 +3,14 @@ package dev.dertyp.data
 import dev.dertyp.core.contentEquals
 import dev.dertyp.serializers.DateSerializer
 import dev.dertyp.serializers.LocalDateSerializer
-import dev.dertyp.serializers.UUIDSerializer
+import dev.dertyp.serializers.UUIDByteSerializer
 import kotlinx.serialization.Serializable
 import java.time.Instant
 import java.time.LocalDate
 import java.util.*
 
 abstract class BaseSong() {
-    @Serializable(with = UUIDSerializer::class)
+    @Serializable(with = UUIDByteSerializer::class)
     abstract val id: UUID
     abstract val title: String
     abstract val artists: List<Artist>
@@ -29,13 +29,13 @@ abstract class BaseSong() {
     abstract val bitsPerSample: Int
     abstract val bitRate: Long
     abstract val fileSize: Long
-    @Serializable(with = UUIDSerializer::class)
+    @Serializable(with = UUIDByteSerializer::class)
     abstract val coverId: UUID?
 }
 
 @Serializable
 data class Song(
-    @Serializable(with = UUIDSerializer::class)
+    @Serializable(with = UUIDByteSerializer::class)
     override val id: UUID,
     override val title: String,
     override val artists: List<Artist>,
@@ -54,13 +54,13 @@ data class Song(
     override val bitsPerSample: Int = 0,
     override val bitRate: Long = 0,
     override val fileSize: Long = 0,
-    @Serializable(with = UUIDSerializer::class)
+    @Serializable(with = UUIDByteSerializer::class)
     override val coverId: UUID? = null,
 ): BaseSong()
 
 @Serializable
 data class UserSong(
-    @Serializable(with = UUIDSerializer::class)
+    @Serializable(with = UUIDByteSerializer::class)
     override val id: UUID,
     override val title: String,
     override val artists: List<Artist>,
@@ -79,7 +79,7 @@ data class UserSong(
     override val bitsPerSample: Int = 0,
     override val bitRate: Long = 0,
     override val fileSize: Long = 0,
-    @Serializable(with = UUIDSerializer::class)
+    @Serializable(with = UUIDByteSerializer::class)
     override val coverId: UUID? = null,
 
     val isFavourite: Boolean? = false,
@@ -91,7 +91,7 @@ data class UserSong(
 
 @Serializable
 data class SimpleSong(
-    @Serializable(with = UUIDSerializer::class)
+    @Serializable(with = UUIDByteSerializer::class)
     val id: UUID,
     val title: String,
     val duration: Long,
@@ -106,7 +106,7 @@ data class SimpleSong(
     val bitsPerSample: Int,
     val bitRate: Long,
     val fileSize: Long,
-    @Serializable(with = UUIDSerializer::class)
+    @Serializable(with = UUIDByteSerializer::class)
     val coverId: UUID?,
     val transcodedTo: List<Int>
 )

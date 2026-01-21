@@ -2,14 +2,14 @@ package dev.dertyp.data
 
 import dev.dertyp.core.contentEquals
 import dev.dertyp.serializers.LocalDateSerializer
-import dev.dertyp.serializers.UUIDSerializer
+import dev.dertyp.serializers.UUIDByteSerializer
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
-import java.util.*
+import java.util.UUID
 
 @Serializable
 data class Album(
-    @Serializable(with = UUIDSerializer::class)
+    @Serializable(with = UUIDByteSerializer::class)
     val id: UUID,
     val name: String,
     val artists: List<Artist>,
@@ -18,7 +18,7 @@ data class Album(
     val releaseDate: LocalDate?,
     val totalDuration: Long,
     val totalSize: Long = 0,
-    @Serializable(with = UUIDSerializer::class)
+    @Serializable(with = UUIDByteSerializer::class)
     val coverId: UUID? = null,
     val originalId: String? = null,
 )
