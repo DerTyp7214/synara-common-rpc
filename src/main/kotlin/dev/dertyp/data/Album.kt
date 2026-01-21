@@ -1,15 +1,17 @@
+@file:UseContextualSerialization(UUID::class)
+
 package dev.dertyp.data
 
 import dev.dertyp.core.contentEquals
 import dev.dertyp.serializers.LocalDateSerializer
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseContextualSerialization
 import java.time.LocalDate
-import java.util.UUID
+import java.util.*
 
 @Serializable
 data class Album(
-    val id: @Contextual UUID,
+    val id: UUID,
     val name: String,
     val artists: List<Artist>,
     val songCount: Int = 0,
@@ -17,7 +19,7 @@ data class Album(
     val releaseDate: LocalDate?,
     val totalDuration: Long,
     val totalSize: Long = 0,
-    val coverId: @Contextual UUID? = null,
+    val coverId: UUID? = null,
     val originalId: String? = null,
 )
 

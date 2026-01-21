@@ -1,12 +1,14 @@
+@file:UseContextualSerialization(UUID::class)
+
 package dev.dertyp.data
 
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.util.UUID
+import kotlinx.serialization.UseContextualSerialization
+import java.util.*
 
 @Serializable
 data class Image(
-    val id: @Contextual UUID,
+    val id: UUID,
     val path: String,
     val imageHash: String,
     val origin: String,

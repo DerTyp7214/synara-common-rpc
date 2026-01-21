@@ -1,14 +1,15 @@
+@file:UseContextualSerialization(UUID::class)
+
 package dev.dertyp.data
 
 import dev.dertyp.core.contentEquals
 import dev.dertyp.serializers.DateSerializer
 import dev.dertyp.serializers.LocalDateSerializer
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseContextualSerialization
 import java.time.Instant
 import java.time.LocalDate
-import java.util.Date
-import java.util.UUID
+import java.util.*
 
 abstract class BaseSong() {
     abstract val id: UUID
@@ -29,13 +30,12 @@ abstract class BaseSong() {
     abstract val bitsPerSample: Int
     abstract val bitRate: Long
     abstract val fileSize: Long
-    @Contextual
     abstract val coverId: UUID?
 }
 
 @Serializable
 data class Song(
-    override val id: @Contextual UUID,
+    override val id: UUID,
     override val title: String,
     override val artists: List<Artist>,
     override val album: Album?,
@@ -53,12 +53,12 @@ data class Song(
     override val bitsPerSample: Int = 0,
     override val bitRate: Long = 0,
     override val fileSize: Long = 0,
-    override val coverId: @Contextual UUID? = null,
+    override val coverId: UUID? = null,
 ): BaseSong()
 
 @Serializable
 data class UserSong(
-    override val id: @Contextual UUID,
+    override val id: UUID,
     override val title: String,
     override val artists: List<Artist>,
     override val album: Album?,
@@ -76,7 +76,7 @@ data class UserSong(
     override val bitsPerSample: Int = 0,
     override val bitRate: Long = 0,
     override val fileSize: Long = 0,
-    override val coverId: @Contextual UUID? = null,
+    override val coverId: UUID? = null,
 
     val isFavourite: Boolean? = false,
     @Serializable(with = DateSerializer::class)
@@ -87,7 +87,7 @@ data class UserSong(
 
 @Serializable
 data class SimpleSong(
-    val id: @Contextual UUID,
+    val id: UUID,
     val title: String,
     val duration: Long,
     val explicit: Boolean,
@@ -101,7 +101,7 @@ data class SimpleSong(
     val bitsPerSample: Int,
     val bitRate: Long,
     val fileSize: Long,
-    val coverId: @Contextual UUID?,
+    val coverId: UUID?,
     val transcodedTo: List<Int>
 )
 

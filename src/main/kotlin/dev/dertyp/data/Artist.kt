@@ -1,17 +1,19 @@
+@file:UseContextualSerialization(UUID::class)
+
 package dev.dertyp.data
 
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.util.UUID
+import kotlinx.serialization.UseContextualSerialization
+import java.util.*
 
 @Serializable
 data class Artist(
-    val id: @Contextual UUID,
+    val id: UUID,
     val name: String,
     val isGroup: Boolean,
     val artists: List<Artist> = listOf(),
     val about: String = "",
-    val imageId: @Contextual UUID? = null,
+    val imageId: UUID? = null,
 )
 
 
@@ -19,5 +21,5 @@ data class Artist(
 data class MergeArtists(
     val name: String,
     val image: String? = null,
-    val artistIds: List<@Contextual UUID>,
+    val artistIds: List<UUID>,
 )

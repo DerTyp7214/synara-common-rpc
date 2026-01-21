@@ -1,17 +1,18 @@
+@file:UseContextualSerialization(UUID::class)
+
 package dev.dertyp.data
 
 import dev.dertyp.serializers.DateSerializer
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.util.Date
-import java.util.UUID
+import kotlinx.serialization.UseContextualSerialization
+import java.util.*
 
 @Serializable
 data class RefreshToken(
-    val id: @Contextual UUID,
+    val id: UUID,
     val tokenHash: String,
     val isRevoked: Boolean,
-    val userId: @Contextual UUID,
+    val userId: UUID,
     @Serializable(with = DateSerializer::class)
     val expiresAt: Date,
 )
