@@ -6,16 +6,14 @@ import java.util.*
 
 @Serializable
 data class User(
-    @Contextual
-    val id: UUID,
+    val id: @Contextual UUID,
     val username: String,
     val passwordHash: String,
 )
 
 @Serializable
 data class UserInfo(
-    @Contextual
-    val id: UUID,
+    val id: @Contextual UUID,
     val username: String,
 ) {
     companion object {

@@ -3,42 +3,35 @@ package dev.dertyp.data
 import dev.dertyp.serializers.DateSerializer
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.util.*
+import java.util.Date
+import java.util.UUID
 
 @Serializable
 sealed class BasePlaylist {
-    @Contextual
-    abstract val id: UUID
+    abstract val id: @Contextual UUID
     abstract val name: String
-    @Contextual
-    abstract val songs: List<UUID>
+    abstract val songs: List<@Contextual UUID>
     abstract val totalDuration: Long
-    @Contextual
-    abstract val imageId: UUID?
+    abstract val imageId: @Contextual UUID?
 }
 
 @Serializable
 data class Playlist(
-    @Contextual
-    override val id: UUID,
+    override val id: @Contextual UUID,
     override val name: String,
     override val songs: List<@Contextual UUID>,
     override val totalDuration: Long = -1L,
-    @Contextual
-    override val imageId: UUID? = null,
+    override val imageId: @Contextual UUID? = null,
 ): BasePlaylist()
 
 @Serializable
 data class UserPlaylist(
-    @Contextual
-    override val id: UUID,
+    override val id: @Contextual UUID,
     override val name: String,
     override val songs: List<@Contextual UUID>,
     override val totalDuration: Long = -1L,
-    @Contextual
-    override val imageId: UUID? = null,
-    @Contextual
-    val creator: UUID,
+    override val imageId: @Contextual UUID? = null,
+    val creator: @Contextual UUID,
     val description: String,
     val origin: String? = null,
     @Serializable(with = DateSerializer::class)
@@ -47,8 +40,7 @@ data class UserPlaylist(
 
 @Serializable
 data class PlaylistEntry(
-    @Contextual
-    val id: UUID,
+    val id: @Contextual UUID,
     val name: String,
     val duration: Long,
 )

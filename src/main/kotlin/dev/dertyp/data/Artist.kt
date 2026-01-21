@@ -2,18 +2,16 @@ package dev.dertyp.data
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
-import java.util.*
+import java.util.UUID
 
 @Serializable
 data class Artist(
-    @Contextual
-    val id: UUID,
+    val id: @Contextual UUID,
     val name: String,
     val isGroup: Boolean,
     val artists: List<Artist> = listOf(),
     val about: String = "",
-    @Contextual
-    val imageId: UUID? = null,
+    val imageId: @Contextual UUID? = null,
 )
 
 

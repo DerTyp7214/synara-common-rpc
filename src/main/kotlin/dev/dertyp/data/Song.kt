@@ -7,7 +7,8 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.time.Instant
 import java.time.LocalDate
-import java.util.*
+import java.util.Date
+import java.util.UUID
 
 abstract class BaseSong() {
     abstract val id: UUID
@@ -34,8 +35,7 @@ abstract class BaseSong() {
 
 @Serializable
 data class Song(
-    @Contextual
-    override val id: UUID,
+    override val id: @Contextual UUID,
     override val title: String,
     override val artists: List<Artist>,
     override val album: Album?,
@@ -53,14 +53,12 @@ data class Song(
     override val bitsPerSample: Int = 0,
     override val bitRate: Long = 0,
     override val fileSize: Long = 0,
-    @Contextual
-    override val coverId: UUID? = null,
+    override val coverId: @Contextual UUID? = null,
 ): BaseSong()
 
 @Serializable
 data class UserSong(
-    @Contextual
-    override val id: UUID,
+    override val id: @Contextual UUID,
     override val title: String,
     override val artists: List<Artist>,
     override val album: Album?,
@@ -78,8 +76,7 @@ data class UserSong(
     override val bitsPerSample: Int = 0,
     override val bitRate: Long = 0,
     override val fileSize: Long = 0,
-    @Contextual
-    override val coverId: UUID? = null,
+    override val coverId: @Contextual UUID? = null,
 
     val isFavourite: Boolean? = false,
     @Serializable(with = DateSerializer::class)
@@ -90,8 +87,7 @@ data class UserSong(
 
 @Serializable
 data class SimpleSong(
-    @Contextual
-    val id: UUID,
+    val id: @Contextual UUID,
     val title: String,
     val duration: Long,
     val explicit: Boolean,
@@ -105,8 +101,7 @@ data class SimpleSong(
     val bitsPerSample: Int,
     val bitRate: Long,
     val fileSize: Long,
-    @Contextual
-    val coverId: UUID?,
+    val coverId: @Contextual UUID?,
     val transcodedTo: List<Int>
 )
 
