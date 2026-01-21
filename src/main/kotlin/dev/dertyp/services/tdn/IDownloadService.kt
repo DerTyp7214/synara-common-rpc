@@ -9,7 +9,7 @@ import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import java.util.*
+import java.util.UUID
 
 @Rpc
 interface IDownloadService {
@@ -139,6 +139,7 @@ data class FinishedDownloadQueueEntry(
     val logs: List<String>,
 )
 
+@Serializable
 data class LogLine(
     val queueEntry: DownloadQueueEntry,
     val line: String?,
