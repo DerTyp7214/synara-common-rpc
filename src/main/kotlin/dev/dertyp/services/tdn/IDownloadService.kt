@@ -19,6 +19,7 @@ interface IDownloadService {
     suspend fun syncFavouritesAvailable(): Boolean
     suspend fun syncFavourites()
     suspend fun downloadTidalIds(ids: List<String>, type: Type = Type.SONG)
+    suspend fun existsByTidalId(id: String, type: Type = Type.SONG): Boolean
     suspend fun setTidalDownloadService(service: TidalDownloadService)
     suspend fun getTidalDownloadService(): TidalDownloadService
 
