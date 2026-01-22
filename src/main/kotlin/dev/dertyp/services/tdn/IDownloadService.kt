@@ -28,6 +28,8 @@ interface IDownloadService {
 
     suspend fun tidalSyncAuthorized(): Boolean
     suspend fun getAuthUrl(): String
+
+    suspend fun killAllChildProcesses()
 }
 
 data class IdsWrapper(
