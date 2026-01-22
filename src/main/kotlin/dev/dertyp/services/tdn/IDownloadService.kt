@@ -2,14 +2,13 @@ package dev.dertyp.services.tdn
 
 import dev.dertyp.serializers.UUIDSerializer
 import dev.dertyp.services.metadata.IMetadataService
-import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import java.util.UUID
+import java.util.*
 
 @Rpc
 interface IDownloadService {
@@ -18,7 +17,7 @@ interface IDownloadService {
     suspend fun downloadQueue(): List<DownloadQueueEntry>
     suspend fun finishedDownloads(): List<FinishedDownloadQueueEntry>
     suspend fun syncFavouritesAvailable(): Boolean
-    suspend fun syncFavourites(): CompletableJob
+    suspend fun syncFavourites()
     suspend fun downloadTidalIds(ids: List<String>, type: Type = Type.SONG)
     suspend fun setTidalDownloadService(service: TidalDownloadService)
     suspend fun getTidalDownloadService(): TidalDownloadService
