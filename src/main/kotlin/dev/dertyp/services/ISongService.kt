@@ -6,7 +6,7 @@ import dev.dertyp.services.metadata.IMetadataService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.rpc.annotations.Rpc
 import java.time.Instant
-import java.util.*
+import java.util.UUID
 
 @Rpc
 interface ISongService {
@@ -37,6 +37,7 @@ interface ISongService {
     fun streamSong(id: UUID, offset: Long = 0): Flow<ByteArray>?
     suspend fun getStreamSize(id: UUID): Long
 
+    fun allSongIds(explicit: Boolean): Flow<UUID>
     fun likedSongIds(explicit: Boolean): Flow<UUID>
     fun songIdsByArtist(artistId: UUID): Flow<UUID>
     fun songIdsByAlbum(albumId: UUID): Flow<UUID>
