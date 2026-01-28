@@ -9,17 +9,17 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import java.nio.ByteBuffer
-import java.util.*
+import java.util.UUID
 
 object UUIDByteSerializer: KSerializer<UUID> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: UUID) {
-        val byes = ByteBuffer.allocate(16)
+        val bytes = ByteBuffer.allocate(16)
             .putLong(value.mostSignificantBits)
             .putLong(value.leastSignificantBits)
             .array()
-        encoder.encodeSerializableValue(ByteArraySerializer(), byes)
+        encoder.encodeSerializableValue(ByteArraySerializer(), bytes)
     }
 
     override fun deserialize(decoder: Decoder): UUID {
