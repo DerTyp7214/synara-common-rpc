@@ -61,7 +61,10 @@ interface IMetadataService {
         val trackNumber: Int? = null,
         val discNumber: Int? = null,
         val images: List<Image>,
-    ) : BaseMetadata()
+    ) : BaseMetadata() {
+        val cover: String?
+            get() = images.maxByOrNull { it.width }?.url
+    }
 
     @Serializable
     data class Album(

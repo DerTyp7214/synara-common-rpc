@@ -30,6 +30,8 @@ interface IDownloadService {
     suspend fun getAuthUrl(): String
 
     suspend fun killAllChildProcesses()
+
+    suspend fun searchTidal(query: String? = null, title: String? = null, artist: String? = null, count: Int = 50): List<TidalSong>
 }
 
 data class IdsWrapper(
@@ -170,3 +172,11 @@ enum class Type(val value: String) {
         }
     }
 }
+
+@Serializable
+data class TidalSong(
+    val id: String,
+    val title: String,
+    val artists: List<String>,
+    val cover: String?
+)
