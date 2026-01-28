@@ -178,5 +178,5 @@ data class TidalSong(
     val id: String,
     val title: String,
     val artists: List<String>,
-    val cover: String?
+    val cover: Map<Int, String>
 )
