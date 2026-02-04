@@ -2,7 +2,7 @@ package dev.dertyp.data
 
 import dev.dertyp.serializers.DateSerializer
 import kotlinx.serialization.Serializable
-import java.util.*
+import java.util.Date
 
 @Serializable
 data class RefreshTokenRequest(val refreshToken: String)

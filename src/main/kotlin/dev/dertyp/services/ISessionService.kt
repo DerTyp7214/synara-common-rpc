@@ -2,7 +2,7 @@ package dev.dertyp.services
 
 import dev.dertyp.data.Session
 import kotlinx.rpc.annotations.Rpc
-import java.util.*
+import java.util.UUID
 
 @Rpc
 interface ISessionService {
