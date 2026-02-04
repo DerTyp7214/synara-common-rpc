@@ -2,6 +2,7 @@
 
 package dev.dertyp.data
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 import java.util.UUID
@@ -21,12 +22,14 @@ data class PlaybackState(
         abstract val queueId: Long
 
         @Serializable
+        @SerialName("FromSource")
         data class FromSource(
             val songId: UUID,
             override val queueId: Long
         ) : QueueEntry()
 
         @Serializable
+        @SerialName("Explicit")
         data class Explicit(
             val song: UserSong,
             override val queueId: Long
