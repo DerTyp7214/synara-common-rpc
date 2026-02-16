@@ -17,4 +17,5 @@ interface IUserPlaylistService {
     suspend fun getOrAddPlaylist(user: User, customIdentifier: String?, playlist: InsertablePlaylist): UUID
     suspend fun addToPlaylist(id: UUID, songIds: List<Pair<Long, UUID>>): List<UUID>
     suspend fun removeFromPlaylist(id: UUID, songIds: List<UUID>): Int
+    suspend fun setPlaylistImage(id: UUID, imageId: UUID?): Boolean
 }
