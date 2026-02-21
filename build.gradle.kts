@@ -6,9 +6,16 @@ plugins {
     alias(libs.plugins.kotlinx.rpc)
 }
 
-val hasAndroidEnv = System.getenv("ANDROID_HOME") != null ||
+
+val includeAndroid = project.findProperty("synara.includeAndroid")?.toString()?.toBoolean()
+    ?: rootProject.file("local.properties").exists()
+
+
+val hasAndroidEnv = includeAndroid && (
+        System.getenv("ANDROID_HOME") != null ||
         System.getenv("ANDROID_SDK_ROOT") != null ||
-        File(projectDir.parentFile, "local.properties").exists()
+        rootProject.file("local.properties").exists()
+)
 
 if (hasAndroidEnv) {
     pluginManager.apply("com.android.kotlin.multiplatform.library")
