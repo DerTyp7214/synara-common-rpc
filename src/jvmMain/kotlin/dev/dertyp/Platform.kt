@@ -1,7 +1,7 @@
-@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
-
 package dev.dertyp
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import java.nio.ByteBuffer
 import java.time.Instant
 import java.time.LocalDate
@@ -60,3 +60,5 @@ actual fun String.toPlatformInstantISO(): PlatformInstant = Instant.parse(this)
 actual fun currentTimeMillis(): Long = System.currentTimeMillis()
 actual fun nowAsPlatformDate(): PlatformDate = Date()
 actual fun nowAsPlatformInstant(): PlatformInstant = Instant.now()
+
+actual val ioDispatcher: CoroutineDispatcher = Dispatchers.IO

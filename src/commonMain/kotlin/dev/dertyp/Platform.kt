@@ -1,6 +1,6 @@
-@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
-
 package dev.dertyp
+
+import kotlinx.coroutines.CoroutineDispatcher
 
 expect class PlatformUUID
 
@@ -43,3 +43,5 @@ expect fun String.toPlatformInstantISO(): PlatformInstant
 expect fun currentTimeMillis(): Long
 expect fun nowAsPlatformDate(): PlatformDate
 expect fun nowAsPlatformInstant(): PlatformInstant
+
+expect val ioDispatcher: CoroutineDispatcher

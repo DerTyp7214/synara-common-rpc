@@ -2,14 +2,16 @@ package dev.dertyp.services.metadata
 
 import dev.dertyp.PlatformLocalDate
 import dev.dertyp.PlatformOffsetDateTime
+import dev.dertyp.ioDispatcher
 import dev.dertyp.serializers.DurationSerializer
 import dev.dertyp.serializers.LocalDateSerializer
 import dev.dertyp.serializers.OffsetDateTimeSerializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -118,12 +120,13 @@ interface IMetadataService {
     ) : BaseMetadata() {
         private val cache = mutableListOf<Track>()
         private var collectionJob: Deferred<List<Track>>? = null
+        private val mutex = Mutex()
 
-        private fun getOrStartCollection(): Deferred<List<Track>> {
-            return synchronized(this) {
-                collectionJob ?: CoroutineScope(Dispatchers.IO).async {
+        private suspend fun getOrStartCollection(): Deferred<List<Track>> {
+            return mutex.withLock {
+                collectionJob ?: CoroutineScope(ioDispatcher).async {
                     tracks.onEach { track ->
-                        synchronized(cache) { cache.add(track) }
+                        mutex.withLock { cache.add(track) }
                     }.toList()
                 }.also { collectionJob = it }
             }
@@ -131,7 +134,7 @@ interface IMetadataService {
 
         val sharedTracks: Flow<Track> = flow {
             val job = getOrStartCollection()
-            val currentCache = synchronized(cache) { cache.toList() }
+            val currentCache = mutex.withLock { cache.toList() }
             currentCache.forEach { track -> emit(track) }
             tracks.drop(currentCache.size).collect { track ->
                 emit(track)
