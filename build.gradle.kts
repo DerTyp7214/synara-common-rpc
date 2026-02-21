@@ -8,7 +8,7 @@ plugins {
 
 val hasAndroidEnv = System.getenv("ANDROID_HOME") != null ||
         System.getenv("ANDROID_SDK_ROOT") != null ||
-        rootProject.file("local.properties").exists()
+        File(projectDir.parentFile, "local.properties").exists()
 
 if (hasAndroidEnv) {
     pluginManager.apply("com.android.kotlin.multiplatform.library")
@@ -23,10 +23,15 @@ kotlin {
     jvm()
 
     if (hasAndroidEnv) {
-        extensions.configure<com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension>("androidLibrary") {
-            namespace = "de.dertyp7214.common_rpc"
-            compileSdk = 36
-            minSdk = 26
+        extensions.findByName("androidLibrary")?.let { extension ->
+            val namespaceMethod = extension.javaClass.getMethod("setNamespace", String::class.java)
+            val compileSdkMethod =
+                extension.javaClass.getMethod("setCompileSdk", Int::class.javaObjectType)
+            val minSdkMethod = extension.javaClass.getMethod("setMinSdk", Int::class.javaObjectType)
+
+            namespaceMethod.invoke(extension, "de.dertyp7214.common_rpc")
+            compileSdkMethod.invoke(extension, 36)
+            minSdkMethod.invoke(extension, 26)
         }
     }
 
