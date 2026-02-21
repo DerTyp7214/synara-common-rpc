@@ -50,3 +50,5 @@ actual fun nowAsPlatformDate(): PlatformDate = PlatformDate(currentTimeMillis())
 actual fun nowAsPlatformInstant(): PlatformInstant = PlatformInstant(currentTimeMillis())
 
 actual val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
+
+actual fun getStacktrace(): String? = js("new Error().stack")

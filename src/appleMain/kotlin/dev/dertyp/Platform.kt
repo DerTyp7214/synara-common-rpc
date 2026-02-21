@@ -66,3 +66,5 @@ actual fun nowAsPlatformDate(): PlatformDate = PlatformDate(NSDate())
 actual fun nowAsPlatformInstant(): PlatformInstant = PlatformInstant(NSDate())
 
 actual val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
+
+actual fun getStacktrace(): String? = NSThread.callStackSymbols.joinToString("\n")
