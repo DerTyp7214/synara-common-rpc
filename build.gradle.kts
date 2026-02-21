@@ -2,9 +2,16 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlinx.rpc)
+}
+
+val hasAndroidEnv = System.getenv("ANDROID_HOME") != null ||
+        System.getenv("ANDROID_SDK_ROOT") != null ||
+        rootProject.file("local.properties").exists()
+
+if (hasAndroidEnv) {
+    pluginManager.apply("com.android.kotlin.multiplatform.library")
 }
 
 group = "de.dertyp7214"
@@ -14,10 +21,13 @@ kotlin {
     applyDefaultHierarchyTemplate()
 
     jvm()
-    androidLibrary {
-        namespace = "de.dertyp7214.common_rpc"
-        compileSdk = 36
-        minSdk = 26
+
+    if (hasAndroidEnv) {
+        extensions.configure<com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryExtension>("androidLibrary") {
+            namespace = "de.dertyp7214.common_rpc"
+            compileSdk = 36
+            minSdk = 26
+        }
     }
 
     iosX64()
