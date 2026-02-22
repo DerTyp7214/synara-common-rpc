@@ -11,11 +11,13 @@ import dev.dertyp.data.AuthenticationResponse
 import dev.dertyp.rpc.BaseRpcServiceManager
 import dev.dertyp.rpc.dispatchService
 import dev.dertyp.rpc.subscribeService
+import dev.dertyp.serializers.AppCbor
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import kotlinx.cinterop.*
 import kotlinx.coroutines.*
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.decodeFromByteArray
 import kotlin.experimental.ExperimentalNativeApi
 
 class NativeRpcManager(client: HttpClient) : BaseRpcServiceManager(client) {
@@ -25,11 +27,11 @@ class NativeRpcManager(client: HttpClient) : BaseRpcServiceManager(client) {
     var tokenExpired: Boolean = false
     var authenticated: Boolean = false
 
-    override suspend fun getRpcUrl(): String? = rpcUrl
-    override fun getAuthToken(): String? = authToken
-    override fun getRefreshToken(): String? = refreshToken
-    override fun isTokenExpired(): Boolean = tokenExpired
-    override fun isAuthenticated(): Boolean = authenticated
+    public override suspend fun getRpcUrl(): String? = rpcUrl
+    public override fun getAuthToken(): String? = authToken
+    public override fun getRefreshToken(): String? = refreshToken
+    public override fun isTokenExpired(): Boolean = tokenExpired
+    public override fun isAuthenticated(): Boolean = authenticated
 
     public override suspend fun updateAuth(response: AuthenticationResponse) {
         authToken = response.token
@@ -162,4 +164,38 @@ fun validateServer(ptr: COpaquePointer, url: CPointer<ByteVar>): Boolean {
     return runBlocking {
         manager.validateServer(url.toKString())
     }
+}
+
+@CName("common_rpc_update_auth")
+fun updateAuth(ptr: COpaquePointer, argsPtr: CPointer<ByteVar>, argsLen: Int) {
+    val manager = ptr.asStableRef<NativeRpcManager>().get()
+    val args = argsPtr.readBytes(argsLen)
+    val response = AppCbor.decodeFromByteArray<AuthenticationResponse>(args)
+    runBlocking {
+        manager.updateAuth(response)
+    }
+}
+
+@CName("common_rpc_is_authenticated")
+fun isAuthenticated(ptr: COpaquePointer): Boolean {
+    val manager = ptr.asStableRef<NativeRpcManager>().get()
+    return manager.isAuthenticated()
+}
+
+@CName("common_rpc_get_auth_token")
+fun getAuthToken(ptr: COpaquePointer): CPointer<ByteVar>? {
+    val manager = ptr.asStableRef<NativeRpcManager>().get()
+    return manager.getAuthToken()?.toNativeBuffer()
+}
+
+@CName("common_rpc_get_refresh_token")
+fun getRefreshToken(ptr: COpaquePointer): CPointer<ByteVar>? {
+    val manager = ptr.asStableRef<NativeRpcManager>().get()
+    return manager.getRefreshToken()?.toNativeBuffer()
+}
+
+@CName("common_rpc_is_token_expired")
+fun isTokenExpired(ptr: COpaquePointer): Boolean {
+    val manager = ptr.asStableRef<NativeRpcManager>().get()
+    return manager.isTokenExpired()
 }

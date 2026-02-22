@@ -28,6 +28,11 @@ extern "C" {
     pub fn common_rpc_set_url(ptr: *mut NativeRpcManager, url: *const c_char);
     pub fn common_rpc_get_url(ptr: *mut NativeRpcManager) -> *mut c_char;
     pub fn common_rpc_validate_server(ptr: *mut NativeRpcManager, url: *const c_char) -> bool;
+    pub fn common_rpc_update_auth(ptr: *mut NativeRpcManager, args: *const u8, len: c_int);
+    pub fn common_rpc_is_authenticated(ptr: *mut NativeRpcManager) -> bool;
+    pub fn common_rpc_get_auth_token(ptr: *mut NativeRpcManager) -> *mut c_char;
+    pub fn common_rpc_get_refresh_token(ptr: *mut NativeRpcManager) -> *mut c_char;
+    pub fn common_rpc_is_token_expired(ptr: *mut NativeRpcManager) -> bool;
 }
 
 pub struct RpcStream<T> {
@@ -877,6 +882,35 @@ impl RpcClient {
     pub fn validate_server(&self, url: &str) -> bool {
         let url_c = CString::new(url).unwrap();
         unsafe { common_rpc_validate_server(self.manager, url_c.as_ptr()) }
+    }
+
+    pub fn update_auth(&self, response: &AuthenticationResponse) {
+        let arg_bytes = serde_cbor::to_vec(response).unwrap();
+        unsafe { common_rpc_update_auth(self.manager, arg_bytes.as_ptr(), arg_bytes.len() as c_int) };
+    }
+
+    pub fn is_authenticated(&self) -> bool {
+        unsafe { common_rpc_is_authenticated(self.manager) }
+    }
+
+    pub fn get_auth_token(&self) -> Option<String> {
+        let ptr = unsafe { common_rpc_get_auth_token(self.manager) };
+        if ptr.is_null() { return None; }
+        let s = unsafe { CStr::from_ptr(ptr).to_string_lossy().into_owned() };
+        unsafe { common_rpc_free_buffer(ptr as *mut u8) };
+        Some(s)
+    }
+
+    pub fn get_refresh_token(&self) -> Option<String> {
+        let ptr = unsafe { common_rpc_get_refresh_token(self.manager) };
+        if ptr.is_null() { return None; }
+        let s = unsafe { CStr::from_ptr(ptr).to_string_lossy().into_owned() };
+        unsafe { common_rpc_free_buffer(ptr as *mut u8) };
+        Some(s)
+    }
+
+    pub fn is_token_expired(&self) -> bool {
+        unsafe { common_rpc_is_token_expired(self.manager) }
     }
 }
 impl IIndexer for RpcClient {
