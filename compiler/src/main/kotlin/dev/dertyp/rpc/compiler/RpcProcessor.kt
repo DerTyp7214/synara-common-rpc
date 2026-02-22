@@ -103,9 +103,15 @@ class RpcProcessor(
             it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
         }.toList()
 
+        val serviceExpr = when (name) {
+            "IAuthService" -> "manager.getAuthService()"
+            "IServerStatsService" -> "manager.getServerStatsService()"
+            else -> "manager.getService<$name>()"
+        }
+
         out.writeLine("")
         out.writeLine("private suspend fun dispatch$name(manager: BaseRpcServiceManager, method: String, args: ByteArray): ByteArray {")
-        out.writeLine("    val service = manager.getService<$name>()")
+        out.writeLine("    val service = $serviceExpr")
         out.writeLine("    return when (method) {")
         allFunctions.filter { it.modifiers.contains(Modifier.SUSPEND) }.forEach { func ->
             val funcName = func.simpleName.asString()
@@ -150,8 +156,8 @@ class RpcProcessor(
 
         out.writeLine("")
         out.writeLine("private fun subscribe$name(scope: CoroutineScope, manager: BaseRpcServiceManager, method: String, args: ByteArray, onEach: (ByteArray) -> Unit): Job {")
-        out.writeLine("    val service = manager.getService<$name>()")
         out.writeLine("    return scope.launch {")
+        out.writeLine("        val service = $serviceExpr")
         out.writeLine("        val flow = when (method) {")
         allFunctions.filter { !it.modifiers.contains(Modifier.SUSPEND) && it.returnType?.resolve()?.declaration?.simpleName?.asString() == "Flow" }.forEach { func ->
             val funcName = func.simpleName.asString()
@@ -344,7 +350,7 @@ class RpcProcessor(
             // Collect and generate models
             symbols.forEach { symbol ->
                 symbol.getAllFunctions().filter { 
-                    it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString") 
+                    it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
                 }.forEach { func ->
                     func.parameters.forEach { collectModels(it.type.resolve(), modelsToGenerate) }
                     func.returnType?.resolve()?.let { collectModels(it, modelsToGenerate) }
@@ -372,7 +378,7 @@ class RpcProcessor(
                 val name = symbol.simpleName.asString()
                 out.writeLine("pub trait $name {")
                 symbol.getAllFunctions().filter { 
-                    it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString") 
+                    it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
                 }.forEach { func ->
                     val fName = toSnakeCase(func.simpleName.asString())
                     val params = func.parameters.joinToString(", ") { "${toSnakeCase(it.name?.asString() ?: "arg")}: ${toRustType(it.type.resolve())}" }
