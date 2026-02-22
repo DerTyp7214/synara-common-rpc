@@ -1,8 +1,11 @@
+@file:JvmName("CommonInstant")
+
 package dev.dertyp.core
 
 import dev.dertyp.PlatformInstant
 import dev.dertyp.platformInstantFromEpochMilliseconds
 import dev.dertyp.toEpochMilliseconds
+import kotlin.jvm.JvmName
 import kotlin.time.Duration
 
 operator fun PlatformInstant.plus(duration: Duration): PlatformInstant {

@@ -1,10 +1,12 @@
+@file:JvmName("CommonString")
 @file:Suppress("unused")
 
 package dev.dertyp.core
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.platformUUIDFromString
-import io.ktor.http.Url
+import io.ktor.http.*
+import kotlin.jvm.JvmName
 
 private val titleCleanRegex = Regex(
     """\s*([(\[].*?(feat|ft|with|prod|live|remix|acoustic|radio\sedit|explicit|clean|remaster).*?[)\]])|\s+(feat|ft|with|prod)\.?\s+.*$""",

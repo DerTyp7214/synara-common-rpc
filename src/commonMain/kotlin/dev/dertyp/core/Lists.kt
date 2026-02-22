@@ -1,9 +1,11 @@
+@file:JvmName("CommonList")
 @file:Suppress("unused")
 
 package dev.dertyp.core
 
 import dev.dertyp.data.Album
 import dev.dertyp.data.Artist
+import kotlin.jvm.JvmName
 
 fun List<Artist>.joinArtists(): String = sortedBy { it.name }.joinToString(", ") { it.name }
 

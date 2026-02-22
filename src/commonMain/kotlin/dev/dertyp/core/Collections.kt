@@ -1,6 +1,9 @@
+@file:JvmName("CommonCollection")
 @file:Suppress("unused")
 
 package dev.dertyp.core
+
+import kotlin.jvm.JvmName
 
 fun <T> List<T>.takeEvery(n: Int): List<T> {
     require(n > 0) { "n must be greater than 0" }

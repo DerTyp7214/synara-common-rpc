@@ -1,9 +1,11 @@
+@file:JvmName("CommonCoroutine")
 @file:Suppress("unused")
 
 package dev.dertyp.core
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Deferred
+import kotlin.jvm.JvmName
 
 suspend inline infix fun <T> Deferred<T>.catch(crossinline action: (Throwable) -> T): T {
     return try {

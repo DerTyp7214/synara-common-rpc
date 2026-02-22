@@ -1,3 +1,4 @@
+@file:JvmName("CommonFlow")
 @file:Suppress("unused")
 
 package dev.dertyp.core
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.flowOf
+import kotlin.jvm.JvmName
 
 @OptIn(ExperimentalCoroutinesApi::class)
 operator fun <T> Flow<T>.plus(other: Flow<T>): Flow<T> = flowOf(this, other).flattenConcat()

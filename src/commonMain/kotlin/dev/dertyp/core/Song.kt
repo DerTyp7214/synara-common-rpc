@@ -1,6 +1,9 @@
+@file:JvmName("CommonSong")
+
 package dev.dertyp.core
 
 import dev.dertyp.data.*
+import kotlin.jvm.JvmName
 
 @Suppress("UNCHECKED_CAST")
 fun <T : BaseSong> PaginatedResponse<T>.omitLyrics() = PaginatedResponse(

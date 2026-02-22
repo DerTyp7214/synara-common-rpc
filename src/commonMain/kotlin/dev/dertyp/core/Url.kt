@@ -1,8 +1,10 @@
+@file:JvmName("CommonUrl")
 @file:Suppress("unused")
 
 package dev.dertyp.core
 
-import io.ktor.http.Url
+import io.ktor.http.*
+import kotlin.jvm.JvmName
 
 fun Url.tidalId(): String = segments.last { s -> s != "u" }
 
