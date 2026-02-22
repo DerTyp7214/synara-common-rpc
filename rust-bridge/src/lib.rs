@@ -368,8 +368,10 @@ pub struct PaginatedResponse<T> {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum SyncServiceType {
-    tidal,
-    unknown,
+    #[serde(rename = "tidal")]
+    Tidal,
+    #[serde(rename = "unknown")]
+    Unknown,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -513,11 +515,16 @@ pub struct DownloadQueueEntry {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Type {
-    MIX,
-    SONG,
-    ALBUM,
-    PLAYLIST,
-    ARTIST,
+    #[serde(rename = "MIX")]
+    Mix,
+    #[serde(rename = "SONG")]
+    Song,
+    #[serde(rename = "ALBUM")]
+    Album,
+    #[serde(rename = "PLAYLIST")]
+    Playlist,
+    #[serde(rename = "ARTIST")]
+    Artist,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
