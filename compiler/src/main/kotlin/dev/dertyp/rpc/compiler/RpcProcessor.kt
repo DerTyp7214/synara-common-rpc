@@ -497,7 +497,12 @@ class RpcProcessor(
             decl.declarations.filterIsInstance<KSClassDeclaration>()
                 .filter { it.classKind == ClassKind.ENUM_ENTRY }
                 .forEach { entry ->
-                    out.writeLine("    ${entry.simpleName.asString()},")
+                    val originalName = entry.simpleName.asString()
+                    val rustName = toPascalCase(originalName)
+                    if (originalName != rustName) {
+                        out.writeLine("    #[serde(rename = \"$originalName\")]")
+                    }
+                    out.writeLine("    $rustName,")
                 }
             out.writeLine("}")
         } else {
@@ -560,6 +565,13 @@ class RpcProcessor(
             }
         }
         return if (type.isMarkedNullable && base != "()") "Option<$base>" else base
+    }
+
+    private fun toPascalCase(name: String): String {
+        val snake = name.replace(Regex("([a-z])([A-Z]+)"), "$1_$2").lowercase()
+        return snake.split('_').joinToString("") {
+            it.replaceFirstChar { char -> char.uppercase() }
+        }
     }
 
     private fun toSnakeCase(name: String): String {
