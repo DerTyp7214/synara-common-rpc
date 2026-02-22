@@ -392,7 +392,11 @@ class RpcProcessor(
         return if (type.isMarkedNullable) "Option<$base>" else base
     }
 
-    private fun toSnakeCase(name: String) = name.replace(Regex("([a-z])([A-Z]+)"), "$1_$2").lowercase()
+    private fun toSnakeCase(name: String): String {
+        val snake = name.replace(Regex("([a-z])([A-Z]+)"), "$1_$2").lowercase()
+        return if (snake == "type") "r#type" else snake
+    }
+
     private fun getSerializerAnnotation(type: String) = getSerializerForType(type)?.let { "@Serializable(with = $it::class) " } ?: ""
     private fun getSerializerForType(type: String): String? {
         return when (val base = type.removeSuffix("?").substringAfterLast(".")) {
