@@ -56,6 +56,7 @@ extern "C" fn flow_callback_handler<T: for<'de> Deserialize<'de> + Send + 'stati
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformUUID(pub Vec<u8>);
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformDate(pub i64);
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)] #[serde(transparent)] pub struct SuspendFunction0(pub serde_json::Value);
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsSearchSearchLyricsArgs {
@@ -358,6 +359,12 @@ pub struct PaginatedResponse<T> {
     pub has_next_page: bool,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum SyncServiceType {
+    tidal,
+    unknown,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FavSync {
     #[serde(rename = "userId")]
@@ -493,7 +500,17 @@ pub struct DownloadQueueEntry {
     pub max_retries: i32,
     #[serde(rename = "byUser")]
     pub by_user: Option<PlatformUUID>,
+    #[serde(skip)]
     pub callback: SuspendFunction0,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum Type {
+    MIX,
+    SONG,
+    ALBUM,
+    PLAYLIST,
+    ARTIST,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -511,6 +528,12 @@ pub struct ProcessExecutionResult {
     #[serde(rename = "fullOutput")]
     pub full_output: String,
     pub error: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum TidalDownloadService {
+    Tdn,
+    Tiddl,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -591,7 +614,7 @@ pub struct Track {
     pub id: String,
     pub title: String,
     pub artists: Vec<String>,
-    pub duration: Duration,
+    pub duration: String,
     #[serde(rename = "createdAt")]
     pub created_at: Option<PlatformDate>,
     #[serde(rename = "addedAt")]
@@ -792,6 +815,8 @@ pub trait IServerStatsService {
 }
 
 pub struct RpcClient { manager: *mut NativeRpcManager }
+unsafe impl Send for RpcClient {}
+unsafe impl Sync for RpcClient {}
 impl RpcClient {
     pub async fn call<T: Serialize, R: for<'de> Deserialize<'de>>(&self, service: &str, method: &str, args: &T) -> Result<R, String> {
         let s_c = CString::new(service).unwrap(); let m_c = CString::new(method).unwrap();

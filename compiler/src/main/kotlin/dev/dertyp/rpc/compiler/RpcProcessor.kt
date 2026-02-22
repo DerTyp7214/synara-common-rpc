@@ -329,6 +329,7 @@ class RpcProcessor(
             out.writeLine("")
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformUUID(pub Vec<u8>);")
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformDate(pub i64);")
+            out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)] #[serde(transparent)] pub struct SuspendFunction0(pub serde_json::Value);")
             out.writeLine("")
 
             // Collect and generate models
@@ -382,6 +383,8 @@ class RpcProcessor(
 
             // Client implementation
             out.writeLine("pub struct RpcClient { manager: *mut NativeRpcManager }")
+            out.writeLine("unsafe impl Send for RpcClient {}")
+            out.writeLine("unsafe impl Sync for RpcClient {}")
             out.writeLine("impl RpcClient {")
             out.writeLine("    pub async fn call<T: Serialize, R: for<'de> Deserialize<'de>>(&self, service: &str, method: &str, args: &T) -> Result<R, String> {")
             out.writeLine("        let s_c = CString::new(service).unwrap(); let m_c = CString::new(method).unwrap();")
@@ -462,7 +465,7 @@ class RpcProcessor(
 
     private fun collectModels(type: KSType, set: MutableSet<KSClassDeclaration>) {
         val decl = type.declaration
-        if (decl is KSClassDeclaration && decl.classKind == ClassKind.CLASS) {
+        if (decl is KSClassDeclaration && (decl.classKind == ClassKind.CLASS || decl.classKind == ClassKind.ENUM_CLASS)) {
             val qName = decl.qualifiedName?.asString() ?: ""
             if (qName.startsWith("kotlin.") || 
                 qName.startsWith("kotlinx.coroutines.") ||
@@ -502,9 +505,14 @@ class RpcProcessor(
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone)]")
             out.writeLine("pub struct $name$typeParams {")
             decl.getAllProperties().forEach { prop ->
+                if (prop.annotations.any { it.shortName.asString() == "Transient" }) return@forEach
+                
                 val pName = toSnakeCase(prop.simpleName.asString())
                 val pType = toRustType(prop.type.resolve())
                 if (pName != prop.simpleName.asString()) out.writeLine("    #[serde(rename = \"${prop.simpleName.asString()}\")]")
+                
+                if (pType == "SuspendFunction0") out.writeLine("    #[serde(skip)]")
+                
                 out.writeLine("    pub $pName: $pType,")
             }
             out.writeLine("}")
@@ -515,32 +523,34 @@ class RpcProcessor(
     private fun toRustType(type: KSType): String {
         val decl = type.declaration
         val qName = decl.qualifiedName?.asString()
-        val base = when (qName) {
-            "kotlin.String" -> "String"
-            "kotlin.Int" -> "i32"
-            "kotlin.Long" -> "i64"
-            "kotlin.Boolean" -> "bool"
-            "kotlin.ByteArray" -> "Vec<u8>"
-            "kotlin.Unit" -> "()"
-            "kotlin.Any" -> "serde_json::Value"
-            "dev.dertyp.PlatformUUID" -> "PlatformUUID"
-            "dev.dertyp.PlatformDate", "dev.dertyp.PlatformInstant", "dev.dertyp.PlatformLocalDate", "dev.dertyp.PlatformLocalDateTime", "dev.dertyp.PlatformOffsetDateTime" -> "PlatformDate"
-            "kotlin.collections.List", "kotlin.collections.Collection", "kotlin.collections.Set" -> {
+        val base = when {
+            qName == "kotlin.String" -> "String"
+            qName == "kotlin.Int" -> "i32"
+            qName == "kotlin.Long" -> "i64"
+            qName == "kotlin.Boolean" -> "bool"
+            qName == "kotlin.ByteArray" -> "Vec<u8>"
+            qName == "kotlin.Unit" -> "()"
+            qName == "kotlin.Any" -> "serde_json::Value"
+            qName == "dev.dertyp.PlatformUUID" -> "PlatformUUID"
+            qName == "dev.dertyp.PlatformDate" || qName == "dev.dertyp.PlatformInstant" || qName == "dev.dertyp.PlatformLocalDate" || qName == "dev.dertyp.PlatformLocalDateTime" || qName == "dev.dertyp.PlatformOffsetDateTime" -> "PlatformDate"
+            qName == "kotlin.time.Duration" -> "String"
+            qName?.startsWith("kotlin.Function") == true || qName?.startsWith("kotlin.coroutines.SuspendFunction") == true -> "SuspendFunction0"
+            qName == "kotlin.collections.List" || qName == "kotlin.collections.Collection" || qName == "kotlin.collections.Set" -> {
                 val arg = type.arguments.firstOrNull()?.type?.resolve()
                 "Vec<${arg?.let { toRustType(it) } ?: "serde_json::Value"}>"
             }
-            "kotlin.collections.Map" -> {
+            qName == "kotlin.collections.Map" -> {
                 val k = type.arguments.getOrNull(0)?.type?.resolve()
                 val v = type.arguments.getOrNull(1)?.type?.resolve()
                 "std::collections::HashMap<${k?.let { toRustType(it) } ?: "String"}, ${v?.let { toRustType(it) } ?: "serde_json::Value"}>"
             }
-            "kotlin.Pair" -> {
+            qName == "kotlin.Pair" -> {
                 val t1 = type.arguments.getOrNull(0)?.type?.resolve()
                 val t2 = type.arguments.getOrNull(1)?.type?.resolve()
                 "(${t1?.let { toRustType(t1) } ?: "serde_json::Value"}, ${t2?.let { toRustType(t2) } ?: "serde_json::Value"})"
             }
-            "kotlinx.coroutines.flow.Flow" -> "()"
-            "dev.dertyp.data.PaginatedResponse" -> {
+            qName == "kotlinx.coroutines.flow.Flow" -> "()"
+            qName == "dev.dertyp.data.PaginatedResponse" -> {
                 val arg = type.arguments.firstOrNull()?.type?.resolve()
                 "PaginatedResponse<${arg?.let { toRustType(it) } ?: "serde_json::Value"}>"
             }
