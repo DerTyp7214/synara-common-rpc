@@ -349,6 +349,13 @@ pub struct Playlist {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PlaylistEntry {
+    pub id: PlatformUUID,
+    pub name: String,
+    pub duration: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PaginatedResponse<T> {
     pub data: Vec<T>,
     pub page: i32,

@@ -467,19 +467,19 @@ class RpcProcessor(
         val decl = type.declaration
         if (decl is KSClassDeclaration && (decl.classKind == ClassKind.CLASS || decl.classKind == ClassKind.ENUM_CLASS)) {
             val qName = decl.qualifiedName?.asString() ?: ""
-            if (qName.startsWith("kotlin.") || 
-                qName.startsWith("kotlinx.coroutines.") ||
-                qName == "dev.dertyp.PlatformUUID" ||
-                qName == "dev.dertyp.PlatformDate" ||
-                qName == "dev.dertyp.PlatformInstant" ||
-                qName == "dev.dertyp.PlatformLocalDate" ||
-                qName == "dev.dertyp.PlatformLocalDateTime" ||
-                qName == "dev.dertyp.PlatformOffsetDateTime"
-            ) return
-            
-            if (set.contains(decl)) return
-            set.add(decl)
-            decl.getAllProperties().forEach { collectModels(it.type.resolve(), set) }
+            val isBuiltIn = qName.startsWith("kotlin.") ||
+                    qName.startsWith("kotlinx.coroutines.") ||
+                    qName == "dev.dertyp.PlatformUUID" ||
+                    qName == "dev.dertyp.PlatformDate" ||
+                    qName == "dev.dertyp.PlatformInstant" ||
+                    qName == "dev.dertyp.PlatformLocalDate" ||
+                    qName == "dev.dertyp.PlatformLocalDateTime" ||
+                    qName == "dev.dertyp.PlatformOffsetDateTime"
+
+            if (!isBuiltIn && !set.contains(decl)) {
+                set.add(decl)
+                decl.getAllProperties().forEach { collectModels(it.type.resolve(), set) }
+            }
         }
         type.arguments.forEach { argument -> argument.type?.resolve()?.let { collectModels(it, set) } }
     }
