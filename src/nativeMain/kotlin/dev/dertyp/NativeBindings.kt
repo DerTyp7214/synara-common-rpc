@@ -46,7 +46,6 @@ class NativeRpcManager(client: HttpClient) : BaseRpcServiceManager(client) {
     val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 }
 
-// Helper to return binary data to Rust
 fun ByteArray.toNativeBuffer(outLen: CPointer<IntVar>): CPointer<ByteVar> {
     val ptr = nativeHeap.allocArray<ByteVar>(this.size)
     for (i in this.indices) {

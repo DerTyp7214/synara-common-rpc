@@ -19,6 +19,8 @@ extern "C" {
     pub fn common_rpc_call(ptr: *mut NativeRpcManager, service: *const c_char, method: *const c_char, args: *const u8, len: c_int, out_len: *mut c_int) -> *mut u8;
     pub fn common_rpc_subscribe(ptr: *mut NativeRpcManager, service: *const c_char, method: *const c_char, args: *const u8, len: c_int, ctx: *mut c_void, cb: FlowCallback) -> *mut c_void;
     pub fn common_rpc_unsubscribe(job: *mut c_void);
+    pub fn common_rpc_set_url(ptr: *mut NativeRpcManager, url: *const c_char);
+    pub fn common_rpc_validate_server(ptr: *mut NativeRpcManager, url: *const c_char) -> bool;
 }
 
 pub struct RpcStream<T> {
@@ -850,6 +852,16 @@ impl RpcClient {
         let arg_bytes = serde_cbor::to_vec(args).unwrap();
         let job = unsafe { common_rpc_subscribe(self.manager, s_c.as_ptr(), m_c.as_ptr(), arg_bytes.as_ptr(), arg_bytes.len() as c_int, Box::into_raw(tx_box) as *mut c_void, flow_callback_handler::<R>) };
         RpcStream::new(rx, job)
+    }
+
+    pub fn set_url(&self, url: &str) {
+        let url_c = CString::new(url).unwrap();
+        unsafe { common_rpc_set_url(self.manager, url_c.as_ptr()) };
+    }
+
+    pub fn validate_server(&self, url: &str) -> bool {
+        let url_c = CString::new(url).unwrap();
+        unsafe { common_rpc_validate_server(self.manager, url_c.as_ptr()) }
     }
 }
 impl IIndexer for RpcClient {
