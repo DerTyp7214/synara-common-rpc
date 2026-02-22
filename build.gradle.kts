@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlinx.rpc)
+    alias(libs.plugins.ksp)
 }
 
 
@@ -42,12 +43,23 @@ kotlin {
         }
     }
 
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
-    macosX64()
-    macosArm64()
-    mingwX64()
+    val nativeTargets = listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64(),
+        macosX64("macosx64"),
+        macosArm64("macosarm"),
+        mingwX64("windows"),
+        linuxX64("linux")
+    )
+
+    nativeTargets.forEach { target ->
+        target.binaries {
+            staticLib {
+                baseName = "common_rpc"
+            }
+        }
+    }
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
@@ -60,20 +72,36 @@ kotlin {
             languageSettings.apply {
                 optIn("kotlin.uuid.ExperimentalUuidApi")
                 optIn("kotlin.time.ExperimentalTime")
+                optIn("kotlinx.cinterop.ExperimentalForeignApi")
+                optIn("kotlin.native.SymbolNameTargetExtension")
             }
         }
 
-        commonMain.dependencies {
-            api(libs.kotlinx.rpc.core)
-            api(libs.kotlinx.rpc.krpc.ktor.client)
-            api(libs.ktor.client.core)
-            api(libs.kotlinx.serialization.core)
-            api(libs.kotlinx.serialization.json)
-            api(libs.kotlinx.serialization.cbor)
+        commonMain {
+            dependencies {
+                api(libs.kotlinx.rpc.core)
+                api(libs.kotlinx.rpc.krpc.ktor.client)
+                api(libs.ktor.client.core)
+                api(libs.kotlinx.serialization.core)
+                api(libs.kotlinx.serialization.json)
+                api(libs.kotlinx.serialization.cbor)
+            }
+        }
+
+        val nativeMain by getting {
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+            dependencies {
+                implementation(libs.ktor.client.cio)
+            }
         }
     }
 
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
+}
+
+
+dependencies {
+    add("kspCommonMainMetadata", project(":common-rpc:compiler"))
 }
