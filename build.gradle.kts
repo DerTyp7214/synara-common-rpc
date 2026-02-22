@@ -73,7 +73,6 @@ kotlin {
                 optIn("kotlin.uuid.ExperimentalUuidApi")
                 optIn("kotlin.time.ExperimentalTime")
                 optIn("kotlinx.cinterop.ExperimentalForeignApi")
-                optIn("kotlin.native.SymbolNameTargetExtension")
             }
         }
 
@@ -89,9 +88,18 @@ kotlin {
         }
 
         val nativeMain by getting {
-            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+            kotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/kotlin"))
+            kotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/resources"))
             dependencies {
                 implementation(libs.ktor.client.cio)
+            }
+        }
+    }
+
+    targets.all {
+        compilations.all {
+            compileTaskProvider.configure {
+                dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
             }
         }
     }
