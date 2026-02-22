@@ -12,6 +12,12 @@ pub type FlowCallback = extern "C" fn(*mut c_void, *const u8, c_int);
 #[repr(C)]
 pub struct NativeRpcManager { _unused: [u8; 0] }
 
+impl NativeRpcManager {
+    pub fn new() -> *mut Self {
+        unsafe { common_rpc_manager_create() }
+    }
+}
+
 extern "C" {
     pub fn common_rpc_manager_create() -> *mut NativeRpcManager;
     pub fn common_rpc_manager_release(ptr: *mut NativeRpcManager);
@@ -20,6 +26,7 @@ extern "C" {
     pub fn common_rpc_subscribe(ptr: *mut NativeRpcManager, service: *const c_char, method: *const c_char, args: *const u8, len: c_int, ctx: *mut c_void, cb: FlowCallback) -> *mut c_void;
     pub fn common_rpc_unsubscribe(job: *mut c_void);
     pub fn common_rpc_set_url(ptr: *mut NativeRpcManager, url: *const c_char);
+    pub fn common_rpc_get_url(ptr: *mut NativeRpcManager) -> *mut c_char;
     pub fn common_rpc_validate_server(ptr: *mut NativeRpcManager, url: *const c_char) -> bool;
 }
 
@@ -830,7 +837,7 @@ pub trait IServerStatsService {
     fn health<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
-pub struct RpcClient { manager: *mut NativeRpcManager }
+pub struct RpcClient { pub manager: *mut NativeRpcManager }
 unsafe impl Send for RpcClient {}
 unsafe impl Sync for RpcClient {}
 impl RpcClient {
@@ -857,6 +864,14 @@ impl RpcClient {
     pub fn set_url(&self, url: &str) {
         let url_c = CString::new(url).unwrap();
         unsafe { common_rpc_set_url(self.manager, url_c.as_ptr()) };
+    }
+
+    pub fn get_url(&self) -> Option<String> {
+        let ptr = unsafe { common_rpc_get_url(self.manager) };
+        if ptr.is_null() { return None; }
+        let s = unsafe { CStr::from_ptr(ptr).to_string_lossy().into_owned() };
+        unsafe { common_rpc_free_buffer(ptr as *mut u8) };
+        Some(s)
     }
 
     pub fn validate_server(&self, url: &str) -> bool {

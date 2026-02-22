@@ -285,6 +285,12 @@ class RpcProcessor(
             out.writeLine("#[repr(C)]")
             out.writeLine("pub struct NativeRpcManager { _unused: [u8; 0] }")
             out.writeLine("")
+            out.writeLine("impl NativeRpcManager {")
+            out.writeLine("    pub fn new() -> *mut Self {")
+            out.writeLine("        unsafe { common_rpc_manager_create() }")
+            out.writeLine("    }")
+            out.writeLine("}")
+            out.writeLine("")
             out.writeLine("extern \"C\" {")
             out.writeLine("    pub fn common_rpc_manager_create() -> *mut NativeRpcManager;")
             out.writeLine("    pub fn common_rpc_manager_release(ptr: *mut NativeRpcManager);")
@@ -293,6 +299,7 @@ class RpcProcessor(
             out.writeLine("    pub fn common_rpc_subscribe(ptr: *mut NativeRpcManager, service: *const c_char, method: *const c_char, args: *const u8, len: c_int, ctx: *mut c_void, cb: FlowCallback) -> *mut c_void;")
             out.writeLine("    pub fn common_rpc_unsubscribe(job: *mut c_void);")
             out.writeLine("    pub fn common_rpc_set_url(ptr: *mut NativeRpcManager, url: *const c_char);")
+            out.writeLine("    pub fn common_rpc_get_url(ptr: *mut NativeRpcManager) -> *mut c_char;")
             out.writeLine("    pub fn common_rpc_validate_server(ptr: *mut NativeRpcManager, url: *const c_char) -> bool;")
             out.writeLine("}")
             out.writeLine("")
@@ -384,7 +391,7 @@ class RpcProcessor(
             }
 
             // Client implementation
-            out.writeLine("pub struct RpcClient { manager: *mut NativeRpcManager }")
+            out.writeLine("pub struct RpcClient { pub manager: *mut NativeRpcManager }")
             out.writeLine("unsafe impl Send for RpcClient {}")
             out.writeLine("unsafe impl Sync for RpcClient {}")
             out.writeLine("impl RpcClient {")
@@ -413,6 +420,14 @@ class RpcProcessor(
             out.writeLine("        unsafe { common_rpc_set_url(self.manager, url_c.as_ptr()) };")
             out.writeLine("    }")
             out.writeLine("")
+            out.writeLine("    pub fn get_url(&self) -> Option<String> {")
+            out.writeLine("        let ptr = unsafe { common_rpc_get_url(self.manager) };")
+            out.writeLine("        if ptr.is_null() { return None; }")
+            out.writeLine("        let s = unsafe { CStr::from_ptr(ptr).to_string_lossy().into_owned() };")
+            out.writeLine("        unsafe { common_rpc_free_buffer(ptr as *mut u8) };")
+            out.writeLine("        Some(s)")
+            out.writeLine("    }")
+            out.writeLine("")
             out.writeLine("    pub fn validate_server(&self, url: &str) -> bool {")
             out.writeLine("        let url_c = CString::new(url).unwrap();")
             out.writeLine("        unsafe { common_rpc_validate_server(self.manager, url_c.as_ptr()) }")
@@ -423,7 +438,7 @@ class RpcProcessor(
                 val name = symbol.simpleName.asString()
                 out.writeLine("impl $name for RpcClient {")
                 symbol.getAllFunctions().filter { 
-                    it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString") 
+                    it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
                 }.forEach { func ->
                     val fName = toSnakeCase(func.simpleName.asString())
                     val params = func.parameters.joinToString(", ") { "${toSnakeCase(it.name?.asString() ?: "arg")}: ${toRustType(it.type.resolve())}" }

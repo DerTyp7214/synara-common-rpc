@@ -3,6 +3,7 @@
     ExperimentalNativeApi::class,
     ExperimentalSerializationApi::class
 )
+@file:Suppress("unused")
 
 package dev.dertyp
 
@@ -55,6 +56,16 @@ fun ByteArray.toNativeBuffer(outLen: CPointer<IntVar>): CPointer<ByteVar> {
     return ptr
 }
 
+fun String.toNativeBuffer(): CPointer<ByteVar> {
+    val bytes = this.encodeToByteArray()
+    val ptr = nativeHeap.allocArray<ByteVar>(bytes.size + 1)
+    for (i in bytes.indices) {
+        ptr[i] = bytes[i]
+    }
+    ptr[bytes.size] = 0
+    return ptr
+}
+
 @CName("common_rpc_manager_create")
 fun createManager(): COpaquePointer {
     val client = HttpClient(CIO)
@@ -73,8 +84,6 @@ fun releaseManager(ptr: COpaquePointer) {
 fun freeBuffer(ptr: CPointer<ByteVar>) {
     nativeHeap.free(ptr)
 }
-
-// --- Generic Dispatching ---
 
 @CName("common_rpc_call")
 fun commonRpcCall(
@@ -101,7 +110,6 @@ fun commonRpcCall(
     }
 }
 
-// Flow callback type: (context, dataPtr, dataLen)
 typealias FlowCallback = CPointer<CFunction<(COpaquePointer?, CPointer<ByteVar>?, Int) -> Unit>>
 
 @CName("common_rpc_subscribe")
@@ -140,6 +148,12 @@ fun commonRpcUnsubscribe(jobPtr: COpaquePointer) {
 fun setUrl(ptr: COpaquePointer, url: CPointer<ByteVar>) {
     val manager = ptr.asStableRef<NativeRpcManager>().get()
     manager.rpcUrl = url.toKString()
+}
+
+@CName("common_rpc_get_url")
+fun getUrl(ptr: COpaquePointer): CPointer<ByteVar>? {
+    val manager = ptr.asStableRef<NativeRpcManager>().get()
+    return manager.rpcUrl?.toNativeBuffer()
 }
 
 @CName("common_rpc_validate_server")
