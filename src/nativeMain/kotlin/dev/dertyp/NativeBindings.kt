@@ -12,32 +12,41 @@ import dev.dertyp.rpc.BaseRpcServiceManager
 import dev.dertyp.rpc.dispatchService
 import dev.dertyp.rpc.subscribeService
 import dev.dertyp.serializers.AppCbor
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.websocket.*
 import kotlinx.cinterop.*
 import kotlinx.coroutines.*
+import kotlinx.rpc.krpc.ktor.client.Krpc
+import kotlinx.rpc.krpc.serialization.cbor.cbor
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromByteArray
 import kotlin.experimental.ExperimentalNativeApi
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 class NativeRpcManager(client: HttpClient) : BaseRpcServiceManager(client) {
     var rpcUrl: String? = null
     var authToken: String? = null
     var refreshToken: String? = null
-    var tokenExpired: Boolean = false
     var authenticated: Boolean = false
+    var expiresAt: PlatformDate? = null
 
     public override suspend fun getRpcUrl(): String? = rpcUrl
     public override fun getAuthToken(): String? = authToken
     public override fun getRefreshToken(): String? = refreshToken
-    public override fun isTokenExpired(): Boolean = tokenExpired
+    public override fun isTokenExpired(): Boolean = expiresAt?.let {
+        it.toEpochMilliseconds() < (currentTimeMillis() + 1.minutes.inWholeMilliseconds)
+    } ?: true
+
     public override fun isAuthenticated(): Boolean = authenticated
 
     public override suspend fun updateAuth(response: AuthenticationResponse) {
         authToken = response.token
         refreshToken = response.refreshToken
         authenticated = true
-        tokenExpired = false
+        expiresAt = response.expiresAt
     }
 
     override suspend fun handleAuthFailure() {
@@ -70,7 +79,25 @@ fun String.toNativeBuffer(): CPointer<ByteVar> {
 
 @CName("common_rpc_manager_create")
 fun createManager(): COpaquePointer {
-    val client = HttpClient(CIO)
+    val client = HttpClient(CIO) {
+        install(UserAgent) {
+            agent = "Synara/Rust"
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30000
+            connectTimeoutMillis = 10000
+            socketTimeoutMillis = 30000
+        }
+        install(WebSockets) {
+            pingInterval = 15.seconds
+            maxFrameSize = Long.MAX_VALUE
+        }
+        install(Krpc) {
+            serialization {
+                cbor(AppCbor)
+            }
+        }
+    }
     val manager = NativeRpcManager(client)
     return StableRef.create(manager).asCPointer()
 }
