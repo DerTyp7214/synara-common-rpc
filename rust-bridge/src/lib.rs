@@ -74,6 +74,8 @@ extern "C" fn flow_callback_handler<T: for<'de> Deserialize<'de> + Send + 'stati
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformDateTime(pub String);
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)] #[serde(transparent)] pub struct SuspendFunction0(pub serde_json::Value);
 
+#[derive(Serialize, Deserialize, Debug, Clone)] pub struct RpcEnvelope { pub data: Option<serde_bytes::ByteBuf>, pub error: Option<String> }
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsSearchSearchLyricsArgs {
     pub artist: String,
@@ -855,8 +857,12 @@ impl RpcClient {
         let res_ptr = unsafe { common_rpc_call(self.manager, s_c.as_ptr(), m_c.as_ptr(), arg_bytes.as_ptr(), arg_bytes.len() as c_int, &mut out_len) };
         if res_ptr.is_null() { return Err("RPC Error".into()); }
         let res = unsafe { std::slice::from_raw_parts(res_ptr, out_len as usize) };
-        let val = serde_cbor::from_slice(res).map_err(|e| e.to_string())?;
-        unsafe { common_rpc_free_buffer(res_ptr) }; Ok(val)
+        let envelope: RpcEnvelope = serde_cbor::from_slice(res).map_err(|e| e.to_string())?;
+        unsafe { common_rpc_free_buffer(res_ptr) };
+        if let Some(err) = envelope.error { return Err(err); }
+        let data = envelope.data.ok_or("No data in envelope")?;
+        let val = serde_cbor::from_slice(&data).map_err(|e| e.to_string())?;
+        Ok(val)
     }
 
     pub fn subscribe<T: Serialize, R: for<'de> Deserialize<'de> + Send + 'static>(&self, service: &str, method: &str, args: &T) -> RpcStream<R> {

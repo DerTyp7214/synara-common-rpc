@@ -132,16 +132,16 @@ fun commonRpcCall(
     val method = methodName.toKString()
     val args = argsPtr?.readBytes(argsLen) ?: byteArrayOf()
 
-    return runBlocking {
-        val envelope = try {
+    val envelope = try {
+        runBlocking {
             val result = dispatchService(manager, service, method, args)
             RpcEnvelope(data = result)
-        } catch (e: Exception) {
-            RpcEnvelope(error = e.message ?: e.toString())
         }
-        val encoded = AppCbor.encodeToByteArray(envelope)
-        encoded.toNativeBuffer(outLen)
+    } catch (e: Exception) {
+        RpcEnvelope(error = e.message ?: e.toString())
     }
+    val encoded = AppCbor.encodeToByteArray(envelope)
+    return encoded.toNativeBuffer(outLen)
 }
 
 typealias FlowCallback = CPointer<CFunction<(COpaquePointer?, CPointer<ByteVar>?, Int) -> Unit>>
@@ -193,18 +193,26 @@ fun getUrl(ptr: COpaquePointer): CPointer<ByteVar>? {
 @CName("common_rpc_validate_server")
 fun validateServer(ptr: COpaquePointer, url: CPointer<ByteVar>): Boolean {
     val manager = ptr.asStableRef<NativeRpcManager>().get()
-    return runBlocking {
-        manager.validateServer(url.toKString())
+    return try {
+        runBlocking {
+            manager.validateServer(url.toKString())
+        }
+    } catch (e: Exception) {
+        false
     }
 }
 
 @CName("common_rpc_update_auth")
 fun updateAuth(ptr: COpaquePointer, argsPtr: CPointer<ByteVar>, argsLen: Int) {
-    val manager = ptr.asStableRef<NativeRpcManager>().get()
-    val args = argsPtr.readBytes(argsLen)
-    val response = AppCbor.decodeFromByteArray<AuthenticationResponse>(args)
-    runBlocking {
-        manager.updateAuth(response)
+    try {
+        val manager = ptr.asStableRef<NativeRpcManager>().get()
+        val args = argsPtr.readBytes(argsLen)
+        val response = AppCbor.decodeFromByteArray<AuthenticationResponse>(args)
+        runBlocking {
+            manager.updateAuth(response)
+        }
+    } catch (e: Exception) {
+        println("Error updating auth: ${e.message}")
     }
 }
 
