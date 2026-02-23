@@ -127,17 +127,17 @@ fun commonRpcCall(
     argsLen: Int,
     outLen: CPointer<IntVar>
 ): CPointer<ByteVar> {
-    val manager = ptr.asStableRef<NativeRpcManager>().get()
-    val service = serviceName.toKString()
-    val method = methodName.toKString()
-    val args = argsPtr?.readBytes(argsLen) ?: byteArrayOf()
-
     val envelope = try {
+        val manager = ptr.asStableRef<NativeRpcManager>().get()
+        val service = serviceName.toKString()
+        val method = methodName.toKString()
+        val args = argsPtr?.readBytes(argsLen) ?: byteArrayOf()
         runBlocking {
             val result = dispatchService(manager, service, method, args)
             RpcEnvelope(data = result)
         }
     } catch (e: Exception) {
+        e.printStackTrace()
         RpcEnvelope(error = e.message ?: e.toString())
     }
     val encoded = AppCbor.encodeToByteArray(envelope)
@@ -155,49 +155,70 @@ fun commonRpcSubscribe(
     argsLen: Int,
     context: COpaquePointer?,
     onEach: FlowCallback
-): COpaquePointer {
-    val manager = ptr.asStableRef<NativeRpcManager>().get()
-    val service = serviceName.toKString()
-    val method = methodName.toKString()
-    val args = argsPtr?.readBytes(argsLen) ?: byteArrayOf()
+): COpaquePointer? {
+    return try {
+        val manager = ptr.asStableRef<NativeRpcManager>().get()
+        val service = serviceName.toKString()
+        val method = methodName.toKString()
+        val args = argsPtr?.readBytes(argsLen) ?: byteArrayOf()
 
-    val job = subscribeService(manager.coroutineScope, manager, service, method, args) { data: ByteArray ->
-        memScoped {
-            val dataPtr = data.toCValues().ptr
-            onEach.invoke(context, dataPtr, data.size)
+        val job = subscribeService(manager.coroutineScope, manager, service, method, args) { data: ByteArray ->
+            memScoped {
+                val dataPtr = data.toCValues().ptr
+                onEach.invoke(context, dataPtr, data.size)
+            }
         }
-    }
 
-    return StableRef.create(job).asCPointer()
+        StableRef.create(job).asCPointer()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
 
 @CName("common_rpc_unsubscribe")
 fun commonRpcUnsubscribe(jobPtr: COpaquePointer) {
-    val job = jobPtr.asStableRef<Job>().get()
-    job.cancel()
-    jobPtr.asStableRef<Job>().dispose()
+    try {
+        val job = jobPtr.asStableRef<Job>().get()
+        job.cancel()
+        jobPtr.asStableRef<Job>().dispose()
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 @CName("common_rpc_set_url")
 fun setUrl(ptr: COpaquePointer, url: CPointer<ByteVar>) {
-    val manager = ptr.asStableRef<NativeRpcManager>().get()
-    manager.rpcUrl = url.toKString()
+    try {
+        val manager = ptr.asStableRef<NativeRpcManager>().get()
+        manager.rpcUrl = url.toKString()
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 @CName("common_rpc_get_url")
 fun getUrl(ptr: COpaquePointer): CPointer<ByteVar>? {
-    val manager = ptr.asStableRef<NativeRpcManager>().get()
-    return manager.rpcUrl?.toNativeBuffer()
+    return try {
+        val manager = ptr.asStableRef<NativeRpcManager>().get()
+        runBlocking {
+            manager.getRpcUrl()?.toNativeBuffer()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
 
 @CName("common_rpc_validate_server")
 fun validateServer(ptr: COpaquePointer, url: CPointer<ByteVar>): Boolean {
-    val manager = ptr.asStableRef<NativeRpcManager>().get()
     return try {
+        val manager = ptr.asStableRef<NativeRpcManager>().get()
         runBlocking {
             manager.validateServer(url.toKString())
         }
     } catch (e: Exception) {
+        e.printStackTrace()
         false
     }
 }
@@ -212,30 +233,50 @@ fun updateAuth(ptr: COpaquePointer, argsPtr: CPointer<ByteVar>, argsLen: Int) {
             manager.updateAuth(response)
         }
     } catch (e: Exception) {
-        println("Error updating auth: ${e.message}")
+        e.printStackTrace()
     }
 }
 
 @CName("common_rpc_is_authenticated")
 fun isAuthenticated(ptr: COpaquePointer): Boolean {
-    val manager = ptr.asStableRef<NativeRpcManager>().get()
-    return manager.isAuthenticated()
+    return try {
+        val manager = ptr.asStableRef<NativeRpcManager>().get()
+        manager.isAuthenticated()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
 }
 
 @CName("common_rpc_get_auth_token")
 fun getAuthToken(ptr: COpaquePointer): CPointer<ByteVar>? {
-    val manager = ptr.asStableRef<NativeRpcManager>().get()
-    return manager.getAuthToken()?.toNativeBuffer()
+    return try {
+        val manager = ptr.asStableRef<NativeRpcManager>().get()
+        manager.getAuthToken()?.toNativeBuffer()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
 
 @CName("common_rpc_get_refresh_token")
 fun getRefreshToken(ptr: COpaquePointer): CPointer<ByteVar>? {
-    val manager = ptr.asStableRef<NativeRpcManager>().get()
-    return manager.getRefreshToken()?.toNativeBuffer()
+    return try {
+        val manager = ptr.asStableRef<NativeRpcManager>().get()
+        manager.getRefreshToken()?.toNativeBuffer()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
 
 @CName("common_rpc_is_token_expired")
 fun isTokenExpired(ptr: COpaquePointer): Boolean {
-    val manager = ptr.asStableRef<NativeRpcManager>().get()
-    return manager.isTokenExpired()
+    return try {
+        val manager = ptr.asStableRef<NativeRpcManager>().get()
+        manager.isTokenExpired()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        true
+    }
 }
