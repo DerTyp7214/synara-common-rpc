@@ -8,20 +8,24 @@
 package dev.dertyp
 
 import dev.dertyp.data.AuthenticationResponse
+import dev.dertyp.data.RpcEnvelope
 import dev.dertyp.rpc.BaseRpcServiceManager
 import dev.dertyp.rpc.dispatchService
 import dev.dertyp.rpc.subscribeService
 import dev.dertyp.serializers.AppCbor
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.websocket.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.plugins.websocket.pingInterval
 import kotlinx.cinterop.*
 import kotlinx.coroutines.*
 import kotlinx.rpc.krpc.ktor.client.Krpc
 import kotlinx.rpc.krpc.serialization.cbor.cbor
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromByteArray
+import kotlinx.serialization.encodeToByteArray
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -122,20 +126,21 @@ fun commonRpcCall(
     argsPtr: CPointer<ByteVar>?,
     argsLen: Int,
     outLen: CPointer<IntVar>
-): CPointer<ByteVar>? {
+): CPointer<ByteVar> {
     val manager = ptr.asStableRef<NativeRpcManager>().get()
     val service = serviceName.toKString()
     val method = methodName.toKString()
     val args = argsPtr?.readBytes(argsLen) ?: byteArrayOf()
 
     return runBlocking {
-        try {
+        val envelope = try {
             val result = dispatchService(manager, service, method, args)
-            result.toNativeBuffer(outLen)
+            RpcEnvelope(data = result)
         } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            RpcEnvelope(error = e.message ?: e.toString())
         }
+        val encoded = AppCbor.encodeToByteArray(envelope)
+        encoded.toNativeBuffer(outLen)
     }
 }
 

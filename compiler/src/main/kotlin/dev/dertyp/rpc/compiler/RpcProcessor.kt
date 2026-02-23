@@ -353,6 +353,8 @@ class RpcProcessor(
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformDateTime(pub String);")
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)] #[serde(transparent)] pub struct SuspendFunction0(pub serde_json::Value);")
             out.writeLine("")
+            out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone)] pub struct RpcEnvelope { pub data: Option<serde_bytes::ByteBuf>, pub error: Option<String> }")
+            out.writeLine("")
 
             // Collect and generate models
             symbols.forEach { symbol ->
@@ -415,8 +417,12 @@ class RpcProcessor(
             out.writeLine("        let res_ptr = unsafe { common_rpc_call(self.manager, s_c.as_ptr(), m_c.as_ptr(), arg_bytes.as_ptr(), arg_bytes.len() as c_int, &mut out_len) };")
             out.writeLine("        if res_ptr.is_null() { return Err(\"RPC Error\".into()); }")
             out.writeLine("        let res = unsafe { std::slice::from_raw_parts(res_ptr, out_len as usize) };")
-            out.writeLine("        let val = serde_cbor::from_slice(res).map_err(|e| e.to_string())?;")
-            out.writeLine("        unsafe { common_rpc_free_buffer(res_ptr) }; Ok(val)")
+            out.writeLine("        let envelope: RpcEnvelope = serde_cbor::from_slice(res).map_err(|e| e.to_string())?;")
+            out.writeLine("        unsafe { common_rpc_free_buffer(res_ptr) };")
+            out.writeLine("        if let Some(err) = envelope.error { return Err(err); }")
+            out.writeLine("        let data = envelope.data.ok_or(\"No data in envelope\")?;")
+            out.writeLine("        let val = serde_cbor::from_slice(&data).map_err(|e| e.to_string())?;")
+            out.writeLine("        Ok(val)")
             out.writeLine("    }")
             out.writeLine("")
             out.writeLine("    pub fn subscribe<T: Serialize, R: for<'de> Deserialize<'de> + Send + 'static>(&self, service: &str, method: &str, args: &T) -> RpcStream<R> {")
