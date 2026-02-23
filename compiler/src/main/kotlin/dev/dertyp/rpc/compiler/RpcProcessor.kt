@@ -285,6 +285,7 @@ class RpcProcessor(
             out.writeLine("use std::task::{Context, Poll};")
             out.writeLine("use std::sync::Arc;")
             out.writeLine("use tokio::sync::mpsc;")
+            out.writeLine("use serde_bytes;")
             out.writeLine("")
             out.writeLine("pub type FlowCallback = extern \"C\" fn(*mut c_void, *const u8, c_int);")
             out.writeLine("")
@@ -347,7 +348,7 @@ class RpcProcessor(
             out.writeLine("    }")
             out.writeLine("}")
             out.writeLine("")
-            out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformUUID(pub Vec<u8>);")
+            out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformUUID(pub serde_bytes::ByteBuf);")
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformDate(pub i64);")
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)] #[serde(transparent)] pub struct SuspendFunction0(pub serde_json::Value);")
             out.writeLine("")
@@ -490,7 +491,15 @@ class RpcProcessor(
                         val flowType = resolvedRet.arguments.firstOrNull()?.type?.resolve()?.let { toRustType(it) } ?: "serde_json::Value"
                         out.writeLine("    fn $fName(&self, $params) -> RpcStream<$flowType> {")
                         if (func.parameters.isEmpty()) out.writeLine("        self.subscribe(\"$name\", \"${func.simpleName.asString()}\", &())")
-                        else if (func.parameters.size == 1) out.writeLine("        self.subscribe(\"$name\", \"${func.simpleName.asString()}\", &$paramNames)")
+                        else if (func.parameters.size == 1) {
+                            val param = func.parameters[0]
+                            val pType = param.type.resolve()
+                            if (pType.declaration.qualifiedName?.asString() == "kotlin.ByteArray") {
+                                out.writeLine("        self.subscribe(\"$name\", \"${func.simpleName.asString()}\", &serde_bytes::Bytes::new(&$paramNames))")
+                            } else {
+                                out.writeLine("        self.subscribe(\"$name\", \"${func.simpleName.asString()}\", &$paramNames)")
+                            }
+                        }
                         else {
                             val argsClassName = "${name}${func.simpleName.asString().replaceFirstChar { it.uppercase() }}Args"
                             val argsFields = func.parameters.joinToString(", ") { toSnakeCase(it.name?.asString() ?: "arg") }
@@ -502,7 +511,15 @@ class RpcProcessor(
                         out.writeLine("    fn $fName<'life0, 'async_trait>(&'life0 self, $params) -> Pin<Box<dyn std::future::Future<Output = Result<$ret, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {")
                         out.writeLine("        Box::pin(async move {")
                         if (func.parameters.isEmpty()) out.writeLine("            self.call(\"$name\", \"${func.simpleName.asString()}\", &()).await")
-                        else if (func.parameters.size == 1) out.writeLine("            self.call(\"$name\", \"${func.simpleName.asString()}\", &$paramNames).await")
+                        else if (func.parameters.size == 1) {
+                            val param = func.parameters[0]
+                            val pType = param.type.resolve()
+                            if (pType.declaration.qualifiedName?.asString() == "kotlin.ByteArray") {
+                                out.writeLine("            self.call(\"$name\", \"${func.simpleName.asString()}\", &serde_bytes::Bytes::new(&$paramNames)).await")
+                            } else {
+                                out.writeLine("            self.call(\"$name\", \"${func.simpleName.asString()}\", &$paramNames).await")
+                            }
+                        }
                         else {
                             val argsClassName = "${name}${func.simpleName.asString().replaceFirstChar { it.uppercase() }}Args"
                             val argsFields = func.parameters.joinToString(", ") { toSnakeCase(it.name?.asString() ?: "arg") }
@@ -600,7 +617,7 @@ class RpcProcessor(
             qName == "kotlin.Int" -> "i32"
             qName == "kotlin.Long" -> "i64"
             qName == "kotlin.Boolean" -> "bool"
-            qName == "kotlin.ByteArray" -> "Vec<u8>"
+            qName == "kotlin.ByteArray" -> "serde_bytes::ByteBuf"
             qName == "kotlin.Unit" -> "()"
             qName == "kotlin.Any" -> "serde_json::Value"
             qName == "dev.dertyp.PlatformUUID" -> "PlatformUUID"
