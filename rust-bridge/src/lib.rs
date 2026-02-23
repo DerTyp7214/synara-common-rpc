@@ -6,6 +6,7 @@ use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::sync::Arc;
 use tokio::sync::mpsc;
+use serde_bytes;
 
 pub type FlowCallback = extern "C" fn(*mut c_void, *const u8, c_int);
 
@@ -68,8 +69,9 @@ extern "C" fn flow_callback_handler<T: for<'de> Deserialize<'de> + Send + 'stati
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformUUID(pub Vec<u8>);
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformUUID(pub serde_bytes::ByteBuf);
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformDate(pub i64);
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformDateTime(pub String);
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)] #[serde(transparent)] pub struct SuspendFunction0(pub serde_json::Value);
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -151,7 +153,7 @@ pub struct IUserPlaylistServiceSetPlaylistImageArgs {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ICustomAudioServiceUploadCustomAudioArgs {
     #[serde(rename = "fileData")]
-    pub file_data: Vec<u8>,
+    pub file_data: serde_bytes::ByteBuf,
     #[serde(rename = "fileName")]
     pub file_name: String,
     pub metadata: Option<CustomMetadata>,
@@ -257,7 +259,7 @@ pub struct IImageServiceGetImageDataArgs {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IImageServiceCreateImageArgs {
-    pub bytes: Vec<u8>,
+    pub bytes: serde_bytes::ByteBuf,
     pub origin: String,
 }
 
@@ -266,7 +268,7 @@ pub struct ISongServiceSetLikedArgs {
     pub id: PlatformUUID,
     pub liked: bool,
     #[serde(rename = "addedAt")]
-    pub added_at: Option<PlatformDate>,
+    pub added_at: Option<PlatformDateTime>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -440,7 +442,7 @@ pub struct CustomMetadata {
     pub year: Option<String>,
     pub genre: Option<String>,
     #[serde(rename = "coverData")]
-    pub cover_data: Option<Vec<u8>>,
+    pub cover_data: Option<serde_bytes::ByteBuf>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -580,7 +582,7 @@ pub struct Album {
     #[serde(rename = "songCount")]
     pub song_count: i32,
     #[serde(rename = "releaseDate")]
-    pub release_date: Option<PlatformDate>,
+    pub release_date: Option<PlatformDateTime>,
     #[serde(rename = "totalDuration")]
     pub total_duration: i64,
     #[serde(rename = "totalSize")]
@@ -609,7 +611,7 @@ pub struct UserSong {
     pub duration: i64,
     pub explicit: bool,
     #[serde(rename = "releaseDate")]
-    pub release_date: Option<PlatformDate>,
+    pub release_date: Option<PlatformDateTime>,
     pub lyrics: String,
     pub path: String,
     #[serde(rename = "originalUrl")]
@@ -644,9 +646,9 @@ pub struct Track {
     pub artists: Vec<String>,
     pub duration: String,
     #[serde(rename = "createdAt")]
-    pub created_at: Option<PlatformDate>,
+    pub created_at: Option<PlatformDateTime>,
     #[serde(rename = "addedAt")]
-    pub added_at: Option<PlatformDate>,
+    pub added_at: Option<PlatformDateTime>,
     #[serde(rename = "trackNumber")]
     pub track_number: Option<i32>,
     #[serde(rename = "discNumber")]
@@ -735,7 +737,7 @@ pub trait IUserPlaylistService {
 }
 
 pub trait ICustomAudioService {
-    fn upload_custom_audio<'life0, 'async_trait>(&'life0 self, file_data: Vec<u8>, file_name: String, metadata: Option<CustomMetadata>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn upload_custom_audio<'life0, 'async_trait>(&'life0 self, file_data: serde_bytes::ByteBuf, file_name: String, metadata: Option<CustomMetadata>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IStorageService {
@@ -807,12 +809,12 @@ pub trait IImageService {
     fn by_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Image>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_hash<'life0, 'async_trait>(&'life0 self, hash: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Image>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_cover_hashes<'life0, 'async_trait>(&'life0 self, hashes: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn get_image_data<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Vec<u8>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn create_image<'life0, 'async_trait>(&'life0 self, bytes: Vec<u8>, origin: String) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_image_data<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Option<serde_bytes::ByteBuf>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn create_image<'life0, 'async_trait>(&'life0 self, bytes: serde_bytes::ByteBuf, origin: String) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait ISongService {
-    fn set_liked<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, liked: bool, added_at: Option<PlatformDate>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_liked<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, liked: bool, added_at: Option<PlatformDateTime>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_lyrics<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, lyrics: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -827,7 +829,7 @@ pub trait ISongService {
     fn all_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn delete_songs<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn ranked_search<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, query: String, explicit: bool, liked: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn stream_song(&self, id: PlatformUUID, offset: i64) -> RpcStream<Vec<u8>>;
+    fn stream_song(&self, id: PlatformUUID, offset: i64) -> RpcStream<serde_bytes::ByteBuf>;
     fn get_stream_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn all_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID>;
     fn liked_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID>;
@@ -1034,7 +1036,7 @@ impl IUserPlaylistService for RpcClient {
     }
 }
 impl ICustomAudioService for RpcClient {
-    fn upload_custom_audio<'life0, 'async_trait>(&'life0 self, file_data: Vec<u8>, file_name: String, metadata: Option<CustomMetadata>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn upload_custom_audio<'life0, 'async_trait>(&'life0 self, file_data: serde_bytes::ByteBuf, file_name: String, metadata: Option<CustomMetadata>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             let args = ICustomAudioServiceUploadCustomAudioArgs { file_data, file_name, metadata };
             self.call("ICustomAudioService", "uploadCustomAudio", &args).await
@@ -1284,13 +1286,13 @@ impl IImageService for RpcClient {
             self.call("IImageService", "getCoverHashes", &hashes).await
         })
     }
-    fn get_image_data<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Vec<u8>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn get_image_data<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Option<serde_bytes::ByteBuf>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             let args = IImageServiceGetImageDataArgs { id, size };
             self.call("IImageService", "getImageData", &args).await
         })
     }
-    fn create_image<'life0, 'async_trait>(&'life0 self, bytes: Vec<u8>, origin: String) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn create_image<'life0, 'async_trait>(&'life0 self, bytes: serde_bytes::ByteBuf, origin: String) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             let args = IImageServiceCreateImageArgs { bytes, origin };
             self.call("IImageService", "createImage", &args).await
@@ -1298,7 +1300,7 @@ impl IImageService for RpcClient {
     }
 }
 impl ISongService for RpcClient {
-    fn set_liked<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, liked: bool, added_at: Option<PlatformDate>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn set_liked<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, liked: bool, added_at: Option<PlatformDateTime>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             let args = ISongServiceSetLikedArgs { id, liked, added_at };
             self.call("ISongService", "setLiked", &args).await
@@ -1383,7 +1385,7 @@ impl ISongService for RpcClient {
             self.call("ISongService", "rankedSearch", &args).await
         })
     }
-    fn stream_song(&self, id: PlatformUUID, offset: i64) -> RpcStream<Vec<u8>> {
+    fn stream_song(&self, id: PlatformUUID, offset: i64) -> RpcStream<serde_bytes::ByteBuf> {
         let args = ISongServiceStreamSongArgs { id, offset };
         self.subscribe("ISongService", "streamSong", &args)
     }
