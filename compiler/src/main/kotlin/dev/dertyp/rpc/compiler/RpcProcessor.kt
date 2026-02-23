@@ -350,6 +350,7 @@ class RpcProcessor(
             out.writeLine("")
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformUUID(pub serde_bytes::ByteBuf);")
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformDate(pub i64);")
+            out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)] #[serde(transparent)] pub struct PlatformDateTime(pub String);")
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)] #[serde(transparent)] pub struct SuspendFunction0(pub serde_json::Value);")
             out.writeLine("")
 
@@ -621,7 +622,8 @@ class RpcProcessor(
             qName == "kotlin.Unit" -> "()"
             qName == "kotlin.Any" -> "serde_json::Value"
             qName == "dev.dertyp.PlatformUUID" -> "PlatformUUID"
-            qName == "dev.dertyp.PlatformDate" || qName == "dev.dertyp.PlatformInstant" || qName == "dev.dertyp.PlatformLocalDate" || qName == "dev.dertyp.PlatformLocalDateTime" || qName == "dev.dertyp.PlatformOffsetDateTime" -> "PlatformDate"
+            qName == "dev.dertyp.PlatformDate" -> "PlatformDate"
+            qName == "dev.dertyp.PlatformInstant" || qName == "dev.dertyp.PlatformLocalDate" || qName == "dev.dertyp.PlatformLocalDateTime" || qName == "dev.dertyp.PlatformOffsetDateTime" -> "PlatformDateTime"
             qName == "kotlin.time.Duration" -> "String"
             qName?.startsWith("kotlin.Function") == true || qName?.startsWith("kotlin.coroutines.SuspendFunction") == true -> "SuspendFunction0"
             qName == "kotlin.collections.List" || qName == "kotlin.collections.Collection" || qName == "kotlin.collections.Set" -> {
