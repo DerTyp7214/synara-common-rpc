@@ -11,6 +11,7 @@ import kotlin.math.pow
 import kotlin.math.roundToInt
 
 fun Number.ifZero(default: Number): Number = if (this.toDouble() == 0.0) default else this
+fun Int.ifZeroNullable(default: () -> Int?): Int? = if (this == 0) default() else this
 
 fun Float.roundToNDecimals(n: Int = 0): Float {
     return (this * 10.0.pow(n)).roundToInt() / 100.0f
