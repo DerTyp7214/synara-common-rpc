@@ -90,9 +90,11 @@ kotlin {
     }
 
     targets.all {
-        compilations.all {
-            compileTaskProvider.configure {
-                dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
+        if (name in nativeTargets.map { it.name }) {
+            compilations.all {
+                compileTaskProvider.configure {
+                    dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
+                }
             }
         }
     }
