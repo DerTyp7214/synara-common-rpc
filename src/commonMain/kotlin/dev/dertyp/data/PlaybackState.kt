@@ -8,13 +8,20 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
 @Serializable
+enum class RepeatMode {
+    OFF,
+    ALL,
+    ONE
+}
+
+@Serializable
 data class PlaybackState(
     val queue: List<QueueEntry>,
     val currentIndex: Int,
     val isPlaying: Boolean,
     val positionMs: Long,
     val shuffleMode: Boolean,
-    val repeatMode: String,
+    val repeatMode: RepeatMode,
     val sourceId: String? = null
 ) {
     @Serializable
