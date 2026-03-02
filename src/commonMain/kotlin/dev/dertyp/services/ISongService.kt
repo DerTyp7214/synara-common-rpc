@@ -16,6 +16,7 @@ interface ISongService {
     suspend fun byIds(ids: Collection<PlatformUUID>): PaginatedResponse<UserSong>
     suspend fun byTitle(page: Int, pageSize: Int, title: String): PaginatedResponse<UserSong>
     suspend fun byArtist(page: Int, pageSize: Int, artistId: PlatformUUID): PaginatedResponse<UserSong>
+    suspend fun likedByArtist(page: Int, pageSize: Int, artistId: PlatformUUID, explicit: Boolean): PaginatedResponse<UserSong>
     suspend fun byAlbum(page: Int, pageSize: Int, albumId: PlatformUUID): PaginatedResponse<UserSong>
     suspend fun byPlaylist(page: Int, pageSize: Int, playlistId: PlatformUUID): PaginatedResponse<UserSong>
     suspend fun byUserPlaylist(page: Int, pageSize: Int, playlistId: PlatformUUID): PaginatedResponse<UserSong>
