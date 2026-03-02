@@ -3,10 +3,7 @@ package dev.dertyp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import java.nio.ByteBuffer
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
+import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.UUID
@@ -57,6 +54,9 @@ actual fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant = Ins
 actual fun PlatformInstant.formatISO(): String = toString()
 actual fun String.toPlatformInstantISO(): PlatformInstant = Instant.parse(this)
 
+private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+actual fun PlatformInstant.formatDateTime(): String = dateTimeFormatter.format(this.atZone(ZoneId.systemDefault()))
+
 actual fun currentTimeMillis(): Long = System.currentTimeMillis()
 actual fun nowAsPlatformDate(): PlatformDate = Date()
 actual fun nowAsPlatformInstant(): PlatformInstant = Instant.now()
@@ -66,3 +66,13 @@ actual val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 actual fun getStacktrace(): String? = Thread.currentThread().stackTrace
     .drop(3)
     .joinToString("\n") { it.toString() }
+
+actual fun getPlatformName(): String {
+    val osName = System.getProperty("os.name").lowercase()
+    return when {
+        osName.contains("win") -> "Windows"
+        osName.contains("mac") -> "Macintosh"
+        osName.contains("nix") || osName.contains("nux") || osName.contains("aix") -> "Linux"
+        else -> "Desktop"
+    }
+}

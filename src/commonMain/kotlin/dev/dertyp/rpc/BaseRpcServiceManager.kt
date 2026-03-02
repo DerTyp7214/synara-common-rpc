@@ -182,7 +182,10 @@ abstract class BaseRpcServiceManager(
     }
 
     protected open fun isAuthException(e: Exception): Boolean {
-        return e is WebSocketException && e.message?.contains("401") == true
+        return when (e) {
+            is WebSocketException if e.message?.contains("401") == true -> true
+            else -> false
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -39,6 +39,7 @@ expect fun PlatformInstant.toEpochMilliseconds(): Long
 expect fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant
 expect fun PlatformInstant.formatISO(): String
 expect fun String.toPlatformInstantISO(): PlatformInstant
+expect fun PlatformInstant.formatDateTime(): String
 
 expect fun currentTimeMillis(): Long
 expect fun nowAsPlatformDate(): PlatformDate
@@ -47,3 +48,5 @@ expect fun nowAsPlatformInstant(): PlatformInstant
 expect val ioDispatcher: CoroutineDispatcher
 
 expect fun getStacktrace(): String?
+
+expect fun getPlatformName(): String

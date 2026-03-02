@@ -1,7 +1,12 @@
+@file:OptIn(ExperimentalForeignApi::class)
 package dev.dertyp
 
+import kotlinx.cinterop.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import platform.posix.localtime
+import platform.posix.strftime
+import platform.posix.time_tVar
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.uuid.Uuid
@@ -27,6 +32,16 @@ actual fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant = Pla
 actual fun PlatformInstant.formatISO(): String = Instant.fromEpochMilliseconds(epochMillis).toString()
 actual fun String.toPlatformInstantISO(): PlatformInstant = PlatformInstant(Instant.parse(this).toEpochMilliseconds())
 
+actual fun PlatformInstant.formatDateTime(): String = memScoped {
+    val seconds = epochMillis / 1000
+    val timeVal = alloc<time_tVar>()
+    timeVal.value = seconds.convert()
+    val tm = localtime(timeVal.ptr)
+    val buffer = allocArray<ByteVar>(20)
+    strftime(buffer, 20.convert(), "%Y-%m-%d %H:%M:%S", tm)
+    buffer.toKString()
+}
+
 actual class PlatformLocalDate(val isoString: String)
 actual fun PlatformLocalDate.formatISO(): String = isoString
 actual fun String.toPlatformLocalDateISO(): PlatformLocalDate = PlatformLocalDate(this)
@@ -46,3 +61,5 @@ actual fun nowAsPlatformInstant(): PlatformInstant = PlatformInstant(currentTime
 actual val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
 
 actual fun getStacktrace(): String? = Throwable().stackTraceToString()
+
+actual fun getPlatformName(): String = "Windows"

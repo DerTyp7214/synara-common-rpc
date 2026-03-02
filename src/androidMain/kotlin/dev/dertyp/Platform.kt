@@ -1,5 +1,6 @@
 package dev.dertyp
 
+import android.os.Build
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import java.nio.ByteBuffer
@@ -7,6 +8,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.UUID
@@ -57,6 +59,9 @@ actual fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant = Ins
 actual fun PlatformInstant.formatISO(): String = toString()
 actual fun String.toPlatformInstantISO(): PlatformInstant = Instant.parse(this)
 
+private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+actual fun PlatformInstant.formatDateTime(): String = dateTimeFormatter.format(this.atZone(ZoneId.systemDefault()))
+
 actual fun currentTimeMillis(): Long = System.currentTimeMillis()
 actual fun nowAsPlatformDate(): PlatformDate = Date()
 actual fun nowAsPlatformInstant(): PlatformInstant = Instant.now()
@@ -66,3 +71,5 @@ actual val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 actual fun getStacktrace(): String? = Thread.currentThread().stackTrace
     .drop(3)
     .joinToString("\n") { it.toString() }
+
+actual fun getPlatformName(): String = "Android ${Build.VERSION.RELEASE}"

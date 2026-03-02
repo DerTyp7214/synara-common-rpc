@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalForeignApi::class)
+@file:OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
 
 package dev.dertyp
 
@@ -9,6 +9,7 @@ import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import platform.Foundation.*
+import kotlin.experimental.ExperimentalNativeApi
 
 actual typealias PlatformUUID = NSUUID
 
@@ -37,6 +38,12 @@ private val isoDateFormatter = NSDateFormatter().apply {
     timeZone = NSTimeZone.localTimeZone
 }
 
+private val dateTimeFormatter = NSDateFormatter().apply {
+    dateFormat = "yyyy-MM-dd HH:mm:ss"
+    locale = NSLocale.currentLocale
+    timeZone = NSTimeZone.localTimeZone
+}
+
 actual class PlatformDate(val value: NSDate)
 actual fun PlatformDate.toEpochMilliseconds(): Long = (value.timeIntervalSince1970 * 1000).toLong()
 actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate = PlatformDate(NSDate.dateWithTimeIntervalSince1970(ms / 1000.0))
@@ -48,6 +55,7 @@ actual fun PlatformInstant.toEpochMilliseconds(): Long = (value.timeIntervalSinc
 actual fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant = PlatformInstant(NSDate.dateWithTimeIntervalSince1970(ms / 1000.0))
 actual fun PlatformInstant.formatISO(): String = isoDateFormatter.stringFromDate(value)
 actual fun String.toPlatformInstantISO(): PlatformInstant = PlatformInstant(isoDateFormatter.dateFromString(this) ?: NSDate())
+actual fun PlatformInstant.formatDateTime(): String = dateTimeFormatter.stringFromDate(value)
 
 actual class PlatformLocalDate(val value: NSDate)
 actual fun PlatformLocalDate.formatISO(): String = isoDateFormatter.stringFromDate(value)
@@ -68,3 +76,13 @@ actual fun nowAsPlatformInstant(): PlatformInstant = PlatformInstant(NSDate())
 actual val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
 
 actual fun getStacktrace(): String? = NSThread.callStackSymbols.joinToString("\n")
+
+actual fun getPlatformName(): String {
+    return when (Platform.osFamily) {
+        OsFamily.IOS -> "iPhone"
+        OsFamily.MACOSX -> "Macintosh"
+        OsFamily.TVOS -> "tvOS"
+        OsFamily.WATCHOS -> "watchOS"
+        else -> "Apple Device"
+    }
+}
