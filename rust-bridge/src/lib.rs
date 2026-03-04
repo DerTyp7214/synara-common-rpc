@@ -297,6 +297,16 @@ pub struct ISongServiceByArtistArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ISongServiceLikedByArtistArgs {
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+    #[serde(rename = "artistId")]
+    pub artist_id: PlatformUUID,
+    pub explicit: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ISongServiceByAlbumArgs {
     pub page: i32,
     #[serde(rename = "pageSize")]
@@ -459,7 +469,7 @@ pub struct PlaybackState {
     #[serde(rename = "shuffleMode")]
     pub shuffle_mode: bool,
     #[serde(rename = "repeatMode")]
-    pub repeat_mode: String,
+    pub repeat_mode: RepeatMode,
     #[serde(rename = "sourceId")]
     pub source_id: Option<String>,
 }
@@ -468,6 +478,16 @@ pub struct PlaybackState {
 pub struct QueueEntry {
     #[serde(rename = "queueId")]
     pub queue_id: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum RepeatMode {
+    #[serde(rename = "OFF")]
+    Off,
+    #[serde(rename = "ALL")]
+    All,
+    #[serde(rename = "ONE")]
+    One,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -822,6 +842,7 @@ pub trait ISongService {
     fn by_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_title<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, title: String) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_artist<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, artist_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn liked_by_artist<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, artist_id: PlatformUUID, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_album<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, album_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_playlist<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, playlist_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_user_playlist<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, playlist_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -1338,6 +1359,12 @@ impl ISongService for RpcClient {
         Box::pin(async move {
             let args = ISongServiceByArtistArgs { page, page_size, artist_id };
             self.call("ISongService", "byArtist", &args).await
+        })
+    }
+    fn liked_by_artist<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, artist_id: PlatformUUID, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ISongServiceLikedByArtistArgs { page, page_size, artist_id, explicit };
+            self.call("ISongService", "likedByArtist", &args).await
         })
     }
     fn by_album<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, album_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
