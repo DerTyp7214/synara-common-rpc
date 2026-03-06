@@ -11,18 +11,21 @@ data class User(
     val id: PlatformUUID,
     val username: String,
     val passwordHash: String,
+    val isAdmin: Boolean = false,
 )
 
 @Serializable
 data class UserInfo(
     val id: PlatformUUID,
     val username: String,
+    val isAdmin: Boolean,
 ) {
     companion object {
         fun fromUser(user: User): UserInfo {
             return UserInfo(
                 id = user.id,
                 username = user.username,
+                isAdmin = user.isAdmin,
             )
         }
     }
