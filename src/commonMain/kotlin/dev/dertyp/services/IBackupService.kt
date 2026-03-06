@@ -14,5 +14,6 @@ data class BackupInfo(
 interface IBackupService {
     suspend fun listBackups(): List<BackupInfo>
     suspend fun loadBackup(fileName: String)
+    suspend fun deleteBackup(fileName: String)
     suspend fun createBackup()
 }
