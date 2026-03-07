@@ -6,5 +6,6 @@ import kotlinx.serialization.Serializable
 data class ProxyInfo(
     val host: String,
     val controlPort: Int,
+    val ssl: Boolean,
     val id: String?
 )
