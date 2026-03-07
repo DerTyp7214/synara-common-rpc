@@ -113,27 +113,32 @@ abstract class BaseRpcServiceManager(
     }
 
     private suspend fun ensureAuthenticated() {
-        if (isTokenExpired()) {
-            mutex.withLock {
-                if (isTokenExpired()) {
-                    val refreshToken = getRefreshToken()
-                    if (refreshToken != null) {
-                        try {
-                            val authService = getAuthService()
-                            val response = authService.refreshToken(refreshToken)
-                            updateAuth(response)
+        if (!isTokenExpired()) return
 
-                            clear()
-                        } catch (e: Exception) {
-                            handleAuthFailure()
-                            throw e
-                        }
-                    } else if (isAuthenticated()) {
-                        handleAuthFailure()
-                        throw IllegalStateException("Session expired and no refresh token available")
-                    }
+        val result: Any? = mutex.withLock {
+            if (!isTokenExpired()) return@withLock null
+
+            val refreshToken = getRefreshToken()
+            if (refreshToken != null) {
+                try {
+                    val authService = getAuthService()
+                    authService.refreshToken(refreshToken)
+                } catch (e: Exception) {
+                    e
                 }
+            } else if (isAuthenticated()) {
+                IllegalStateException("Session expired and no refresh token available")
+            } else {
+                null
             }
+        }
+
+        if (result is AuthenticationResponse) {
+            clear()
+            updateAuth(result)
+        } else if (result is Exception) {
+            handleAuthFailure()
+            throw result
         }
     }
 
@@ -142,43 +147,60 @@ abstract class BaseRpcServiceManager(
         if (cached != null && !isTokenExpired()) return cached
 
         ensureAuthenticated()
-        return mutex.withLock {
-            _servicesClient?.let { return@withLock it }
 
-            val baseUrl = getRpcUrl()
-            val token = getAuthToken() ?: throw IllegalStateException("Not authenticated")
+        var authException: Exception? = null
+        val rpcClient = try {
+            mutex.withLock {
+                _servicesClient?.let { return@withLock it }
 
-            var lastException: Exception? = null
-            for (attempt in 1..3) {
-                try {
-                    val rpcClient = client.rpc {
-                        url("${baseUrl}/rpc/services")
-                        header("Authorization", "Bearer $token")
-                    }
-                    rpcClient.withService<IUserService>().me()
-                    _servicesClient = rpcClient
-                    return@withLock rpcClient
-                } catch (e: Exception) {
-                    lastException = e
-                    if (isAuthException(e)) {
-                        handleAuthFailure()
-                        throw e
-                    }
-                    when (e) {
-                        is ConnectTimeoutException,
-                        is IOException,
-                        is UnresolvedAddressException -> {
-                            delay(1000L * attempt)
-                            continue
+                val baseUrl = getRpcUrl()
+                val token = getAuthToken() ?: throw IllegalStateException("Not authenticated")
+
+                var lastException: Exception? = null
+                for (attempt in 1..3) {
+                    try {
+                        val rpcClientInstance = client.rpc {
+                            url("${baseUrl}/rpc/services")
+                            header("Authorization", "Bearer $token")
                         }
+                        rpcClientInstance.withService<IUserService>().me()
+                        _servicesClient = rpcClientInstance
+                        return@withLock rpcClientInstance
+                    } catch (e: Exception) {
+                        lastException = e
+                        if (isAuthException(e)) {
+                            throw e
+                        }
+                        when (e) {
+                            is ConnectTimeoutException,
+                            is IOException,
+                            is UnresolvedAddressException -> {
+                                delay(1000L * attempt)
+                                continue
+                            }
 
-                        else -> throw e
+                            else -> throw e
+                        }
                     }
                 }
+                onServerUnreachable()
+                throw lastException ?: IllegalStateException("Failed to connect after retries")
             }
-            onServerUnreachable()
-            throw lastException ?: IllegalStateException("Failed to connect after retries")
+        } catch (e: Exception) {
+            if (isAuthException(e)) {
+                authException = e
+                null
+            } else {
+                throw e
+            }
         }
+
+        if (authException != null) {
+            handleAuthFailure()
+            throw authException
+        }
+
+        return rpcClient!!
     }
 
     protected open fun isAuthException(e: Exception): Boolean {
