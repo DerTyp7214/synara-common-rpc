@@ -1,5 +1,6 @@
 package dev.dertyp.services
 
+import dev.dertyp.data.ProxyInfo
 import dev.dertyp.data.ServerStats
 import kotlinx.rpc.annotations.Rpc
 
@@ -7,4 +8,5 @@ import kotlinx.rpc.annotations.Rpc
 interface IServerStatsService {
     suspend fun getStats(): ServerStats
     suspend fun health(): Boolean
+    suspend fun getProxyInfo(): ProxyInfo?
 }
