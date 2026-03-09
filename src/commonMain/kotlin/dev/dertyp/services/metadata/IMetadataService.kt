@@ -170,4 +170,39 @@ interface IMetadataService {
             }
         }
     }
+
+    @Serializable
+    data class FlowArtist(
+        val id: String,
+        @Transient
+        val tracks: Flow<Track> = emptyFlow(),
+    ): BaseMetadata() {
+        private val cache = mutableListOf<Track>()
+        private var collectionJob: Deferred<List<Track>>? = null
+        private val mutex = Mutex()
+
+        private suspend fun getOrStartCollection(): Deferred<List<Track>> {
+            return mutex.withLock {
+                collectionJob ?: CoroutineScope(ioDispatcher).async {
+                    tracks.onEach {
+                        mutex.withLock { cache.add(it) }
+                    }.toList()
+                }.also { collectionJob = it }
+            }
+        }
+
+        val sharedTracks: Flow<Track> = flow {
+            val job = getOrStartCollection()
+            val currentCache = mutex.withLock { cache.toList() }
+            currentCache.forEach { track -> emit(track) }
+            tracks.drop(currentCache.size).collect { track ->
+                emit(track)
+            }
+            job.join()
+        }
+
+        suspend fun collect(): List<Track> {
+            return getOrStartCollection().await()
+        }
+    }
 }
