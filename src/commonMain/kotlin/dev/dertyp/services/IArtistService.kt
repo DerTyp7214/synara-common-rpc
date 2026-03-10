@@ -4,6 +4,7 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.data.Artist
 import dev.dertyp.data.MergeArtists
 import dev.dertyp.data.PaginatedResponse
+import dev.dertyp.data.SplitArtist
 import kotlinx.rpc.annotations.Rpc
 
 @Rpc
@@ -13,5 +14,6 @@ interface IArtistService {
     suspend fun rankedSearch(page: Int, pageSize: Int, query: String): PaginatedResponse<Artist>
     suspend fun byGroup(page: Int, pageSize: Int, groupId: PlatformUUID): PaginatedResponse<Artist>
     suspend fun mergeArtists(mergeArtists: MergeArtists): Artist?
+    suspend fun splitArtist(splitArtist: SplitArtist): List<Artist>
     suspend fun allArtists(page: Int, pageSize: Int): PaginatedResponse<Artist>
 }

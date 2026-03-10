@@ -23,3 +23,9 @@ data class MergeArtists(
     val image: String? = null,
     val artistIds: List<PlatformUUID>,
 )
+
+@Serializable
+data class SplitArtist(
+    val artistId: PlatformUUID,
+    val newArtists: Map<String, PlatformUUID?>,
+)
