@@ -3,6 +3,7 @@ package dev.dertyp.services
 import dev.dertyp.PlatformInstant
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.PaginatedResponse
+import dev.dertyp.data.SongTag
 import dev.dertyp.data.UserSong
 import dev.dertyp.services.metadata.IMetadataService
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +24,13 @@ interface ISongService {
     suspend fun byTidalTrackIds(ids: Collection<String>): List<UserSong>
     suspend fun byTidalTracks(tracks: Collection<IMetadataService.Track>): List<UserSong>
     suspend fun likedSongs(page: Int, pageSize: Int, explicit: Boolean): PaginatedResponse<UserSong>
-    suspend fun allSongs(page: Int, pageSize: Int, explicit: Boolean): PaginatedResponse<UserSong>
+    suspend fun allSongs(
+        page: Int,
+        pageSize: Int,
+        explicit: Boolean,
+        tags: List<SongTag> = emptyList(),
+        invertTags: Boolean = false
+    ): PaginatedResponse<UserSong>
 
     suspend fun deleteSongs(ids: Collection<PlatformUUID>): Boolean
 
@@ -38,7 +45,11 @@ interface ISongService {
     fun streamSong(id: PlatformUUID, offset: Long = 0): Flow<ByteArray>?
     suspend fun getStreamSize(id: PlatformUUID): Long
 
-    fun allSongIds(explicit: Boolean): Flow<PlatformUUID>
+    fun allSongIds(
+        explicit: Boolean,
+        tags: List<SongTag> = emptyList(),
+        invertTags: Boolean = false
+    ): Flow<PlatformUUID>
     fun likedSongIds(explicit: Boolean): Flow<PlatformUUID>
     fun songIdsByArtist(artistId: PlatformUUID): Flow<PlatformUUID>
     fun songIdsByAlbum(albumId: PlatformUUID): Flow<PlatformUUID>

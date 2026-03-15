@@ -12,6 +12,17 @@ import dev.dertyp.serializers.LocalDateSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
+@Serializable
+enum class SongTag {
+    Q_44_48,
+    Q_96,
+    Q_192,
+    B_16,
+    B_24,
+    HAS_LYRICS,
+    CUSTOM_UPLOAD
+}
+
 abstract class BaseSong() {
     abstract val id: PlatformUUID
     abstract val title: String
