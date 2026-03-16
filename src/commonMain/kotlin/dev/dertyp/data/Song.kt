@@ -20,7 +20,8 @@ enum class SongTag {
     B_16,
     B_24,
     HAS_LYRICS,
-    CUSTOM_UPLOAD
+    CUSTOM_UPLOAD,
+    HAS_MUSICBRAINZ_ID
 }
 
 abstract class BaseSong() {
