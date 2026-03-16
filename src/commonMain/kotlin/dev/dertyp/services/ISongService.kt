@@ -46,6 +46,7 @@ interface ISongService {
     ): PaginatedResponse<UserSong>
 
     fun streamSong(id: PlatformUUID, offset: Long = 0): Flow<ByteArray>?
+    fun downloadSong(id: PlatformUUID, quality: Int): Flow<ByteArray>?
     suspend fun getStreamSize(id: PlatformUUID): Long
 
     fun allSongIds(
