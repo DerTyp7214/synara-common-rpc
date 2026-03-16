@@ -16,6 +16,7 @@ interface ISongService {
     suspend fun setMusicBrainzId(id: PlatformUUID, musicBrainzId: String?): UserSong?
     suspend fun fetchMusicBrainzId(id: PlatformUUID): UserSong?
     suspend fun byId(id: PlatformUUID): UserSong?
+    suspend fun byMusicBrainzId(musicBrainzId: String): List<UserSong>
     suspend fun byIds(ids: Collection<PlatformUUID>): PaginatedResponse<UserSong>
     suspend fun byTitle(page: Int, pageSize: Int, title: String): PaginatedResponse<UserSong>
     suspend fun byArtist(page: Int, pageSize: Int, artistId: PlatformUUID): PaginatedResponse<UserSong>
