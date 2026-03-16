@@ -13,6 +13,8 @@ import kotlinx.rpc.annotations.Rpc
 interface ISongService {
     suspend fun setLiked(id: PlatformUUID, liked: Boolean, addedAt: PlatformInstant? = null): UserSong?
     suspend fun setLyrics(id: PlatformUUID, lyrics: List<String>): UserSong?
+    suspend fun setMusicBrainzId(id: PlatformUUID, musicBrainzId: String?): UserSong?
+    suspend fun fetchMusicBrainzId(id: PlatformUUID): UserSong?
     suspend fun byId(id: PlatformUUID): UserSong?
     suspend fun byIds(ids: Collection<PlatformUUID>): PaginatedResponse<UserSong>
     suspend fun byTitle(page: Int, pageSize: Int, title: String): PaginatedResponse<UserSong>
