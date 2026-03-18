@@ -28,6 +28,7 @@ data class ImageStreamItem(val id: PlatformUUID, val data: ByteArray) {
 
 @Rpc
 interface IMirrorService {
+    suspend fun getServerPaths(): RemoteServerPaths
     fun getSongs(): Flow<Song>
     fun getArtists(): Flow<Artist>
     fun getArtistAliases(): Flow<ArtistAlias>

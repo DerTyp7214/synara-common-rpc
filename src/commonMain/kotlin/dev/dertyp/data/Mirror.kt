@@ -10,7 +10,17 @@ data class MirrorProgress(
     val isFinished: Boolean = false,
     val error: String? = null,
     val currentItem: String? = null,
-    val currentItemProgress: Float? = null
+    val currentItemProgress: Float? = null,
+    val speed: String? = null
+)
+
+@Serializable
+data class RemoteServerPaths(
+    val tracksPath: String?,
+    val albumsPath: String?,
+    val playlistsPath: String?,
+    val customAudioPath: String?,
+    val secondaryTracksPaths: List<String> = emptyList()
 )
 
 @Serializable
