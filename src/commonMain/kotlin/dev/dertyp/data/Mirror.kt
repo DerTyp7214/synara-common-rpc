@@ -1,6 +1,10 @@
+@file:UseContextualSerialization(PlatformUUID::class)
+
 package dev.dertyp.data
 
+import dev.dertyp.PlatformUUID
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseContextualSerialization
 
 @Serializable
 data class MirrorProgress(
@@ -31,5 +35,8 @@ data class RemoteServerConfig(
     val username: String,
     val password: String,
     val secure: Boolean = false,
-    val quality: Int = -1
+    val quality: Int = -1,
+    val playlistIds: List<PlatformUUID>? = null,
+    val userPlaylistIds: List<PlatformUUID>? = null,
+    val likedByUserIds: List<PlatformUUID>? = null
 )
