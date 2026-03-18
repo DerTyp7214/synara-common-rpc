@@ -16,6 +16,18 @@ data class Artist(
     val imageId: PlatformUUID? = null,
 )
 
+@Serializable
+data class ArtistAlias(
+    val artistId: PlatformUUID,
+    val name: String
+)
+
+@Serializable
+data class ArtistSplitAlias(
+    val artistId: PlatformUUID,
+    val name: String
+)
+
 
 @Serializable
 data class MergeArtists(

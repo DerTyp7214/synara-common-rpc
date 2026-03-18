@@ -1,0 +1,22 @@
+package dev.dertyp.data
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class MirrorProgress(
+    val currentTask: String,
+    val processedItems: Int,
+    val totalItems: Int,
+    val isFinished: Boolean = false,
+    val error: String? = null
+)
+
+@Serializable
+data class RemoteServerConfig(
+    val host: String,
+    val port: Int,
+    val username: String,
+    val password: String,
+    val secure: Boolean = false,
+    val quality: Int = -1
+)
