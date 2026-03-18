@@ -32,7 +32,7 @@ interface ISongService {
         pageSize: Int,
         explicit: Boolean,
         tags: List<SongTag> = emptyList(),
-        invertTags: Boolean = false
+        invertTags: Boolean = false,
     ): PaginatedResponse<UserSong>
 
     suspend fun deleteSongs(ids: Collection<PlatformUUID>): Boolean
@@ -45,8 +45,8 @@ interface ISongService {
         liked: Boolean = false
     ): PaginatedResponse<UserSong>
 
-    fun streamSong(id: PlatformUUID, offset: Long = 0): Flow<ByteArray>?
-    fun downloadSong(id: PlatformUUID, quality: Int, offset: Long = 0): Flow<ByteArray>?
+    fun streamSong(id: PlatformUUID, offset: Long = 0, chunkSize: Int = 4096): Flow<ByteArray>?
+    fun downloadSong(id: PlatformUUID, quality: Int, offset: Long = 0, chunkSize: Int = 4096): Flow<ByteArray>?
     suspend fun getStreamSize(id: PlatformUUID): Long
     suspend fun getDownloadSize(id: PlatformUUID, quality: Int): Long
 

@@ -37,5 +37,5 @@ interface IMirrorService {
     fun getPlaylists(): Flow<Playlist>
     fun getUserPlaylists(): Flow<UserPlaylist>
     fun getImageMetadata(): Flow<Image>
-    fun getSongData(songId: PlatformUUID, quality: Int = 0): Flow<ByteArray>
+    fun getSongData(songId: PlatformUUID, quality: Int = 0, chunkSize: Int = 4096): Flow<ByteArray>
 }

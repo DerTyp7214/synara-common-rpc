@@ -11,7 +11,8 @@ data class MirrorProgress(
     val error: String? = null,
     val currentItem: String? = null,
     val currentItemProgress: Float? = null,
-    val speed: String? = null
+    val speed: String? = null,
+    val eta: String? = null
 )
 
 @Serializable
