@@ -10,5 +10,7 @@ import kotlinx.rpc.annotations.Rpc
 interface IRemoteMirrorService {
     suspend fun getRemoteStats(config: RemoteServerConfig): ServerStats
     suspend fun startMirror(config: RemoteServerConfig)
+    suspend fun stopMirror()
+    suspend fun resetMirror()
     fun getActiveMirrorProgress(): Flow<MirrorProgress>?
 }

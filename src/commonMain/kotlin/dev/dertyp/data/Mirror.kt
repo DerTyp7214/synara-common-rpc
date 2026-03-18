@@ -8,7 +8,9 @@ data class MirrorProgress(
     val processedItems: Int,
     val totalItems: Int,
     val isFinished: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val currentItem: String? = null,
+    val currentItemProgress: Float? = null
 )
 
 @Serializable
