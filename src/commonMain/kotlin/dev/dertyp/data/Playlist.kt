@@ -27,10 +27,17 @@ data class Playlist(
 ): BasePlaylist()
 
 @Serializable
+data class UserPlaylistSong(
+    val songId: PlatformUUID,
+    val addedAt: Long
+)
+
+@Serializable
 data class UserPlaylist(
     override val id: PlatformUUID,
     override val name: String,
     override val songs: List<PlatformUUID>,
+    val songEntries: List<UserPlaylistSong>? = null,
     override val totalDuration: Long = -1L,
     override val imageId: PlatformUUID? = null,
     val creator: PlatformUUID,
@@ -39,6 +46,12 @@ data class UserPlaylist(
     @Serializable(with = DateSerializer::class)
     val modifiedAt: PlatformDate? = null,
 ): BasePlaylist()
+
+@Serializable
+data class UserPlaylistBackup(
+    val userId: PlatformUUID,
+    val playlists: List<UserPlaylist>
+)
 
 @Serializable
 data class PlaylistEntry(
