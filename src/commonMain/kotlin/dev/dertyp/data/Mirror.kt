@@ -28,7 +28,9 @@ data class SyncBreakdown(
     val albums: Int = 0,
     val images: Int = 0,
     val playlists: Int = 0,
-    val userPlaylists: Int = 0
+    val userPlaylists: Int = 0,
+    val errors: Int = 0,
+    val failedItems: List<String> = emptyList()
 )
 
 @Serializable
