@@ -10,6 +10,7 @@ import kotlinx.serialization.UseContextualSerialization
 data class User(
     val id: PlatformUUID,
     val username: String,
+    val displayName: String? = null,
     val passwordHash: String,
     val isAdmin: Boolean = false,
     val profileImageId: PlatformUUID? = null,
@@ -19,6 +20,7 @@ data class User(
 data class UserInfo(
     val id: PlatformUUID,
     val username: String,
+    val displayName: String? = null,
     val isAdmin: Boolean,
     val profileImageId: PlatformUUID? = null,
 ) {
@@ -27,6 +29,7 @@ data class UserInfo(
             return UserInfo(
                 id = user.id,
                 username = user.username,
+                displayName = user.displayName,
                 isAdmin = user.isAdmin,
                 profileImageId = user.profileImageId,
             )
