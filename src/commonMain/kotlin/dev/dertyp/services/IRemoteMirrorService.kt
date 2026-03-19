@@ -14,4 +14,5 @@ interface IRemoteMirrorService {
     suspend fun getRemoteUsers(config: RemoteServerConfig): List<User>
     suspend fun getRemotePlaylists(config: RemoteServerConfig): List<Playlist>
     suspend fun getRemoteUserPlaylists(config: RemoteServerConfig): List<UserPlaylist>
+    suspend fun getProxyInstances(config: RemoteServerConfig): List<ProxyInstanceInfo>
 }
