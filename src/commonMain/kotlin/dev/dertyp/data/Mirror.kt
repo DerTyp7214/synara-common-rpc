@@ -55,5 +55,6 @@ data class RemoteServerConfig(
     val userPlaylistIds: List<PlatformUUID>? = null,
     val likedByUserIds: List<PlatformUUID>? = null,
     val useProxy: Boolean = false,
-    val proxyInstanceId: String? = null
+    val proxyInstanceId: String? = null,
+    val targetUserId: PlatformUUID? = null
 )
