@@ -24,11 +24,17 @@ data class MirrorProgress(
 @Serializable
 data class SyncBreakdown(
     val songs: Int = 0,
+    val existingSongs: Int = 0,
     val artists: Int = 0,
+    val existingArtists: Int = 0,
     val albums: Int = 0,
+    val existingAlbums: Int = 0,
     val images: Int = 0,
+    val existingImages: Int = 0,
     val playlists: Int = 0,
+    val existingPlaylists: Int = 0,
     val userPlaylists: Int = 0,
+    val existingUserPlaylists: Int = 0,
     val errors: Int = 0,
     val failedItems: List<String> = emptyList()
 )
