@@ -11,7 +11,7 @@ interface IRemoteMirrorService {
     suspend fun startMirror(config: RemoteServerConfig)
     suspend fun stopMirror()
     suspend fun resetMirror()
-    fun getActiveMirrorProgress(): Flow<MirrorProgress>?
+    fun getActiveMirrorProgress(): Flow<MirrorProgress>
     suspend fun getRemoteUsers(config: RemoteServerConfig): List<User>
     suspend fun getRemotePlaylists(config: RemoteServerConfig): List<Playlist>
     suspend fun getRemoteUserPlaylists(config: RemoteServerConfig): List<UserPlaylist>
