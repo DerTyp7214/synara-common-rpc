@@ -1,5 +1,6 @@
 package dev.dertyp.services
 
+import dev.dertyp.PlatformUUID
 import dev.dertyp.data.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.rpc.annotations.Rpc
@@ -15,4 +16,5 @@ interface IRemoteMirrorService {
     suspend fun getRemotePlaylists(config: RemoteServerConfig): List<Playlist>
     suspend fun getRemoteUserPlaylists(config: RemoteServerConfig): List<UserPlaylist>
     suspend fun getProxyInstances(config: RemoteServerConfig): List<ProxyInstanceInfo>
+    suspend fun getRemoteImageData(config: RemoteServerConfig, imageId: PlatformUUID, size: Int): ByteArray?
 }
