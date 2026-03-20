@@ -9,6 +9,7 @@ interface IUserService {
     suspend fun findUserById(id: PlatformUUID): User?
     suspend fun findUserByUsername(username: String): User?
     suspend fun me(): User
+    suspend fun getAllUsers(): List<User>
     suspend fun setProfileImage(bytes: ByteArray)
     suspend fun setDisplayName(name: String?)
 }
