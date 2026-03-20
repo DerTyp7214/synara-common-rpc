@@ -48,9 +48,34 @@ data class UserPlaylist(
 ): BasePlaylist()
 
 @Serializable
+data class BackupImage(
+    val image: Image,
+    val data: ByteArray
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as BackupImage
+
+        if (image != other.image) return false
+        if (!data.contentEquals(other.data)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = image.hashCode()
+        result = 31 * result + data.contentHashCode()
+        return result
+    }
+}
+
+@Serializable
 data class UserPlaylistBackup(
     val userId: PlatformUUID,
-    val playlists: List<UserPlaylist>
+    val playlists: List<UserPlaylist>,
+    val images: List<BackupImage>? = null
 )
 
 @Serializable
