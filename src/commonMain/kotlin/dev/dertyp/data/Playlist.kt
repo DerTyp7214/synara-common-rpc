@@ -29,7 +29,8 @@ data class Playlist(
 @Serializable
 data class UserPlaylistSong(
     val songId: PlatformUUID,
-    val addedAt: Long
+    val addedAt: Long,
+    val musicBrainzId: String? = null
 )
 
 @Serializable
