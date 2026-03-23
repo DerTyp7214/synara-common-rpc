@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
 @Serializable
-enum class TaskStatus { SUCCESS, FAILURE }
+enum class TaskStatus { SUCCESS, FAILURE, RUNNING }
 
 @Serializable
 data class ScheduledTaskLog(
