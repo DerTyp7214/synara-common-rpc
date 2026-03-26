@@ -5,16 +5,22 @@ package dev.dertyp.core
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.platformUUIDFromString
-import io.ktor.http.*
+import io.ktor.http.Url
 import kotlin.jvm.JvmName
 
 private val titleCleanRegex = Regex(
-    """\s*([(\[].*?(feat|ft|with|prod|live|remix|acoustic|radio\sedit|explicit|clean|remaster).*?[)\]])|\s+(feat|ft|with|prod)\.?\s+.*$""",
+    """\s*([(\[][^()\[\]]*(feat|ft|with|prod|live|remix|demo|acoustic|radio\sedit|album\sversion|immortal\sversion|single\sversion|explicit|clean|remaster)[^()\[\]]*[)\]])|\s+(feat|ft|with|prod)\.?\s+.*$""",
     RegexOption.IGNORE_CASE
 )
 
 fun String.cleanTitle(): String {
-    return this.replace(titleCleanRegex, "").trim()
+    var current = this
+    var last: String
+    do {
+        last = current
+        current = current.replace(titleCleanRegex, "").trim()
+    } while (current != last)
+    return current
 }
 
 fun String.prefixIfNotBlank(prefix: String): String = if (isNotBlank()) "$prefix$this" else this
@@ -28,10 +34,14 @@ fun String.toUUIDOrNull(): PlatformUUID? {
 }
 
 fun String.isURL(): Boolean {
+    if (!this.contains("://")) return false
+    val hostPart = this.substringAfter("://").substringBefore('/')
+    if (hostPart.isBlank()) return false
+
     return try {
-        Url(this)
-        true
-    } catch (_: IllegalArgumentException) {
+        val url = Url(this)
+        url.protocol.name.isNotBlank() && url.host.isNotBlank()
+    } catch (_: Exception) {
         false
     }
 }

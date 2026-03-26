@@ -45,7 +45,6 @@ kotlin {
         iosX64(),
         iosArm64(),
         iosSimulatorArm64(),
-        macosX64("macosx64"),
         macosArm64("macosarm"),
         mingwX64("windows"),
         linuxX64("linux")
@@ -77,6 +76,13 @@ kotlin {
                 api(libs.kotlinx.serialization.json)
                 api(libs.kotlinx.serialization.cbor)
                 implementation(libs.kotlinx.rpc.krpc.serialization.cbor)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 

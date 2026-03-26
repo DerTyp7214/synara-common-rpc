@@ -8,17 +8,19 @@ import kotlin.jvm.JvmName
 import kotlin.math.absoluteValue
 import kotlin.math.log10
 import kotlin.math.pow
-import kotlin.math.roundToInt
+import kotlin.math.round
 
 fun Number.ifZero(default: Number): Number = if (this.toDouble() == 0.0) default else this
 fun Int.ifZeroNullable(default: () -> Int?): Int? = if (this == 0) default() else this
 
 fun Float.roundToNDecimals(n: Int = 0): Float {
-    return (this * 10.0.pow(n)).roundToInt() / 100.0f
+    val factor = 10.0.pow(n).toFloat()
+    return round(this * factor) / factor
 }
 
 fun Double.roundToNDecimals(n: Int = 0): Double {
-    return (this * 10.0.pow(n)).roundToInt() / 100.0
+    val factor = 10.0.pow(n)
+    return round(this * factor) / factor
 }
 
 fun Int.digitCount(): Int = when (this) {
