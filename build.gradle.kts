@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlinx.rpc)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.kover)
 }
 
 
