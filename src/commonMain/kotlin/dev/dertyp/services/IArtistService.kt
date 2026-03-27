@@ -12,6 +12,7 @@ interface IArtistService {
     suspend fun byId(id: PlatformUUID): Artist?
     suspend fun byIds(ids: List<PlatformUUID>): List<Artist>
     suspend fun rankedSearch(page: Int, pageSize: Int, query: String): PaginatedResponse<Artist>
+    suspend fun setGroup(id: PlatformUUID, artistIds: List<PlatformUUID>?): Artist?
     suspend fun byGroup(page: Int, pageSize: Int, groupId: PlatformUUID): PaginatedResponse<Artist>
     suspend fun mergeArtists(mergeArtists: MergeArtists): Artist?
     suspend fun splitArtist(splitArtist: SplitArtist): List<Artist>
