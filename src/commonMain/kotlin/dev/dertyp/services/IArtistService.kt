@@ -17,6 +17,7 @@ interface IArtistService {
     suspend fun allArtists(page: Int, pageSize: Int): PaginatedResponse<Artist>
     suspend fun searchArtistOnMusicBrainz(query: String, page: Int, pageSize: Int): PaginatedResponse<MusicBrainzArtist>
     suspend fun fetchMusicBrainzId(id: PlatformUUID): Artist?
+    suspend fun setMusicBrainzId(id: PlatformUUID, musicBrainzId: String?): Artist?
     fun artistsWithoutMusicBrainzIdFlow(): Flow<Artist>
     fun artistIdsWithoutMusicBrainzId(): Flow<PlatformUUID>
 }
