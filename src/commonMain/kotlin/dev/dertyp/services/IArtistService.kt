@@ -15,6 +15,7 @@ interface IArtistService {
     suspend fun mergeArtists(mergeArtists: MergeArtists): Artist?
     suspend fun splitArtist(splitArtist: SplitArtist): List<Artist>
     suspend fun allArtists(page: Int, pageSize: Int): PaginatedResponse<Artist>
+    suspend fun createArtist(name: String, isGroup: Boolean = false, about: String = "", musicBrainzId: String? = null): Artist
     suspend fun searchArtistOnMusicBrainz(query: String, page: Int, pageSize: Int): PaginatedResponse<MusicBrainzArtist>
     suspend fun fetchMusicBrainzId(id: PlatformUUID): Artist?
     suspend fun setMusicBrainzId(id: PlatformUUID, musicBrainzId: String?): Artist?

@@ -13,6 +13,7 @@ interface IAlbumService {
     suspend fun byName(page: Int, pageSize: Int, name: String): PaginatedResponse<Album>
     suspend fun rankedSearch(page: Int, pageSize: Int, query: String): PaginatedResponse<Album>
     suspend fun allAlbums(page: Int, pageSize: Int): PaginatedResponse<Album>
+    suspend fun updateAlbum(album: Album): Album?
     suspend fun deleteAlbums(ids: List<PlatformUUID>): Boolean
 
     suspend fun byArtist(
