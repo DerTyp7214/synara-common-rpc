@@ -1,10 +1,7 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
-import dev.dertyp.data.Artist
-import dev.dertyp.data.MergeArtists
-import dev.dertyp.data.PaginatedResponse
-import dev.dertyp.data.SplitArtist
+import dev.dertyp.data.*
 import kotlinx.rpc.annotations.Rpc
 
 @Rpc
@@ -17,4 +14,5 @@ interface IArtistService {
     suspend fun mergeArtists(mergeArtists: MergeArtists): Artist?
     suspend fun splitArtist(splitArtist: SplitArtist): List<Artist>
     suspend fun allArtists(page: Int, pageSize: Int): PaginatedResponse<Artist>
+    suspend fun searchArtistOnMusicBrainz(query: String, page: Int, pageSize: Int): PaginatedResponse<MusicBrainzArtist>
 }

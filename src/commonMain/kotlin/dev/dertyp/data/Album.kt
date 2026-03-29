@@ -21,6 +21,7 @@ data class Album(
     val totalSize: Long = 0,
     val coverId: PlatformUUID? = null,
     val originalId: String? = null,
+    val musicbrainzId: String? = null,
 )
 
 @Serializable

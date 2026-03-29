@@ -14,6 +14,7 @@ data class Artist(
     val artists: List<Artist> = listOf(),
     val about: String = "",
     val imageId: PlatformUUID? = null,
+    val musicbrainzId: String? = null,
 )
 
 @Serializable
@@ -40,4 +41,10 @@ data class MergeArtists(
 data class SplitArtist(
     val artistId: PlatformUUID,
     val newArtists: Map<String, PlatformUUID?>,
+)
+
+@Serializable
+data class MusicBrainzArtist(
+    val id: String,
+    val name: String? = null
 )
