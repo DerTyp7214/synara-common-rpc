@@ -3,6 +3,7 @@
 package dev.dertyp.data
 
 import dev.dertyp.PlatformUUID
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
@@ -46,5 +47,40 @@ data class SplitArtist(
 @Serializable
 data class MusicBrainzArtist(
     val id: String,
-    val name: String? = null
+    val name: String? = null,
+    val type: String? = null,
+    val gender: String? = null,
+    val country: String? = null,
+    @SerialName("sort-name")
+    val sortName: String? = null,
+    val disambiguation: String? = null,
+    @SerialName("life-span")
+    val lifeSpan: MusicBrainzLifeSpan? = null,
+    val area: MusicBrainzArea? = null,
+    @SerialName("begin-area")
+    val beginArea: MusicBrainzArea? = null,
+    @SerialName("end-area")
+    val endArea: MusicBrainzArea? = null,
+    val tags: List<MusicBrainzTag>? = null,
+)
+
+@Serializable
+data class MusicBrainzLifeSpan(
+    val begin: String? = null,
+    val end: String? = null,
+    val ended: Boolean? = null
+)
+
+@Serializable
+data class MusicBrainzArea(
+    val id: String,
+    val name: String? = null,
+    @SerialName("sort-name")
+    val sortName: String? = null
+)
+
+@Serializable
+data class MusicBrainzTag(
+    val count: Int,
+    val name: String
 )
