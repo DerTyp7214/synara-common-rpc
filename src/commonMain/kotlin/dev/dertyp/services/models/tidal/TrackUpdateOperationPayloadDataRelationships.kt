@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TrackUpdateOperationPayloadDataRelationships(
     val genres: TrackUpdateOperationPayloadDataRelationshipsGenres? = null
-): BaseRelationships()
+): BaseRelationships

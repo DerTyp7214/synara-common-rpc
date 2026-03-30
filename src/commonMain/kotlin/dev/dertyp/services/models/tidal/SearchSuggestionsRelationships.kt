@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SearchSuggestionsRelationships(
     val directHits: MultiRelationshipDataDocument
-): BaseRelationships()
+): BaseRelationships

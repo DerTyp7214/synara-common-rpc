@@ -6,6 +6,6 @@ import kotlinx.serialization.Serializable
 data class IncludedInner<A : AttributeType, R : BaseRelationships>(
     val id: String,
     val type: String,
-    val attributes: A,
-    val relationships: R,
+    val attributes: A? = null,
+    val relationships: R? = null,
 )

@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AlbumUpdateOperationPayloadDataRelationships(
     val genres: AlbumUpdateOperationPayloadDataRelationshipsGenres? = null
-): BaseRelationships()
+): BaseRelationships

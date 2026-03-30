@@ -4,6 +4,7 @@ package dev.dertyp.services.models
 
 import dev.dertyp.PlatformDate
 import dev.dertyp.PlatformUUID
+import dev.dertyp.data.ReleaseType
 import dev.dertyp.serializers.DateSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
@@ -15,7 +16,7 @@ data class RecentRelease(
     val title: String,
     @Serializable(with = DateSerializer::class)
     val releaseDate: PlatformDate?,
-    val type: String?,
+    val type: ReleaseType,
     val imageId: PlatformUUID? = null,
     val links: List<String> = emptyList()
 )

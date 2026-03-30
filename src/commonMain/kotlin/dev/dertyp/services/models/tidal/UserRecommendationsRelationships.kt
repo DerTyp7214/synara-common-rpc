@@ -7,4 +7,4 @@ data class UserRecommendationsRelationships(
     val discoveryMixes: MultiRelationshipDataDocument,
     val myMixes: MultiRelationshipDataDocument,
     val newArrivalMixes: MultiRelationshipDataDocument
-): BaseRelationships()
+): BaseRelationships

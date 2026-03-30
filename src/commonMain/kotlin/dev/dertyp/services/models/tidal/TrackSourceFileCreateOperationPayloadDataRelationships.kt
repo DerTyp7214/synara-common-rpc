@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TrackSourceFileCreateOperationPayloadDataRelationships(
     val track: AttachSourceFileToTrack
-): BaseRelationships()
+): BaseRelationships

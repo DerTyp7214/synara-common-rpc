@@ -3,4 +3,4 @@ package dev.dertyp.services.models.tidal
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class BaseRelationships
+sealed interface BaseRelationships : AttributeType

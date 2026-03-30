@@ -8,4 +8,4 @@ data class VideosRelationships(
     val artists: MultiRelationshipDataDocument,
     val providers: MultiRelationshipDataDocument,
     val thumbnailArt: MultiRelationshipDataDocument
-): BaseRelationships()
+): BaseRelationships

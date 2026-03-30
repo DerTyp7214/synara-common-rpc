@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 data class SharesRelationships(
     val owners: MultiRelationshipDataDocument,
     val sharedResources: MultiRelationshipDataDocument
-): BaseRelationships()
+): BaseRelationships

@@ -10,4 +10,4 @@ data class SearchResultsRelationships(
     val topHits: MultiRelationshipDataDocument,
     val tracks: MultiRelationshipDataDocument,
     val videos: MultiRelationshipDataDocument
-): BaseRelationships()
+): BaseRelationships

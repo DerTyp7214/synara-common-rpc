@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 data class AlbumCreateOperationPayloadDataRelationships(
     val artists: AlbumCreateOperationPayloadDataRelationshipsArtists,
     val genres: AlbumCreateOperationPayloadDataRelationshipsGenres? = null
-): BaseRelationships()
+): BaseRelationships

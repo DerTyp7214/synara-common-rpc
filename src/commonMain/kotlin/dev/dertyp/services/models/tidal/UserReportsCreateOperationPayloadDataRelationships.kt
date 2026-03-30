@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserReportsCreateOperationPayloadDataRelationships(
     val reportedResources: UserReportsCreateOperationPayloadDataRelationshipsReportedResources
-): BaseRelationships()
+): BaseRelationships

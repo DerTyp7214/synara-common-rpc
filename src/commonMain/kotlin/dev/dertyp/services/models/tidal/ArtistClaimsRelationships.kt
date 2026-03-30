@@ -7,4 +7,4 @@ data class ArtistClaimsRelationships(
     val acceptedArtists: MultiRelationshipDataDocument,
     val owners: MultiRelationshipDataDocument,
     val recommendedArtists: MultiRelationshipDataDocument
-): BaseRelationships()
+): BaseRelationships

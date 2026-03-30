@@ -4,15 +4,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TracksRelationships(
-    val albums: MultiRelationshipDataDocument,
-    val artists: MultiRelationshipDataDocument,
-    val genres: MultiRelationshipDataDocument,
-    val lyrics: MultiRelationshipDataDocument,
-    val owners: MultiRelationshipDataDocument,
-    val providers: MultiRelationshipDataDocument,
-    val radio: MultiRelationshipDataDocument,
-    val shares: MultiRelationshipDataDocument,
-    val similarTracks: MultiRelationshipDataDocument,
-    val sourceFile: SingleRelationshipDataDocument,
-    val trackStatistics: SingleRelationshipDataDocument
-): BaseRelationships()
+    val albums: MultiRelationshipDataDocument? = null,
+    val artists: MultiRelationshipDataDocument? = null,
+    val genres: MultiRelationshipDataDocument? = null,
+    val lyrics: MultiRelationshipDataDocument? = null,
+    val owners: MultiRelationshipDataDocument? = null,
+    val providers: MultiRelationshipDataDocument? = null,
+    val radio: MultiRelationshipDataDocument? = null,
+    val shares: MultiRelationshipDataDocument? = null,
+    val similarTracks: MultiRelationshipDataDocument? = null,
+    val sourceFile: SingleRelationshipDataDocument? = null,
+    val trackStatistics: SingleRelationshipDataDocument? = null
+): BaseRelationships

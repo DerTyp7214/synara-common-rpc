@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 data class LyricsRelationships(
     val owners: MultiRelationshipDataDocument,
     val track: SingleRelationshipDataDocument
-): BaseRelationships()
+): BaseRelationships

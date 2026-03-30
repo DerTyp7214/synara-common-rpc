@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class LyricsCreateOperationPayloadDataRelationships(
     val track: LyricsCreateOperationPayloadDataRelationshipsTrack
-): BaseRelationships()
+): BaseRelationships

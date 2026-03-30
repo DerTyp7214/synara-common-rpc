@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ArtistBiographiesRelationships(
     val owners: MultiRelationshipDataDocument
-): BaseRelationships()
+): BaseRelationships

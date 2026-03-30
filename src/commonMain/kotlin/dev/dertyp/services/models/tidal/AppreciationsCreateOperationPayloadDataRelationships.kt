@@ -5,4 +5,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AppreciationsCreateOperationPayloadDataRelationships(
     val appreciatedItems: AppreciationsCreateOperationPayloadDataRelationshipsAppreciatedItem
-): BaseRelationships()
+): BaseRelationships

@@ -79,6 +79,7 @@ interface IMetadataService {
         @Serializable(with = LocalDateSerializer::class)
         val releaseDate: PlatformLocalDate? = null,
         val images: List<Image> = emptyList(),
+        val additionalTitles: List<String> = emptyList()
     ) : BaseMetadata()
 
     @Serializable

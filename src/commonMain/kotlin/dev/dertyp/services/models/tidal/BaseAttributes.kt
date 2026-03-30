@@ -25,7 +25,7 @@ sealed class BaseAttributes: AttributeType{
 
 @JvmInline
 @Serializable(with = JsonAttributeSerializer::class)
-value class JsonAttribute(val element: JsonElement) : AttributeType
+value class JsonAttribute(val element: JsonElement) : AttributeType, BaseRelationships
 
 object JsonAttributeSerializer : KSerializer<JsonAttribute> {
     override val descriptor = JsonElement.serializer().descriptor
