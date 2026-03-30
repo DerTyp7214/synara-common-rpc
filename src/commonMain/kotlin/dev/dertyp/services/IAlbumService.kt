@@ -15,6 +15,7 @@ interface IAlbumService {
     suspend fun allAlbums(page: Int, pageSize: Int): PaginatedResponse<Album>
     suspend fun updateAlbum(album: Album): Album?
     suspend fun deleteAlbums(ids: List<PlatformUUID>): Boolean
+    suspend fun fetchMusicBrainzId(id: PlatformUUID): Album?
 
     suspend fun byArtist(
         page: Int,

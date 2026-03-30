@@ -8,6 +8,17 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
 @Serializable
+enum class ArtistType {
+    @SerialName("Person") PERSON,
+    @SerialName("Group") GROUP,
+    @SerialName("Orchestra") ORCHESTRA,
+    @SerialName("Choir") CHOIR,
+    @SerialName("Character") CHARACTER,
+    @SerialName("Other") OTHER,
+    @SerialName("Unknown") UNKNOWN
+}
+
+@Serializable
 data class Artist(
     val id: PlatformUUID,
     val name: String,
@@ -16,6 +27,7 @@ data class Artist(
     val about: String = "",
     val imageId: PlatformUUID? = null,
     val musicbrainzId: String? = null,
+    val isFollowed: Boolean = false,
 )
 
 @Serializable
@@ -48,7 +60,7 @@ data class SplitArtist(
 data class MusicBrainzArtist(
     val id: String,
     val name: String? = null,
-    val type: String? = null,
+    val type: ArtistType? = null,
     val gender: String? = null,
     val country: String? = null,
     @SerialName("sort-name")
