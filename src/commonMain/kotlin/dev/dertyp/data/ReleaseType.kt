@@ -4,21 +4,21 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class ReleaseType {
-    ALBUM,
-    SINGLE,
+    Album,
+    Single,
     EP,
-    BROADCAST,
-    OTHER,
-    UNKNOWN;
+    Broadcast,
+    Other,
+    Unknown;
 
     companion object {
         fun fromString(value: String?): ReleaseType = when (value?.lowercase()) {
-            "album" -> ALBUM
-            "single" -> SINGLE
+            "album" -> Album
+            "single" -> Single
             "ep" -> EP
-            "broadcast" -> BROADCAST
-            "other" -> OTHER
-            else -> UNKNOWN
+            "broadcast" -> Broadcast
+            "other" -> Other
+            else -> Unknown
         }
     }
 }
