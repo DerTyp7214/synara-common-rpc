@@ -13,6 +13,7 @@ import kotlinx.serialization.UseContextualSerialization
 data class RecentRelease(
     val releaseId: String,
     val artistId: PlatformUUID,
+    val artistName: String,
     val title: String,
     @Serializable(with = DateSerializer::class)
     val releaseDate: PlatformDate?,
