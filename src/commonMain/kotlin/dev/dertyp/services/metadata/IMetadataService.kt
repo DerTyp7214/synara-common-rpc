@@ -119,8 +119,11 @@ interface IMetadataService {
         val modifiedAt: PlatformOffsetDateTime? = null,
         val images: List<Image>,
     ) : BaseMetadata() {
+        @Transient
         private val cache = mutableListOf<Track>()
+        @Transient
         private var collectionJob: Deferred<List<Track>>? = null
+        @Transient
         private val mutex = Mutex()
 
         private suspend fun getOrStartCollection(): Deferred<List<Track>> {
@@ -178,8 +181,11 @@ interface IMetadataService {
         @Transient
         val tracks: Flow<Track> = emptyFlow(),
     ): BaseMetadata() {
+        @Transient
         private val cache = mutableListOf<Track>()
+        @Transient
         private var collectionJob: Deferred<List<Track>>? = null
+        @Transient
         private val mutex = Mutex()
 
         private suspend fun getOrStartCollection(): Deferred<List<Track>> {
