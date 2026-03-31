@@ -19,5 +19,7 @@ data class RecentRelease(
     val releaseDate: PlatformDate?,
     val type: ReleaseType,
     val imageId: PlatformUUID? = null,
-    val links: List<String> = emptyList()
+    val links: List<String> = emptyList(),
+    val albumId: PlatformUUID? = null,
+    val songId: PlatformUUID? = null
 )
