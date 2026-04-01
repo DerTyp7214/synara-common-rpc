@@ -18,5 +18,7 @@ data class ScheduledTaskLog(
     val status: TaskStatus,
     val message: String?,
     val details: Map<String, String>?,
+    val progress: Double = 0.0,
+    val logs: List<String> = emptyList(),
     val logTime: Long
 )
