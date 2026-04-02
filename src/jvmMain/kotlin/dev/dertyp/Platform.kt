@@ -49,6 +49,9 @@ actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate = Date(ms)
 actual fun PlatformDate.formatISO(): String = toInstant().toString()
 actual fun String.toPlatformDateISO(): PlatformDate = Date.from(java.time.Instant.parse(this))
 
+private val dateFormatter = DateTimeFormatter.ofPattern("d. MMM yyyy")
+actual fun PlatformDate.formatDate(): String = dateFormatter.format(this.toInstant().atZone(ZoneId.systemDefault()))
+
 actual fun PlatformInstant.toEpochMilliseconds(): Long = this.toEpochMilli()
 actual fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant = Instant.ofEpochMilli(ms)
 actual fun PlatformInstant.formatISO(): String = toString()

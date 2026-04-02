@@ -44,11 +44,18 @@ private val dateTimeFormatter = NSDateFormatter().apply {
     timeZone = NSTimeZone.localTimeZone
 }
 
+private val dateFormatter = NSDateFormatter().apply {
+    dateFormat = "d. MMM yyyy"
+    locale = NSLocale.currentLocale
+    timeZone = NSTimeZone.localTimeZone
+}
+
 actual class PlatformDate(val value: NSDate)
 actual fun PlatformDate.toEpochMilliseconds(): Long = (value.timeIntervalSince1970 * 1000).toLong()
 actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate = PlatformDate(NSDate.dateWithTimeIntervalSince1970(ms / 1000.0))
 actual fun PlatformDate.formatISO(): String = isoDateFormatter.stringFromDate(value)
 actual fun String.toPlatformDateISO(): PlatformDate = PlatformDate(isoDateFormatter.dateFromString(this) ?: NSDate())
+actual fun PlatformDate.formatDate(): String = dateFormatter.stringFromDate(value)
 
 actual class PlatformInstant(val value: NSDate)
 actual fun PlatformInstant.toEpochMilliseconds(): Long = (value.timeIntervalSince1970 * 1000).toLong()

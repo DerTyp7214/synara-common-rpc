@@ -26,6 +26,16 @@ actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate = PlatformD
 actual fun PlatformDate.formatISO(): String = Instant.fromEpochMilliseconds(epochMillis).toString()
 actual fun String.toPlatformDateISO(): PlatformDate = PlatformDate(Instant.parse(this).toEpochMilliseconds())
 
+actual fun PlatformDate.formatDate(): String = memScoped {
+    val seconds = epochMillis / 1000
+    val timeVal = alloc<time_tVar>()
+    timeVal.value = seconds.convert()
+    val tm = localtime(timeVal.ptr)
+    val buffer = allocArray<ByteVar>(20)
+    strftime(buffer, 20.convert(), "%d. %b %Y", tm)
+    buffer.toKString()
+}
+
 actual class PlatformInstant(val epochMillis: Long)
 actual fun PlatformInstant.toEpochMilliseconds(): Long = epochMillis
 actual fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant = PlatformInstant(ms)

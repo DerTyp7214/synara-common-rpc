@@ -32,6 +32,7 @@ expect fun PlatformDate.toEpochMilliseconds(): Long
 expect fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate
 expect fun PlatformDate.formatISO(): String
 expect fun String.toPlatformDateISO(): PlatformDate
+expect fun PlatformDate.formatDate(): String
 
 expect class PlatformInstant
 
