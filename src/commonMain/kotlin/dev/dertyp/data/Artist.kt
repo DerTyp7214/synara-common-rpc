@@ -25,6 +25,7 @@ data class Artist(
     val isGroup: Boolean,
     val artists: List<Artist> = listOf(),
     val about: String = "",
+    val genres: List<Genre> = listOf(),
     val imageId: PlatformUUID? = null,
     val musicbrainzId: String? = null,
     val isFollowed: Boolean = false,
@@ -74,6 +75,14 @@ data class MusicBrainzArtist(
     @SerialName("end-area")
     val endArea: MusicBrainzArea? = null,
     val tags: List<MusicBrainzTag>? = null,
+    val genres: List<MusicBrainzGenre>? = null
+)
+
+@Serializable
+data class MusicBrainzGenre(
+    val id: String,
+    val name: String,
+    val count: Int? = null
 )
 
 @Serializable

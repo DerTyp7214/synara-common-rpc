@@ -45,6 +45,7 @@ abstract class BaseSong() {
     abstract val fileSize: Long
     abstract val coverId: PlatformUUID?
     abstract val musicBrainzId: String?
+    abstract val genres: List<Genre>
 }
 
 @Serializable
@@ -69,6 +70,7 @@ data class Song(
     override val fileSize: Long = 0,
     override val coverId: PlatformUUID? = null,
     override val musicBrainzId: String? = null,
+    override val genres: List<Genre> = listOf(),
 ): BaseSong()
 
 @Serializable
@@ -93,6 +95,7 @@ data class UserSong(
     override val fileSize: Long = 0,
     override val coverId: PlatformUUID? = null,
     override val musicBrainzId: String? = null,
+    override val genres: List<Genre> = listOf(),
 
     val isFavourite: Boolean? = false,
     @Serializable(with = DateSerializer::class)

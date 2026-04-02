@@ -20,6 +20,7 @@ data class Album(
     val totalDuration: Long,
     val totalSize: Long = 0,
     val coverId: PlatformUUID? = null,
+    val genres: List<Genre> = listOf(),
     val originalId: String? = null,
     val musicbrainzId: String? = null,
 )

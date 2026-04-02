@@ -47,6 +47,9 @@ interface IMetadataService {
         val popularity: Float,
         val url: String? = null,
         val images: List<Image>,
+        val biography: String? = null,
+        val styles: List<String> = emptyList(),
+        val genres: List<String> = emptyList(),
     ) : BaseMetadata()
 
     @Serializable
@@ -63,6 +66,7 @@ interface IMetadataService {
         val trackNumber: Int? = null,
         val discNumber: Int? = null,
         val images: List<Image>,
+        val genres: List<String> = emptyList(),
     ) : BaseMetadata()
 
     @Serializable
@@ -79,6 +83,7 @@ interface IMetadataService {
         @Serializable(with = LocalDateSerializer::class)
         val releaseDate: PlatformLocalDate? = null,
         val images: List<Image> = emptyList(),
+        val genres: List<String> = emptyList(),
         val additionalTitles: List<String> = emptyList()
     ) : BaseMetadata()
 
