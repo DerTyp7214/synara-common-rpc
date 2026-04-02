@@ -46,7 +46,7 @@ fun String.isURL(): Boolean {
     }
 }
 
-fun String.capitalize(): String = replaceFirstChar { it.lowercase() }
+fun String.capitalize(): String = lowercase().replaceFirstChar { it.uppercase() }
 fun String.oneLine(joiner: String = ""): String = split(Regex("[\n\r]")).joinToString(joiner)
 fun String.tidalId(): String = Url(this).tidalId()
 
