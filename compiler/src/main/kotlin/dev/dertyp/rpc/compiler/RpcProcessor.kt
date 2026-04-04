@@ -91,6 +91,14 @@ class RpcProcessor(
             out.writeLine("    }")
             out.writeLine("}")
 
+            out.writeLine("")
+            out.writeLine("actual fun initializeServiceRegistry() {")
+            symbols.forEach { symbol ->
+                val name = symbol.simpleName.asString()
+                out.writeLine("    registerServiceClass(\"$name\", $name::class)")
+            }
+            out.writeLine("}")
+
             symbols.forEach { symbol ->
                 generateServiceDispatcher(out, symbol)
             }
