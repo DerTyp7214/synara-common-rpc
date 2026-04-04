@@ -13,7 +13,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlin.reflect.KClass
 
 fun createRpcHttpClient(appVersion: String): HttpClient {
-    // Automatically initialize the registry from generated code
     initializeServiceRegistry()
     
     return HttpClient {
@@ -43,5 +42,4 @@ fun getServiceClass(name: String): KClass<*>? {
     return serviceClassRegistry[name]
 }
 
-// Placeholder for the generated initialization function
 expect fun initializeServiceRegistry()
