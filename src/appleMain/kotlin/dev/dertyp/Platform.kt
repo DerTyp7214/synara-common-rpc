@@ -34,7 +34,19 @@ actual fun ByteArray.toPlatformUUID(): PlatformUUID {
 
 private val isoDateFormatter = NSDateFormatter().apply {
     dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-    locale = NSLocale.currentLocale
+    locale = NSLocale(localeIdentifier = "en_US_POSIX")
+    timeZone = NSTimeZone.localTimeZone
+}
+
+private val localDateFormatter = NSDateFormatter().apply {
+    dateFormat = "yyyy-MM-dd"
+    locale = NSLocale(localeIdentifier = "en_US_POSIX")
+    timeZone = NSTimeZone.localTimeZone
+}
+
+private val yearDateFormatter = NSDateFormatter().apply {
+    dateFormat = "yyyy"
+    locale = NSLocale(localeIdentifier = "en_US_POSIX")
     timeZone = NSTimeZone.localTimeZone
 }
 
@@ -65,8 +77,14 @@ actual fun String.toPlatformInstantISO(): PlatformInstant = PlatformInstant(isoD
 actual fun PlatformInstant.formatDateTime(): String = dateTimeFormatter.stringFromDate(value)
 
 actual class PlatformLocalDate(val value: NSDate)
-actual fun PlatformLocalDate.formatISO(): String = isoDateFormatter.stringFromDate(value)
-actual fun String.toPlatformLocalDateISO(): PlatformLocalDate = PlatformLocalDate(isoDateFormatter.dateFromString(this) ?: NSDate())
+actual fun PlatformLocalDate.formatISO(): String = localDateFormatter.stringFromDate(value)
+actual fun String.toPlatformLocalDateISO(): PlatformLocalDate {
+    val date = localDateFormatter.dateFromString(this)
+        ?: isoDateFormatter.dateFromString(this)
+        ?: yearDateFormatter.dateFromString(this)
+        ?: NSDate()
+    return PlatformLocalDate(date)
+}
 
 actual class PlatformLocalDateTime(val value: NSDate)
 actual fun PlatformLocalDateTime.formatISO(): String = isoDateFormatter.stringFromDate(value)
