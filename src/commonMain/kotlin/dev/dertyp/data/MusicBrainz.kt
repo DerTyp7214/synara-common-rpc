@@ -5,6 +5,7 @@ package dev.dertyp.data
 import dev.dertyp.PlatformUUID
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.UseContextualSerialization
 
 @Serializable
@@ -26,7 +27,9 @@ data class MusicBrainzArtist(
     val endArea: MusicBrainzArea? = null,
     val tags: List<MusicBrainzTag>? = null,
     val genres: List<MusicBrainzGenre>? = null,
-    val aliases: List<MusicBrainzAlias>? = null
+    val aliases: List<MusicBrainzAlias>? = null,
+    @Transient
+    val fetchedAt: Long = 0
 )
 
 @Serializable
@@ -80,7 +83,9 @@ data class MusicBrainzRecording(
     val releases: List<MusicBrainzRelease>? = null,
     val length: Long? = null,
     val tags: List<MusicBrainzTag>? = null,
-    val genres: List<MusicBrainzGenre>? = null
+    val genres: List<MusicBrainzGenre>? = null,
+    @Transient
+    val fetchedAt: Long = 0
 )
 
 @Serializable
@@ -106,7 +111,9 @@ data class MusicBrainzRelease(
     val tags: List<MusicBrainzTag>? = null,
     val genres: List<MusicBrainzGenre>? = null,
     @SerialName("artist-credit")
-    val artistCredit: List<MusicBrainzArtistCredit>? = null
+    val artistCredit: List<MusicBrainzArtistCredit>? = null,
+    @Transient
+    val fetchedAt: Long = 0
 )
 
 @Serializable
@@ -119,7 +126,9 @@ data class MusicBrainzReleaseGroup(
     val firstReleaseDate: String? = null,
     val relations: List<MusicBrainzRelation>? = null,
     val tags: List<MusicBrainzTag>? = null,
-    val genres: List<MusicBrainzGenre>? = null
+    val genres: List<MusicBrainzGenre>? = null,
+    @Transient
+    val fetchedAt: Long = 0
 )
 
 @Serializable
