@@ -135,7 +135,7 @@ class DocProcessor(
                 val pType = param.type.resolve().toTypeString(documentedModels)
                 val pDoc = param.annotations.find { it.shortName.asString() == "RpcParamDoc" }
                 val pDesc = pDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String
-                if (pDesc != null) "`$pName`: $pDesc" else "`$pName` ($pType)"
+                if (pDesc != null) "`$pName` ($pType): $pDesc" else "`$pName` ($pType)"
             }.ifEmpty { "-" }
 
             val retType = func.returnType?.resolve()?.toTypeString(documentedModels) ?: "Unit"
