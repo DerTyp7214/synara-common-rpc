@@ -21,6 +21,7 @@ class SerializationTest {
         
         assertEquals(song.id, decoded.id)
         assertEquals(song.title, decoded.title)
+        assertEquals(song.musicBrainzId, decoded.musicBrainzId)
     }
 
     @Test
@@ -33,6 +34,7 @@ class SerializationTest {
         
         assertEquals(song.id, decoded.id)
         assertEquals(song.title, decoded.title)
+        assertEquals(song.musicBrainzId, decoded.musicBrainzId)
     }
 
     private fun createSong(id: dev.dertyp.PlatformUUID) = Song(
@@ -53,6 +55,7 @@ class SerializationTest {
         bitsPerSample = 16,
         bitRate = 320000,
         fileSize = 1000000,
-        coverId = null
+        coverId = null,
+        musicBrainzId = platformUUIDFromString("550e8400-e29b-41d4-a716-446655440000")
     )
 }
