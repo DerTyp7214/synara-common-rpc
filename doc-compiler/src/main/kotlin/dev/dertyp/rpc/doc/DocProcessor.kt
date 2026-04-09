@@ -91,7 +91,9 @@ class DocProcessor(
             model.declarations.filterIsInstance<KSClassDeclaration>()
                 .filter { it.classKind == ClassKind.ENUM_ENTRY }
                 .forEach { entry ->
-                    out.writeLine("| `${entry.simpleName.asString()}` | |")
+                    val fDoc = entry.annotations.find { it.shortName.asString() == "FieldDoc" }
+                    val fDesc = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+                    out.writeLine("| `${entry.simpleName.asString()}` | $fDesc |")
                 }
         } else {
             out.writeLine("| Field | Type | Description |")

@@ -19,7 +19,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlin.time.Duration
 
-@ModelDoc("Generic interface for services providing external media metadata.")
 interface IMetadataService {
 
     @Serializable
@@ -34,7 +33,7 @@ interface IMetadataService {
         @SerialName("expires_in")
         @FieldDoc("Token lifetime in seconds.")
         val expiresIn: Int,
-    ) : IMetadataService
+    )
 
     @Serializable
     @ModelDoc("Metadata for an image from an external source.")
@@ -50,7 +49,6 @@ interface IMetadataService {
     )
 
     @Serializable
-    @ModelDoc("Base class for all external metadata entities.")
     sealed class BaseMetadata
 
     @Serializable
