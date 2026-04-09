@@ -39,6 +39,11 @@ interface IAlbumService {
     suspend fun deleteAlbums(@RpcParamDoc("Collection of album IDs to delete.") ids: List<PlatformUUID>): Boolean
     @RpcDoc("Fetch and link MusicBrainz ID for an album.")
     suspend fun fetchMusicBrainzId(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): Album?
+    @RpcDoc("Manually set MusicBrainz ID for an album.")
+    suspend fun setMusicBrainzId(
+        @RpcParamDoc("The album unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("The MusicBrainz Release UUID.") musicBrainzId: PlatformUUID?
+    ): Album?
 
     @RpcDoc("List albums by artist.")
     suspend fun byArtist(
