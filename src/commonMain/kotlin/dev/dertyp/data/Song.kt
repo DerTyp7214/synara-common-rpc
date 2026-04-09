@@ -44,7 +44,7 @@ abstract class BaseSong() {
     abstract val bitRate: Long
     abstract val fileSize: Long
     abstract val coverId: PlatformUUID?
-    abstract val musicBrainzId: String?
+    abstract val musicBrainzId: PlatformUUID?
     abstract val genres: List<Genre>
 }
 
@@ -69,7 +69,7 @@ data class Song(
     override val bitRate: Long = 0,
     override val fileSize: Long = 0,
     override val coverId: PlatformUUID? = null,
-    override val musicBrainzId: String? = null,
+    override val musicBrainzId: PlatformUUID? = null,
     override val genres: List<Genre> = listOf(),
 ): BaseSong()
 
@@ -94,7 +94,7 @@ data class UserSong(
     override val bitRate: Long = 0,
     override val fileSize: Long = 0,
     override val coverId: PlatformUUID? = null,
-    override val musicBrainzId: String? = null,
+    override val musicBrainzId: PlatformUUID? = null,
     override val genres: List<Genre> = listOf(),
 
     val isFavourite: Boolean? = false,
@@ -121,7 +121,7 @@ data class SimpleSong(
     val bitRate: Long,
     val fileSize: Long,
     val coverId: PlatformUUID?,
-    val musicBrainzId: String? = null,
+    val musicBrainzId: PlatformUUID? = null,
     val transcodedTo: List<Int>
 )
 
@@ -145,7 +145,7 @@ data class InsertableSong(
     val bitRate: Long = 0,
     val fileSize: Long = 0,
     val coverHash: String? = null,
-    val musicBrainzId: String? = null,
+    val musicBrainzId: PlatformUUID? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is InsertableSong) contentEquals(other) else false

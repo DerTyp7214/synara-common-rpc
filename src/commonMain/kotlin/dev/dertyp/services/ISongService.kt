@@ -14,10 +14,10 @@ interface ISongService {
     suspend fun setLiked(id: PlatformUUID, liked: Boolean, addedAt: PlatformInstant? = null): UserSong?
     suspend fun setLyrics(id: PlatformUUID, lyrics: List<String>): UserSong?
     suspend fun setArtists(id: PlatformUUID, artistIds: List<PlatformUUID>): UserSong?
-    suspend fun setMusicBrainzId(id: PlatformUUID, musicBrainzId: String?): UserSong?
+    suspend fun setMusicBrainzId(id: PlatformUUID, musicBrainzId: PlatformUUID?): UserSong?
     suspend fun fetchMusicBrainzId(id: PlatformUUID): UserSong?
     suspend fun byId(id: PlatformUUID): UserSong?
-    suspend fun byMusicBrainzId(musicBrainzId: String): List<UserSong>
+    suspend fun byMusicBrainzId(musicBrainzId: PlatformUUID): List<UserSong>
     suspend fun byIds(ids: Collection<PlatformUUID>): PaginatedResponse<UserSong>
     suspend fun byTitle(page: Int, pageSize: Int, title: String): PaginatedResponse<UserSong>
     suspend fun byArtist(page: Int, pageSize: Int, artistId: PlatformUUID): PaginatedResponse<UserSong>

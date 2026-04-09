@@ -11,7 +11,7 @@ import kotlinx.serialization.UseContextualSerialization
 
 @Rpc
 interface IReleaseService {
-    suspend fun followArtist(musicBrainzId: String): Boolean
+    suspend fun followArtist(musicBrainzId: PlatformUUID): Boolean
     suspend fun unfollowArtist(artistId: PlatformUUID): Boolean
     suspend fun getFollowedArtists(): List<FollowedArtist>
     suspend fun getRecentReleases(page: Int = 0, pageSize: Int = 150): PaginatedResponse<RecentRelease>

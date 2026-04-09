@@ -11,7 +11,7 @@ import kotlinx.serialization.UseContextualSerialization
 
 @Serializable
 data class RecentRelease(
-    val releaseId: String,
+    val releaseId: PlatformUUID,
     val artistId: PlatformUUID,
     val artistName: String,
     val title: String,

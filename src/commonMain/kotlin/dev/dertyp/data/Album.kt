@@ -22,7 +22,7 @@ data class Album(
     val coverId: PlatformUUID? = null,
     val genres: List<Genre> = listOf(),
     val originalId: String? = null,
-    val musicbrainzId: String? = null,
+    val musicbrainzId: PlatformUUID? = null,
 )
 
 @Serializable
