@@ -1,8 +1,11 @@
 package dev.dertyp.services.tdn
 
+import dev.dertyp.rpc.annotations.FieldDoc
+import dev.dertyp.rpc.annotations.ModelDoc
 import kotlinx.serialization.Serializable
 
 @Suppress("EnumEntryName")
+@ModelDoc("The category of Tidal favorites.")
 enum class TidalFavType {
     tracks,
     artists,
@@ -11,7 +14,15 @@ enum class TidalFavType {
 }
 
 @Serializable
-data class ProcessExecutionResult(val exitCode: Int, val fullOutput: String, val error: String) {
+@ModelDoc("Results of an external process execution (e.g., downloader).")
+data class ProcessExecutionResult(
+    @FieldDoc("The process exit code (0 for success).")
+    val exitCode: Int,
+    @FieldDoc("The complete standard output of the process.")
+    val fullOutput: String,
+    @FieldDoc("The complete error output of the process.")
+    val error: String
+) {
     companion object {
         val EMPTY = ProcessExecutionResult(-2, "", "")
     }

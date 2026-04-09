@@ -1,14 +1,23 @@
 package dev.dertyp.data
 
+import dev.dertyp.rpc.annotations.FieldDoc
+import dev.dertyp.rpc.annotations.ModelDoc
 import kotlinx.serialization.Serializable
 
 @Serializable
+@ModelDoc("Manually provided metadata for custom audio uploads.")
 data class CustomMetadata(
+    @FieldDoc("The title of the song.")
     val title: String? = null,
+    @FieldDoc("Collection of artist names.")
     val artists: List<String>? = null,
+    @FieldDoc("The name of the album.")
     val album: String? = null,
+    @FieldDoc("The release year.")
     val year: String? = null,
+    @FieldDoc("The musical genre.")
     val genre: String? = null,
+    @FieldDoc("The raw binary data of the cover image.")
     val coverData: ByteArray? = null
 ) {
     override fun equals(other: Any?): Boolean {

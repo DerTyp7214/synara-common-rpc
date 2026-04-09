@@ -2,6 +2,10 @@ package dev.dertyp.services.tdn
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.randomPlatformUUID
+import dev.dertyp.rpc.annotations.FieldDoc
+import dev.dertyp.rpc.annotations.ModelDoc
+import dev.dertyp.rpc.annotations.RpcDoc
+import dev.dertyp.rpc.annotations.RpcParamDoc
 import dev.dertyp.serializers.UUIDSerializer
 import dev.dertyp.services.metadata.IMetadataService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,27 +16,55 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 @Rpc
+@RpcDoc("Management of the integrated media downloader (Tidal).")
 interface IDownloadService {
+    @RpcDoc("Stream real-time download logs from active processes.")
     fun logs(): Flow<LogLine>
+    @RpcDoc("Get the currently active download task.")
     suspend fun currentDownload(): DownloadQueueEntry?
+    @RpcDoc("Get the list of pending download tasks in the queue.")
     suspend fun downloadQueue(): List<DownloadQueueEntry>
+    @RpcDoc("Get a list of recently completed or failed download tasks.")
     suspend fun finishedDownloads(): List<FinishedDownloadQueueEntry>
+    @RpcDoc("Check if favorite synchronization is available for the current Tidal account.")
     suspend fun syncFavouritesAvailable(): Boolean
+    @RpcDoc("Synchronize Tidal favorites with the local library.", errors = ["IllegalStateException"])
     suspend fun syncFavourites()
-    suspend fun downloadTidalIds(ids: List<String>, type: Type = Type.SONG)
-    suspend fun existsByTidalId(id: String, type: Type = Type.SONG): Boolean
-    suspend fun setTidalDownloadService(service: TidalDownloadService)
+    @RpcDoc("Queue Tidal content for download by its IDs.")
+    suspend fun downloadTidalIds(
+        @RpcParamDoc("Collection of Tidal IDs.") ids: List<String>,
+        @RpcParamDoc("The type of content (SONG, ALBUM, etc.).") type: Type = Type.SONG
+    )
+    @RpcDoc("Check if content with a specific Tidal ID is already present in the library.")
+    suspend fun existsByTidalId(
+        @RpcParamDoc("The Tidal ID to check.") id: String,
+        @RpcParamDoc("The type of content.") type: Type = Type.SONG
+    ): Boolean
+    @RpcDoc("Set the preferred Tidal downloader backend.")
+    suspend fun setTidalDownloadService(@RpcParamDoc("The downloader service to use.") service: TidalDownloadService)
+    @RpcDoc("Get the currently active Tidal downloader backend.")
     suspend fun getTidalDownloadService(): TidalDownloadService
 
+    @RpcDoc("Check if the Tidal downloader is authorized.")
     suspend fun tidalDownloadAuthorized(): Boolean
+    @RpcDoc("Trigger the Tidal OAuth login flow and stream the login URL.")
     fun tidalDownloadLogin(): Flow<String>
 
+    @RpcDoc("Check if Tidal favorite synchronization is authorized.")
     suspend fun tidalSyncAuthorized(): Boolean
+    @RpcDoc("Get the Tidal OAuth authorization URL.", errors = ["IllegalArgumentException"])
     suspend fun getAuthUrl(): String
 
+    @RpcDoc("Immediately stop all active downloader processes.")
     suspend fun killAllChildProcesses()
 
-    suspend fun searchTidal(query: String? = null, title: String? = null, artist: String? = null, count: Int = 50): List<TidalSong>
+    @RpcDoc("Search for tracks directly on Tidal.", errors = ["IllegalStateException"])
+    suspend fun searchTidal(
+        @RpcParamDoc("General search query.") query: String? = null,
+        @RpcParamDoc("Filter by track title.") title: String? = null,
+        @RpcParamDoc("Filter by artist name.") artist: String? = null,
+        @RpcParamDoc("Maximum number of results.") count: Int = 50
+    ): List<TidalSong>
 }
 
 data class IdsWrapper(
@@ -86,9 +118,13 @@ data class IdsGroup(
 }
 
 @Serializable
+@ModelDoc("Base class for entries in the download queue.")
 sealed class DownloadQueueEntry {
+    @FieldDoc("The type of content being downloaded.")
     abstract val type: Type?
+    @FieldDoc("Maximum number of retry attempts on failure.")
     abstract val maxRetries: Int
+    @FieldDoc("The ID of the user who initiated the download.")
     abstract val byUser: PlatformUUID?
     abstract val callback: suspend () -> Unit
 
@@ -98,11 +134,16 @@ sealed class DownloadQueueEntry {
 }
 
 @Serializable
+@ModelDoc("A download queue entry for content specified by its URL.")
 data class UrlDownloadQueueEntry(
+    @FieldDoc("Collection of URLs to download.")
     val urls: MutableList<String>,
+    @FieldDoc("Collection of associated IDs.")
     val ids: Collection<String> = emptyList(),
     @Serializable(with = UUIDSerializer::class)
+    @FieldDoc("The ID of the user who initiated the download.")
     override val byUser: PlatformUUID? = null,
+    @FieldDoc("The type of content.")
     override val type: Type? = null,
     @Transient
     override val maxRetries: Int = 5,
@@ -126,10 +167,14 @@ data class UrlDownloadQueueEntry(
 }
 
 @Serializable
+@ModelDoc("A download queue entry for a user's favorite collection.")
 data class FavouriteDownloadQueueEntry(
+    @FieldDoc("The type of favorites to download.")
     val tdnFavoriteType: TidalFavType,
     @Serializable(with = UUIDSerializer::class)
+    @FieldDoc("The ID of the user who initiated the download.")
     override val byUser: PlatformUUID? = null,
+    @FieldDoc("The type of content.")
     override val type: Type? = null,
     @Transient
     override val maxRetries: Int = 5,
@@ -137,20 +182,29 @@ data class FavouriteDownloadQueueEntry(
     override val callback: suspend () -> Unit = {}
 ) : DownloadQueueEntry()
 
+
 @Serializable
+@ModelDoc("Contains details about a completed or failed download task.")
 data class FinishedDownloadQueueEntry(
+    @FieldDoc("The original queue entry.")
     val downloadQueueEntry: DownloadQueueEntry,
+    @FieldDoc("The result of the process execution.")
     var result: ProcessExecutionResult,
+    @FieldDoc("The full logs from the download process.")
     val logs: List<String>,
 )
 
 @Serializable
+@ModelDoc("A single log line from a download process.")
 data class LogLine(
+    @FieldDoc("The queue entry this log belongs to.")
     val queueEntry: DownloadQueueEntry,
+    @FieldDoc("The actual log text.")
     val line: String?,
 )
 
 @Serializable
+@ModelDoc("The type of content available for download.")
 enum class Type(val value: String) {
     @SerialName("mix")
     MIX("mix"),
@@ -175,9 +229,14 @@ enum class Type(val value: String) {
 }
 
 @Serializable
+@ModelDoc("Metadata for a track found on Tidal.")
 data class TidalSong(
+    @FieldDoc("The Tidal track ID.")
     val id: String,
+    @FieldDoc("The title of the track.")
     val title: String,
+    @FieldDoc("Collection of artist names.")
     val artists: List<String>,
+    @FieldDoc("Map of cover image sizes to URLs.")
     val cover: Map<Int, String>
 )
