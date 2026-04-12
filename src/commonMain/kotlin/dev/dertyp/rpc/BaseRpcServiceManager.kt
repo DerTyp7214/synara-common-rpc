@@ -24,6 +24,7 @@ import kotlinx.rpc.annotations.Rpc
 import kotlinx.rpc.krpc.ktor.client.rpc
 import kotlinx.rpc.withService
 import kotlin.reflect.KClass
+import kotlin.time.Duration.Companion.milliseconds
 
 abstract class BaseRpcServiceManager(
     protected val client: HttpClient,
@@ -175,7 +176,7 @@ abstract class BaseRpcServiceManager(
                             is ConnectTimeoutException,
                             is IOException,
                             is UnresolvedAddressException -> {
-                                delay(1000L * attempt)
+                                delay((1000L * attempt).milliseconds)
                                 continue
                             }
 

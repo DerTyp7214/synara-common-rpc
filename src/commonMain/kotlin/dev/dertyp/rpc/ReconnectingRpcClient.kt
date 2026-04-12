@@ -14,6 +14,7 @@ import kotlinx.io.IOException
 import kotlinx.rpc.RpcCall
 import kotlinx.rpc.RpcClient
 import kotlinx.rpc.krpc.ktor.client.rpc
+import kotlin.time.Duration.Companion.milliseconds
 
 fun HttpClient.reconnectingRpcClient(
     onCancel: () -> Unit = {},
@@ -47,7 +48,7 @@ class ReconnectingRpcClient(
                 attempts++
                 if (isRetriable(e) && attempts < maxRetries) {
                     onCancel()
-                    delay(delayMs * attempts)
+                    delay((delayMs * attempts).milliseconds)
                     continue
                 }
                 onFailure()
@@ -62,7 +63,7 @@ class ReconnectingRpcClient(
         }.retry(retries = maxRetries.toLong()) { e ->
             if (isRetriable(e)) {
                 onCancel()
-                delay(delayMs * 2)
+                delay((delayMs * 2).milliseconds)
                 true
             } else {
                 onFailure()
