@@ -47,39 +47,39 @@ interface ISongService {
     suspend fun byIds(@RpcParamDoc("Collection of song IDs.") ids: Collection<PlatformUUID>): List<UserSong>
     @RpcDoc("Search for songs by title.")
     suspend fun byTitle(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The song title to search for.") title: String
     ): PaginatedResponse<UserSong>
     @RpcDoc("List songs by a specific artist.")
     suspend fun byArtist(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID
     ): PaginatedResponse<UserSong>
     @RpcDoc("List songs liked by the user for a specific artist.")
     suspend fun likedByArtist(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
     ): PaginatedResponse<UserSong>
     @RpcDoc("List songs in an album.")
     suspend fun byAlbum(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The album unique identifier.") albumId: PlatformUUID
     ): PaginatedResponse<UserSong>
     @RpcDoc("List songs in a system playlist.")
     suspend fun byPlaylist(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The playlist unique identifier.") playlistId: PlatformUUID
     ): PaginatedResponse<UserSong>
     @RpcDoc("List songs in a user playlist.")
     suspend fun byUserPlaylist(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The user playlist unique identifier.") playlistId: PlatformUUID
     ): PaginatedResponse<UserSong>
     @RpcDoc("Find songs by their original Tidal track IDs.")
@@ -88,14 +88,14 @@ interface ISongService {
     suspend fun byTidalTracks(@RpcParamDoc("Collection of track metadata.") tracks: Collection<IMetadataService.Track>): List<UserSong>
     @RpcDoc("Get all songs liked by the current user.")
     suspend fun likedSongs(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
     ): PaginatedResponse<UserSong>
     @RpcDoc("Get all songs with optional filtering.")
     suspend fun allSongs(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean,
         @RpcParamDoc("Filter by specific tags.") tags: List<SongTag> = emptyList(),
         @RpcParamDoc("Invert the tag filter.") invertTags: Boolean = false,
@@ -106,8 +106,8 @@ interface ISongService {
 
     @RpcDoc("Perform a ranked search for songs.")
     suspend fun rankedSearch(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The search query.") query: String,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean,
         @RpcParamDoc("Only search within liked songs.") liked: Boolean = false

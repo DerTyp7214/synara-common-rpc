@@ -19,15 +19,15 @@ interface IUserPlaylistService {
     @RpcDoc("Search user playlists.")
     suspend fun rankedSearch(
         @RpcParamDoc("Optional creator ID to filter by.") creator: PlatformUUID?,
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The search query.") query: String
     ): PaginatedResponse<UserPlaylist>
     @RpcDoc("Get all user playlists.")
     suspend fun allPlaylists(
         @RpcParamDoc("Optional creator ID to filter by.") creator: PlatformUUID?,
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<UserPlaylist>
     @RpcDoc("Delete a user playlist.")
     suspend fun delete(@RpcParamDoc("The playlist unique identifier.") id: PlatformUUID): Boolean

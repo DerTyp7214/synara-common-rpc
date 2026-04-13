@@ -2,6 +2,7 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.Image
+import dev.dertyp.rpc.annotations.RestPublic
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -15,6 +16,7 @@ interface IImageService {
     suspend fun byHash(@RpcParamDoc("The unique hash of the image.") hash: String): Image?
     @RpcDoc("Map a list of image hashes to their existing internal UUIDs.")
     suspend fun getCoverHashes(@RpcParamDoc("Collection of image hashes.") hashes: List<String>): Map<String, PlatformUUID>
+    @RestPublic
     @RpcDoc("Retrieve the raw binary data of an image.")
     suspend fun getImageData(
         @RpcParamDoc("The image unique identifier.") id: PlatformUUID,

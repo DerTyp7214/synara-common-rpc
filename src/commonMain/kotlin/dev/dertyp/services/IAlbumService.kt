@@ -18,20 +18,20 @@ interface IAlbumService {
     suspend fun versions(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): List<Album>
     @RpcDoc("Search albums by name.")
     suspend fun byName(
-        @RpcParamDoc("Page index (starting from 0).") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index (starting from 0).") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The album name to search for.") name: String
     ): PaginatedResponse<Album>
     @RpcDoc("Ranked album search.")
     suspend fun rankedSearch(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The search query.") query: String
     ): PaginatedResponse<Album>
     @RpcDoc("Get all albums in the library.")
     suspend fun allAlbums(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<Album>
     @RpcDoc("Update album metadata.")
     suspend fun updateAlbum(@RpcParamDoc("The album object with updated fields.") album: Album): Album?
@@ -47,8 +47,8 @@ interface IAlbumService {
 
     @RpcDoc("List albums by artist.")
     suspend fun byArtist(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
         @RpcParamDoc("Whether to include singles.") singles: Boolean = false
     ): PaginatedResponse<Album>

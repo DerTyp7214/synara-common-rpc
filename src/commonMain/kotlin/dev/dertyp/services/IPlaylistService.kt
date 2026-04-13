@@ -21,14 +21,14 @@ interface IPlaylistService {
     suspend fun byName(@RpcParamDoc("The name of the playlist.") name: String): Playlist?
     @RpcDoc("Search system playlists.")
     suspend fun rankedSearch(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The search query.") query: String
     ): PaginatedResponse<Playlist>
     @RpcDoc("Get all system playlists.")
     suspend fun allPlaylists(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<Playlist>
     @RpcDoc("Delete a system playlist.")
     suspend fun delete(@RpcParamDoc("The playlist unique identifier.") id: PlatformUUID): Boolean

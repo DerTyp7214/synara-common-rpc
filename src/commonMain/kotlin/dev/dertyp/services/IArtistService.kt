@@ -16,8 +16,8 @@ interface IArtistService {
     suspend fun byIds(@RpcParamDoc("Collection of artist IDs.") ids: List<PlatformUUID>): List<Artist>
     @RpcDoc("Ranked artist search.")
     suspend fun rankedSearch(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The search query.") query: String
     ): PaginatedResponse<Artist>
     @RpcDoc("Set sub-artists for a group.")
@@ -27,8 +27,8 @@ interface IArtistService {
     ): Artist?
     @RpcDoc("List artists in a group.")
     suspend fun byGroup(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The group artist unique identifier.") groupId: PlatformUUID
     ): PaginatedResponse<Artist>
     @RpcDoc("Merge multiple artist records into one.")
@@ -37,8 +37,8 @@ interface IArtistService {
     suspend fun splitArtist(@RpcParamDoc("Configuration for splitting an artist.") splitArtist: SplitArtist): List<Artist>
     @RpcDoc("Get all artists in the library.")
     suspend fun allArtists(
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<Artist>
     @RpcDoc("Manually create an artist record.")
     suspend fun createArtist(
@@ -50,8 +50,8 @@ interface IArtistService {
     @RpcDoc("Search for an artist directly on MusicBrainz.")
     suspend fun searchArtistOnMusicBrainz(
         @RpcParamDoc("The search query.") query: String,
-        @RpcParamDoc("Page index.") page: Int,
-        @RpcParamDoc("Number of items per page.") pageSize: Int
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<MusicBrainzArtist>
     @RpcDoc("Fetch and link MusicBrainz ID for an artist.")
     suspend fun fetchMusicBrainzId(@RpcParamDoc("The artist unique identifier.") id: PlatformUUID): Artist?

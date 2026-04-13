@@ -39,6 +39,13 @@ annotation class FieldDoc(
 )
 
 /**
+ * Marks a function as publicly accessible in REST, even if the service is authenticated.
+ */
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class RestPublic
+
+/**
  * Marks a function for REST to respond with a file.
  */
 @Target(AnnotationTarget.FUNCTION)
