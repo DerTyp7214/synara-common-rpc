@@ -2,6 +2,7 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.User
+import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -17,6 +18,7 @@ interface IUserService {
     suspend fun findUserByUsername(
         @RpcParamDoc("The username of the user.") username: String
     ): User?
+    @RestGet
     @RpcDoc("Get the profile of the current authenticated user.")
     suspend fun me(): User
     @RpcDoc("List all users on the server.", adminOnly = true, errors = ["IllegalStateException"])

@@ -2,6 +2,7 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.PlaybackState
+import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +18,7 @@ interface IPlaybackService {
         @RpcParamDoc("The session unique identifier.") sessionId: PlatformUUID,
         @RpcParamDoc("The new playback state data.") state: PlaybackState
     ): Boolean
+    @RestGet
     @RpcDoc("Watch real-time playback state changes for a session.")
     fun observePlaybackState(@RpcParamDoc("The session unique identifier.") sessionId: PlatformUUID): Flow<PlaybackState>
 }

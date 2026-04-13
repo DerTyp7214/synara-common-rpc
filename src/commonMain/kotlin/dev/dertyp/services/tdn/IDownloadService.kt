@@ -2,10 +2,7 @@ package dev.dertyp.services.tdn
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.randomPlatformUUID
-import dev.dertyp.rpc.annotations.FieldDoc
-import dev.dertyp.rpc.annotations.ModelDoc
-import dev.dertyp.rpc.annotations.RpcDoc
-import dev.dertyp.rpc.annotations.RpcParamDoc
+import dev.dertyp.rpc.annotations.*
 import dev.dertyp.serializers.UUIDSerializer
 import dev.dertyp.services.metadata.IMetadataService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,23 +15,30 @@ import kotlinx.serialization.Transient
 @Rpc
 @RpcDoc("Management of the integrated media downloader (Tidal).")
 interface IDownloadService {
+    @RestGet
     @RpcDoc("Stream real-time download logs from active processes.")
     fun logs(): Flow<LogLine>
+    @RestGet
     @RpcDoc("Get the currently active download task.")
     suspend fun currentDownload(): DownloadQueueEntry?
+    @RestGet
     @RpcDoc("Get the list of pending download tasks in the queue.")
     suspend fun downloadQueue(): List<DownloadQueueEntry>
+    @RestGet
     @RpcDoc("Get a list of recently completed or failed download tasks.")
     suspend fun finishedDownloads(): List<FinishedDownloadQueueEntry>
+    @RestGet
     @RpcDoc("Check if favorite synchronization is available for the current Tidal account.")
     suspend fun syncFavouritesAvailable(): Boolean
     @RpcDoc("Synchronize Tidal favorites with the local library.", errors = ["IllegalStateException"])
     suspend fun syncFavourites()
+    @RestPost
     @RpcDoc("Queue Tidal content for download by its IDs.")
     suspend fun downloadTidalIds(
         @RpcParamDoc("Collection of Tidal IDs.") ids: List<String>,
         @RpcParamDoc("The type of content (SONG, ALBUM, etc.).") type: Type = Type.SONG
     )
+    @RestGet
     @RpcDoc("Check if content with a specific Tidal ID is already present in the library.")
     suspend fun existsByTidalId(
         @RpcParamDoc("The Tidal ID to check.") id: String,
@@ -42,22 +46,27 @@ interface IDownloadService {
     ): Boolean
     @RpcDoc("Set the preferred Tidal downloader backend.")
     suspend fun setTidalDownloadService(@RpcParamDoc("The downloader service to use.") service: TidalDownloadService)
+    @RestGet
     @RpcDoc("Get the currently active Tidal downloader backend.")
     suspend fun getTidalDownloadService(): TidalDownloadService
 
+    @RestGet
     @RpcDoc("Check if the Tidal downloader is authorized.")
     suspend fun tidalDownloadAuthorized(): Boolean
     @RpcDoc("Trigger the Tidal OAuth login flow and stream the login URL.")
     fun tidalDownloadLogin(): Flow<String>
 
+    @RestGet
     @RpcDoc("Check if Tidal favorite synchronization is authorized.")
     suspend fun tidalSyncAuthorized(): Boolean
+    @RestGet
     @RpcDoc("Get the Tidal OAuth authorization URL.", errors = ["IllegalArgumentException"])
     suspend fun getAuthUrl(): String
 
     @RpcDoc("Immediately stop all active downloader processes.")
     suspend fun killAllChildProcesses()
 
+    @RestGet
     @RpcDoc("Search for tracks directly on Tidal.", errors = ["IllegalStateException"])
     suspend fun searchTidal(
         @RpcParamDoc("General search query.") query: String? = null,

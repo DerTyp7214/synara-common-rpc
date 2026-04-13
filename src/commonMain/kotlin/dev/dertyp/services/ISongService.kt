@@ -5,6 +5,8 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.data.PaginatedResponse
 import dev.dertyp.data.SongTag
 import dev.dertyp.data.UserSong
+import dev.dertyp.rpc.annotations.RestFileResponse
+import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import dev.dertyp.services.metadata.IMetadataService
@@ -112,12 +114,14 @@ interface ISongService {
     ): PaginatedResponse<UserSong>
 
     @RpcDoc("Stream song audio data for playback.")
+    @RestFileResponse
     fun streamSong(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Byte offset to start streaming from.") offset: Long = 0,
         @RpcParamDoc("Size of each data chunk.") chunkSize: Int = 4096
     ): Flow<ByteArray>?
     @RpcDoc("Download song audio in specific quality.", errors = ["IOException", "IllegalStateException"])
+    @RestFileResponse
     fun downloadSong(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Target audio quality.") quality: Int,
@@ -140,13 +144,16 @@ interface ISongService {
     ): Flow<PlatformUUID>
     @RpcDoc("Stream all IDs of songs liked by the current user.")
     fun likedSongIds(@RpcParamDoc("Whether to include explicit content.") explicit: Boolean): Flow<PlatformUUID>
+    @RestGet
     @RpcDoc("Stream song IDs belonging to an artist.")
     fun songIdsByArtist(@RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID): Flow<PlatformUUID>
+    @RestGet
     @RpcDoc("Stream song IDs belonging to an album.")
     fun songIdsByAlbum(@RpcParamDoc("The album unique identifier.") albumId: PlatformUUID): Flow<PlatformUUID>
+    @RestGet
     @RpcDoc("Stream song IDs belonging to a system playlist.")
     fun songIdsByPlaylist(@RpcParamDoc("The playlist unique identifier.") playlistId: PlatformUUID): Flow<PlatformUUID>
+    @RestGet
     @RpcDoc("Stream song IDs belonging to a user playlist.")
     fun songIdsByUserPlaylist(@RpcParamDoc("The user playlist unique identifier.") playlistId: PlatformUUID): Flow<PlatformUUID>
-
 }

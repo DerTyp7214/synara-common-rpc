@@ -2,6 +2,7 @@ package dev.dertyp.services
 
 import dev.dertyp.data.ProxyInfo
 import dev.dertyp.data.ServerStats
+import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
 import kotlinx.rpc.annotations.Rpc
 
@@ -10,6 +11,7 @@ import kotlinx.rpc.annotations.Rpc
 interface IServerStatsService {
     @RpcDoc("Retrieve detailed system performance metrics and library statistics.")
     suspend fun getStats(): ServerStats
+    @RestGet
     @RpcDoc("Simple connectivity check to verify the server is responding.")
     suspend fun health(): Boolean
     @RpcDoc("Retrieve information about the reverse proxy status and configuration.")
