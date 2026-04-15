@@ -2,24 +2,198 @@ package dev.dertyp.services.metadata
 
 import dev.dertyp.PlatformLocalDate
 import dev.dertyp.PlatformOffsetDateTime
+import dev.dertyp.PlatformUUID
 import dev.dertyp.ioDispatcher
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
+import dev.dertyp.rpc.annotations.RpcDoc
+import dev.dertyp.rpc.annotations.RpcParamDoc
 import dev.dertyp.serializers.DurationSerializer
 import dev.dertyp.serializers.LocalDateSerializer
 import dev.dertyp.serializers.OffsetDateTimeSerializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlin.time.Duration
 
+@Rpc
+@RpcDoc("Service for fetching metadata from external sources.")
 interface IMetadataService {
+
+    @Serializable
+    @Suppress("EnumEntryName")
+    enum class MetadataType {
+        tidal,
+        spotify,
+        appleMusic,
+        imageCache,
+        theAudioDB,
+    }
+
+    @RpcDoc("Search for artists on the specified metadata provider.")
+    suspend fun searchArtists(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The search query.")
+        query: String,
+        @RpcParamDoc("Maximum number of results to return.")
+        limit: Int = 50
+    ): List<Artist>
+
+    @RpcDoc("Search for tracks on the specified metadata provider.")
+    suspend fun search(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The search query.")
+        query: String,
+        @RpcParamDoc("Maximum number of results to return.")
+        limit: Int = 50
+    ): List<Track>
+
+    @RpcDoc("Search for albums on the specified metadata provider.")
+    suspend fun searchAlbums(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The search query.")
+        query: String,
+        @RpcParamDoc("Maximum number of results to return.")
+        limit: Int = 50,
+        @RpcParamDoc("Whether to include tracks in the album results.")
+        includeTracks: Boolean = false
+    ): List<Album>
+
+    @RpcDoc("Get the album ID for a given track ID.")
+    suspend fun getAlbumIdByTrackId(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The external track ID.")
+        trackId: String
+    ): String?
+
+    @RpcDoc("Get image URLs for a given album ID.")
+    suspend fun getImageUrlByAlbumId(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The external album ID.")
+        albumId: String
+    ): List<Image>
+
+    @RpcDoc("Get an artist by their MusicBrainz ID.")
+    suspend fun getArtistByMbId(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The MusicBrainz Artist UUID.")
+        mbId: PlatformUUID
+    ): Artist?
+
+    @RpcDoc("Get an album by its MusicBrainz ID.")
+    suspend fun getAlbumByMbId(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The MusicBrainz Album (Release) UUID.")
+        mbId: PlatformUUID
+    ): Album?
+
+    @RpcDoc("Get a track by its MusicBrainz ID.")
+    suspend fun getTrackByMbId(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The MusicBrainz Track (Recording) UUID.")
+        mbId: PlatformUUID
+    ): Track?
+
+    @RpcDoc("Get image URLs for an artist by their MusicBrainz ID.")
+    suspend fun getImageUrlByArtistMbId(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The MusicBrainz Artist UUID.")
+        mbId: PlatformUUID
+    ): List<Image>
+
+    @RpcDoc("Get image URLs for an album by its MusicBrainz ID.")
+    suspend fun getImageUrlByAlbumMbId(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The MusicBrainz Album (Release) UUID.")
+        mbId: PlatformUUID
+    ): List<Image>
+
+    @RpcDoc("Get image URLs for a track by its MusicBrainz ID.")
+    suspend fun getImageUrlByTrackMbId(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The MusicBrainz Track (Recording) UUID.")
+        mbId: PlatformUUID
+    ): List<Image>
+
+    @RpcDoc("Get image URLs for multiple album IDs.")
+    suspend fun getImageUrlsByAlbumIds(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("List of external album IDs.")
+        albumIds: List<String>
+    ): Map<String, List<Image>>
+
+    @RpcDoc("Get the URL for a cached image by its ID.")
+    suspend fun getImageUrlByImageId(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The image UUID.")
+        imageId: PlatformUUID
+    ): String?
+
+    @RpcDoc("Get a track by its external ID.")
+    suspend fun getTrackById(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The external track ID.")
+        trackId: String
+    ): Track?
+
+    @RpcDoc("Get multiple tracks by their external IDs.")
+    suspend fun getTracksByIds(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("List of external track IDs.")
+        trackIds: List<String>
+    ): List<Track>
+
+    @RpcDoc("Get multiple albums by their external IDs.")
+    suspend fun getAlbumsByIds(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("List of external album IDs.")
+        albumIds: List<String>
+    ): List<Album>
+
+    @RpcDoc("Check if an album exists by its external ID.")
+    suspend fun albumExistsById(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The external album ID.")
+        albumId: String
+    ): Boolean
+
+    @RpcDoc("Get multiple artists by their external IDs.")
+    suspend fun getArtistsByIds(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("List of external artist IDs.")
+        artistIds: List<String>
+    ): List<Artist>
 
     @Serializable
     @ModelDoc("Response containing an access token for an external metadata service.")
