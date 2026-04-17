@@ -1,4 +1,4 @@
-@file:UseContextualSerialization(PlatformUUID::class)
+@file:UseContextualSerialization(Artist::class, Album::class, Genre::class, Image::class, PlatformUUID::class)
 
 package dev.dertyp.data
 
