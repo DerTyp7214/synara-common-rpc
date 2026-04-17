@@ -162,6 +162,152 @@ pub struct IUserPlaylistServiceSetPlaylistImageArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceSearchArtistsArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    pub query: String,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceSearchArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    pub query: String,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceSearchAlbumsArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    pub query: String,
+    pub limit: i32,
+    #[serde(rename = "includeTracks")]
+    pub include_tracks: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetAlbumIdByTrackIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "trackId")]
+    pub track_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetImageUrlByAlbumIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "albumId")]
+    pub album_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetArtistByMbIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "mbId")]
+    pub mb_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetAlbumByMbIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "mbId")]
+    pub mb_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetTrackByMbIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "mbId")]
+    pub mb_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetImageUrlByArtistMbIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "mbId")]
+    pub mb_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetImageUrlByAlbumMbIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "mbId")]
+    pub mb_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetImageUrlByTrackMbIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "mbId")]
+    pub mb_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetImageUrlsByAlbumIdsArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "albumIds")]
+    pub album_ids: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetImageUrlByImageIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "imageId")]
+    pub image_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetTrackByIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "trackId")]
+    pub track_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetTracksByIdsArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "trackIds")]
+    pub track_ids: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetAlbumsByIdsArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "albumIds")]
+    pub album_ids: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceAlbumExistsByIdArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "albumId")]
+    pub album_id: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetArtistsByIdsArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    #[serde(rename = "artistIds")]
+    pub artist_ids: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsServiceTranscribeLyricsArgs {
     #[serde(rename = "songId")]
     pub song_id: PlatformUUID,
@@ -713,6 +859,76 @@ pub struct InsertablePlaylist {
     pub origin: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum MetadataType {
+    #[serde(rename = "tidal")]
+    Tidal,
+    #[serde(rename = "spotify")]
+    Spotify,
+    #[serde(rename = "appleMusic")]
+    AppleMusic,
+    #[serde(rename = "imageCache")]
+    ImageCache,
+    #[serde(rename = "theAudioDB")]
+    TheAudioDb,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceArtist {
+    pub id: String,
+    pub name: String,
+    pub popularity: Float,
+    pub url: Option<String>,
+    pub images: Vec<IMetadataServiceImage>,
+    pub biography: Option<String>,
+    pub styles: Vec<String>,
+    pub genres: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceImage {
+    pub url: String,
+    pub width: i32,
+    pub height: i32,
+    pub animated: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Track {
+    pub id: String,
+    pub title: String,
+    pub artists: Vec<String>,
+    pub duration: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: Option<PlatformDateTime>,
+    #[serde(rename = "addedAt")]
+    pub added_at: Option<PlatformDateTime>,
+    #[serde(rename = "trackNumber")]
+    pub track_number: Option<i32>,
+    #[serde(rename = "discNumber")]
+    pub disc_number: Option<i32>,
+    pub images: Vec<IMetadataServiceImage>,
+    pub genres: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceAlbum {
+    pub id: String,
+    pub title: String,
+    pub artists: Vec<String>,
+    pub duration: String,
+    #[serde(rename = "trackCount")]
+    pub track_count: i32,
+    #[serde(rename = "discCount")]
+    pub disc_count: i32,
+    #[serde(rename = "releaseDate")]
+    pub release_date: Option<PlatformDateTime>,
+    pub images: Vec<IMetadataServiceImage>,
+    pub genres: Vec<String>,
+    #[serde(rename = "additionalTitles")]
+    pub additional_titles: Vec<String>,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MusicBrainzArtist {
     pub id: PlatformUUID,
@@ -1152,32 +1368,6 @@ pub struct UserSong {
     pub user_song_updated_at: Option<PlatformDate>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Track {
-    pub id: String,
-    pub title: String,
-    pub artists: Vec<String>,
-    pub duration: String,
-    #[serde(rename = "createdAt")]
-    pub created_at: Option<PlatformDateTime>,
-    #[serde(rename = "addedAt")]
-    pub added_at: Option<PlatformDateTime>,
-    #[serde(rename = "trackNumber")]
-    pub track_number: Option<i32>,
-    #[serde(rename = "discNumber")]
-    pub disc_number: Option<i32>,
-    pub images: Vec<IMetadataServiceImage>,
-    pub genres: Vec<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct IMetadataServiceImage {
-    pub url: String,
-    pub width: i32,
-    pub height: i32,
-    pub animated: bool,
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum SongTag {
     #[serde(rename = "Q_44_48")]
@@ -1390,6 +1580,27 @@ pub trait IUserPlaylistService {
     fn add_to_playlist<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, song_ids: Vec<(i64, PlatformUUID)>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn remove_from_playlist<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, song_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_playlist_image<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, image_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IMetadataService {
+    fn search_artists<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn search<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn search_albums<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32, include_tracks: bool) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceAlbum>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_album_id_by_track_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, track_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<String>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_image_url_by_album_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_artist_by_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<IMetadataServiceArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_album_by_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<IMetadataServiceAlbum>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_track_by_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_image_url_by_artist_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_image_url_by_album_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_image_url_by_track_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_image_urls_by_album_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, Vec<IMetadataServiceImage>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_image_url_by_image_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, image_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<String>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_track_by_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, track_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_tracks_by_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, track_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_albums_by_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceAlbum>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn album_exists_by_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_artists_by_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, artist_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IMusicBrainzService {
@@ -1838,6 +2049,116 @@ impl IUserPlaylistService for RpcClient {
         Box::pin(async move {
             let args = IUserPlaylistServiceSetPlaylistImageArgs { id, image_id };
             self.call("IUserPlaylistService", "setPlaylistImage", &args).await
+        })
+    }
+}
+impl IMetadataService for RpcClient {
+    fn search_artists<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceSearchArtistsArgs { r#type, query, limit };
+            self.call("IMetadataService", "searchArtists", &args).await
+        })
+    }
+    fn search<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceSearchArgs { r#type, query, limit };
+            self.call("IMetadataService", "search", &args).await
+        })
+    }
+    fn search_albums<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32, include_tracks: bool) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceAlbum>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceSearchAlbumsArgs { r#type, query, limit, include_tracks };
+            self.call("IMetadataService", "searchAlbums", &args).await
+        })
+    }
+    fn get_album_id_by_track_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, track_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<String>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetAlbumIdByTrackIdArgs { r#type, track_id };
+            self.call("IMetadataService", "getAlbumIdByTrackId", &args).await
+        })
+    }
+    fn get_image_url_by_album_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetImageUrlByAlbumIdArgs { r#type, album_id };
+            self.call("IMetadataService", "getImageUrlByAlbumId", &args).await
+        })
+    }
+    fn get_artist_by_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<IMetadataServiceArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetArtistByMbIdArgs { r#type, mb_id };
+            self.call("IMetadataService", "getArtistByMbId", &args).await
+        })
+    }
+    fn get_album_by_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<IMetadataServiceAlbum>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetAlbumByMbIdArgs { r#type, mb_id };
+            self.call("IMetadataService", "getAlbumByMbId", &args).await
+        })
+    }
+    fn get_track_by_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetTrackByMbIdArgs { r#type, mb_id };
+            self.call("IMetadataService", "getTrackByMbId", &args).await
+        })
+    }
+    fn get_image_url_by_artist_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetImageUrlByArtistMbIdArgs { r#type, mb_id };
+            self.call("IMetadataService", "getImageUrlByArtistMbId", &args).await
+        })
+    }
+    fn get_image_url_by_album_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetImageUrlByAlbumMbIdArgs { r#type, mb_id };
+            self.call("IMetadataService", "getImageUrlByAlbumMbId", &args).await
+        })
+    }
+    fn get_image_url_by_track_mb_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetImageUrlByTrackMbIdArgs { r#type, mb_id };
+            self.call("IMetadataService", "getImageUrlByTrackMbId", &args).await
+        })
+    }
+    fn get_image_urls_by_album_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, Vec<IMetadataServiceImage>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetImageUrlsByAlbumIdsArgs { r#type, album_ids };
+            self.call("IMetadataService", "getImageUrlsByAlbumIds", &args).await
+        })
+    }
+    fn get_image_url_by_image_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, image_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<String>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetImageUrlByImageIdArgs { r#type, image_id };
+            self.call("IMetadataService", "getImageUrlByImageId", &args).await
+        })
+    }
+    fn get_track_by_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, track_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetTrackByIdArgs { r#type, track_id };
+            self.call("IMetadataService", "getTrackById", &args).await
+        })
+    }
+    fn get_tracks_by_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, track_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetTracksByIdsArgs { r#type, track_ids };
+            self.call("IMetadataService", "getTracksByIds", &args).await
+        })
+    }
+    fn get_albums_by_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceAlbum>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetAlbumsByIdsArgs { r#type, album_ids };
+            self.call("IMetadataService", "getAlbumsByIds", &args).await
+        })
+    }
+    fn album_exists_by_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceAlbumExistsByIdArgs { r#type, album_id };
+            self.call("IMetadataService", "albumExistsById", &args).await
+        })
+    }
+    fn get_artists_by_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, artist_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetArtistsByIdsArgs { r#type, artist_ids };
+            self.call("IMetadataService", "getArtistsByIds", &args).await
         })
     }
 }

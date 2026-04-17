@@ -3,6 +3,7 @@ package dev.dertyp.rpc
 import dev.dertyp.core.prefixIfNotBlank
 import dev.dertyp.data.AuthenticationResponse
 import dev.dertyp.ioDispatcher
+import dev.dertyp.serializers.SynaraPackHeader
 import dev.dertyp.services.IAuthService
 import dev.dertyp.services.IServerStatsService
 import dev.dertyp.services.IUserService
@@ -12,12 +13,16 @@ import io.ktor.client.plugins.websocket.WebSocketException
 import io.ktor.client.request.header
 import io.ktor.client.request.url
 import io.ktor.util.network.UnresolvedAddressException
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import kotlinx.rpc.RpcClient
 import kotlinx.rpc.annotations.Rpc
@@ -86,6 +91,7 @@ abstract class BaseRpcServiceManager(
             }
         ) {
             url("${baseUrl}/rpc${endpoint.prefixIfNotBlank("/")}")
+            header(SynaraPackHeader, "true")
             token?.let { header("Authorization", "Bearer $it") }
         }
     }
@@ -162,6 +168,7 @@ abstract class BaseRpcServiceManager(
                     try {
                         val rpcClientInstance = client.rpc {
                             url("${baseUrl}/rpc/services")
+                            header(SynaraPackHeader, "true")
                             header("Authorization", "Bearer $token")
                         }
                         rpcClientInstance.withService<IUserService>().me()
