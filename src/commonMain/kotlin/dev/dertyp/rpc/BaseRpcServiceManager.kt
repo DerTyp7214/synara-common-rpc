@@ -91,7 +91,7 @@ abstract class BaseRpcServiceManager(
             }
         ) {
             url("${baseUrl}/rpc${endpoint.prefixIfNotBlank("/")}")
-            header(SynaraPackHeader, "true")
+            //header(SynaraPackHeader, "true")
             token?.let { header("Authorization", "Bearer $it") }
         }
     }
@@ -168,7 +168,7 @@ abstract class BaseRpcServiceManager(
                     try {
                         val rpcClientInstance = client.rpc {
                             url("${baseUrl}/rpc/services")
-                            header(SynaraPackHeader, "true")
+                            //header(SynaraPackHeader, "true")
                             header("Authorization", "Bearer $token")
                         }
                         rpcClientInstance.withService<IUserService>().me()
