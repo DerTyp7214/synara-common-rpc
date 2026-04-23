@@ -112,8 +112,26 @@ data class MusicBrainzRelease(
     val genres: List<MusicBrainzGenre>? = null,
     @SerialName("artist-credit")
     val artistCredit: List<MusicBrainzArtistCredit>? = null,
+    val media: List<MusicBrainzMedia>? = null,
     @Transient
     val fetchedAt: Long = 0
+)
+
+@Serializable
+data class MusicBrainzMedia(
+    val format: String? = null,
+    @SerialName("track-count")
+    val trackCount: Int? = null,
+    val tracks: List<MusicBrainzTrack>? = null
+)
+
+@Serializable
+data class MusicBrainzTrack(
+    val id: PlatformUUID,
+    val position: Int? = null,
+    val number: String? = null,
+    val title: String? = null,
+    val recording: MusicBrainzRecording? = null
 )
 
 @Serializable

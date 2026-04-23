@@ -55,6 +55,13 @@ interface IDownloadService {
     suspend fun downloadUrls(
         @RpcParamDoc("Collection of URLs.") urls: List<String>
     )
+
+    @RestGet
+    @RpcDoc("Get the appropriate downloader backend for a given URL.")
+    suspend fun getDownloaderForUrl(
+        @RpcParamDoc("The URL to check.") url: String
+    ): DownloadBackend?
+
     @RestGet
     @RpcDoc("Check if content with a specific original ID is already present in the library.")
     suspend fun existsByOriginalId(
