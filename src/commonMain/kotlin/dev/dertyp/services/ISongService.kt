@@ -156,4 +156,11 @@ interface ISongService {
     @RestGet
     @RpcDoc("Stream song IDs belonging to a user playlist.")
     fun songIdsByUserPlaylist(@RpcParamDoc("The user playlist unique identifier.") playlistId: PlatformUUID): Flow<PlatformUUID>
+
+    @RpcDoc("Batch update song file paths.", adminOnly = true)
+    suspend fun moveSongs(
+        @RpcParamDoc("Path prefix to match.") oldPath: String,
+        @RpcParamDoc("New base path.") newPath: String,
+        @RpcParamDoc("Optional originalId prefix to filter by (e.g. 'youtube:').") originalIdPrefix: String? = null
+    ): Int
 }

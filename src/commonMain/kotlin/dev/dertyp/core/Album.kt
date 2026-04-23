@@ -6,7 +6,9 @@ import dev.dertyp.data.InsertableAlbum
 import kotlin.jvm.JvmName
 
 fun InsertableAlbum.contentEquals(other: InsertableAlbum): Boolean {
-    return name == other.name &&
-            artists.sorted() == other.artists.sorted() &&
-            releaseDate == other.releaseDate
+    if (this.originalId != other.originalId) return false
+    if (this.originalId != null) return true
+    return this.name == other.name &&
+            this.artists.sorted() == other.artists.sorted() &&
+            this.releaseDate == other.releaseDate
 }

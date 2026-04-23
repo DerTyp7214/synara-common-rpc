@@ -31,4 +31,10 @@ interface IImageService {
 
     @RpcDoc("Store multiple images on the server in a single operation.")
     suspend fun createBatch(@RpcParamDoc("Collection of images to store.") images: List<InsertableImage>): Map<String, PlatformUUID>
+
+    @RpcDoc("Batch update image file paths.", adminOnly = true)
+    suspend fun moveImages(
+        @RpcParamDoc("Path prefix to match.") oldPath: String,
+        @RpcParamDoc("New base path.") newPath: String
+    ): Int
 }

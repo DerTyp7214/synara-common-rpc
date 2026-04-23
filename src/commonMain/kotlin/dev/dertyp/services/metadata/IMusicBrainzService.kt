@@ -20,4 +20,16 @@ interface IMusicBrainzService {
     suspend fun getRelease(@RpcParamDoc("The MusicBrainz Release UUID.") id: PlatformUUID): MusicBrainzRelease?
     @RpcDoc("Retrieve a MusicBrainz Release Group record.")
     suspend fun getReleaseGroup(@RpcParamDoc("The MusicBrainz Release Group UUID.") id: PlatformUUID): MusicBrainzReleaseGroup?
+
+    @RpcDoc("Search for a recording on MusicBrainz.")
+    suspend fun searchRecording(
+        @RpcParamDoc("The title of the recording.") title: String,
+        @RpcParamDoc("The artists of the recording.") artists: List<String>
+    ): MusicBrainzRecording?
+
+    @RpcDoc("Search for a release (album) on MusicBrainz.")
+    suspend fun searchRelease(
+        @RpcParamDoc("The title of the release.") title: String,
+        @RpcParamDoc("The artists of the release.") artists: List<String>
+    ): MusicBrainzRelease?
 }

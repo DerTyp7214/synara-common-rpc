@@ -274,6 +274,10 @@ interface IMetadataService {
         val images: List<Image>,
         @FieldDoc("Genres associated with the track.")
         val genres: List<String> = emptyList(),
+        @FieldDoc("The external album ID.")
+        val albumId: String? = null,
+        @FieldDoc("The title of the album.")
+        val albumTitle: String? = null,
     ) : BaseMetadata()
 
     @Serializable

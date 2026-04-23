@@ -61,11 +61,11 @@ data class InsertableAlbum(
     }
 
     override fun hashCode(): Int {
-        var result = songCount
-        result = 31 * result + name.hashCode()
-        result = 31 * result + artists.sorted().joinToString(", ").hashCode()
+        if (originalId != null) return originalId.hashCode()
+
+        var result = name.hashCode()
+        result = 31 * result + artists.sorted().hashCode()
         result = 31 * result + (releaseDate?.hashCode() ?: 0)
-        result = 31 * result + (originalId?.hashCode() ?: 0)
         return result
     }
 }
