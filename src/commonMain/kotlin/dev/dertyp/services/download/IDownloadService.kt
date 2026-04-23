@@ -47,7 +47,8 @@ interface IDownloadService {
     @RpcDoc("Queue content for download by its IDs.")
     suspend fun downloadIds(
         @RpcParamDoc("Collection of IDs.") ids: List<String>,
-        @RpcParamDoc("The type of content (SONG, ALBUM, etc.).") type: Type = Type.SONG
+        @RpcParamDoc("The type of content (SONG, ALBUM, etc.).") type: Type = Type.SONG,
+        @RpcParamDoc("The downloader to use.") downloader: DownloadBackend? = null
     )
     @RestPost
     @RpcDoc("Queue content for download by its URLs.")
@@ -65,6 +66,10 @@ interface IDownloadService {
     @RestGet
     @RpcDoc("Get the currently active downloader backend.")
     suspend fun getDownloadService(): DownloadBackend
+
+    @RestGet
+    @RpcDoc("Get all available downloader backends.")
+    suspend fun getAllDownloadServices(): List<DownloadBackend>
 
     @RestGet
     @RpcDoc("Check if the downloader is authorized.")

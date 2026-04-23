@@ -5,8 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @ModelDoc("Available backend services for downloading content.")
-enum class DownloadBackend {
-    Tdn,
-    Tiddl,
-    Youtube
+data class DownloadBackend(val id: String) {
+    companion object {
+        val Tdn = DownloadBackend("tdn")
+        val Tiddl = DownloadBackend("tiddl")
+        val Youtube = DownloadBackend("youtube")
+    }
 }
