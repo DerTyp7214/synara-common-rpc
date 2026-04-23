@@ -82,10 +82,10 @@ interface ISongService {
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The user playlist unique identifier.") playlistId: PlatformUUID
     ): PaginatedResponse<UserSong>
-    @RpcDoc("Find songs by their original Tidal track IDs.")
-    suspend fun byTidalTrackIds(@RpcParamDoc("Collection of Tidal track IDs.") ids: Collection<String>): List<UserSong>
+    @RpcDoc("Find songs by their original platform-specific unique identifiers.")
+    suspend fun byOriginalIds(@RpcParamDoc("Collection of original platform-specific track identifiers.") ids: Collection<String>): List<UserSong>
     @RpcDoc("Find songs matching external metadata records.")
-    suspend fun byTidalTracks(@RpcParamDoc("Collection of track metadata.") tracks: Collection<IMetadataService.Track>): List<UserSong>
+    suspend fun byOriginalTracks(@RpcParamDoc("Collection of track metadata.") tracks: Collection<IMetadataService.Track>): List<UserSong>
     @RpcDoc("Get all songs liked by the current user.")
     suspend fun likedSongs(
         @RpcParamDoc("Page index.") page: Int = 0,

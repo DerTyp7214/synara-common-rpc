@@ -2,6 +2,7 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.Image
+import dev.dertyp.data.InsertableImage
 import dev.dertyp.rpc.annotations.RestPublic
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -27,4 +28,7 @@ interface IImageService {
         @RpcParamDoc("The raw binary data of the image.") bytes: ByteArray,
         @RpcParamDoc("The source or category of the image.") origin: String = "custom"
     ): PlatformUUID
+
+    @RpcDoc("Store multiple images on the server in a single operation.")
+    suspend fun createBatch(@RpcParamDoc("Collection of images to store.") images: List<InsertableImage>): Map<String, PlatformUUID>
 }

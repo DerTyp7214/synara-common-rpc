@@ -3,7 +3,11 @@ package dev.dertyp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import java.nio.ByteBuffer
-import java.time.*
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.UUID
@@ -47,7 +51,7 @@ actual fun String.toPlatformLocalDateTimeISO(): PlatformLocalDateTime = LocalDat
 actual fun PlatformDate.toEpochMilliseconds(): Long = this.time
 actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate = Date(ms)
 actual fun PlatformDate.formatISO(): String = toInstant().toString()
-actual fun String.toPlatformDateISO(): PlatformDate = Date.from(java.time.Instant.parse(this))
+actual fun String.toPlatformDateISO(): PlatformDate = Date.from(Instant.parse(this))
 
 private val dateFormatter = DateTimeFormatter.ofPattern("d. MMM yyyy")
 actual fun PlatformDate.formatDate(): String = dateFormatter.format(this.toInstant().atZone(ZoneId.systemDefault()))

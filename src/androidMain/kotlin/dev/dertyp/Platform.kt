@@ -52,7 +52,7 @@ actual fun String.toPlatformLocalDateTimeISO(): PlatformLocalDateTime = LocalDat
 actual fun PlatformDate.toEpochMilliseconds(): Long = this.time
 actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate = Date(ms)
 actual fun PlatformDate.formatISO(): String = toInstant().toString()
-actual fun String.toPlatformDateISO(): PlatformDate = Date.from(java.time.Instant.parse(this))
+actual fun String.toPlatformDateISO(): PlatformDate = Date.from(Instant.parse(this))
 
 private val dateFormatter = DateTimeFormatter.ofPattern("d. MMM yyyy")
 actual fun PlatformDate.formatDate(): String = dateFormatter.format(this.toInstant().atZone(ZoneId.systemDefault()))

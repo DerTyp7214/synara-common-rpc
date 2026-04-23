@@ -1,5 +1,6 @@
 package dev.dertyp.serializers
 
+import dev.dertyp.PlatformUUID
 import dev.dertyp.data.Song
 import dev.dertyp.platformUUIDFromString
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -37,7 +38,7 @@ class SerializationTest {
         assertEquals(song.musicBrainzId, decoded.musicBrainzId)
     }
 
-    private fun createSong(id: dev.dertyp.PlatformUUID) = Song(
+    private fun createSong(id: PlatformUUID) = Song(
         id = id,
         title = "Title",
         artists = emptyList(),

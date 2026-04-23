@@ -1,12 +1,12 @@
-package dev.dertyp.services.tdn
+package dev.dertyp.services.download
 
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlinx.serialization.Serializable
 
 @Suppress("EnumEntryName")
-@ModelDoc("The category of Tidal favorites.")
-enum class TidalFavType {
+@ModelDoc("The category of Download favorites.")
+enum class DownloadFavType {
     tracks,
     artists,
     albums,

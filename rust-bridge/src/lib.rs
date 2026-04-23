@@ -393,28 +393,6 @@ pub struct IAuthServiceAuthenticateArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct IDownloadServiceDownloadTidalIdsArgs {
-    pub ids: Vec<String>,
-    #[serde(rename = "type")]
-    pub r#type: Type,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct IDownloadServiceExistsByTidalIdArgs {
-    pub id: String,
-    #[serde(rename = "type")]
-    pub r#type: Type,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct IDownloadServiceSearchTidalArgs {
-    pub query: Option<String>,
-    pub title: Option<String>,
-    pub artist: Option<String>,
-    pub count: i32,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IReleaseServiceGetRecentReleasesArgs {
     pub page: i32,
     #[serde(rename = "pageSize")]
@@ -621,6 +599,28 @@ pub struct IRemoteMirrorServiceGetRemoteImageDataArgs {
     #[serde(rename = "imageId")]
     pub image_id: PlatformUUID,
     pub size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDownloadServiceDownloadIdsArgs {
+    pub ids: Vec<String>,
+    #[serde(rename = "type")]
+    pub r#type: Type,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDownloadServiceExistsByOriginalIdArgs {
+    pub id: String,
+    #[serde(rename = "type")]
+    pub r#type: Type,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDownloadServiceSearchArgs {
+    pub query: Option<String>,
+    pub title: Option<String>,
+    pub artist: Option<String>,
+    pub count: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -859,18 +859,9 @@ pub struct InsertablePlaylist {
     pub origin: Option<String>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum MetadataType {
-    #[serde(rename = "tidal")]
-    Tidal,
-    #[serde(rename = "spotify")]
-    Spotify,
-    #[serde(rename = "appleMusic")]
-    AppleMusic,
-    #[serde(rename = "imageCache")]
-    ImageCache,
-    #[serde(rename = "theAudioDB")]
-    TheAudioDb,
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MetadataType {
+    pub value: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1223,70 +1214,6 @@ pub struct AuthenticationResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct LogLine {
-    #[serde(rename = "queueEntry")]
-    pub queue_entry: DownloadQueueEntry,
-    pub line: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct DownloadQueueEntry {
-    #[serde(rename = "type")]
-    pub r#type: Option<Type>,
-    #[serde(rename = "maxRetries")]
-    pub max_retries: i32,
-    #[serde(rename = "byUser")]
-    pub by_user: Option<PlatformUUID>,
-    #[serde(skip)]
-    pub callback: SuspendFunction0,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum Type {
-    #[serde(rename = "MIX")]
-    Mix,
-    #[serde(rename = "SONG")]
-    Song,
-    #[serde(rename = "ALBUM")]
-    Album,
-    #[serde(rename = "PLAYLIST")]
-    Playlist,
-    #[serde(rename = "ARTIST")]
-    Artist,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct FinishedDownloadQueueEntry {
-    #[serde(rename = "downloadQueueEntry")]
-    pub download_queue_entry: DownloadQueueEntry,
-    pub result: ProcessExecutionResult,
-    pub logs: Vec<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ProcessExecutionResult {
-    #[serde(rename = "exitCode")]
-    pub exit_code: i32,
-    #[serde(rename = "fullOutput")]
-    pub full_output: String,
-    pub error: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum TidalDownloadService {
-    Tdn,
-    Tiddl,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TidalSong {
-    pub id: String,
-    pub title: String,
-    pub artists: Vec<String>,
-    pub cover: std::collections::HashMap<i32, String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FollowedArtist {
     #[serde(rename = "artistId")]
     pub artist_id: PlatformUUID,
@@ -1326,6 +1253,14 @@ pub enum ReleaseType {
     Broadcast,
     Other,
     Unknown,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct InsertableImage {
+    pub data: serde_bytes::ByteBuf,
+    #[serde(rename = "imageHash")]
+    pub image_hash: String,
+    pub origin: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1519,6 +1454,71 @@ pub struct ProxyInstanceInfo {
     pub name: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LogLine {
+    #[serde(rename = "queueEntry")]
+    pub queue_entry: DownloadQueueEntry,
+    pub line: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DownloadQueueEntry {
+    #[serde(rename = "type")]
+    pub r#type: Option<Type>,
+    #[serde(rename = "maxRetries")]
+    pub max_retries: i32,
+    #[serde(rename = "byUser")]
+    pub by_user: Option<PlatformUUID>,
+    #[serde(skip)]
+    pub callback: SuspendFunction0,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum Type {
+    #[serde(rename = "MIX")]
+    Mix,
+    #[serde(rename = "SONG")]
+    Song,
+    #[serde(rename = "ALBUM")]
+    Album,
+    #[serde(rename = "PLAYLIST")]
+    Playlist,
+    #[serde(rename = "ARTIST")]
+    Artist,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct FinishedDownloadQueueEntry {
+    #[serde(rename = "downloadQueueEntry")]
+    pub download_queue_entry: DownloadQueueEntry,
+    pub result: ProcessExecutionResult,
+    pub logs: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ProcessExecutionResult {
+    #[serde(rename = "exitCode")]
+    pub exit_code: i32,
+    #[serde(rename = "fullOutput")]
+    pub full_output: String,
+    pub error: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum DownloadBackend {
+    Tdn,
+    Tiddl,
+    Youtube,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct DownloadSong {
+    pub id: String,
+    pub title: String,
+    pub artists: Vec<String>,
+    pub cover: std::collections::HashMap<i32, String>,
+}
+
 pub trait IIndexer {
     fn start(&self, ) -> RpcStream<String>;
 }
@@ -1671,25 +1671,6 @@ pub trait IAuthService {
     fn refresh_token<'life0, 'async_trait>(&'life0 self, refresh_token: String) -> Pin<Box<dyn std::future::Future<Output = Result<AuthenticationResponse, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
-pub trait IDownloadService {
-    fn logs(&self, ) -> RpcStream<LogLine>;
-    fn current_download<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<DownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn download_queue<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<DownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn finished_downloads<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<FinishedDownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn sync_favourites_available<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn sync_favourites<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn download_tidal_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<String>, r#type: Type) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn exists_by_tidal_id<'life0, 'async_trait>(&'life0 self, id: String, r#type: Type) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn set_tidal_download_service<'life0, 'async_trait>(&'life0 self, service: TidalDownloadService) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn get_tidal_download_service<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<TidalDownloadService, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn tidal_download_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn tidal_download_login(&self, ) -> RpcStream<String>;
-    fn tidal_sync_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn get_auth_url<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn kill_all_child_processes<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn search_tidal<'life0, 'async_trait>(&'life0 self, query: Option<String>, title: Option<String>, artist: Option<String>, count: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TidalSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-}
-
 pub trait IReleaseService {
     fn follow_artist<'life0, 'async_trait>(&'life0 self, music_brainz_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn unfollow_artist<'life0, 'async_trait>(&'life0 self, artist_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -1722,6 +1703,7 @@ pub trait IImageService {
     fn get_cover_hashes<'life0, 'async_trait>(&'life0 self, hashes: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_image_data<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Option<serde_bytes::ByteBuf>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn create_image<'life0, 'async_trait>(&'life0 self, bytes: serde_bytes::ByteBuf, origin: String) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn create_batch<'life0, 'async_trait>(&'life0 self, images: Vec<InsertableImage>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait ISongService {
@@ -1739,8 +1721,8 @@ pub trait ISongService {
     fn by_album<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, album_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_playlist<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, playlist_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_user_playlist<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, playlist_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn by_tidal_track_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn by_tidal_tracks<'life0, 'async_trait>(&'life0 self, tracks: Vec<Track>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn by_original_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn by_original_tracks<'life0, 'async_trait>(&'life0 self, tracks: Vec<Track>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn liked_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn all_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool, tags: Vec<SongTag>, invert_tags: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn delete_songs<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -1781,6 +1763,26 @@ pub trait IRemoteMirrorService {
     fn get_remote_user_playlists<'life0, 'async_trait>(&'life0 self, config: RemoteServerConfig) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserPlaylist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_proxy_instances<'life0, 'async_trait>(&'life0 self, config: RemoteServerConfig) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ProxyInstanceInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_remote_image_data<'life0, 'async_trait>(&'life0 self, config: RemoteServerConfig, image_id: PlatformUUID, size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Option<serde_bytes::ByteBuf>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IDownloadService {
+    fn logs(&self, ) -> RpcStream<LogLine>;
+    fn current_download<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<DownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn download_queue<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<DownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn finished_downloads<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<FinishedDownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn sync_favourites_available<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn sync_favourites<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn download_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<String>, r#type: Type) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn download_urls<'life0, 'async_trait>(&'life0 self, urls: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn exists_by_original_id<'life0, 'async_trait>(&'life0 self, id: String, r#type: Type) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_download_service<'life0, 'async_trait>(&'life0 self, service: DownloadBackend) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_download_service<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<DownloadBackend, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn download_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn download_login(&self, ) -> RpcStream<String>;
+    fn tidal_sync_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_auth_url<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn kill_all_child_processes<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn search<'life0, 'async_trait>(&'life0 self, query: Option<String>, title: Option<String>, artist: Option<String>, count: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<DownloadSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub struct RpcClient { pub manager: *mut NativeRpcManager }
@@ -2375,87 +2377,6 @@ impl IAuthService for RpcClient {
         })
     }
 }
-impl IDownloadService for RpcClient {
-    fn logs(&self, ) -> RpcStream<LogLine> {
-        self.subscribe("IDownloadService", "logs", &())
-    }
-    fn current_download<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<DownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "currentDownload", &()).await
-        })
-    }
-    fn download_queue<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<DownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "downloadQueue", &()).await
-        })
-    }
-    fn finished_downloads<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<FinishedDownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "finishedDownloads", &()).await
-        })
-    }
-    fn sync_favourites_available<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "syncFavouritesAvailable", &()).await
-        })
-    }
-    fn sync_favourites<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "syncFavourites", &()).await
-        })
-    }
-    fn download_tidal_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<String>, r#type: Type) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            let args = IDownloadServiceDownloadTidalIdsArgs { ids, r#type };
-            self.call("IDownloadService", "downloadTidalIds", &args).await
-        })
-    }
-    fn exists_by_tidal_id<'life0, 'async_trait>(&'life0 self, id: String, r#type: Type) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            let args = IDownloadServiceExistsByTidalIdArgs { id, r#type };
-            self.call("IDownloadService", "existsByTidalId", &args).await
-        })
-    }
-    fn set_tidal_download_service<'life0, 'async_trait>(&'life0 self, service: TidalDownloadService) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "setTidalDownloadService", &service).await
-        })
-    }
-    fn get_tidal_download_service<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<TidalDownloadService, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "getTidalDownloadService", &()).await
-        })
-    }
-    fn tidal_download_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "tidalDownloadAuthorized", &()).await
-        })
-    }
-    fn tidal_download_login(&self, ) -> RpcStream<String> {
-        self.subscribe("IDownloadService", "tidalDownloadLogin", &())
-    }
-    fn tidal_sync_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "tidalSyncAuthorized", &()).await
-        })
-    }
-    fn get_auth_url<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "getAuthUrl", &()).await
-        })
-    }
-    fn kill_all_child_processes<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            self.call("IDownloadService", "killAllChildProcesses", &()).await
-        })
-    }
-    fn search_tidal<'life0, 'async_trait>(&'life0 self, query: Option<String>, title: Option<String>, artist: Option<String>, count: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TidalSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
-        Box::pin(async move {
-            let args = IDownloadServiceSearchTidalArgs { query, title, artist, count };
-            self.call("IDownloadService", "searchTidal", &args).await
-        })
-    }
-}
 impl IReleaseService for RpcClient {
     fn follow_artist<'life0, 'async_trait>(&'life0 self, music_brainz_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
@@ -2581,6 +2502,11 @@ impl IImageService for RpcClient {
             self.call("IImageService", "createImage", &args).await
         })
     }
+    fn create_batch<'life0, 'async_trait>(&'life0 self, images: Vec<InsertableImage>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IImageService", "createBatch", &images).await
+        })
+    }
 }
 impl ISongService for RpcClient {
     fn set_liked<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, liked: bool, added_at: Option<PlatformDateTime>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
@@ -2663,14 +2589,14 @@ impl ISongService for RpcClient {
             self.call("ISongService", "byUserPlaylist", &args).await
         })
     }
-    fn by_tidal_track_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn by_original_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
-            self.call("ISongService", "byTidalTrackIds", &ids).await
+            self.call("ISongService", "byOriginalIds", &ids).await
         })
     }
-    fn by_tidal_tracks<'life0, 'async_trait>(&'life0 self, tracks: Vec<Track>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn by_original_tracks<'life0, 'async_trait>(&'life0 self, tracks: Vec<Track>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
-            self.call("ISongService", "byTidalTracks", &tracks).await
+            self.call("ISongService", "byOriginalTracks", &tracks).await
         })
     }
     fn liked_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
@@ -2822,6 +2748,92 @@ impl IRemoteMirrorService for RpcClient {
         Box::pin(async move {
             let args = IRemoteMirrorServiceGetRemoteImageDataArgs { config, image_id, size };
             self.call("IRemoteMirrorService", "getRemoteImageData", &args).await
+        })
+    }
+}
+impl IDownloadService for RpcClient {
+    fn logs(&self, ) -> RpcStream<LogLine> {
+        self.subscribe("IDownloadService", "logs", &())
+    }
+    fn current_download<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<DownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "currentDownload", &()).await
+        })
+    }
+    fn download_queue<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<DownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "downloadQueue", &()).await
+        })
+    }
+    fn finished_downloads<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<FinishedDownloadQueueEntry>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "finishedDownloads", &()).await
+        })
+    }
+    fn sync_favourites_available<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "syncFavouritesAvailable", &()).await
+        })
+    }
+    fn sync_favourites<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "syncFavourites", &()).await
+        })
+    }
+    fn download_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<String>, r#type: Type) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDownloadServiceDownloadIdsArgs { ids, r#type };
+            self.call("IDownloadService", "downloadIds", &args).await
+        })
+    }
+    fn download_urls<'life0, 'async_trait>(&'life0 self, urls: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "downloadUrls", &urls).await
+        })
+    }
+    fn exists_by_original_id<'life0, 'async_trait>(&'life0 self, id: String, r#type: Type) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDownloadServiceExistsByOriginalIdArgs { id, r#type };
+            self.call("IDownloadService", "existsByOriginalId", &args).await
+        })
+    }
+    fn set_download_service<'life0, 'async_trait>(&'life0 self, service: DownloadBackend) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "setDownloadService", &service).await
+        })
+    }
+    fn get_download_service<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<DownloadBackend, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "getDownloadService", &()).await
+        })
+    }
+    fn download_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "downloadAuthorized", &()).await
+        })
+    }
+    fn download_login(&self, ) -> RpcStream<String> {
+        self.subscribe("IDownloadService", "downloadLogin", &())
+    }
+    fn tidal_sync_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "tidalSyncAuthorized", &()).await
+        })
+    }
+    fn get_auth_url<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "getAuthUrl", &()).await
+        })
+    }
+    fn kill_all_child_processes<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IDownloadService", "killAllChildProcesses", &()).await
+        })
+    }
+    fn search<'life0, 'async_trait>(&'life0 self, query: Option<String>, title: Option<String>, artist: Option<String>, count: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<DownloadSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDownloadServiceSearchArgs { query, title, artist, count };
+            self.call("IDownloadService", "search", &args).await
         })
     }
 }

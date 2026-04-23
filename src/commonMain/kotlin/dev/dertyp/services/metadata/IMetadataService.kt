@@ -34,13 +34,15 @@ import kotlin.time.Duration
 interface IMetadataService {
 
     @Serializable
-    @Suppress("EnumEntryName")
-    enum class MetadataType {
-        tidal,
-        spotify,
-        appleMusic,
-        imageCache,
-        theAudioDB,
+    data class MetadataType(val value: String) {
+        companion object {
+            val tidal = MetadataType("tidal")
+            val spotify = MetadataType("spotify")
+            val appleMusic = MetadataType("appleMusic")
+            val imageCache = MetadataType("imageCache")
+            val theAudioDB = MetadataType("theAudioDB")
+            val musicBrainz = MetadataType("musicBrainz")
+        }
     }
 
     @RpcDoc("Search for artists on the specified metadata provider.")
