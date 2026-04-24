@@ -23,6 +23,14 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
+/**
+ * An ID that can optionally be prefixed with a downloader ID (e.g., "tdn:123").
+ */
+typealias PrefixedId = String
+
+fun PrefixedId.getPrefix(): String? = if (this.contains(":")) this.substringBefore(":") else null
+fun PrefixedId.stripPrefix(): String = if (this.contains(":")) this.substringAfter(":") else this
+
 @Rpc
 @RpcDoc("Management of the integrated media downloader.")
 interface IDownloadService {
@@ -46,7 +54,7 @@ interface IDownloadService {
     @RestPost
     @RpcDoc("Queue content for download by its IDs.")
     suspend fun downloadIds(
-        @RpcParamDoc("Collection of IDs.") ids: List<String>,
+        @RpcParamDoc("Collection of IDs.") ids: List<PrefixedId>,
         @RpcParamDoc("The type of content (SONG, ALBUM, etc.).") type: Type = Type.SONG,
         @RpcParamDoc("The downloader to use.") downloader: DownloadBackend? = null
     )
@@ -65,7 +73,7 @@ interface IDownloadService {
     @RestGet
     @RpcDoc("Check if content with a specific original ID is already present in the library.")
     suspend fun existsByOriginalId(
-        @RpcParamDoc("The original ID to check.") id: String,
+        @RpcParamDoc("The original ID to check.") id: PrefixedId,
         @RpcParamDoc("The type of content.") type: Type = Type.SONG
     ): Boolean
     @RpcDoc("Set the preferred downloader backend.")
