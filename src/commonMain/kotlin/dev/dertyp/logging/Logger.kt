@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 enum class LogLevel {
-    INFO, WARNING, ERROR
+    INFO, WARNING, ERROR, CRASH
 }
 
 open class LogTag(val value: String) {
@@ -67,13 +67,19 @@ interface Logger {
     fun info(tag: LogTag, message: String, data: Any? = null)
     fun warning(tag: LogTag, message: String, data: Any? = null)
     fun error(tag: LogTag, message: String, throwable: Throwable? = null, data: Any? = null)
+    fun crash(tag: LogTag, message: String, throwable: Throwable? = null, data: Any? = null)
+
+    suspend fun infoSuspended(tag: LogTag, message: String, data: Any? = null)
+    suspend fun warningSuspended(tag: LogTag, message: String, data: Any? = null)
+    suspend fun errorSuspended(tag: LogTag, message: String, throwable: Throwable? = null, data: Any? = null)
+    suspend fun crashSuspended(tag: LogTag, message: String, throwable: Throwable? = null, data: Any? = null)
 }
 
 open class BaseLogger(
-    private val persistence: LogPersistence?,
+    protected val persistence: LogPersistence?,
     protected val json: Json
 ) : Logger {
-    private val scope = CoroutineScope(ioDispatcher + SupervisorJob())
+    protected val scope = CoroutineScope(ioDispatcher + SupervisorJob())
 
     override fun info(tag: LogTag, message: String, data: Any?) {
         log(tag, LogLevel.INFO, message, data)
@@ -84,12 +90,27 @@ open class BaseLogger(
     }
 
     override fun error(tag: LogTag, message: String, throwable: Throwable?, data: Any?) {
-        val fullMessage = if (throwable != null) {
-            "$message\n${throwable.stackTraceToString()}"
-        } else {
-            message
-        }
-        log(tag, LogLevel.ERROR, fullMessage, data)
+        log(tag, LogLevel.ERROR, message, data, throwable?.stackTraceToString())
+    }
+
+    override fun crash(tag: LogTag, message: String, throwable: Throwable?, data: Any?) {
+        log(tag, LogLevel.CRASH, message, data, throwable?.stackTraceToString())
+    }
+
+    override suspend fun infoSuspended(tag: LogTag, message: String, data: Any?) {
+        logSuspended(tag, LogLevel.INFO, message, data, getStacktrace())
+    }
+
+    override suspend fun warningSuspended(tag: LogTag, message: String, data: Any?) {
+        logSuspended(tag, LogLevel.WARNING, message, data, getStacktrace())
+    }
+
+    override suspend fun errorSuspended(tag: LogTag, message: String, throwable: Throwable?, data: Any?) {
+        logSuspended(tag, LogLevel.ERROR, message, data, throwable?.stackTraceToString() ?: getStacktrace())
+    }
+
+    override suspend fun crashSuspended(tag: LogTag, message: String, throwable: Throwable?, data: Any?) {
+        logSuspended(tag, LogLevel.CRASH, message, data, throwable?.stackTraceToString() ?: getStacktrace())
     }
 
     protected open fun serializeData(data: Any?): String? {
@@ -101,23 +122,32 @@ open class BaseLogger(
         }
     }
 
-    private fun log(tag: LogTag, level: LogLevel, message: String, data: Any?) {
-        val stacktrace = getStacktrace()
-        scope.launch {
-            val stringData = try {
-                serializeData(data)
-            } catch (_: Exception) {
-                null
-            }
+    protected suspend fun logSuspended(
+        tag: LogTag,
+        level: LogLevel,
+        message: String,
+        data: Any?,
+        stacktrace: String?
+    ) {
+        val stringData = try {
+            serializeData(data)
+        } catch (_: Exception) {
+            null
+        }
 
-            persistence?.persist(
-                tag = tag,
-                level = level,
-                message = message,
-                data = stringData,
-                stacktrace = stacktrace,
-                timestamp = currentTimeMillis()
-            )
+        persistence?.persist(
+            tag = tag,
+            level = level,
+            message = message,
+            data = stringData,
+            stacktrace = stacktrace,
+            timestamp = currentTimeMillis()
+        )
+    }
+
+    private fun log(tag: LogTag, level: LogLevel, message: String, data: Any?, stacktrace: String? = getStacktrace()) {
+        scope.launch {
+            logSuspended(tag, level, message, data, stacktrace)
         }
     }
 }
