@@ -3,7 +3,16 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
-import dev.dertyp.data.*
+import dev.dertyp.data.Album
+import dev.dertyp.data.Artist
+import dev.dertyp.data.ArtistAlias
+import dev.dertyp.data.ArtistSplitAlias
+import dev.dertyp.data.Image
+import dev.dertyp.data.Playlist
+import dev.dertyp.data.RemoteServerPaths
+import dev.dertyp.data.Song
+import dev.dertyp.data.User
+import dev.dertyp.data.UserPlaylist
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -61,7 +70,8 @@ interface IMirrorService {
     fun getSongData(
         @RpcParamDoc("The song unique identifier.") songId: PlatformUUID,
         @RpcParamDoc("Target audio quality level.") quality: Int = 0,
-        @RpcParamDoc("Number of bytes per chunk in the stream.") chunkSize: Int = 4096
+        @RpcParamDoc("Number of bytes per chunk in the stream.") chunkSize: Int = 4096,
+        @RpcParamDoc("Whether to force re-transcoding and duration check.") force: Boolean = true
     ): Flow<ByteArray>
     @RpcDoc("Stream all local user accounts (profiles) for mirroring.", errors = ["IllegalStateException"])
     fun getUsers(): Flow<User>

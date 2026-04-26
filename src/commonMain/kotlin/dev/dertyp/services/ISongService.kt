@@ -126,14 +126,16 @@ interface ISongService {
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Target audio quality.") quality: Int,
         @RpcParamDoc("Byte offset to start from.") offset: Long = 0,
-        @RpcParamDoc("Size of each data chunk.") chunkSize: Int = 4096
+        @RpcParamDoc("Size of each data chunk.") chunkSize: Int = 4096,
+        @RpcParamDoc("Whether to force re-transcoding and duration check.") force: Boolean = true
     ): Flow<ByteArray>?
     @RpcDoc("Get the total size of the song's audio stream.")
     suspend fun getStreamSize(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): Long
     @RpcDoc("Get the size of the song audio for a specific quality.")
     suspend fun getDownloadSize(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
-        @RpcParamDoc("The requested quality.") quality: Int
+        @RpcParamDoc("The requested quality.") quality: Int,
+        @RpcParamDoc("Whether to force re-transcoding and duration check.") force: Boolean = true
     ): Long
 
     @RpcDoc("Stream all song IDs with optional filtering.")
