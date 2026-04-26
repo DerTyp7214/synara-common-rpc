@@ -93,6 +93,34 @@ pub struct IDiscoveryServiceGetSimilarSongsArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDiscoveryServiceGetSimilarSongsByPlaylistArgs {
+    #[serde(rename = "playlistId")]
+    pub playlist_id: PlatformUUID,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDiscoveryServiceGetSimilarSongsByBpmArgs {
+    #[serde(rename = "seedSongIds")]
+    pub seed_song_ids: Vec<PlatformUUID>,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDiscoveryServiceGetSimilarSongsByEnergyArgs {
+    #[serde(rename = "seedSongIds")]
+    pub seed_song_ids: Vec<PlatformUUID>,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDiscoveryServiceGetSimilarSongsByMoodArgs {
+    #[serde(rename = "seedSongIds")]
+    pub seed_song_ids: Vec<PlatformUUID>,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IDiscoveryServiceGetSongsBySameComposersArgs {
     #[serde(rename = "seedSongIds")]
     pub seed_song_ids: Vec<PlatformUUID>,
@@ -1646,6 +1674,10 @@ pub trait IUserPlaylistBackupService {
 
 pub trait IDiscoveryService {
     fn get_similar_songs<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_similar_songs_by_playlist<'life0, 'async_trait>(&'life0 self, playlist_id: PlatformUUID, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_similar_songs_by_bpm<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_similar_songs_by_energy<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_similar_songs_by_mood<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_songs_by_same_composers<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_songs_by_same_lyricists<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_songs_by_same_producers<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -2058,6 +2090,30 @@ impl IDiscoveryService for RpcClient {
         Box::pin(async move {
             let args = IDiscoveryServiceGetSimilarSongsArgs { seed_song_ids, limit };
             self.call("IDiscoveryService", "getSimilarSongs", &args).await
+        })
+    }
+    fn get_similar_songs_by_playlist<'life0, 'async_trait>(&'life0 self, playlist_id: PlatformUUID, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDiscoveryServiceGetSimilarSongsByPlaylistArgs { playlist_id, limit };
+            self.call("IDiscoveryService", "getSimilarSongsByPlaylist", &args).await
+        })
+    }
+    fn get_similar_songs_by_bpm<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDiscoveryServiceGetSimilarSongsByBpmArgs { seed_song_ids, limit };
+            self.call("IDiscoveryService", "getSimilarSongsByBpm", &args).await
+        })
+    }
+    fn get_similar_songs_by_energy<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDiscoveryServiceGetSimilarSongsByEnergyArgs { seed_song_ids, limit };
+            self.call("IDiscoveryService", "getSimilarSongsByEnergy", &args).await
+        })
+    }
+    fn get_similar_songs_by_mood<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDiscoveryServiceGetSimilarSongsByMoodArgs { seed_song_ids, limit };
+            self.call("IDiscoveryService", "getSimilarSongsByMood", &args).await
         })
     }
     fn get_songs_by_same_composers<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
