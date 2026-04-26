@@ -160,7 +160,7 @@ data class SongAudioData(
     @FieldDoc("The musical key of the song (e.g. C, G#, Bb).")
     val key: String? = null,
     @FieldDoc("The scale of the song (major or minor).")
-    val scale: String? = null,
+    val scale: AudioScale? = null,
     @FieldDoc("The perceived loudness of the track in LUFS.")
     val loudness: Double? = null,
     @FieldDoc("The energy level of the song (0.0 to 1.0).")
@@ -181,7 +181,19 @@ data class SongAudioData(
     val lyricist: List<String>? = null,
     @FieldDoc("The producers of the song.")
     val producers: List<String>? = null,
-)
+) {
+    companion object {
+        const val DEFAULT_BPM = 120.0
+        const val DEFAULT_ENERGY = 0.5
+        const val DEFAULT_VALENCE = 0.5
+        const val DEFAULT_DANCEABILITY = 0.5
+        const val DEFAULT_LOUDNESS = -10.0
+        const val DEFAULT_ACOUSTICNESS = 0.5
+        const val DEFAULT_INSTRUMENTALNESS = 0.5
+        const val DEFAULT_SPEECHINESS = 0.5
+        const val DEFAULT_DISSONANCE = 0.5
+    }
+}
 
 @Serializable
 @ModelDoc("A simplified representation of a song.")
