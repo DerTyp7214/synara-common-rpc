@@ -86,6 +86,34 @@ pub struct IMirrorServiceGetSongDataArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDiscoveryServiceGetSimilarSongsArgs {
+    #[serde(rename = "seedSongIds")]
+    pub seed_song_ids: Vec<PlatformUUID>,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDiscoveryServiceGetSongsBySameComposersArgs {
+    #[serde(rename = "seedSongIds")]
+    pub seed_song_ids: Vec<PlatformUUID>,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDiscoveryServiceGetSongsBySameLyricistsArgs {
+    #[serde(rename = "seedSongIds")]
+    pub seed_song_ids: Vec<PlatformUUID>,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDiscoveryServiceGetSongsBySameProducersArgs {
+    #[serde(rename = "seedSongIds")]
+    pub seed_song_ids: Vec<PlatformUUID>,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsSearchSearchLyricsArgs {
     pub artist: String,
     pub title: String,
@@ -845,6 +873,46 @@ pub struct BackupImage {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserSong {
+    pub id: PlatformUUID,
+    pub title: String,
+    pub artists: Vec<Artist>,
+    pub album: Option<Album>,
+    pub duration: i64,
+    pub explicit: bool,
+    #[serde(rename = "releaseDate")]
+    pub release_date: Option<PlatformDateTime>,
+    pub lyrics: String,
+    pub path: String,
+    #[serde(rename = "originalUrl")]
+    pub original_url: String,
+    #[serde(rename = "trackNumber")]
+    pub track_number: i32,
+    #[serde(rename = "discNumber")]
+    pub disc_number: i32,
+    pub copyright: String,
+    #[serde(rename = "sampleRate")]
+    pub sample_rate: i32,
+    #[serde(rename = "bitsPerSample")]
+    pub bits_per_sample: i32,
+    #[serde(rename = "bitRate")]
+    pub bit_rate: i64,
+    #[serde(rename = "fileSize")]
+    pub file_size: i64,
+    #[serde(rename = "coverId")]
+    pub cover_id: Option<PlatformUUID>,
+    #[serde(rename = "musicBrainzId")]
+    pub music_brainz_id: Option<PlatformUUID>,
+    pub genres: Vec<Genre>,
+    #[serde(rename = "isFavourite")]
+    pub is_favourite: Option<bool>,
+    #[serde(rename = "userSongCreatedAt")]
+    pub user_song_created_at: Option<PlatformDate>,
+    #[serde(rename = "userSongUpdatedAt")]
+    pub user_song_updated_at: Option<PlatformDate>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PlaylistEntry {
     pub id: PlatformUUID,
     pub name: String,
@@ -1267,6 +1335,23 @@ pub struct AuthenticationResponse {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SongAudioData {
+    pub bpm: Option<Double>,
+    pub key: Option<String>,
+    pub scale: Option<String>,
+    pub loudness: Option<Double>,
+    pub energy: Option<Double>,
+    pub valence: Option<Double>,
+    pub danceability: Option<Double>,
+    pub acousticness: Option<Double>,
+    pub instrumentalness: Option<Double>,
+    pub speechiness: Option<Double>,
+    pub composer: Option<Vec<String>>,
+    pub lyricist: Option<Vec<String>>,
+    pub producers: Option<Vec<String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FollowedArtist {
     #[serde(rename = "artistId")]
     pub artist_id: PlatformUUID,
@@ -1314,46 +1399,6 @@ pub struct InsertableImage {
     #[serde(rename = "imageHash")]
     pub image_hash: String,
     pub origin: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserSong {
-    pub id: PlatformUUID,
-    pub title: String,
-    pub artists: Vec<Artist>,
-    pub album: Option<Album>,
-    pub duration: i64,
-    pub explicit: bool,
-    #[serde(rename = "releaseDate")]
-    pub release_date: Option<PlatformDateTime>,
-    pub lyrics: String,
-    pub path: String,
-    #[serde(rename = "originalUrl")]
-    pub original_url: String,
-    #[serde(rename = "trackNumber")]
-    pub track_number: i32,
-    #[serde(rename = "discNumber")]
-    pub disc_number: i32,
-    pub copyright: String,
-    #[serde(rename = "sampleRate")]
-    pub sample_rate: i32,
-    #[serde(rename = "bitsPerSample")]
-    pub bits_per_sample: i32,
-    #[serde(rename = "bitRate")]
-    pub bit_rate: i64,
-    #[serde(rename = "fileSize")]
-    pub file_size: i64,
-    #[serde(rename = "coverId")]
-    pub cover_id: Option<PlatformUUID>,
-    #[serde(rename = "musicBrainzId")]
-    pub music_brainz_id: Option<PlatformUUID>,
-    pub genres: Vec<Genre>,
-    #[serde(rename = "isFavourite")]
-    pub is_favourite: Option<bool>,
-    #[serde(rename = "userSongCreatedAt")]
-    pub user_song_created_at: Option<PlatformDate>,
-    #[serde(rename = "userSongUpdatedAt")]
-    pub user_song_updated_at: Option<PlatformDate>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -1599,6 +1644,13 @@ pub trait IUserPlaylistBackupService {
     fn delete_backup<'life0, 'async_trait>(&'life0 self, file_name: String) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
+pub trait IDiscoveryService {
+    fn get_similar_songs<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_songs_by_same_composers<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_songs_by_same_lyricists<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_songs_by_same_producers<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
 pub trait ILyricsSearch {
     fn search_lyrics<'life0, 'async_trait>(&'life0 self, artist: String, title: String, synced_only: bool) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<String>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
@@ -1722,6 +1774,11 @@ pub trait IArtistService {
 pub trait IAuthService {
     fn authenticate<'life0, 'async_trait>(&'life0 self, username: String, password: String) -> Pin<Box<dyn std::future::Future<Output = Result<AuthenticationResponse, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn refresh_token<'life0, 'async_trait>(&'life0 self, refresh_token: String) -> Pin<Box<dyn std::future::Future<Output = Result<AuthenticationResponse, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IAudioAnalysisService {
+    fn get_audio_data<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SongAudioData>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn analyze_song<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IReleaseService {
@@ -1993,6 +2050,32 @@ impl IUserPlaylistBackupService for RpcClient {
     fn delete_backup<'life0, 'async_trait>(&'life0 self, file_name: String) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IUserPlaylistBackupService", "deleteBackup", &file_name).await
+        })
+    }
+}
+impl IDiscoveryService for RpcClient {
+    fn get_similar_songs<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDiscoveryServiceGetSimilarSongsArgs { seed_song_ids, limit };
+            self.call("IDiscoveryService", "getSimilarSongs", &args).await
+        })
+    }
+    fn get_songs_by_same_composers<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDiscoveryServiceGetSongsBySameComposersArgs { seed_song_ids, limit };
+            self.call("IDiscoveryService", "getSongsBySameComposers", &args).await
+        })
+    }
+    fn get_songs_by_same_lyricists<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDiscoveryServiceGetSongsBySameLyricistsArgs { seed_song_ids, limit };
+            self.call("IDiscoveryService", "getSongsBySameLyricists", &args).await
+        })
+    }
+    fn get_songs_by_same_producers<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDiscoveryServiceGetSongsBySameProducersArgs { seed_song_ids, limit };
+            self.call("IDiscoveryService", "getSongsBySameProducers", &args).await
         })
     }
 }
@@ -2443,6 +2526,18 @@ impl IAuthService for RpcClient {
     fn refresh_token<'life0, 'async_trait>(&'life0 self, refresh_token: String) -> Pin<Box<dyn std::future::Future<Output = Result<AuthenticationResponse, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IAuthService", "refreshToken", &refresh_token).await
+        })
+    }
+}
+impl IAudioAnalysisService for RpcClient {
+    fn get_audio_data<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SongAudioData>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAudioAnalysisService", "getAudioData", &song_id).await
+        })
+    }
+    fn analyze_song<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAudioAnalysisService", "analyzeSong", &song_id).await
         })
     }
 }

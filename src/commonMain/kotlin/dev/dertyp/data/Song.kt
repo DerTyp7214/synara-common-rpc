@@ -153,6 +153,37 @@ data class UserSong(
 ): BaseSong()
 
 @Serializable
+@ModelDoc("Additional audio analysis data for a song.")
+data class SongAudioData(
+    @FieldDoc("The beats per minute (BPM) of the song.")
+    val bpm: Double? = null,
+    @FieldDoc("The musical key of the song (e.g. C, G#, Bb).")
+    val key: String? = null,
+    @FieldDoc("The scale of the song (major or minor).")
+    val scale: String? = null,
+    @FieldDoc("The perceived loudness of the track in LUFS.")
+    val loudness: Double? = null,
+    @FieldDoc("The energy level of the song (0.0 to 1.0).")
+    val energy: Double? = null,
+    @FieldDoc("The musical positiveness of the song (0.0 to 1.0).")
+    val valence: Double? = null,
+    @FieldDoc("The danceability level of the song (0.0 to 1.0).")
+    val danceability: Double? = null,
+    @FieldDoc("The acousticness level of the song (0.0 to 1.0).")
+    val acousticness: Double? = null,
+    @FieldDoc("The instrumentalness level of the song (0.0 to 1.0).")
+    val instrumentalness: Double? = null,
+    @FieldDoc("The speechiness level of the song (0.0 to 1.0).")
+    val speechiness: Double? = null,
+    @FieldDoc("The composer of the song.")
+    val composer: List<String>? = null,
+    @FieldDoc("The lyricist of the song.")
+    val lyricist: List<String>? = null,
+    @FieldDoc("The producers of the song.")
+    val producers: List<String>? = null,
+)
+
+@Serializable
 @ModelDoc("A simplified representation of a song.")
 data class SimpleSong(
     @FieldDoc("The song unique identifier.")
@@ -230,6 +261,8 @@ data class InsertableSong(
     val coverHash: String? = null,
     @FieldDoc("The MusicBrainz Recording unique identifier.")
     val musicBrainzId: PlatformUUID? = null,
+    @FieldDoc("Additional audio analysis data.")
+    val audioData: SongAudioData? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is InsertableSong) contentEquals(other) else false
