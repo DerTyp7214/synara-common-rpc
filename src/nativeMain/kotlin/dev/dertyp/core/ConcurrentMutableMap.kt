@@ -38,8 +38,8 @@ private class ConcurrentMutableSet<T : Any> : MutableSet<T> {
     override fun clear() = runBlocking { mutex.withLock { delegate.clear() } }
     override fun iterator(): MutableIterator<T> = runBlocking { mutex.withLock { delegate.toMutableList().iterator() } }
     override fun remove(element: T): Boolean = runBlocking { mutex.withLock { delegate.remove(element) } }
-    override fun removeAll(elements: Collection<T>): Boolean = runBlocking { mutex.withLock { delegate.removeAll(elements) } }
-    override fun retainAll(elements: Collection<T>): Boolean = runBlocking { mutex.withLock { delegate.retainAll(elements) } }
+    override fun removeAll(elements: Collection<T>): Boolean = runBlocking { mutex.withLock { delegate.removeAll(elements.toSet()) } }
+    override fun retainAll(elements: Collection<T>): Boolean = runBlocking { mutex.withLock { delegate.retainAll(elements.toSet()) } }
     override fun contains(element: T): Boolean = runBlocking { mutex.withLock { delegate.contains(element) } }
     override fun containsAll(elements: Collection<T>): Boolean = runBlocking { mutex.withLock { delegate.containsAll(elements) } }
     override fun isEmpty(): Boolean = runBlocking { mutex.withLock { delegate.isEmpty() } }
