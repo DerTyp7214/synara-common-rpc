@@ -3,7 +3,6 @@ package dev.dertyp.rpc
 import dev.dertyp.core.prefixIfNotBlank
 import dev.dertyp.data.AuthenticationResponse
 import dev.dertyp.ioDispatcher
-import dev.dertyp.serializers.SynaraPackHeader
 import dev.dertyp.services.IAuthService
 import dev.dertyp.services.IServerStatsService
 import dev.dertyp.services.IUserService
@@ -12,17 +11,14 @@ import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.websocket.WebSocketException
 import io.ktor.client.request.header
 import io.ktor.client.request.url
+import io.ktor.util.collections.ConcurrentMap
 import io.ktor.util.network.UnresolvedAddressException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import kotlinx.io.IOException
 import kotlinx.rpc.RpcClient
 import kotlinx.rpc.annotations.Rpc
@@ -37,7 +33,7 @@ abstract class BaseRpcServiceManager(
 ) {
     private var _servicesClient: RpcClient? = null
     protected val mutex = Mutex()
-    protected val serviceCache = mutableMapOf<KClass<*>, Any>()
+    protected val serviceCache = ConcurrentMap<KClass<*>, Any>()
 
     private val _isServerReachable = MutableStateFlow(true)
     val isServerReachable: StateFlow<Boolean> = _isServerReachable.asStateFlow()
