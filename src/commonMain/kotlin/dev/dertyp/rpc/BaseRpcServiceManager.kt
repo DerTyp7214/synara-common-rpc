@@ -1,5 +1,6 @@
 package dev.dertyp.rpc
 
+import dev.dertyp.core.ConcurrentMutableMap
 import dev.dertyp.core.prefixIfNotBlank
 import dev.dertyp.data.AuthenticationResponse
 import dev.dertyp.ioDispatcher
@@ -11,7 +12,6 @@ import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.websocket.WebSocketException
 import io.ktor.client.request.header
 import io.ktor.client.request.url
-import io.ktor.util.collections.ConcurrentMap
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +33,7 @@ abstract class BaseRpcServiceManager(
 ) {
     private var _servicesClient: RpcClient? = null
     protected val mutex = Mutex()
-    protected val serviceCache = ConcurrentMap<KClass<*>, Any>()
+    protected val serviceCache = ConcurrentMutableMap<KClass<*>, Any>()
 
     private val _isServerReachable = MutableStateFlow(true)
     val isServerReachable: StateFlow<Boolean> = _isServerReachable.asStateFlow()

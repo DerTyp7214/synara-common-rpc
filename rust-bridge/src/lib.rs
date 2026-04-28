@@ -83,6 +83,7 @@ pub struct IMirrorServiceGetSongDataArgs {
     pub quality: i32,
     #[serde(rename = "chunkSize")]
     pub chunk_size: i32,
+    pub force: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -653,12 +654,14 @@ pub struct ISongServiceDownloadSongArgs {
     pub offset: i64,
     #[serde(rename = "chunkSize")]
     pub chunk_size: i32,
+    pub force: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ISongServiceGetDownloadSizeArgs {
     pub id: PlatformUUID,
     pub quality: i32,
+    pub force: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1366,7 +1369,7 @@ pub struct AuthenticationResponse {
 pub struct SongAudioData {
     pub bpm: Option<Double>,
     pub key: Option<String>,
-    pub scale: Option<String>,
+    pub scale: Option<AudioScale>,
     pub loudness: Option<Double>,
     pub energy: Option<Double>,
     pub valence: Option<Double>,
@@ -1377,6 +1380,14 @@ pub struct SongAudioData {
     pub composer: Option<Vec<String>>,
     pub lyricist: Option<Vec<String>>,
     pub producers: Option<Vec<String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum AudioScale {
+    Major,
+    Minor,
+    MajMin,
+    Unknown,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1657,7 +1668,7 @@ pub trait IMirrorService {
     fn get_playlists(&self, ) -> RpcStream<Playlist>;
     fn get_user_playlists(&self, ) -> RpcStream<UserPlaylist>;
     fn get_image_metadata(&self, ) -> RpcStream<Image>;
-    fn get_song_data(&self, song_id: PlatformUUID, quality: i32, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf>;
+    fn get_song_data(&self, song_id: PlatformUUID, quality: i32, chunk_size: i32, force: bool) -> RpcStream<serde_bytes::ByteBuf>;
     fn get_users(&self, ) -> RpcStream<User>;
     fn get_songs_by_playlist(&self, playlist_id: PlatformUUID) -> RpcStream<Song>;
     fn get_songs_by_user_playlist(&self, playlist_id: PlatformUUID) -> RpcStream<Song>;
@@ -1871,9 +1882,9 @@ pub trait ISongService {
     fn delete_songs<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn ranked_search<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, query: String, explicit: bool, liked: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn stream_song(&self, id: PlatformUUID, offset: i64, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf>;
-    fn download_song(&self, id: PlatformUUID, quality: i32, offset: i64, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf>;
+    fn download_song(&self, id: PlatformUUID, quality: i32, offset: i64, chunk_size: i32, force: bool) -> RpcStream<serde_bytes::ByteBuf>;
     fn get_stream_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn get_download_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, quality: i32) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_download_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, quality: i32, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn all_song_ids(&self, explicit: bool, tags: Vec<SongTag>, invert_tags: bool) -> RpcStream<PlatformUUID>;
     fn liked_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID>;
     fn song_ids_by_artist(&self, artist_id: PlatformUUID) -> RpcStream<PlatformUUID>;
@@ -2041,8 +2052,8 @@ impl IMirrorService for RpcClient {
     fn get_image_metadata(&self, ) -> RpcStream<Image> {
         self.subscribe("IMirrorService", "getImageMetadata", &())
     }
-    fn get_song_data(&self, song_id: PlatformUUID, quality: i32, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf> {
-        let args = IMirrorServiceGetSongDataArgs { song_id, quality, chunk_size };
+    fn get_song_data(&self, song_id: PlatformUUID, quality: i32, chunk_size: i32, force: bool) -> RpcStream<serde_bytes::ByteBuf> {
+        let args = IMirrorServiceGetSongDataArgs { song_id, quality, chunk_size, force };
         self.subscribe("IMirrorService", "getSongData", &args)
     }
     fn get_users(&self, ) -> RpcStream<User> {
@@ -2852,8 +2863,8 @@ impl ISongService for RpcClient {
         let args = ISongServiceStreamSongArgs { id, offset, chunk_size };
         self.subscribe("ISongService", "streamSong", &args)
     }
-    fn download_song(&self, id: PlatformUUID, quality: i32, offset: i64, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf> {
-        let args = ISongServiceDownloadSongArgs { id, quality, offset, chunk_size };
+    fn download_song(&self, id: PlatformUUID, quality: i32, offset: i64, chunk_size: i32, force: bool) -> RpcStream<serde_bytes::ByteBuf> {
+        let args = ISongServiceDownloadSongArgs { id, quality, offset, chunk_size, force };
         self.subscribe("ISongService", "downloadSong", &args)
     }
     fn get_stream_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
@@ -2861,9 +2872,9 @@ impl ISongService for RpcClient {
             self.call("ISongService", "getStreamSize", &id).await
         })
     }
-    fn get_download_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, quality: i32) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn get_download_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, quality: i32, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
-            let args = ISongServiceGetDownloadSizeArgs { id, quality };
+            let args = ISongServiceGetDownloadSizeArgs { id, quality, force };
             self.call("ISongService", "getDownloadSize", &args).await
         })
     }
