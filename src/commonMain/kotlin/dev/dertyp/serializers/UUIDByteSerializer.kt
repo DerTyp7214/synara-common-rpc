@@ -6,22 +6,24 @@ import dev.dertyp.toPlatformUUID
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ByteArraySerializer
 import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 object UUIDByteSerializer : KSerializer<PlatformUUID> {
-    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
+    override val descriptor: SerialDescriptor = ByteArraySerializer().descriptor
 
     override fun serialize(encoder: Encoder, value: PlatformUUID) {
         encoder.encodeSerializableValue(ByteArraySerializer(), value.toByteArray())
     }
 
     override fun deserialize(decoder: Decoder): PlatformUUID {
-        val bytes = decoder.decodeSerializableValue(ByteArraySerializer())
-        return bytes.toPlatformUUID()
+        return try {
+            val bytes = decoder.decodeSerializableValue(ByteArraySerializer())
+            bytes.toPlatformUUID()
+        } catch (_: Exception) {
+            decoder.decodeString().toPlatformUUID()
+        }
     }
 }
 

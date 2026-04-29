@@ -1,3 +1,5 @@
+@file:UseContextualSerialization(PlatformUUID::class)
+
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
@@ -8,6 +10,7 @@ import dev.dertyp.data.UserPlaylist
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
+import kotlinx.serialization.UseContextualSerialization
 
 @Rpc
 @RpcDoc("Management of personal (user-created) playlists.")

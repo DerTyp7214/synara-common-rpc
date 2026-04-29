@@ -1,3 +1,5 @@
+@file:UseContextualSerialization(PlatformUUID::class)
+
 package dev.dertyp.services
 
 import dev.dertyp.PlatformInstant
@@ -12,6 +14,7 @@ import dev.dertyp.rpc.annotations.RpcParamDoc
 import dev.dertyp.services.metadata.IMetadataService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.rpc.annotations.Rpc
+import kotlinx.serialization.UseContextualSerialization
 
 @Rpc
 @RpcDoc("The primary interface for song discovery, streaming, and metadata.")
@@ -44,7 +47,7 @@ interface ISongService {
     @RpcDoc("Find songs by their MusicBrainz Recording ID.")
     suspend fun byMusicBrainzId(@RpcParamDoc("The MusicBrainz Recording UUID.") musicBrainzId: PlatformUUID): List<UserSong>
     @RpcDoc("Get multiple songs by their unique identifiers.")
-    suspend fun byIds(@RpcParamDoc("Collection of song IDs.") ids: Collection<PlatformUUID>): List<UserSong>
+    suspend fun byIds(@RpcParamDoc("Collection of song IDs.") ids: List<PlatformUUID>): List<UserSong>
     @RpcDoc("Search for songs by title.")
     suspend fun byTitle(
         @RpcParamDoc("Page index.") page: Int = 0,
@@ -102,7 +105,7 @@ interface ISongService {
     ): PaginatedResponse<UserSong>
 
     @RpcDoc("Delete multiple songs from the library.")
-    suspend fun deleteSongs(@RpcParamDoc("Collection of song IDs to delete.") ids: Collection<PlatformUUID>): Boolean
+    suspend fun deleteSongs(@RpcParamDoc("Collection of song IDs to delete.") ids: List<PlatformUUID>): Boolean
 
     @RpcDoc("Perform a ranked search for songs.")
     suspend fun rankedSearch(
