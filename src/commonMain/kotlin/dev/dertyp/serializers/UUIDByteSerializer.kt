@@ -7,11 +7,12 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ByteArraySerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 object UUIDByteSerializer : KSerializer<PlatformUUID> {
-    override val descriptor: SerialDescriptor = ByteArraySerializer().descriptor
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("PlatformUUID")
 
     override fun serialize(encoder: Encoder, value: PlatformUUID) {
         encoder.encodeSerializableValue(ByteArraySerializer(), value.toByteArray())
