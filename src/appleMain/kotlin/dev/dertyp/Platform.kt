@@ -1,36 +1,26 @@
-@file:OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
+@file:OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class, ExperimentalUuidApi::class)
+@file:Suppress("unused")
 
 package dev.dertyp
 
 import kotlinx.cinterop.ExperimentalForeignApi
-import kotlinx.cinterop.addressOf
-import kotlinx.cinterop.reinterpret
-import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import platform.Foundation.*
 import kotlin.experimental.ExperimentalNativeApi
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-actual typealias PlatformUUID = NSUUID
+actual typealias PlatformUUID = Uuid
 
-actual fun randomPlatformUUID(): PlatformUUID = NSUUID()
-actual fun platformUUIDFromString(string: String): PlatformUUID = NSUUID(uUIDString = string)
+actual fun randomPlatformUUID(): PlatformUUID = Uuid.random()
+actual fun platformUUIDFromString(string: String): PlatformUUID = Uuid.parse(string)
 
-actual fun PlatformUUID.toByteArray(): ByteArray {
-    val bytes = ByteArray(16)
-    bytes.usePinned { pinned ->
-        this.getUUIDBytes(pinned.addressOf(0).reinterpret())
-    }
-    return bytes
-}
+actual fun PlatformUUID.toByteArray(): ByteArray = this.toByteArray()
 
-actual fun String.toPlatformUUID(): PlatformUUID = NSUUID(uUIDString = this)
+actual fun String.toPlatformUUID(): PlatformUUID = Uuid.parse(this)
 
-actual fun ByteArray.toPlatformUUID(): PlatformUUID {
-    return this.usePinned { pinned ->
-        NSUUID(uUIDBytes = pinned.addressOf(0).reinterpret())
-    }
-}
+actual fun ByteArray.toPlatformUUID(): PlatformUUID = Uuid.fromByteArray(this)
 
 private val isoDateFormatter = NSDateFormatter().apply {
     dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
