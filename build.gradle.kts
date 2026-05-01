@@ -64,11 +64,13 @@ kotlin {
             languageSettings.apply {
                 optIn("kotlin.uuid.ExperimentalUuidApi")
                 optIn("kotlin.time.ExperimentalTime")
+                if (name != "commonMain" && !name.startsWith("jvm") && !name.startsWith("commonTest")) {
+                    optIn("kotlinx.cinterop.ExperimentalForeignApi")
+                }
             }
         }
 
         commonMain {
-            languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
             dependencies {
                 api(libs.kotlinx.rpc.core)
                 api(libs.kotlinx.rpc.krpc.ktor.client)
