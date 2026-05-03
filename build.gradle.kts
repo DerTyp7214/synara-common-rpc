@@ -115,6 +115,7 @@ kotlin {
 
 
 dependencies {
+    add("kspJvm", project(":common-rpc:compiler"))
     add("kspCommonMainMetadata", project(":common-rpc:compiler"))
     add("kspCommonMainMetadata", project(":common-rpc:doc-compiler"))
 }
