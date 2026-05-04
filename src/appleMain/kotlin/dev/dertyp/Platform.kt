@@ -1,11 +1,13 @@
-@file:OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class, ExperimentalUuidApi::class)
+@file:OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class, ExperimentalUuidApi::class, DelicateCoroutinesApi::class)
 @file:Suppress("unused")
 
 package dev.dertyp
 
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import platform.Foundation.*
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.uuid.ExperimentalUuidApi
@@ -88,7 +90,8 @@ actual fun currentTimeMillis(): Long = (NSDate().timeIntervalSince1970 * 1000).t
 actual fun nowAsPlatformDate(): PlatformDate = PlatformDate(NSDate())
 actual fun nowAsPlatformInstant(): PlatformInstant = PlatformInstant(NSDate())
 
-actual val ioDispatcher: CoroutineDispatcher = Dispatchers.Default
+actual val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+actual val imageDispatcher: CoroutineDispatcher = Dispatchers.IO
 
 actual fun getStacktrace(): String? = NSThread.callStackSymbols.joinToString("\n")
 

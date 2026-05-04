@@ -47,6 +47,7 @@ expect fun nowAsPlatformDate(): PlatformDate
 expect fun nowAsPlatformInstant(): PlatformInstant
 
 expect val ioDispatcher: CoroutineDispatcher
+expect val imageDispatcher: CoroutineDispatcher
 
 expect fun getStacktrace(): String?
 

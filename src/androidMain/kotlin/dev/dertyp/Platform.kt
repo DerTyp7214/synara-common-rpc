@@ -70,6 +70,7 @@ actual fun nowAsPlatformDate(): PlatformDate = Date()
 actual fun nowAsPlatformInstant(): PlatformInstant = Instant.now()
 
 actual val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+actual val imageDispatcher: CoroutineDispatcher = Dispatchers.IO
 
 actual fun getStacktrace(): String? = Thread.currentThread().stackTrace
     .drop(3)
