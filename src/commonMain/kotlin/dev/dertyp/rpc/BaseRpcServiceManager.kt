@@ -22,6 +22,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.io.IOException
 import kotlinx.rpc.RpcClient
 import kotlinx.rpc.annotations.Rpc
+import kotlinx.rpc.krpc.ktor.client.KtorRpcClient
 import kotlinx.rpc.krpc.ktor.client.rpc
 import kotlinx.rpc.withService
 import kotlin.reflect.KClass
@@ -205,6 +206,51 @@ abstract class BaseRpcServiceManager(
         }
 
         return rpcClient!!
+    }
+
+    suspend fun getDedicatedClient(): KtorRpcClient {
+        ensureAuthenticated()
+        
+        var authException: Exception?
+        try {
+            val baseUrl = getRpcUrl()
+            val token = getAuthToken() ?: throw IllegalStateException("Not authenticated")
+
+            var lastException: Exception? = null
+            for (attempt in 1..3) {
+                try {
+                    return client.rpc {
+                        url("${baseUrl}/rpc/services")
+                        header("Authorization", "Bearer $token")
+                    }
+                } catch (e: Exception) {
+                    lastException = e
+                    if (isAuthException(e)) {
+                        throw e
+                    }
+                    when (e) {
+                        is ConnectTimeoutException,
+                        is IOException,
+                        is UnresolvedAddressException -> {
+                            delay((1000L * attempt).milliseconds)
+                            continue
+                        }
+                        else -> throw e
+                    }
+                }
+            }
+            onServerUnreachable()
+            throw lastException ?: IllegalStateException("Failed to connect dedicated client after retries")
+        } catch (e: Exception) {
+            if (isAuthException(e)) {
+                authException = e
+            } else {
+                throw e
+            }
+        }
+
+        handleAuthFailure()
+        throw authException
     }
 
     protected open fun isAuthException(e: Exception): Boolean {
