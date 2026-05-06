@@ -88,5 +88,6 @@ data class RemoteServerConfig(
     @FieldDoc("Whether to connect to the remote server via a proxy.") val useProxy: Boolean = false,
     @FieldDoc("The identifier of the proxy instance to use.") val proxyInstanceId: String? = null,
     @FieldDoc("The target user ID on the local server for imported user data.") val targetUserId: PlatformUUID? = null,
-    @FieldDoc("Whether this mirroring task is considered a one-time import.") val isImport: Boolean = false
+    @FieldDoc("Whether this mirroring task is considered a one-time import.") val isImport: Boolean = false,
+    @FieldDoc("Whether to import all user accounts from the remote server.") val importUsers: Boolean = false
 )
