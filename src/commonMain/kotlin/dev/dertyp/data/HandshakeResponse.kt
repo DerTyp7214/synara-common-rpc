@@ -9,6 +9,6 @@ import kotlinx.serialization.Serializable
 data class HandshakeResponse(
     @FieldDoc("Whether the current connection is secure (HTTPS/WSS).")
     val secure: Boolean,
-    @FieldDoc("Whether the server supports WebSocket Secure connections.")
-    val wssSupported: Boolean
+    @FieldDoc("Whether the server supports secure connections (HTTPS/WSS).")
+    val sslSupported: Boolean
 )

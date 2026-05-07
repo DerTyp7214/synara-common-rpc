@@ -38,6 +38,10 @@ class NativeRpcManager(client: HttpClient) : BaseRpcServiceManager(client) {
     var expiresAt: PlatformDate? = null
 
     public override suspend fun getRpcUrl(): String? = rpcUrl
+    public override suspend fun setRpcUrl(url: String) {
+        rpcUrl = url
+    }
+
     public override fun getAuthToken(): String? = authToken
     public override fun getRefreshToken(): String? = refreshToken
     public override fun isTokenExpired(): Boolean = expiresAt?.let {
@@ -217,14 +221,28 @@ fun getUrl(ptr: COpaquePointer): CPointer<ByteVar>? {
 }
 
 @CName("common_rpc_validate_server")
-fun validateServer(ptr: COpaquePointer, url: CPointer<ByteVar>): Boolean {
+fun validateServer(
+    ptr: COpaquePointer,
+    host: CPointer<ByteVar>,
+    port: Int,
+    path: CPointer<ByteVar>,
+    useSsl: Boolean
+): Int {
     return runBlocking {
         try {
             val manager = ptr.asStableRef<NativeRpcManager>().get()
-            manager.validateServer(url.toKString())
+            val result = manager.validateServer(
+                host.toKString(),
+                port,
+                path.toKString(),
+                useSsl
+            )
+            if (!result.validated) 0
+            else if (result.useSsl) 2
+            else 1
         } catch (e: Throwable) {
             e.printStackTrace()
-            false
+            0
         }
     }
 }

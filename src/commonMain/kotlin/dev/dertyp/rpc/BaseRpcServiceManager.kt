@@ -3,13 +3,18 @@ package dev.dertyp.rpc
 import dev.dertyp.core.ConcurrentMutableMap
 import dev.dertyp.core.prefixIfNotBlank
 import dev.dertyp.data.AuthenticationResponse
+import dev.dertyp.data.HandshakeResponse
+import dev.dertyp.data.ServerValidationResult
 import dev.dertyp.ioDispatcher
 import dev.dertyp.services.IAuthService
+import dev.dertyp.services.IHandshakeService
 import dev.dertyp.services.IServerStatsService
 import dev.dertyp.services.IUserService
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.websocket.WebSocketException
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.url
 import io.ktor.util.network.UnresolvedAddressException
@@ -36,10 +41,14 @@ abstract class BaseRpcServiceManager(
     protected val mutex = Mutex()
     protected val serviceCache = ConcurrentMutableMap<KClass<*>, Any>()
 
+    open val supportsSsl: Boolean = true
+    private var sslChecked = false
+
     private val _isServerReachable = MutableStateFlow(true)
     val isServerReachable: StateFlow<Boolean> = _isServerReachable.asStateFlow()
 
     protected abstract suspend fun getRpcUrl(): String?
+    protected abstract suspend fun setRpcUrl(url: String)
     protected abstract fun getAuthToken(): String?
     protected abstract fun getRefreshToken(): String?
     protected abstract fun isTokenExpired(): Boolean
@@ -94,26 +103,84 @@ abstract class BaseRpcServiceManager(
     }
 
     suspend fun getAuthService(): IAuthService = withContext(ioDispatcher) {
+        checkSslSupport()
         val baseUrl = getRpcUrl()
         val rpcClient = createReconnectingClient(baseUrl, "auth")
         rpcClient.withService<IAuthService>()
     }
 
     suspend fun getServerStatsService(): IServerStatsService = withContext(ioDispatcher) {
+        checkSslSupport()
         val baseUrl = getRpcUrl()
         val rpcClient = createReconnectingClient(baseUrl)
         rpcClient.withService<IServerStatsService>()
     }
 
-    suspend fun validateServer(baseUrl: String): Boolean = withContext(ioDispatcher) {
-        try {
-            val rpcClient = createReconnectingClient(baseUrl)
-            val statsService = rpcClient.withService<IServerStatsService>()
+    suspend fun getHandshakeService(): IHandshakeService = withContext(ioDispatcher) {
+        val baseUrl = getRpcUrl()
+        val rpcClient = createReconnectingClient(baseUrl)
+        rpcClient.withService<IHandshakeService>()
+    }
 
-            statsService.health()
-        } catch (_: Exception) {
-            false
+    @Suppress("HttpUrlsUsage")
+    suspend fun checkSslSupport(): Boolean = withContext(ioDispatcher) {
+        if (!supportsSsl || sslChecked) return@withContext true
+        val baseUrl = getRpcUrl() ?: return@withContext true
+        if (!baseUrl.startsWith("https://") && !baseUrl.startsWith("wss://")) return@withContext true
+
+        try {
+            val handshakeUrl = baseUrl.replace("wss://", "https://").replace("ws://", "http://")
+            val response = client.get("${handshakeUrl}/handshake").body<HandshakeResponse>()
+            sslChecked = true
+            
+            if (!response.secure) {
+                val newUrl = baseUrl.replace("https://", "http://").replace("wss://", "ws://")
+                setRpcUrl(newUrl)
+                clear()
+                return@withContext false
+            }
+            true
+        } catch (e: Exception) {
+            if (isSslException(e)) {
+                val newUrl = baseUrl.replace("https://", "http://").replace("wss://", "ws://")
+                setRpcUrl(newUrl)
+                clear()
+                sslChecked = true
+                return@withContext false
+            }
+            true
         }
+    }
+
+    suspend fun validateServer(
+        host: String,
+        port: Int,
+        path: String = "/",
+        useSsl: Boolean = true
+    ): ServerValidationResult = withContext(ioDispatcher) {
+        val schemes = if (useSsl) listOf("wss", "ws") else listOf("ws")
+
+        for (s in schemes) {
+            try {
+                val formattedPath = path.prefixIfNotBlank("/").removeSuffix("/")
+                val baseUrl = "$s://$host:$port$formattedPath"
+
+                val rpcClient = client.rpc {
+                    url("$baseUrl/rpc")
+                }
+
+                try {
+                    val statsService = rpcClient.withService<IServerStatsService>()
+                    if (statsService.health()) {
+                        return@withContext ServerValidationResult(validated = true, useSsl = s == "wss")
+                    }
+                } finally {
+                    rpcClient.close()
+                }
+            } catch (_: Exception) {
+            }
+        }
+        ServerValidationResult(validated = false, useSsl = false)
     }
 
     private suspend fun ensureAuthenticated() {
@@ -149,6 +216,8 @@ abstract class BaseRpcServiceManager(
     suspend fun getAuthenticatedClient(): RpcClient {
         val cached = _servicesClient
         if (cached != null && !isTokenExpired()) return cached
+
+        checkSslSupport()
 
         ensureAuthenticated()
 
@@ -209,6 +278,7 @@ abstract class BaseRpcServiceManager(
     }
 
     suspend fun getDedicatedClient(): KtorRpcClient {
+        checkSslSupport()
         ensureAuthenticated()
         
         var authException: Exception?
@@ -258,6 +328,14 @@ abstract class BaseRpcServiceManager(
             is WebSocketException if e.message?.contains("401") == true -> true
             else -> false
         }
+    }
+
+    protected open fun isSslException(e: Exception): Boolean {
+        val message = e.message?.lowercase() ?: ""
+        return message.contains("ssl") || 
+               message.contains("tls") || 
+               message.contains("certificate") || 
+               message.contains("handshake failed")
     }
 
     @Suppress("UNCHECKED_CAST")
