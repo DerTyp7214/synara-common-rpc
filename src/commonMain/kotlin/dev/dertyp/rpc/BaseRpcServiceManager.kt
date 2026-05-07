@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package dev.dertyp.rpc
 
 import dev.dertyp.core.ConcurrentMutableMap
@@ -17,6 +19,7 @@ import io.ktor.client.plugins.websocket.WebSocketException
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.url
+import io.ktor.http.Url
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,7 +51,7 @@ abstract class BaseRpcServiceManager(
     val isServerReachable: StateFlow<Boolean> = _isServerReachable.asStateFlow()
 
     protected abstract suspend fun getRpcUrl(): String?
-    protected abstract suspend fun setRpcUrl(url: String)
+    protected abstract suspend fun setRpcUrl(host: String, port: Int, ssl: Boolean, path: String = "/")
     protected abstract fun getAuthToken(): String?
     protected abstract fun getRefreshToken(): String?
     protected abstract fun isTokenExpired(): Boolean
@@ -134,16 +137,16 @@ abstract class BaseRpcServiceManager(
             sslChecked = true
             
             if (!response.secure) {
-                val newUrl = baseUrl.replace("https://", "http://").replace("wss://", "ws://")
-                setRpcUrl(newUrl)
+                val url = Url(baseUrl)
+                setRpcUrl(url.host, url.port, false, url.encodedPath)
                 clear()
                 return@withContext false
             }
             true
         } catch (e: Exception) {
             if (isSslException(e)) {
-                val newUrl = baseUrl.replace("https://", "http://").replace("wss://", "ws://")
-                setRpcUrl(newUrl)
+                val url = Url(baseUrl)
+                setRpcUrl(url.host, url.port, false, url.encodedPath)
                 clear()
                 sslChecked = true
                 return@withContext false
@@ -277,7 +280,7 @@ abstract class BaseRpcServiceManager(
         return rpcClient!!
     }
 
-    suspend fun getDedicatedClient(): KtorRpcClient {
+    open suspend fun getDedicatedClient(): KtorRpcClient {
         checkSslSupport()
         ensureAuthenticated()
         
@@ -345,8 +348,17 @@ abstract class BaseRpcServiceManager(
         } as T
     }
 
+    @Suppress("UNCHECKED_CAST")
+    open fun <@Rpc T : Any> getService(serviceClass: KClass<T>, client: RpcClient): T {
+        return client.withService(serviceClass)
+    }
+
     inline fun <@Rpc reified T : Any> getService(): T {
         return getService(T::class)
+    }
+
+    inline fun <@Rpc reified T : Any> getService(client: RpcClient): T {
+        return getService(T::class, client)
     }
 
     suspend fun clear() {

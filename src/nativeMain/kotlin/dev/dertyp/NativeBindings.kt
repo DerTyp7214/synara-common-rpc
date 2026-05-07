@@ -38,8 +38,8 @@ class NativeRpcManager(client: HttpClient) : BaseRpcServiceManager(client) {
     var expiresAt: PlatformDate? = null
 
     public override suspend fun getRpcUrl(): String? = rpcUrl
-    public override suspend fun setRpcUrl(url: String) {
-        rpcUrl = url
+    public override suspend fun setRpcUrl(host: String, port: Int, ssl: Boolean, path: String) {
+        rpcUrl = "${if (ssl) "wss" else "ws"}://$host:$port$path"
     }
 
     public override fun getAuthToken(): String? = authToken
