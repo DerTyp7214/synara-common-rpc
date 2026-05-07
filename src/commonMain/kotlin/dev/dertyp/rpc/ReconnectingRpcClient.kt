@@ -46,9 +46,10 @@ class ReconnectingRpcClient(
     private var cachedDelegate: KtorRpcClient? = null
 
     private suspend fun getDelegate(): KtorRpcClient {
-        return mutex.withLock {
+        return delegateProvider()
+        /*return mutex.withLock { somehow has worse performance than creating a new instance every time
             cachedDelegate ?: delegateProvider().also { cachedDelegate = it }
-        }
+        }*/
     }
 
     suspend fun close() {
