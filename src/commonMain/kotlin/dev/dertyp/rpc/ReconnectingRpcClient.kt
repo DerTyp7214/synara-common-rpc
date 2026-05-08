@@ -10,9 +10,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.io.IOException
 import kotlinx.rpc.RpcCall
 import kotlinx.rpc.RpcClient
+import kotlinx.rpc.krpc.ktor.client.KtorRpcClient
 import kotlinx.rpc.krpc.ktor.client.rpc
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -33,20 +36,39 @@ fun HttpClient.reconnectingRpcClient(
 }
 
 class ReconnectingRpcClient(
-    private val delegateProvider: suspend () -> RpcClient,
+    private val delegateProvider: suspend () -> KtorRpcClient,
     private val onCancel: () -> Unit = {},
     private val onFailure: () -> Unit = {},
     private val maxRetries: Int = 5,
     private val delayMs: Long = 1000L
 ) : RpcClient {
+    private val mutex = Mutex()
+    private var cachedDelegate: KtorRpcClient? = null
+
+    private suspend fun getDelegate(): KtorRpcClient {
+        return delegateProvider()
+        /*return mutex.withLock { somehow has worse performance than creating a new instance every time
+            cachedDelegate ?: delegateProvider().also { cachedDelegate = it }
+        }*/
+    }
+
+    suspend fun close() {
+        mutex.withLock {
+            cachedDelegate?.close()
+            cachedDelegate = null
+        }
+    }
+    
     override suspend fun <T> call(call: RpcCall): T {
         var attempts = 0
         while (true) {
+            val delegate = getDelegate()
             return try {
-                delegateProvider().call<T>(call)
+                delegate.call(call)
             } catch (e: Throwable) {
                 attempts++
                 if (isRetriable(e) && attempts < maxRetries) {
+                    mutex.withLock { cachedDelegate = null }
                     onCancel()
                     delay((delayMs * attempts).milliseconds)
                     continue
@@ -59,9 +81,10 @@ class ReconnectingRpcClient(
 
     override fun <T> callServerStreaming(call: RpcCall): Flow<T> {
         return flow {
-            emitAll(delegateProvider().callServerStreaming<T>(call))
+            emitAll(getDelegate().callServerStreaming<T>(call))
         }.retry(retries = maxRetries.toLong()) { e ->
             if (isRetriable(e)) {
+                mutex.withLock { cachedDelegate = null }
                 onCancel()
                 delay((delayMs * 2).milliseconds)
                 true

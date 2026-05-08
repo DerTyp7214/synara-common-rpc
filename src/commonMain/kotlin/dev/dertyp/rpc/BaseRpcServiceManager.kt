@@ -38,9 +38,9 @@ import kotlin.time.Duration.Companion.milliseconds
 
 abstract class BaseRpcServiceManager(
     protected val client: HttpClient,
-    protected val scope: CoroutineScope = CoroutineScope(ioDispatcher + SupervisorJob())
+    protected val scope: CoroutineScope = CoroutineScope(ioDispatcher + SupervisorJob()),
 ) {
-    private var _servicesClient: RpcClient? = null
+    private var _servicesClient: KtorRpcClient? = null
     protected val mutex = Mutex()
     protected val serviceCache = ConcurrentMutableMap<KClass<*>, Any>()
 
@@ -216,7 +216,7 @@ abstract class BaseRpcServiceManager(
         }
     }
 
-    suspend fun getAuthenticatedClient(): RpcClient {
+    suspend fun getAuthenticatedClient(): KtorRpcClient {
         val cached = _servicesClient
         if (cached != null && !isTokenExpired()) return cached
 
@@ -363,10 +363,11 @@ abstract class BaseRpcServiceManager(
 
     suspend fun clear() {
         mutex.withLock {
+            transparentClient.close()
             val oldClient = _servicesClient
             _servicesClient = null
             try {
-                (oldClient as? AutoCloseable)?.close()
+                oldClient?.close()
             } catch (_: Exception) {
             }
             serviceCache.clear()
