@@ -45,6 +45,26 @@ interface IUserPlaylistService {
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Collection of song IDs and their added timestamps.") songIds: List<Pair<Long, PlatformUUID>>
     ): List<PlatformUUID>
+    @RpcDoc("Add songs to a user playlist.")
+    suspend fun addSongsToPlaylist(
+        @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("Collection of song IDs to add.") songIds: List<PlatformUUID>
+    ): List<PlatformUUID>
+    @RpcDoc("Add all songs of an album to a user playlist.")
+    suspend fun addAlbumToPlaylist(
+        @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("The album unique identifier.") albumId: PlatformUUID
+    ): List<PlatformUUID>
+    @RpcDoc("Add all songs of a playlist to a user playlist.")
+    suspend fun addPlaylistToPlaylist(
+        @RpcParamDoc("The target playlist unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("The source playlist unique identifier.") sourcePlaylistId: PlatformUUID
+    ): List<PlatformUUID>
+    @RpcDoc("Add all songs of a user playlist to a user playlist.")
+    suspend fun addUserPlaylistToPlaylist(
+        @RpcParamDoc("The target playlist unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("The source user playlist unique identifier.") sourcePlaylistId: PlatformUUID
+    ): List<PlatformUUID>
     @RpcDoc("Remove songs from a user playlist.")
     suspend fun removeFromPlaylist(
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
