@@ -44,7 +44,7 @@ interface IUserPlaylistService {
     suspend fun addToPlaylist(
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Collection of song IDs and their added timestamps.") songIds: List<Pair<Long, PlatformUUID>>
-    )
+    ): List<PlatformUUID>
     @RpcDoc("Add songs to a user playlist.")
     suspend fun addSongsToPlaylist(
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
