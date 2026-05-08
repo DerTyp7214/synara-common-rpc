@@ -2,22 +2,11 @@ package dev.dertyp.services.download
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.randomPlatformUUID
-import dev.dertyp.rpc.annotations.FieldDoc
-import dev.dertyp.rpc.annotations.ModelDoc
-import dev.dertyp.rpc.annotations.RestGet
-import dev.dertyp.rpc.annotations.RestPost
-import dev.dertyp.rpc.annotations.RpcDoc
-import dev.dertyp.rpc.annotations.RpcParamDoc
+import dev.dertyp.rpc.annotations.*
 import dev.dertyp.serializers.UUIDSerializer
 import dev.dertyp.services.metadata.IMetadataService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flattenConcat
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -171,6 +160,8 @@ sealed class DownloadQueueEntry {
     abstract val maxRetries: Int
     @FieldDoc("The ID of the user who initiated the download.")
     abstract val byUser: PlatformUUID?
+    @FieldDoc("The downloader backend to use for this entry.")
+    abstract val downloader: DownloadBackend?
     abstract val callback: suspend () -> Unit
 
     open fun type(): Type? {
@@ -190,6 +181,8 @@ data class UrlDownloadQueueEntry(
     override val byUser: PlatformUUID? = null,
     @FieldDoc("The type of content.")
     override val type: Type? = null,
+    @FieldDoc("The downloader backend to use for this entry.")
+    override val downloader: DownloadBackend? = null,
     @Transient
     override val maxRetries: Int = 5,
     @Transient
@@ -221,6 +214,8 @@ data class FavouriteDownloadQueueEntry(
     override val byUser: PlatformUUID? = null,
     @FieldDoc("The type of content.")
     override val type: Type? = null,
+    @FieldDoc("The downloader backend to use for this entry.")
+    override val downloader: DownloadBackend? = null,
     @Transient
     override val maxRetries: Int = 5,
     @Transient
