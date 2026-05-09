@@ -127,7 +127,7 @@ class DocProcessor(
             out.writeLine("| :--- | :--- | :--- |")
             model.getAllProperties().forEach { prop ->
                 val pName = prop.simpleName.asString()
-                val pType = prop.type.resolve().toTypeString(documentedModels, duplicateNames)
+                val pType = prop.type.resolve().toTypeString(documentedModels)
                 val fDoc = prop.annotations.find { it.shortName.asString() == "FieldDoc" }
                 val fDesc = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
                 out.writeLine("| `$pName` | $pType | $fDesc |")
@@ -165,13 +165,13 @@ class DocProcessor(
             
             val params = func.parameters.joinToString("<br>") { param ->
                 val pName = param.name?.asString() ?: "arg"
-                val pType = param.type.resolve().toTypeString(documentedModels, duplicateNames)
+                val pType = param.type.resolve().toTypeString(documentedModels)
                 val pDoc = param.annotations.find { it.shortName.asString() == "RpcParamDoc" }
                 val pDesc = pDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String
                 if (pDesc != null) "`$pName` ($pType): $pDesc" else "`$pName` ($pType)"
             }.ifEmpty { "-" }
 
-            val retType = func.returnType?.resolve()?.toTypeString(documentedModels, duplicateNames) ?: "Unit"
+            val retType = func.returnType?.resolve()?.toTypeString(documentedModels) ?: "Unit"
 
             out.writeLine("| `$fName` | $params | $retType | $admin | $errors | $desc |")
         }
@@ -197,23 +197,21 @@ class DocProcessor(
 
     private fun OutputStream.writeLine(str: String) = this.write((str + "\n").toByteArray())
 
-    private fun KSType.toTypeString(documentedModels: Set<String>, duplicateNames: Set<String>): String {
+    private fun KSType.toTypeString(documentedModels: Set<String>): String {
         val name = declaration.simpleName.asString()
         val qName = declaration.qualifiedName?.asString() ?: name
         val nullability = if (isMarkedNullable) "?" else ""
 
-        val displayName = if (name in duplicateNames) qName else name
-
         val anchor = qName.lowercase().replace(".", "")
 
         val formattedName = if (qName in documentedModels) {
-            "[$displayName](#$anchor)"
+            "[$name](#$anchor)"
         } else {
-            "`$displayName`"
+            "`$name`"
         }
 
         if (arguments.isEmpty()) return "$formattedName$nullability"
-        val args = arguments.joinToString(", ") { it.type?.resolve()?.toTypeString(documentedModels, duplicateNames) ?: "Any" }
+        val args = arguments.joinToString(", ") { it.type?.resolve()?.toTypeString(documentedModels) ?: "Any" }
         return "$formattedName<$args>$nullability"
     }
 }
