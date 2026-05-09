@@ -15,6 +15,8 @@ import kotlinx.serialization.UseContextualSerialization
 interface IArtistService {
     @RpcDoc("Get artist by ID.")
     suspend fun byId(@RpcParamDoc("The artist unique identifier.") id: PlatformUUID): Artist?
+    @RpcDoc("Get artist by MusicBrainz ID.")
+    suspend fun byMusicBrainzId(@RpcParamDoc("The MusicBrainz artist UUID.") mbId: PlatformUUID): List<Artist>
     @RpcDoc("Get multiple artists by their IDs.")
     suspend fun byIds(@RpcParamDoc("Collection of artist IDs.") ids: List<PlatformUUID>): List<Artist>
     @RpcDoc("Ranked artist search.")
