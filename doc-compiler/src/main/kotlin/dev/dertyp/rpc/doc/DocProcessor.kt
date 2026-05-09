@@ -39,7 +39,8 @@ class DocProcessor(
         if (!docsDir.exists()) docsDir.mkdirs()
         val docFile = File(docsDir, docName)
 
-        val documentedModels = modelSymbols.map { it.simpleName.asString() }.toSet()
+        val documentedModels = modelSymbols.mapNotNull { it.qualifiedName?.asString() }.toSet()
+        val duplicateNames = (modelSymbols + serviceSymbols).groupBy { it.simpleName.asString() }.filter { it.value.size > 1 }.keys
 
         docFile.outputStream().use { out ->
             out.writeLine("# Synara RPC Services Documentation")
@@ -49,30 +50,36 @@ class DocProcessor(
 
             out.writeLine("## Table of Contents")
             out.writeLine("- [Data Models](#data-models)")
-            modelSymbols.sortedBy { it.simpleName.asString() }.forEach { model ->
+            modelSymbols.sortedBy { it.qualifiedName?.asString() }.forEach { model ->
                 val name = model.simpleName.asString()
-                out.writeLine("    - [$name](#${name.lowercase()})")
+                val qName = model.qualifiedName?.asString() ?: name
+                val anchor = qName.lowercase().replace(".", "")
+                val displayName = if (name in duplicateNames) qName else name
+                out.writeLine("    - [$displayName](#$anchor)")
             }
             out.writeLine("- [RPC Services](#rpc-services)")
-            serviceSymbols.sortedBy { it.simpleName.asString() }.forEach { symbol ->
+            serviceSymbols.sortedBy { it.qualifiedName?.asString() }.forEach { symbol ->
                 val name = symbol.simpleName.asString()
-                out.writeLine("    - [$name](#${name.lowercase()})")
+                val qName = symbol.qualifiedName?.asString() ?: name
+                val anchor = qName.lowercase().replace(".", "")
+                val displayName = if (name in duplicateNames) qName else name
+                out.writeLine("    - [$displayName](#$anchor)")
             }
             out.writeLine("")
 
             out.writeLine("## Data Models")
             out.writeLine("")
 
-            modelSymbols.sortedBy { it.simpleName.asString() }.forEach { model ->
-                generateModelDoc(out, model, documentedModels)
+            modelSymbols.sortedBy { it.qualifiedName?.asString() }.forEach { model ->
+                generateModelDoc(out, model, documentedModels, duplicateNames)
             }
 
             out.writeLine("---")
             out.writeLine("## RPC Services")
             out.writeLine("")
 
-            serviceSymbols.sortedBy { it.simpleName.asString() }.forEach { symbol ->
-                generateServiceDoc(out, symbol, documentedModels)
+            serviceSymbols.sortedBy { it.qualifiedName?.asString() }.forEach { symbol ->
+                generateServiceDoc(out, symbol, documentedModels, duplicateNames)
             }
         }
 
@@ -90,12 +97,18 @@ class DocProcessor(
         return file.parentFile ?: file
     }
 
-    private fun generateModelDoc(out: OutputStream, model: KSClassDeclaration, documentedModels: Set<String>) {
+    private fun generateModelDoc(out: OutputStream, model: KSClassDeclaration, documentedModels: Set<String>, duplicateNames: Set<String>) {
         val name = model.simpleName.asString()
+        val qName = model.qualifiedName?.asString() ?: name
+        val anchor = qName.lowercase().replace(".", "")
         val docAnnotation = model.annotations.find { it.shortName.asString() == "ModelDoc" }
         val description = docAnnotation?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
 
-        out.writeLine("### $name")
+        out.writeLine("### $name <a name=\"$anchor\"></a>")
+        if (name in duplicateNames) {
+            out.writeLine("*Full name: `$qName`*")
+            out.writeLine("")
+        }
         if (description.isNotEmpty()) out.writeLine(description)
         out.writeLine("")
         
@@ -114,7 +127,7 @@ class DocProcessor(
             out.writeLine("| :--- | :--- | :--- |")
             model.getAllProperties().forEach { prop ->
                 val pName = prop.simpleName.asString()
-                val pType = prop.type.resolve().toTypeString(documentedModels)
+                val pType = prop.type.resolve().toTypeString(documentedModels, duplicateNames)
                 val fDoc = prop.annotations.find { it.shortName.asString() == "FieldDoc" }
                 val fDesc = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
                 out.writeLine("| `$pName` | $pType | $fDesc |")
@@ -123,12 +136,18 @@ class DocProcessor(
         out.writeLine("")
     }
 
-    private fun generateServiceDoc(out: OutputStream, symbol: KSClassDeclaration, documentedModels: Set<String>) {
+    private fun generateServiceDoc(out: OutputStream, symbol: KSClassDeclaration, documentedModels: Set<String>, duplicateNames: Set<String>) {
         val name = symbol.simpleName.asString()
+        val qName = symbol.qualifiedName?.asString() ?: name
+        val anchor = qName.lowercase().replace(".", "")
         val rpcDoc = symbol.annotations.find { it.shortName.asString() == "RpcDoc" }
         val serviceDesc = rpcDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
 
-        out.writeLine("### $name")
+        out.writeLine("### $name <a name=\"$anchor\"></a>")
+        if (name in duplicateNames) {
+            out.writeLine("*Full name: `$qName`*")
+            out.writeLine("")
+        }
         if (serviceDesc.isNotEmpty()) out.writeLine(serviceDesc)
         out.writeLine("")
         
@@ -146,13 +165,13 @@ class DocProcessor(
             
             val params = func.parameters.joinToString("<br>") { param ->
                 val pName = param.name?.asString() ?: "arg"
-                val pType = param.type.resolve().toTypeString(documentedModels)
+                val pType = param.type.resolve().toTypeString(documentedModels, duplicateNames)
                 val pDoc = param.annotations.find { it.shortName.asString() == "RpcParamDoc" }
                 val pDesc = pDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String
                 if (pDesc != null) "`$pName` ($pType): $pDesc" else "`$pName` ($pType)"
             }.ifEmpty { "-" }
 
-            val retType = func.returnType?.resolve()?.toTypeString(documentedModels) ?: "Unit"
+            val retType = func.returnType?.resolve()?.toTypeString(documentedModels, duplicateNames) ?: "Unit"
 
             out.writeLine("| `$fName` | $params | $retType | $admin | $errors | $desc |")
         }
@@ -178,19 +197,24 @@ class DocProcessor(
 
     private fun OutputStream.writeLine(str: String) = this.write((str + "\n").toByteArray())
 
-    private fun KSType.toTypeString(documentedModels: Set<String>): String {
+    private fun KSType.toTypeString(documentedModels: Set<String>, duplicateNames: Set<String>): String {
         val name = declaration.simpleName.asString()
+        val qName = declaration.qualifiedName?.asString() ?: name
         val nullability = if (isMarkedNullable) "?" else ""
 
-        val displayName = if (name in documentedModels) {
-            "[$name](#${name.lowercase()})"
+        val displayName = if (name in duplicateNames) qName else name
+
+        val anchor = qName.lowercase().replace(".", "")
+
+        val formattedName = if (qName in documentedModels) {
+            "[$displayName](#$anchor)"
         } else {
-            "`$name`"
+            "`$displayName`"
         }
 
-        if (arguments.isEmpty()) return "$displayName$nullability"
-        val args = arguments.joinToString(", ") { it.type?.resolve()?.toTypeString(documentedModels) ?: "Any" }
-        return "$displayName<$args>$nullability"
+        if (arguments.isEmpty()) return "$formattedName$nullability"
+        val args = arguments.joinToString(", ") { it.type?.resolve()?.toTypeString(documentedModels, duplicateNames) ?: "Any" }
+        return "$formattedName<$args>$nullability"
     }
 }
 
