@@ -38,6 +38,8 @@ data class Artist(
     val genres: List<Genre> = listOf(),
     @FieldDoc("The artist image unique identifier.")
     val imageId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the artist image.")
+    val blurHash: String? = null,
     @FieldDoc("The MusicBrainz Artist unique identifier.")
     val musicbrainzId: PlatformUUID? = null,
     @FieldDoc("Whether the current user is following this artist.")

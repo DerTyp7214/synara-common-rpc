@@ -17,6 +17,7 @@ sealed class BasePlaylist {
     abstract val songs: List<PlatformUUID>
     abstract val totalDuration: Long
     abstract val imageId: PlatformUUID?
+    abstract val blurHash: String?
 }
 
 @Serializable
@@ -32,6 +33,8 @@ data class Playlist(
     override val totalDuration: Long = -1L,
     @FieldDoc("The playlist cover image unique identifier.")
     override val imageId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the playlist cover image.")
+    override val blurHash: String? = null,
 ): BasePlaylist()
 
 @Serializable
@@ -60,6 +63,8 @@ data class UserPlaylist(
     override val totalDuration: Long = -1L,
     @FieldDoc("The playlist cover image unique identifier.")
     override val imageId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the playlist cover image.")
+    override val blurHash: String? = null,
     @FieldDoc("The unique identifier of the user who created the playlist.")
     val creator: PlatformUUID,
     @FieldDoc("A user-provided description of the playlist.")

@@ -789,6 +789,8 @@ pub struct Song {
     pub file_size: i64,
     #[serde(rename = "coverId")]
     pub cover_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
     #[serde(rename = "musicBrainzId")]
     pub music_brainz_id: Option<PlatformUUID>,
     pub genres: Vec<Genre>,
@@ -805,6 +807,8 @@ pub struct Artist {
     pub genres: Vec<Genre>,
     #[serde(rename = "imageId")]
     pub image_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
     #[serde(rename = "musicbrainzId")]
     pub musicbrainz_id: Option<PlatformUUID>,
     #[serde(rename = "isFollowed")]
@@ -832,6 +836,8 @@ pub struct Album {
     pub total_size: i64,
     #[serde(rename = "coverId")]
     pub cover_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
     pub genres: Vec<Genre>,
     #[serde(rename = "originalId")]
     pub original_id: Option<String>,
@@ -862,6 +868,8 @@ pub struct Playlist {
     pub total_duration: i64,
     #[serde(rename = "imageId")]
     pub image_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -875,6 +883,8 @@ pub struct UserPlaylist {
     pub total_duration: i64,
     #[serde(rename = "imageId")]
     pub image_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
     pub creator: PlatformUUID,
     pub description: String,
     pub origin: Option<String>,
@@ -899,6 +909,16 @@ pub struct Image {
     #[serde(rename = "imageHash")]
     pub image_hash: String,
     pub origin: String,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
+    pub width: Option<i32>,
+    pub height: Option<i32>,
+    #[serde(rename = "byteSize")]
+    pub byte_size: Option<i64>,
+    #[serde(rename = "primaryColor")]
+    pub primary_color: Option<i32>,
+    pub luminance: Option<Double>,
+    pub palette: Option<Vec<i32>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -913,6 +933,8 @@ pub struct User {
     pub is_admin: bool,
     #[serde(rename = "profileImageId")]
     pub profile_image_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -965,6 +987,8 @@ pub struct UserSong {
     pub file_size: i64,
     #[serde(rename = "coverId")]
     pub cover_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
     #[serde(rename = "musicBrainzId")]
     pub music_brainz_id: Option<PlatformUUID>,
     pub genres: Vec<Genre>,
@@ -1447,6 +1471,8 @@ pub struct RecentRelease {
     pub r#type: ReleaseType,
     #[serde(rename = "imageId")]
     pub image_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
     pub links: Vec<String>,
     #[serde(rename = "albumId")]
     pub album_id: Option<PlatformUUID>,

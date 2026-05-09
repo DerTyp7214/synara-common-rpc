@@ -19,6 +19,20 @@ data class Image(
     val imageHash: String,
     @FieldDoc("The source or platform where the image originated.")
     val origin: String,
+    @FieldDoc("BlurHash string for placeholders.")
+    val blurHash: String? = null,
+    @FieldDoc("Width of the image in pixels.")
+    val width: Int? = null,
+    @FieldDoc("Height of the image in pixels.")
+    val height: Int? = null,
+    @FieldDoc("Size of the image file in bytes.")
+    val byteSize: Long? = null,
+    @FieldDoc("Primary color of the image in ARGB format.")
+    val primaryColor: Int? = null,
+    @FieldDoc("Perceived brightness of the image (0.0 to 1.0).")
+    val luminance: Double? = null,
+    @FieldDoc("Top 5 dominant colors in the image.")
+    val palette: List<Int>? = null,
 )
 
 @Serializable

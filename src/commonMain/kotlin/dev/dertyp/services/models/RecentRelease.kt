@@ -29,6 +29,8 @@ data class RecentRelease(
     val type: ReleaseType,
     @FieldDoc("The release cover image unique identifier.")
     val imageId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the release cover image.")
+    val blurHash: String? = null,
     @FieldDoc("Collection of external URLs related to the release.")
     val links: List<String> = emptyList(),
     @FieldDoc("The internal album ID if it has been indexed.")

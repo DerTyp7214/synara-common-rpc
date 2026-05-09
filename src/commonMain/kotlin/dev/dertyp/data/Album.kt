@@ -31,6 +31,8 @@ data class Album(
     val totalSize: Long = 0,
     @FieldDoc("The album cover image unique identifier.")
     val coverId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the album cover image.")
+    val blurHash: String? = null,
     @FieldDoc("Collection of genres associated with this album.")
     val genres: List<Genre> = listOf(),
     @FieldDoc("The original ID of the album on external sources.")

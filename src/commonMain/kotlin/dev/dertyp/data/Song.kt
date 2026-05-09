@@ -47,6 +47,7 @@ abstract class BaseSong() {
     abstract val bitRate: Long
     abstract val fileSize: Long
     abstract val coverId: PlatformUUID?
+    abstract val blurHash: String?
     abstract val musicBrainzId: PlatformUUID?
     abstract val genres: List<Genre>
 }
@@ -91,6 +92,8 @@ data class Song(
     override val fileSize: Long = 0,
     @FieldDoc("The song cover image unique identifier.")
     override val coverId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the song cover image.")
+    override val blurHash: String? = null,
     @FieldDoc("The MusicBrainz Recording unique identifier.")
     override val musicBrainzId: PlatformUUID? = null,
     @FieldDoc("Collection of genres associated with this song.")
@@ -137,6 +140,8 @@ data class UserSong(
     override val fileSize: Long = 0,
     @FieldDoc("The song cover image unique identifier.")
     override val coverId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the song cover image.")
+    override val blurHash: String? = null,
     @FieldDoc("The MusicBrainz Recording unique identifier.")
     override val musicBrainzId: PlatformUUID? = null,
     @FieldDoc("Collection of genres associated with this song.")
@@ -227,6 +232,8 @@ data class SimpleSong(
     val fileSize: Long,
     @FieldDoc("The song cover image unique identifier.")
     val coverId: PlatformUUID?,
+    @FieldDoc("The blur hash of the song cover image.")
+    val blurHash: String? = null,
     @FieldDoc("The MusicBrainz Recording unique identifier.")
     val musicBrainzId: PlatformUUID? = null,
     @FieldDoc("List of bitrates for which a transcoded version exists.")

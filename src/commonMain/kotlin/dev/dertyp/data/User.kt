@@ -23,6 +23,8 @@ data class User(
     val isAdmin: Boolean = false,
     @FieldDoc("The user's profile avatar image unique identifier.")
     val profileImageId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the profile avatar image.")
+    val blurHash: String? = null,
 )
 
 @Serializable
@@ -38,6 +40,8 @@ data class UserInfo(
     val isAdmin: Boolean,
     @FieldDoc("The user's profile avatar image unique identifier.")
     val profileImageId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the profile avatar image.")
+    val blurHash: String? = null,
 ) {
     companion object {
         fun fromUser(user: User): UserInfo {
@@ -47,6 +51,7 @@ data class UserInfo(
                 displayName = user.displayName,
                 isAdmin = user.isAdmin,
                 profileImageId = user.profileImageId,
+                blurHash = user.blurHash,
             )
         }
     }
