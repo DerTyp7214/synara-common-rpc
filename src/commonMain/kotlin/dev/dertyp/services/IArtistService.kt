@@ -6,6 +6,7 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.data.*
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
+import dev.dertyp.services.metadata.IMetadataService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.UseContextualSerialization
@@ -64,6 +65,17 @@ interface IArtistService {
     suspend fun setMusicBrainzId(
         @RpcParamDoc("The artist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The MusicBrainz ID to link.") musicBrainzId: PlatformUUID?
+    ): Artist?
+    @RpcDoc("Search for artist images using a metadata provider.")
+    suspend fun searchArtistImages(
+        @RpcParamDoc("The metadata provider to use.") type: IMetadataService.MetadataType,
+        @RpcParamDoc("The artist name to search for.") query: String,
+        @RpcParamDoc("Maximum number of images to return.") limit: Int = 50
+    ): List<IMetadataService.Image>
+    @RpcDoc("Set an artist's image from a direct URL.")
+    suspend fun setArtistImageByUrl(
+        @RpcParamDoc("The artist unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("The direct image URL.") url: String
     ): Artist?
     @RpcDoc("Stream all artists that are missing a MusicBrainz ID.")
     fun artistsWithoutMusicBrainzIdFlow(): Flow<Artist>

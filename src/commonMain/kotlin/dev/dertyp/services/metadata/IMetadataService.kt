@@ -14,13 +14,7 @@ import dev.dertyp.serializers.OffsetDateTimeSerializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.rpc.annotations.Rpc
@@ -42,6 +36,7 @@ interface IMetadataService {
             val imageCache = MetadataType("imageCache")
             val theAudioDB = MetadataType("theAudioDB")
             val musicBrainz = MetadataType("musicBrainz")
+            val deezer = MetadataType("deezer")
         }
     }
 
