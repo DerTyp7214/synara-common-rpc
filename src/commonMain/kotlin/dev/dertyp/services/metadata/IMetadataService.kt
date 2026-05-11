@@ -29,7 +29,19 @@ interface IMetadataService {
 
     @Serializable
     data class MetadataType(val value: String) {
+        init {
+            register(this)
+        }
+
         companion object {
+            private val registry = mutableMapOf<String, MetadataType>()
+
+            private fun register(type: MetadataType) {
+                registry[type.value] = type
+            }
+
+            fun all(): List<MetadataType> = registry.values.toList()
+
             val tidal = MetadataType("tidal")
             val spotify = MetadataType("spotify")
             val appleMusic = MetadataType("appleMusic")
@@ -65,12 +77,23 @@ interface IMetadataService {
         GET_PLAYLISTS_BY_IDS
     }
 
+    @Target(AnnotationTarget.FUNCTION)
+    @Retention(AnnotationRetention.RUNTIME)
+    annotation class ProvidesFeature(val feature: Feature)
+
     @RpcDoc("Get the list of features supported by the specified metadata provider.")
     suspend fun getSupportedFeatures(
         @RpcParamDoc("The metadata provider to check.")
         type: MetadataType
     ): Set<Feature>
 
+    @RpcDoc("Get all registered metadata providers, optionally filtered by supported features.")
+    suspend fun getAllMetadataTypes(
+        @RpcParamDoc("Optional set of features that must be supported by the provider.")
+        features: Set<Feature> = emptySet()
+    ): List<MetadataType>
+
+    @ProvidesFeature(Feature.SEARCH_ARTISTS)
     @RpcDoc("Search for artists on the specified metadata provider.")
     suspend fun searchArtists(
         @RpcParamDoc("The metadata provider to use.")
@@ -81,6 +104,7 @@ interface IMetadataService {
         limit: Int = 50
     ): List<Artist>
 
+    @ProvidesFeature(Feature.SEARCH_TRACKS)
     @RpcDoc("Search for tracks on the specified metadata provider.")
     suspend fun search(
         @RpcParamDoc("The metadata provider to use.")
@@ -91,6 +115,7 @@ interface IMetadataService {
         limit: Int = 50
     ): List<Track>
 
+    @ProvidesFeature(Feature.SEARCH_ALBUMS)
     @RpcDoc("Search for albums on the specified metadata provider.")
     suspend fun searchAlbums(
         @RpcParamDoc("The metadata provider to use.")
@@ -103,6 +128,7 @@ interface IMetadataService {
         includeTracks: Boolean = false
     ): List<Album>
 
+    @ProvidesFeature(Feature.GET_ALBUM_ID_BY_TRACK_ID)
     @RpcDoc("Get the album ID for a given track ID.")
     suspend fun getAlbumIdByTrackId(
         @RpcParamDoc("The metadata provider to use.")
@@ -111,6 +137,7 @@ interface IMetadataService {
         trackId: String
     ): String?
 
+    @ProvidesFeature(Feature.GET_IMAGE_URL_BY_ALBUM_ID)
     @RpcDoc("Get image URLs for a given album ID.")
     suspend fun getImageUrlByAlbumId(
         @RpcParamDoc("The metadata provider to use.")
@@ -119,6 +146,7 @@ interface IMetadataService {
         albumId: String
     ): List<Image>
 
+    @ProvidesFeature(Feature.GET_ARTIST_BY_MBID)
     @RpcDoc("Get an artist by their MusicBrainz ID.")
     suspend fun getArtistByMbId(
         @RpcParamDoc("The metadata provider to use.")
@@ -127,6 +155,7 @@ interface IMetadataService {
         mbId: PlatformUUID
     ): Artist?
 
+    @ProvidesFeature(Feature.GET_ALBUM_BY_MBID)
     @RpcDoc("Get an album by its MusicBrainz ID.")
     suspend fun getAlbumByMbId(
         @RpcParamDoc("The metadata provider to use.")
@@ -135,6 +164,7 @@ interface IMetadataService {
         mbId: PlatformUUID
     ): Album?
 
+    @ProvidesFeature(Feature.GET_TRACK_BY_MBID)
     @RpcDoc("Get a track by its MusicBrainz ID.")
     suspend fun getTrackByMbId(
         @RpcParamDoc("The metadata provider to use.")
@@ -143,6 +173,7 @@ interface IMetadataService {
         mbId: PlatformUUID
     ): Track?
 
+    @ProvidesFeature(Feature.GET_IMAGE_URL_BY_ARTIST_MBID)
     @RpcDoc("Get image URLs for an artist by their MusicBrainz ID.")
     suspend fun getImageUrlByArtistMbId(
         @RpcParamDoc("The metadata provider to use.")
@@ -151,6 +182,7 @@ interface IMetadataService {
         mbId: PlatformUUID
     ): List<Image>
 
+    @ProvidesFeature(Feature.GET_IMAGE_URL_BY_ALBUM_MBID)
     @RpcDoc("Get image URLs for an album by its MusicBrainz ID.")
     suspend fun getImageUrlByAlbumMbId(
         @RpcParamDoc("The metadata provider to use.")
@@ -159,6 +191,7 @@ interface IMetadataService {
         mbId: PlatformUUID
     ): List<Image>
 
+    @ProvidesFeature(Feature.GET_IMAGE_URL_BY_TRACK_MBID)
     @RpcDoc("Get image URLs for a track by its MusicBrainz ID.")
     suspend fun getImageUrlByTrackMbId(
         @RpcParamDoc("The metadata provider to use.")
@@ -167,6 +200,7 @@ interface IMetadataService {
         mbId: PlatformUUID
     ): List<Image>
 
+    @ProvidesFeature(Feature.GET_IMAGE_URLS_BY_ALBUM_IDS)
     @RpcDoc("Get image URLs for multiple album IDs.")
     suspend fun getImageUrlsByAlbumIds(
         @RpcParamDoc("The metadata provider to use.")
@@ -175,6 +209,7 @@ interface IMetadataService {
         albumIds: List<String>
     ): Map<String, List<Image>>
 
+    @ProvidesFeature(Feature.GET_IMAGE_URL_BY_IMAGE_ID)
     @RpcDoc("Get the URL for a cached image by its ID.")
     suspend fun getImageUrlByImageId(
         @RpcParamDoc("The metadata provider to use.")
@@ -183,6 +218,7 @@ interface IMetadataService {
         imageId: PlatformUUID
     ): String?
 
+    @ProvidesFeature(Feature.GET_TRACK_BY_ID)
     @RpcDoc("Get a track by its external ID.")
     suspend fun getTrackById(
         @RpcParamDoc("The metadata provider to use.")
@@ -191,6 +227,7 @@ interface IMetadataService {
         trackId: String
     ): Track?
 
+    @ProvidesFeature(Feature.GET_TRACKS_BY_IDS)
     @RpcDoc("Get multiple tracks by their external IDs.")
     suspend fun getTracksByIds(
         @RpcParamDoc("The metadata provider to use.")
@@ -199,6 +236,7 @@ interface IMetadataService {
         trackIds: List<String>
     ): List<Track>
 
+    @ProvidesFeature(Feature.GET_ALBUMS_BY_IDS)
     @RpcDoc("Get multiple albums by their external IDs.")
     suspend fun getAlbumsByIds(
         @RpcParamDoc("The metadata provider to use.")
@@ -207,6 +245,7 @@ interface IMetadataService {
         albumIds: List<String>
     ): List<Album>
 
+    @ProvidesFeature(Feature.ALBUM_EXISTS_BY_ID)
     @RpcDoc("Check if an album exists by its external ID.")
     suspend fun albumExistsById(
         @RpcParamDoc("The metadata provider to use.")
@@ -215,6 +254,7 @@ interface IMetadataService {
         albumId: String
     ): Boolean
 
+    @ProvidesFeature(Feature.GET_ARTISTS_BY_IDS)
     @RpcDoc("Get multiple artists by their external IDs.")
     suspend fun getArtistsByIds(
         @RpcParamDoc("The metadata provider to use.")
@@ -490,3 +530,19 @@ interface IMetadataService {
         }
     }
 }
+
+suspend fun IMetadataService.supports(
+    type: IMetadataService.MetadataType,
+    feature: IMetadataService.Feature
+): Boolean = getSupportedFeatures(type).contains(feature)
+
+suspend infix fun IMetadataService.supports(check: Pair<IMetadataService.MetadataType, IMetadataService.Feature>): Boolean =
+    supports(check.first, check.second)
+
+infix fun IMetadataService.MetadataType.at(feature: IMetadataService.Feature): Pair<IMetadataService.MetadataType, IMetadataService.Feature> =
+    this to feature
+
+suspend fun IMetadataService.MetadataType.supports(
+    service: IMetadataService,
+    feature: IMetadataService.Feature
+): Boolean = service.supports(this, feature)

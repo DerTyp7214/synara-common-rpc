@@ -1065,6 +1065,52 @@ pub struct MetadataType {
     pub value: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum Feature {
+    #[serde(rename = "SEARCH_ARTISTS")]
+    SearchArtists,
+    #[serde(rename = "SEARCH_TRACKS")]
+    SearchTracks,
+    #[serde(rename = "SEARCH_ALBUMS")]
+    SearchAlbums,
+    #[serde(rename = "GET_ALBUM_ID_BY_TRACK_ID")]
+    GetAlbumIdByTrackId,
+    #[serde(rename = "GET_IMAGE_URL_BY_ALBUM_ID")]
+    GetImageUrlByAlbumId,
+    #[serde(rename = "GET_ARTIST_BY_MBID")]
+    GetArtistByMbid,
+    #[serde(rename = "GET_ALBUM_BY_MBID")]
+    GetAlbumByMbid,
+    #[serde(rename = "GET_TRACK_BY_MBID")]
+    GetTrackByMbid,
+    #[serde(rename = "GET_IMAGE_URL_BY_ARTIST_MBID")]
+    GetImageUrlByArtistMbid,
+    #[serde(rename = "GET_IMAGE_URL_BY_ALBUM_MBID")]
+    GetImageUrlByAlbumMbid,
+    #[serde(rename = "GET_IMAGE_URL_BY_TRACK_MBID")]
+    GetImageUrlByTrackMbid,
+    #[serde(rename = "GET_IMAGE_URLS_BY_ALBUM_IDS")]
+    GetImageUrlsByAlbumIds,
+    #[serde(rename = "GET_IMAGE_URL_BY_IMAGE_ID")]
+    GetImageUrlByImageId,
+    #[serde(rename = "GET_TRACK_BY_ID")]
+    GetTrackById,
+    #[serde(rename = "GET_TRACKS_BY_IDS")]
+    GetTracksByIds,
+    #[serde(rename = "GET_ALBUMS_BY_IDS")]
+    GetAlbumsByIds,
+    #[serde(rename = "ALBUM_EXISTS_BY_ID")]
+    AlbumExistsById,
+    #[serde(rename = "GET_ARTISTS_BY_IDS")]
+    GetArtistsByIds,
+    #[serde(rename = "GET_ALBUM_TRACKS")]
+    GetAlbumTracks,
+    #[serde(rename = "GET_ARTIST_TRACKS")]
+    GetArtistTracks,
+    #[serde(rename = "GET_PLAYLISTS_BY_IDS")]
+    GetPlaylistsByIds,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IMetadataServiceArtist {
     pub id: String,
@@ -1816,6 +1862,7 @@ pub trait IUserPlaylistService {
 }
 
 pub trait IMetadataService {
+    fn get_supported_features<'life0, 'async_trait>(&'life0 self, r#type: MetadataType) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Feature>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn search_artists<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn search<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn search_albums<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32, include_tracks: bool) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceAlbum>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -2386,6 +2433,11 @@ impl IUserPlaylistService for RpcClient {
     }
 }
 impl IMetadataService for RpcClient {
+    fn get_supported_features<'life0, 'async_trait>(&'life0 self, r#type: MetadataType) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Feature>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IMetadataService", "getSupportedFeatures", &r#type).await
+        })
+    }
     fn search_artists<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             let args = IMetadataServiceSearchArtistsArgs { r#type, query, limit };
