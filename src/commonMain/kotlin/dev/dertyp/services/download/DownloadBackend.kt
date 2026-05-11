@@ -10,5 +10,6 @@ data class DownloadBackend(val id: String) {
         val Tdn = DownloadBackend("tdn")
         val Tiddl = DownloadBackend("tiddl")
         val Youtube = DownloadBackend("youtube")
+        val Soundcloud = DownloadBackend("soundcloud")
     }
 }
