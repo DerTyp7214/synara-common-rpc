@@ -166,20 +166,24 @@ abstract class BaseRpcServiceManager(
         for (s in schemes) {
             try {
                 val formattedPath = path.prefixIfNotBlank("/").removeSuffix("/")
-                val baseUrl = "$s://$host:$port$formattedPath"
+                val safePath = formattedPath.replace("//", "/")
+                val baseUrl = "$s://$host:$port$safePath"
 
-                val rpcClient = client.rpc {
-                    url("$baseUrl/rpc")
-                }
-
-                try {
-                    val statsService = rpcClient.withService<IServerStatsService>()
-                    if (statsService.health()) {
-                        return@withContext ServerValidationResult(validated = true, useSsl = s == "wss")
+                val result = withTimeoutOrNull(5000) {
+                    val rpcClient = client.rpc {
+                        url("$baseUrl/rpc")
                     }
-                } finally {
-                    rpcClient.close()
+
+                    try {
+                        val statsService = rpcClient.withService<IServerStatsService>()
+                        if (statsService.health()) {
+                            ServerValidationResult(validated = true, useSsl = s == "wss")
+                        } else null
+                    } finally {
+                        rpcClient.close()
+                    }
                 }
+                if (result != null) return@withContext result
             } catch (_: Exception) {
             }
         }
