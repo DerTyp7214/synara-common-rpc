@@ -40,6 +40,37 @@ interface IMetadataService {
         }
     }
 
+    @Serializable
+    enum class Feature {
+        SEARCH_ARTISTS,
+        SEARCH_TRACKS,
+        SEARCH_ALBUMS,
+        GET_ALBUM_ID_BY_TRACK_ID,
+        GET_IMAGE_URL_BY_ALBUM_ID,
+        GET_ARTIST_BY_MBID,
+        GET_ALBUM_BY_MBID,
+        GET_TRACK_BY_MBID,
+        GET_IMAGE_URL_BY_ARTIST_MBID,
+        GET_IMAGE_URL_BY_ALBUM_MBID,
+        GET_IMAGE_URL_BY_TRACK_MBID,
+        GET_IMAGE_URLS_BY_ALBUM_IDS,
+        GET_IMAGE_URL_BY_IMAGE_ID,
+        GET_TRACK_BY_ID,
+        GET_TRACKS_BY_IDS,
+        GET_ALBUMS_BY_IDS,
+        ALBUM_EXISTS_BY_ID,
+        GET_ARTISTS_BY_IDS,
+        GET_ALBUM_TRACKS,
+        GET_ARTIST_TRACKS,
+        GET_PLAYLISTS_BY_IDS
+    }
+
+    @RpcDoc("Get the list of features supported by the specified metadata provider.")
+    suspend fun getSupportedFeatures(
+        @RpcParamDoc("The metadata provider to check.")
+        type: MetadataType
+    ): Set<Feature>
+
     @RpcDoc("Search for artists on the specified metadata provider.")
     suspend fun searchArtists(
         @RpcParamDoc("The metadata provider to use.")

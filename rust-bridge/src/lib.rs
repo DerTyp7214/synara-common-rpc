@@ -489,6 +489,20 @@ pub struct IArtistServiceSetMusicBrainzIdArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IArtistServiceSearchArtistImagesArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    pub query: String,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IArtistServiceSetArtistImageByUrlArgs {
+    pub id: PlatformUUID,
+    pub url: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IAuthServiceAuthenticateArgs {
     pub username: String,
     pub password: String,
@@ -1884,6 +1898,8 @@ pub trait IArtistService {
     fn search_artist_on_music_brainz<'life0, 'async_trait>(&'life0 self, query: String, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<MusicBrainzArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn fetch_music_brainz_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Artist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_music_brainz_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, music_brainz_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Artist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn search_artist_images<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_artist_image_by_url<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, url: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Artist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn artists_without_music_brainz_id_flow(&self, ) -> RpcStream<Artist>;
     fn artist_ids_without_music_brainz_id(&self, ) -> RpcStream<PlatformUUID>;
 }
@@ -2687,6 +2703,18 @@ impl IArtistService for RpcClient {
         Box::pin(async move {
             let args = IArtistServiceSetMusicBrainzIdArgs { id, music_brainz_id };
             self.call("IArtistService", "setMusicBrainzId", &args).await
+        })
+    }
+    fn search_artist_images<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, query: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IArtistServiceSearchArtistImagesArgs { r#type, query, limit };
+            self.call("IArtistService", "searchArtistImages", &args).await
+        })
+    }
+    fn set_artist_image_by_url<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, url: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Artist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IArtistServiceSetArtistImageByUrlArgs { id, url };
+            self.call("IArtistService", "setArtistImageByUrl", &args).await
         })
     }
     fn artists_without_music_brainz_id_flow(&self, ) -> RpcStream<Artist> {
