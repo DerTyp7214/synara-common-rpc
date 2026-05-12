@@ -3,16 +3,7 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
-import dev.dertyp.data.Album
-import dev.dertyp.data.Artist
-import dev.dertyp.data.ArtistAlias
-import dev.dertyp.data.ArtistSplitAlias
-import dev.dertyp.data.Image
-import dev.dertyp.data.Playlist
-import dev.dertyp.data.RemoteServerPaths
-import dev.dertyp.data.Song
-import dev.dertyp.data.User
-import dev.dertyp.data.UserPlaylist
+import dev.dertyp.data.*
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -48,24 +39,34 @@ data class ImageStreamItem(
 @Rpc
 @RpcDoc("Exposes local data for server-to-server mirroring.")
 interface IMirrorService {
+    @RequiresAdmin
     @RpcDoc("Expose the local file system paths where media files are stored.", errors = ["IllegalStateException"])
     suspend fun getServerPaths(): RemoteServerPaths
+    @RequiresAdmin
     @RpcDoc("Stream all local songs with metadata for mirroring.", errors = ["IllegalStateException"])
     fun getSongs(): Flow<Song>
+    @RequiresAdmin
     @RpcDoc("Stream all local artists for mirroring.", errors = ["IllegalStateException"])
     fun getArtists(): Flow<Artist>
+    @RequiresAdmin
     @RpcDoc("Stream all artist name aliases for mirroring.", errors = ["IllegalStateException"])
     fun getArtistAliases(): Flow<ArtistAlias>
+    @RequiresAdmin
     @RpcDoc("Stream all artist split-name mappings for mirroring.", errors = ["IllegalStateException"])
     fun getArtistSplitAliases(): Flow<ArtistSplitAlias>
+    @RequiresAdmin
     @RpcDoc("Stream all local albums for mirroring.", errors = ["IllegalStateException"])
     fun getAlbums(): Flow<Album>
+    @RequiresAdmin
     @RpcDoc("Stream all local system playlists for mirroring.", errors = ["IllegalStateException"])
     fun getPlaylists(): Flow<Playlist>
+    @RequiresAdmin
     @RpcDoc("Stream all local user playlists for mirroring.", errors = ["IllegalStateException"])
     fun getUserPlaylists(): Flow<UserPlaylist>
+    @RequiresAdmin
     @RpcDoc("Stream all image metadata for mirroring.", errors = ["IllegalStateException"])
     fun getImageMetadata(): Flow<Image>
+    @RequiresAdmin
     @RpcDoc("Stream raw audio data for a song.", errors = ["IllegalStateException"])
     fun getSongData(
         @RpcParamDoc("The song unique identifier.") songId: PlatformUUID,
@@ -73,12 +74,16 @@ interface IMirrorService {
         @RpcParamDoc("Number of bytes per chunk in the stream.") chunkSize: Int = 4096,
         @RpcParamDoc("Whether to force re-transcoding and duration check.") force: Boolean = true
     ): Flow<ByteArray>
+    @RequiresAdmin
     @RpcDoc("Stream all local user accounts (profiles) for mirroring.", errors = ["IllegalStateException"])
     fun getUsers(): Flow<User>
+    @RequiresAdmin
     @RpcDoc("Stream all songs belonging to a specific system playlist for mirroring.", errors = ["IllegalStateException"])
     fun getSongsByPlaylist(@RpcParamDoc("The playlist unique identifier.") playlistId: PlatformUUID): Flow<Song>
+    @RequiresAdmin
     @RpcDoc("Stream all songs belonging to a specific user playlist for mirroring.", errors = ["IllegalStateException"])
     fun getSongsByUserPlaylist(@RpcParamDoc("The playlist unique identifier.") playlistId: PlatformUUID): Flow<Song>
+    @RequiresAdmin
     @RpcDoc("Stream all songs liked by a specific user for mirroring.", errors = ["IllegalStateException"])
     fun getLikedSongs(@RpcParamDoc("The user unique identifier.") userId: PlatformUUID): Flow<Song>
 }

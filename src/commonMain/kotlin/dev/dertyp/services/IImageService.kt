@@ -5,6 +5,7 @@ package dev.dertyp.services
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.Image
 import dev.dertyp.data.InsertableImage
+import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.rpc.annotations.RestPublic
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -35,7 +36,8 @@ interface IImageService {
     @RpcDoc("Store multiple images on the server in a single operation.")
     suspend fun createBatch(@RpcParamDoc("Collection of images to store.") images: List<InsertableImage>): Map<String, PlatformUUID>
 
-    @RpcDoc("Batch update image file paths.", adminOnly = true)
+    @RequiresAdmin
+    @RpcDoc("Batch update image file paths.")
     suspend fun moveImages(
         @RpcParamDoc("Path prefix to match.") oldPath: String,
         @RpcParamDoc("New base path.") newPath: String

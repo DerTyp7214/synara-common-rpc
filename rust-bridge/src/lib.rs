@@ -945,10 +945,21 @@ pub struct User {
     pub password_hash: String,
     #[serde(rename = "isAdmin")]
     pub is_admin: bool,
+    pub capabilities: Vec<UserCapability>,
     #[serde(rename = "profileImageId")]
     pub profile_image_id: Option<PlatformUUID>,
     #[serde(rename = "blurHash")]
     pub blur_hash: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum UserCapability {
+    #[serde(rename = "DOWNLOAD")]
+    Download,
+    #[serde(rename = "EDIT")]
+    Edit,
+    #[serde(rename = "DELETE")]
+    Delete,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

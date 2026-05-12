@@ -4,9 +4,7 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformInstant
 import dev.dertyp.PlatformUUID
-import dev.dertyp.data.PaginatedResponse
-import dev.dertyp.data.SongTag
-import dev.dertyp.data.UserSong
+import dev.dertyp.data.*
 import dev.dertyp.rpc.annotations.RestFileResponse
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -19,27 +17,31 @@ import kotlinx.serialization.UseContextualSerialization
 @Rpc
 @RpcDoc("The primary interface for song discovery, streaming, and metadata.")
 interface ISongService {
-    @RpcDoc("Toggle favorite status.", adminOnly = false)
+    @RpcDoc("Toggle favorite status.")
     suspend fun setLiked(
         @RpcParamDoc("The unique UUID of the song.") id: PlatformUUID,
         @RpcParamDoc("Whether to mark as liked.") liked: Boolean,
         @RpcParamDoc("Optional timestamp of when it was added.") addedAt: PlatformInstant? = null
     ): UserSong?
+    @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Manually set song lyrics.")
     suspend fun setLyrics(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
         @RpcParamDoc("List of lyric lines.") lyrics: List<String>
     ): UserSong?
+    @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Update song artists.")
     suspend fun setArtists(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Collection of artist IDs.") artistIds: List<PlatformUUID>
     ): UserSong?
+    @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Link a song to its MusicBrainz Recording record.")
     suspend fun setMusicBrainzId(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The MusicBrainz Recording UUID.") musicBrainzId: PlatformUUID?
     ): UserSong?
+    @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Trigger automatic MusicBrainz ID matching for a song.")
     suspend fun fetchMusicBrainzId(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): UserSong?
     @RpcDoc("Get song by its unique identifier.")
@@ -104,6 +106,7 @@ interface ISongService {
         @RpcParamDoc("Invert the tag filter.") invertTags: Boolean = false,
     ): PaginatedResponse<UserSong>
 
+    @RequiresCapability(UserCapability.DELETE)
     @RpcDoc("Delete multiple songs from the library.")
     suspend fun deleteSongs(@RpcParamDoc("Collection of song IDs to delete.") ids: List<PlatformUUID>): Boolean
 
@@ -162,10 +165,11 @@ interface ISongService {
     @RpcDoc("Stream song IDs belonging to a user playlist.")
     fun songIdsByUserPlaylist(@RpcParamDoc("The user playlist unique identifier.") playlistId: PlatformUUID): Flow<PlatformUUID>
 
-    @RpcDoc("Batch update song file paths.", adminOnly = true)
+    @RequiresAdmin
+    @RpcDoc("Batch update song file paths.")
     suspend fun moveSongs(
         @RpcParamDoc("Path prefix to match.") oldPath: String,
         @RpcParamDoc("New base path.") newPath: String,
-        @RpcParamDoc("Optional originalId prefix to filter by (e.g. 'youtube:').") originalIdPrefix: String? = null
+        @RpcParamDoc("Optional originalId prefix to filter by.") originalIdPrefix: String? = null
     ): Int
 }

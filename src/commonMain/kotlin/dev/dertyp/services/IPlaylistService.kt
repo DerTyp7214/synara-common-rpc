@@ -3,9 +3,7 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
-import dev.dertyp.data.PaginatedResponse
-import dev.dertyp.data.Playlist
-import dev.dertyp.data.PlaylistEntry
+import dev.dertyp.data.*
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -33,6 +31,7 @@ interface IPlaylistService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<Playlist>
+    @RequiresCapability(UserCapability.DELETE)
     @RpcDoc("Delete a system playlist.")
     suspend fun delete(@RpcParamDoc("The playlist unique identifier.") id: PlatformUUID): Boolean
 }

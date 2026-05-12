@@ -3,6 +3,7 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
+import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.data.User
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -24,7 +25,8 @@ interface IUserService {
     @RestGet
     @RpcDoc("Get the profile of the current authenticated user.")
     suspend fun me(): User
-    @RpcDoc("List all users on the server.", adminOnly = true, errors = ["IllegalStateException"])
+    @RequiresAdmin
+    @RpcDoc("List all users on the server.", errors = ["IllegalStateException"])
     suspend fun getAllUsers(): List<User>
     @RpcDoc("Update the current user's avatar.")
     suspend fun setProfileImage(

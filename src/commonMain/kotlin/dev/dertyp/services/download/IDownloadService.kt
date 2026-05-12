@@ -1,6 +1,9 @@
 package dev.dertyp.services.download
 
 import dev.dertyp.PlatformUUID
+import dev.dertyp.data.RequiresAdmin
+import dev.dertyp.data.RequiresCapability
+import dev.dertyp.data.UserCapability
 import dev.dertyp.randomPlatformUUID
 import dev.dertyp.rpc.annotations.*
 import dev.dertyp.serializers.UUIDSerializer
@@ -38,9 +41,11 @@ interface IDownloadService {
     @RestGet
     @RpcDoc("Check if favorite synchronization is available.")
     suspend fun syncFavouritesAvailable(): Boolean
+    @RequiresCapability(UserCapability.DOWNLOAD)
     @RpcDoc("Synchronize favorites with the local library.", errors = ["IllegalStateException"])
     suspend fun syncFavourites()
     @RestPost
+    @RequiresCapability(UserCapability.DOWNLOAD)
     @RpcDoc("Queue content for download by its IDs.")
     suspend fun downloadIds(
         @RpcParamDoc("Collection of IDs.") ids: List<PrefixedId>,
@@ -48,6 +53,7 @@ interface IDownloadService {
         @RpcParamDoc("The downloader to use.") downloader: DownloadBackend? = null
     )
     @RestPost
+    @RequiresCapability(UserCapability.DOWNLOAD)
     @RpcDoc("Queue content for download by its URLs.")
     suspend fun downloadUrls(
         @RpcParamDoc("Collection of URLs.") urls: List<String>
@@ -65,6 +71,7 @@ interface IDownloadService {
         @RpcParamDoc("The original ID to check.") id: PrefixedId,
         @RpcParamDoc("The type of content.") type: Type = Type.SONG
     ): Boolean
+    @RequiresAdmin
     @RpcDoc("Set the preferred downloader backend.")
     suspend fun setDownloadService(@RpcParamDoc("The downloader service to use.") service: DownloadBackend)
     @RestGet
@@ -84,10 +91,12 @@ interface IDownloadService {
     @RestGet
     @RpcDoc("Check if Tidal favorite synchronization is authorized.")
     suspend fun tidalSyncAuthorized(): Boolean
+    @RequiresAdmin
     @RestGet
     @RpcDoc("Get the Tidal OAuth authorization URL.", errors = ["IllegalArgumentException"])
     suspend fun getAuthUrl(): String
 
+    @RequiresAdmin
     @RpcDoc("Immediately stop all active downloader processes.")
     suspend fun killAllChildProcesses()
 

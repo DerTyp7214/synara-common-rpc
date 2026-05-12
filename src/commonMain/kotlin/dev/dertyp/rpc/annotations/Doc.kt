@@ -7,7 +7,6 @@ package dev.dertyp.rpc.annotations
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RpcDoc(
     val description: String = "",
-    val adminOnly: Boolean = false,
     val errors: Array<String> = []
 )
 

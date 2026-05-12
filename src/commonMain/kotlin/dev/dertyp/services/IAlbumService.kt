@@ -5,6 +5,8 @@ package dev.dertyp.services
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.Album
 import dev.dertyp.data.PaginatedResponse
+import dev.dertyp.data.RequiresCapability
+import dev.dertyp.data.UserCapability
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -38,12 +40,16 @@ interface IAlbumService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<Album>
+    @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Update album metadata.")
     suspend fun updateAlbum(@RpcParamDoc("The album object with updated fields.") album: Album): Album?
+    @RequiresCapability(UserCapability.DELETE)
     @RpcDoc("Delete multiple albums from the library.")
     suspend fun deleteAlbums(@RpcParamDoc("Collection of album IDs to delete.") ids: List<PlatformUUID>): Boolean
+    @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Fetch and link MusicBrainz ID for an album.")
     suspend fun fetchMusicBrainzId(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): Album?
+    @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Manually set MusicBrainz ID for an album.")
     suspend fun setMusicBrainzId(
         @RpcParamDoc("The album unique identifier.") id: PlatformUUID,

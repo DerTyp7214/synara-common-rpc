@@ -1,5 +1,6 @@
 package dev.dertyp.services
 
+import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -32,12 +33,16 @@ data class BackupResult(
 @Rpc
 @RpcDoc("System-wide data persistence and disaster recovery.")
 interface IBackupService {
-    @RpcDoc("List all available system backup files.", adminOnly = true, errors = ["SecurityException"])
+    @RequiresAdmin
+    @RpcDoc("List all available system backup files.", errors = ["SecurityException"])
     suspend fun listBackups(): List<BackupInfo>
-    @RpcDoc("Restore the entire server state from a backup file.", adminOnly = true, errors = ["SecurityException", "IllegalArgumentException"])
+    @RequiresAdmin
+    @RpcDoc("Restore the entire server state from a backup file.", errors = ["SecurityException", "IllegalArgumentException"])
     suspend fun loadBackup(@RpcParamDoc("The name of the backup file.") fileName: String)
-    @RpcDoc("Delete a system backup file from the server.", adminOnly = true, errors = ["SecurityException"])
+    @RequiresAdmin
+    @RpcDoc("Delete a system backup file from the server.", errors = ["SecurityException"])
     suspend fun deleteBackup(@RpcParamDoc("The name of the backup file.") fileName: String)
-    @RpcDoc("Trigger the creation of a full system backup.", adminOnly = true, errors = ["SecurityException"])
+    @RequiresAdmin
+    @RpcDoc("Trigger the creation of a full system backup.", errors = ["SecurityException"])
     suspend fun createBackup(): BackupResult
 }

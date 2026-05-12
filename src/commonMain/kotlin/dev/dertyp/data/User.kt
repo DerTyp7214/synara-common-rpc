@@ -21,11 +21,15 @@ data class User(
     val passwordHash: String,
     @FieldDoc("Whether the user has administrative privileges.")
     val isAdmin: Boolean = false,
+    @FieldDoc("List of specific capabilities granted to the user.")
+    val capabilities: List<UserCapability> = emptyList(),
     @FieldDoc("The user's profile avatar image unique identifier.")
     val profileImageId: PlatformUUID? = null,
     @FieldDoc("The blur hash of the profile avatar image.")
     val blurHash: String? = null,
-)
+) {
+    fun hasCapability(capability: UserCapability): Boolean = isAdmin || capabilities.contains(capability)
+}
 
 @Serializable
 @ModelDoc("Publicly safe profile information about a user.")
@@ -38,11 +42,15 @@ data class UserInfo(
     val displayName: String? = null,
     @FieldDoc("Whether the user has administrative privileges.")
     val isAdmin: Boolean,
+    @FieldDoc("List of specific capabilities granted to the user.")
+    val capabilities: List<UserCapability>,
     @FieldDoc("The user's profile avatar image unique identifier.")
     val profileImageId: PlatformUUID? = null,
     @FieldDoc("The blur hash of the profile avatar image.")
     val blurHash: String? = null,
 ) {
+    fun hasCapability(capability: UserCapability): Boolean = isAdmin || capabilities.contains(capability)
+
     companion object {
         fun fromUser(user: User): UserInfo {
             return UserInfo(
@@ -50,6 +58,7 @@ data class UserInfo(
                 username = user.username,
                 displayName = user.displayName,
                 isAdmin = user.isAdmin,
+                capabilities = user.capabilities,
                 profileImageId = user.profileImageId,
                 blurHash = user.blurHash,
             )

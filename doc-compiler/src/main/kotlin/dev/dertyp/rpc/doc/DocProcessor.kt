@@ -151,8 +151,8 @@ class DocProcessor(
         if (serviceDesc.isNotEmpty()) out.writeLine(serviceDesc)
         out.writeLine("")
         
-        out.writeLine("| Function | Parameters | Returns | Admin | Errors | Description |")
-        out.writeLine("| :--- | :--- | :--- | :---: | :--- | :--- |")
+        out.writeLine("| Function | Parameters | Returns | Permissions | Errors | Description |")
+        out.writeLine("| :--- | :--- | :--- | :--- | :--- | :--- |")
 
         symbol.getAllFunctions().filter {
             it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
@@ -160,7 +160,17 @@ class DocProcessor(
             val fName = func.simpleName.asString()
             val fDoc = func.annotations.find { it.shortName.asString() == "RpcDoc" }
             val desc = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
-            val admin = if (fDoc?.arguments?.find { it.name?.asString() == "adminOnly" }?.value == true) "**Yes**" else "No"
+            
+            val permissions = mutableListOf<String>()
+            if (func.annotations.any { it.shortName.asString() == "RequiresAdmin" }) {
+                permissions.add("**Admin**")
+            }
+            func.annotations.find { it.shortName.asString() == "RequiresCapability" }?.let { capAnn ->
+                val cap = capAnn.arguments.find { it.name?.asString() == "capability" }?.value?.toString()?.split(".")?.last()
+                if (cap != null) permissions.add("`$cap`")
+            }
+            val permissionStr = permissions.joinToString(", ").ifEmpty { "-" }
+
             val errors = (fDoc?.arguments?.find { it.name?.asString() == "errors" }?.value as? List<*>)?.joinToString(", ") ?: "-"
             
             val params = func.parameters.joinToString("<br>") { param ->
@@ -173,7 +183,7 @@ class DocProcessor(
 
             val retType = func.returnType?.resolve()?.toTypeString(documentedModels) ?: "Unit"
 
-            out.writeLine("| `$fName` | $params | $retType | $admin | $errors | $desc |")
+            out.writeLine("| `$fName` | $params | $retType | $permissionStr | $errors | $desc |")
         }
         out.writeLine("")
     }

@@ -10,25 +10,35 @@ import kotlinx.rpc.annotations.Rpc
 @Rpc
 @RpcDoc("Instance-to-instance data synchronization.")
 interface IRemoteMirrorService {
-    @RpcDoc("Get statistics from a remote Synara instance.", adminOnly = true, errors = ["IllegalStateException"])
+    @RequiresAdmin
+    @RpcDoc("Get statistics from a remote Synara instance.", errors = ["IllegalStateException"])
     suspend fun getRemoteStats(@RpcParamDoc("Connection configuration for the remote server.") config: RemoteServerConfig): ServerStats
-    @RpcDoc("Start mirroring content from another Synara instance.", adminOnly = true, errors = ["IllegalStateException"])
+    @RequiresAdmin
+    @RpcDoc("Start mirroring content from another Synara instance.", errors = ["IllegalStateException"])
     suspend fun startMirror(@RpcParamDoc("Mirroring configuration and credentials.") config: RemoteServerConfig)
-    @RpcDoc("Stop the active mirroring process.", adminOnly = true, errors = ["IllegalStateException"])
+    @RequiresAdmin
+    @RpcDoc("Stop the active mirroring process.", errors = ["IllegalStateException"])
     suspend fun stopMirror()
-    @RpcDoc("Reset the internal mirroring state.", adminOnly = true, errors = ["IllegalStateException"])
+    @RequiresAdmin
+    @RpcDoc("Reset the internal mirroring state.", errors = ["IllegalStateException"])
     suspend fun resetMirror()
-    @RpcDoc("Stream real-time progress updates for the active mirroring task.", adminOnly = true)
+    @RequiresAdmin
+    @RpcDoc("Stream real-time progress updates for the active mirroring task.")
     fun getActiveMirrorProgress(): Flow<MirrorProgress>
-    @RpcDoc("List all user accounts on a remote Synara instance.", adminOnly = true, errors = ["IllegalStateException"])
+    @RequiresAdmin
+    @RpcDoc("List all user accounts on a remote Synara instance.", errors = ["IllegalStateException"])
     suspend fun getRemoteUsers(@RpcParamDoc("Remote connection configuration.") config: RemoteServerConfig): List<User>
-    @RpcDoc("List all system playlists on a remote Synara instance.", adminOnly = true, errors = ["IllegalStateException"])
+    @RequiresAdmin
+    @RpcDoc("List all system playlists on a remote Synara instance.", errors = ["IllegalStateException"])
     suspend fun getRemotePlaylists(@RpcParamDoc("Remote connection configuration.") config: RemoteServerConfig): List<Playlist>
-    @RpcDoc("List all user playlists on a remote Synara instance.", adminOnly = true, errors = ["IllegalStateException"])
+    @RequiresAdmin
+    @RpcDoc("List all user playlists on a remote Synara instance.", errors = ["IllegalStateException"])
     suspend fun getRemoteUserPlaylists(@RpcParamDoc("Remote connection configuration.") config: RemoteServerConfig): List<UserPlaylist>
-    @RpcDoc("List available proxy instances on a remote Synara instance.", adminOnly = true, errors = ["IllegalStateException"])
+    @RequiresAdmin
+    @RpcDoc("List available proxy instances on a remote Synara instance.", errors = ["IllegalStateException"])
     suspend fun getProxyInstances(@RpcParamDoc("Remote connection configuration.") config: RemoteServerConfig): List<ProxyInstanceInfo>
-    @RpcDoc("Fetch raw image binary data from a remote Synara instance.", adminOnly = true, errors = ["IllegalStateException"])
+    @RequiresAdmin
+    @RpcDoc("Fetch raw image binary data from a remote Synara instance.", errors = ["IllegalStateException"])
     suspend fun getRemoteImageData(
         @RpcParamDoc("Remote connection configuration.") config: RemoteServerConfig,
         @RpcParamDoc("The unique identifier of the image.") imageId: PlatformUUID,
