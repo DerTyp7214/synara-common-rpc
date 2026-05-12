@@ -1751,6 +1751,8 @@ pub enum Type {
     Playlist,
     #[serde(rename = "ARTIST")]
     Artist,
+    #[serde(rename = "VIDEO")]
+    Video,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

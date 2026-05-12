@@ -259,7 +259,10 @@ enum class Type(val value: String) {
     PLAYLIST("playlist"),
 
     @SerialName("artist")
-    ARTIST("artist");
+    ARTIST("artist"),
+
+    @SerialName("video")
+    VIDEO("video");
 
     companion object {
         fun fromValue(value: String): Type? {
