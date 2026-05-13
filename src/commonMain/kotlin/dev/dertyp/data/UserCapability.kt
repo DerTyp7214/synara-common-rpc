@@ -6,13 +6,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 @ModelDoc("Specific actions or features a user is authorized to perform.")
 enum class UserCapability {
-    DOWNLOAD,
+    IMPORT,
     EDIT,
     DELETE;
 
     companion object {
         fun fromString(value: String?): UserCapability? = when (value?.uppercase()) {
-            "DOWNLOAD" -> DOWNLOAD
+            "IMPORT" -> IMPORT
             "EDIT" -> EDIT
             "DELETE" -> DELETE
             else -> null

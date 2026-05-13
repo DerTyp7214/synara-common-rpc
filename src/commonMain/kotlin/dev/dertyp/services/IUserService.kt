@@ -5,6 +5,7 @@ package dev.dertyp.services
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.data.User
+import dev.dertyp.data.UserCapability
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -35,5 +36,11 @@ interface IUserService {
     @RpcDoc("Update the current user's display name.")
     suspend fun setDisplayName(
         @RpcParamDoc("The new display name.") name: String?
+    )
+    @RequiresAdmin
+    @RpcDoc("Update the capabilities for a specific user.")
+    suspend fun setCapabilities(
+        @RpcParamDoc("The UUID of the user.") id: PlatformUUID,
+        @RpcParamDoc("The new list of capabilities.") capabilities: List<UserCapability>
     )
 }

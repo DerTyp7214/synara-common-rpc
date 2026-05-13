@@ -1,4 +1,4 @@
-package dev.dertyp.services.download
+package dev.dertyp.services.import
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.RequiresAdmin
@@ -16,7 +16,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 /**
- * An ID that can optionally be prefixed with a downloader ID (e.g., "tdn:123").
+ * An ID that can optionally be prefixed with an importer ID (e.g., "<importerId>:123").
  */
 typealias PrefixedId = String
 
@@ -24,46 +24,46 @@ fun PrefixedId.getPrefix(): String? = if (this.contains(":")) this.substringBefo
 fun PrefixedId.stripPrefix(): String = if (this.contains(":")) this.substringAfter(":") else this
 
 @Rpc
-@RpcDoc("Management of the integrated media downloader.")
-interface IDownloadService {
+@RpcDoc("Management of the integrated media importer.")
+interface IImportService {
     @RestGet
-    @RpcDoc("Stream real-time download logs from active processes.")
+    @RpcDoc("Stream real-time import logs from active processes.")
     fun logs(): Flow<LogLine>
     @RestGet
-    @RpcDoc("Get the currently active download task.")
-    suspend fun currentDownload(): DownloadQueueEntry?
+    @RpcDoc("Get the currently active import task.")
+    suspend fun currentImport(): ImportQueueEntry?
     @RestGet
-    @RpcDoc("Get the list of pending download tasks in the queue.")
-    suspend fun downloadQueue(): List<DownloadQueueEntry>
+    @RpcDoc("Get the list of pending import tasks in the queue.")
+    suspend fun importQueue(): List<ImportQueueEntry>
     @RestGet
-    @RpcDoc("Get a list of recently completed or failed download tasks.")
-    suspend fun finishedDownloads(): List<FinishedDownloadQueueEntry>
+    @RpcDoc("Get a list of recently completed or failed import tasks.")
+    suspend fun finishedImports(): List<FinishedImportQueueEntry>
     @RestGet
     @RpcDoc("Check if favorite synchronization is available.")
     suspend fun syncFavouritesAvailable(): Boolean
-    @RequiresCapability(UserCapability.DOWNLOAD)
+    @RequiresCapability(UserCapability.IMPORT)
     @RpcDoc("Synchronize favorites with the local library.", errors = ["IllegalStateException"])
     suspend fun syncFavourites()
     @RestPost
-    @RequiresCapability(UserCapability.DOWNLOAD)
-    @RpcDoc("Queue content for download by its IDs.")
-    suspend fun downloadIds(
+    @RequiresCapability(UserCapability.IMPORT)
+    @RpcDoc("Queue content for import by its IDs.")
+    suspend fun importIds(
         @RpcParamDoc("Collection of IDs.") ids: List<PrefixedId>,
         @RpcParamDoc("The type of content (SONG, ALBUM, etc.).") type: Type = Type.SONG,
-        @RpcParamDoc("The downloader to use.") downloader: DownloadBackend? = null
+        @RpcParamDoc("The importer to use.") importer: ImportBackend? = null
     )
     @RestPost
-    @RequiresCapability(UserCapability.DOWNLOAD)
-    @RpcDoc("Queue content for download by its URLs.")
-    suspend fun downloadUrls(
+    @RequiresCapability(UserCapability.IMPORT)
+    @RpcDoc("Queue content for import by its URLs.")
+    suspend fun importUrls(
         @RpcParamDoc("Collection of URLs.") urls: List<String>
     )
 
     @RestGet
-    @RpcDoc("Get the appropriate downloader backend for a given URL.")
-    suspend fun getDownloaderForUrl(
+    @RpcDoc("Get the appropriate importer backend for a given URL.")
+    suspend fun getImporterForUrl(
         @RpcParamDoc("The URL to check.") url: String
-    ): DownloadBackend?
+    ): ImportBackend?
 
     @RestGet
     @RpcDoc("Check if content with a specific original ID is already present in the library.")
@@ -72,21 +72,21 @@ interface IDownloadService {
         @RpcParamDoc("The type of content.") type: Type = Type.SONG
     ): Boolean
     @RequiresAdmin
-    @RpcDoc("Set the preferred downloader backend.")
-    suspend fun setDownloadService(@RpcParamDoc("The downloader service to use.") service: DownloadBackend)
+    @RpcDoc("Set the preferred importer backend.")
+    suspend fun setImportService(@RpcParamDoc("The importer service to use.") service: ImportBackend)
     @RestGet
-    @RpcDoc("Get the currently active downloader backend.")
-    suspend fun getDownloadService(): DownloadBackend
+    @RpcDoc("Get the currently active importer backend.")
+    suspend fun getImportService(): ImportBackend
 
     @RestGet
-    @RpcDoc("Get all available downloader backends.")
-    suspend fun getAllDownloadServices(): List<DownloadBackend>
+    @RpcDoc("Get all available importer backends.")
+    suspend fun getAllImportServices(): List<ImportBackend>
 
     @RestGet
-    @RpcDoc("Check if the downloader is authorized.")
-    suspend fun downloadAuthorized(): Boolean
+    @RpcDoc("Check if the importer is authorized.")
+    suspend fun importAuthorized(): Boolean
     @RpcDoc("Trigger the OAuth login flow and stream the login URL.")
-    fun downloadLogin(): Flow<String>
+    fun importLogin(): Flow<String>
 
     @RestGet
     @RpcDoc("Check if Tidal favorite synchronization is authorized.")
@@ -97,7 +97,7 @@ interface IDownloadService {
     suspend fun getAuthUrl(): String
 
     @RequiresAdmin
-    @RpcDoc("Immediately stop all active downloader processes.")
+    @RpcDoc("Immediately stop all active importer processes.")
     suspend fun killAllChildProcesses()
 
     @RestGet
@@ -107,7 +107,7 @@ interface IDownloadService {
         @RpcParamDoc("Filter by track title.") title: String? = null,
         @RpcParamDoc("Filter by artist name.") artist: String? = null,
         @RpcParamDoc("Maximum number of results.") count: Int = 50
-    ): List<DownloadSong>
+    ): List<ImportSong>
 }
 
 data class IdsWrapper(
@@ -161,99 +161,80 @@ data class IdsGroup(
 }
 
 @Serializable
-@ModelDoc("Base class for entries in the download queue.")
-sealed class DownloadQueueEntry {
-    @FieldDoc("The type of content being downloaded.")
+@ModelDoc("Base class for entries in the import queue.")
+sealed class ImportQueueEntry {
+    @FieldDoc("The type of content being imported.")
     abstract val type: Type?
     @FieldDoc("Maximum number of retry attempts on failure.")
     abstract val maxRetries: Int
-    @FieldDoc("The ID of the user who initiated the download.")
+    @FieldDoc("The ID of the user who initiated the import.")
     abstract val byUser: PlatformUUID?
-    @FieldDoc("The downloader backend to use for this entry.")
-    abstract val downloader: DownloadBackend?
+    @FieldDoc("The importer backend to use for this entry.")
+    abstract val importer: ImportBackend?
     abstract val callback: suspend () -> Unit
-
-    open fun type(): Type? {
-        return type
-    }
 }
 
 @Serializable
-@ModelDoc("A download queue entry for content specified by its URL.")
-data class UrlDownloadQueueEntry(
-    @FieldDoc("Collection of URLs to download.")
+@ModelDoc("An import queue entry for content specified by its URL.")
+data class UrlImportQueueEntry(
+    @FieldDoc("Collection of URLs to import.")
     val urls: MutableList<String>,
     @FieldDoc("Collection of associated IDs.")
     val ids: Collection<String> = emptyList(),
     @Serializable(with = UUIDSerializer::class)
-    @FieldDoc("The ID of the user who initiated the download.")
+    @FieldDoc("The ID of the user who initiated the import.")
     override val byUser: PlatformUUID? = null,
     @FieldDoc("The type of content.")
     override val type: Type? = null,
-    @FieldDoc("The downloader backend to use for this entry.")
-    override val downloader: DownloadBackend? = null,
+    @FieldDoc("The importer backend to use for this entry.")
+    override val importer: ImportBackend? = null,
     @Transient
     override val maxRetries: Int = 5,
     @Transient
     override val callback: suspend () -> Unit = {}
-) : DownloadQueueEntry() {
-    override fun type(): Type? {
-        if (type != null) return type
-
-        val url = urls.first()
-
-        return when {
-            url.contains("/mix/") -> Type.MIX
-            url.contains("/track/") -> Type.SONG
-            url.contains("/album/") -> Type.ALBUM
-            url.contains("/artist/") -> Type.ARTIST
-            url.contains("/playlist/") -> Type.PLAYLIST
-            else -> null
-        }
-    }
-}
+) : ImportQueueEntry()
 
 @Serializable
-@ModelDoc("A download queue entry for a user's favorite collection.")
-data class FavouriteDownloadQueueEntry(
-    @FieldDoc("The type of favorites to download.")
-    val favoriteType: DownloadFavType,
+@ModelDoc("An import queue entry for a user's favorite collection.")
+data class FavouriteImportQueueEntry(
+    @FieldDoc("The type of favorites to import.")
+    val favoriteType: ImportFavType,
     @Serializable(with = UUIDSerializer::class)
-    @FieldDoc("The ID of the user who initiated the download.")
+    @FieldDoc("The ID of the user who initiated the import.")
     override val byUser: PlatformUUID? = null,
     @FieldDoc("The type of content.")
     override val type: Type? = null,
-    @FieldDoc("The downloader backend to use for this entry.")
-    override val downloader: DownloadBackend? = null,
+    @FieldDoc("The importer backend to use for this entry.")
+    override val importer: ImportBackend? = null,
     @Transient
     override val maxRetries: Int = 5,
     @Transient
     override val callback: suspend () -> Unit = {}
-) : DownloadQueueEntry()
+) : ImportQueueEntry()
 
 
 @Serializable
-@ModelDoc("Contains details about a completed or failed download task.")
-data class FinishedDownloadQueueEntry(
+@ModelDoc("Contains details about a completed or failed import task.")
+data class FinishedImportQueueEntry(
     @FieldDoc("The original queue entry.")
-    val downloadQueueEntry: DownloadQueueEntry,
+    val importQueueEntry: ImportQueueEntry,
     @FieldDoc("The result of the process execution.")
     var result: ProcessExecutionResult,
-    @FieldDoc("The full logs from the download process.")
+    @FieldDoc("The full logs from the import process.")
     val logs: List<String>,
 )
 
 @Serializable
-@ModelDoc("A single log line from a download process.")
+@ModelDoc("A single log line from an import process.")
 data class LogLine(
     @FieldDoc("The queue entry this log belongs to.")
-    val queueEntry: DownloadQueueEntry,
+    val queueEntry: ImportQueueEntry,
     @FieldDoc("The actual log text.")
     val line: String?,
 )
 
 @Serializable
-@ModelDoc("The type of content available for download.")
+@ModelDoc("The type of content available for import.")
 enum class Type(val value: String) {
     @SerialName("mix")
     MIX("mix"),
@@ -282,7 +263,7 @@ enum class Type(val value: String) {
 
 @Serializable
 @ModelDoc("Metadata for a track found.")
-data class DownloadSong(
+data class ImportSong(
     @FieldDoc("The track ID.")
     val id: String,
     @FieldDoc("The title of the track.")

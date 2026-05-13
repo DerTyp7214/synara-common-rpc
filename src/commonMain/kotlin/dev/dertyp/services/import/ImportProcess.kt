@@ -1,12 +1,12 @@
-package dev.dertyp.services.download
+package dev.dertyp.services.import
 
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlinx.serialization.Serializable
 
 @Suppress("EnumEntryName")
-@ModelDoc("The category of Download favorites.")
-enum class DownloadFavType {
+@ModelDoc("The category of import favorites.")
+enum class ImportFavType {
     tracks,
     artists,
     albums,
@@ -14,7 +14,7 @@ enum class DownloadFavType {
 }
 
 @Serializable
-@ModelDoc("Results of an external process execution (e.g., downloader).")
+@ModelDoc("Results of an external process execution (e.g., importer).")
 data class ProcessExecutionResult(
     @FieldDoc("The process exit code (0 for success).")
     val exitCode: Int,
