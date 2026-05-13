@@ -35,6 +35,7 @@ import kotlinx.rpc.krpc.ktor.client.rpc
 import kotlinx.rpc.withService
 import kotlin.reflect.KClass
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 abstract class BaseRpcServiceManager(
     protected val client: HttpClient,
@@ -169,7 +170,7 @@ abstract class BaseRpcServiceManager(
                 val safePath = formattedPath.replace("//", "/")
                 val baseUrl = "$s://$host:$port$safePath"
 
-                val result = withTimeoutOrNull(5000) {
+                val result = withTimeoutOrNull(5.seconds) {
                     val rpcClient = client.rpc {
                         url("$baseUrl/rpc")
                     }
