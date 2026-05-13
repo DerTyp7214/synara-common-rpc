@@ -432,6 +432,14 @@ pub struct IUserServiceSetCapabilitiesArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUserServiceCreateUserArgs {
+    pub user: AuthenticationRequest,
+    #[serde(rename = "isAdmin")]
+    pub is_admin: bool,
+    pub capabilities: Vec<UserCapability>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IPlaybackServiceSetPlaybackStateArgs {
     #[serde(rename = "sessionId")]
     pub session_id: PlatformUUID,
@@ -1429,6 +1437,12 @@ pub struct CustomMetadata {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct AuthenticationRequest {
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PlaybackState {
     pub queue: Vec<QueueEntry>,
     #[serde(rename = "currentIndex")]
@@ -1939,6 +1953,7 @@ pub trait IUserService {
     fn set_profile_image<'life0, 'async_trait>(&'life0 self, bytes: serde_bytes::ByteBuf) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_display_name<'life0, 'async_trait>(&'life0 self, name: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_capabilities<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, capabilities: Vec<UserCapability>) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn create_user<'life0, 'async_trait>(&'life0 self, user: AuthenticationRequest, is_admin: bool, capabilities: Vec<UserCapability>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<User>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IPlaybackService {
@@ -2685,6 +2700,12 @@ impl IUserService for RpcClient {
         Box::pin(async move {
             let args = IUserServiceSetCapabilitiesArgs { id, capabilities };
             self.call("IUserService", "setCapabilities", &args).await
+        })
+    }
+    fn create_user<'life0, 'async_trait>(&'life0 self, user: AuthenticationRequest, is_admin: bool, capabilities: Vec<UserCapability>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<User>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUserServiceCreateUserArgs { user, is_admin, capabilities };
+            self.call("IUserService", "createUser", &args).await
         })
     }
 }

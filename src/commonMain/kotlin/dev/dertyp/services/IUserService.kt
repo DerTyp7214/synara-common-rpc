@@ -3,10 +3,12 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
+import dev.dertyp.data.AuthenticationRequest
 import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.data.User
 import dev.dertyp.data.UserCapability
 import dev.dertyp.rpc.annotations.RestGet
+import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -43,4 +45,12 @@ interface IUserService {
         @RpcParamDoc("The UUID of the user.") id: PlatformUUID,
         @RpcParamDoc("The new list of capabilities.") capabilities: List<UserCapability>
     )
+    @RestPost
+    @RequiresAdmin
+    @RpcDoc("Create a new user.")
+    suspend fun createUser(
+        @RpcParamDoc("The user data.") user: AuthenticationRequest,
+        @RpcParamDoc("Whether the user is an admin.") isAdmin: Boolean = false,
+        @RpcParamDoc("The initial capabilities of the user.") capabilities: List<UserCapability> = emptyList()
+    ): User?
 }
