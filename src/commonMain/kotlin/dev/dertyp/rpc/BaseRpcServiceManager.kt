@@ -39,8 +39,18 @@ import kotlin.time.Duration.Companion.seconds
 
 abstract class BaseRpcServiceManager(
     protected val client: HttpClient,
-    protected val scope: CoroutineScope = CoroutineScope(ioDispatcher + SupervisorJob()),
+    baseScope: CoroutineScope = CoroutineScope(ioDispatcher + SupervisorJob()),
 ) {
+    protected val scope: CoroutineScope = CoroutineScope(
+        baseScope.coroutineContext + CoroutineExceptionHandler { _, e ->
+            when (e) {
+                is IOException,
+                is ConnectTimeoutException,
+                is UnresolvedAddressException -> onServerUnreachable()
+                else -> Unit
+            }
+        }
+    )
     private var _servicesClient: KtorRpcClient? = null
     protected val mutex = Mutex()
     protected val serviceCache = ConcurrentMutableMap<KClass<*>, Any>()
@@ -74,7 +84,7 @@ abstract class BaseRpcServiceManager(
                 getAuthenticatedClient().also {
                     onServerReachable()
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 if (e is IllegalStateException && !isAuthenticated()) {
                     handleAuthFailure()
                 }
@@ -144,7 +154,7 @@ abstract class BaseRpcServiceManager(
                 return@withContext false
             }
             true
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             if (isSslException(e)) {
                 val url = Url(baseUrl)
                 setRpcUrl(url.host, url.port, false, url.encodedPath)
@@ -185,7 +195,7 @@ abstract class BaseRpcServiceManager(
                     }
                 }
                 if (result != null) return@withContext result
-            } catch (_: Exception) {
+            } catch (_: Throwable) {
             }
         }
         ServerValidationResult(validated = false, useSsl = false)
@@ -202,7 +212,7 @@ abstract class BaseRpcServiceManager(
                 try {
                     val authService = getAuthService()
                     authService.refreshToken(refreshToken)
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     e
                 }
             } else if (isAuthenticated()) {
@@ -229,7 +239,7 @@ abstract class BaseRpcServiceManager(
 
         ensureAuthenticated()
 
-        var authException: Exception? = null
+        var authException: Throwable? = null
         val rpcClient = try {
             mutex.withLock {
                 _servicesClient?.let { return@withLock it }
@@ -237,18 +247,19 @@ abstract class BaseRpcServiceManager(
                 val baseUrl = getRpcUrl()
                 val token = getAuthToken() ?: throw IllegalStateException("Not authenticated")
 
-                var lastException: Exception? = null
+                var lastException: Throwable? = null
                 for (attempt in 1..3) {
                     try {
-                        val rpcClientInstance = client.rpc {
-                            url("${baseUrl}/rpc/services")
-                            //header(SynaraPackHeader, "true")
-                            header("Authorization", "Bearer $token")
+                        val rpcClientInstance = withContext(scope.coroutineContext) {
+                            client.rpc {
+                                url("${baseUrl}/rpc/services")
+                                header("Authorization", "Bearer $token")
+                            }
                         }
                         rpcClientInstance.withService<IUserService>().me()
                         _servicesClient = rpcClientInstance
                         return@withLock rpcClientInstance
-                    } catch (e: Exception) {
+                    } catch (e: Throwable) {
                         lastException = e
                         if (isAuthException(e)) {
                             throw e
@@ -268,7 +279,7 @@ abstract class BaseRpcServiceManager(
                 onServerUnreachable()
                 throw lastException ?: IllegalStateException("Failed to connect after retries")
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             if (isAuthException(e)) {
                 authException = e
                 null
@@ -289,19 +300,21 @@ abstract class BaseRpcServiceManager(
         checkSslSupport()
         ensureAuthenticated()
         
-        var authException: Exception?
+        var authException: Throwable?
         try {
             val baseUrl = getRpcUrl()
             val token = getAuthToken() ?: throw IllegalStateException("Not authenticated")
 
-            var lastException: Exception? = null
+            var lastException: Throwable? = null
             for (attempt in 1..3) {
                 try {
-                    return client.rpc {
-                        url("${baseUrl}/rpc/services")
-                        header("Authorization", "Bearer $token")
+                    return withContext(scope.coroutineContext) {
+                        client.rpc {
+                            url("${baseUrl}/rpc/services")
+                            header("Authorization", "Bearer $token")
+                        }
                     }
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     lastException = e
                     if (isAuthException(e)) {
                         throw e
@@ -319,7 +332,7 @@ abstract class BaseRpcServiceManager(
             }
             onServerUnreachable()
             throw lastException ?: IllegalStateException("Failed to connect dedicated client after retries")
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             if (isAuthException(e)) {
                 authException = e
             } else {
@@ -331,14 +344,14 @@ abstract class BaseRpcServiceManager(
         throw authException
     }
 
-    protected open fun isAuthException(e: Exception): Boolean {
+    protected open fun isAuthException(e: Throwable): Boolean {
         return when (e) {
             is WebSocketException if e.message?.contains("401") == true -> true
             else -> false
         }
     }
 
-    protected open fun isSslException(e: Exception): Boolean {
+    protected open fun isSslException(e: Throwable): Boolean {
         val message = e.message?.lowercase() ?: ""
         return message.contains("ssl") || 
                message.contains("tls") || 
@@ -373,7 +386,7 @@ abstract class BaseRpcServiceManager(
             _servicesClient = null
             try {
                 oldClient?.close()
-            } catch (_: Exception) {
+            } catch (_: Throwable) {
             }
             serviceCache.clear()
         }
