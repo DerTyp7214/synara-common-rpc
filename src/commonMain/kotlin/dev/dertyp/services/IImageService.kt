@@ -42,4 +42,11 @@ interface IImageService {
         @RpcParamDoc("Path prefix to match.") oldPath: String,
         @RpcParamDoc("New base path.") newPath: String
     ): Int
+
+    @RpcDoc("Generate an 8k mosaic image from a source image where each pixel is replaced by a matching cover.", errors = ["IllegalArgumentException"])
+    suspend fun generateMosaicImage(
+        @RpcParamDoc("The source image data.") image: ByteArray,
+        @RpcParamDoc("Grid width (max width * height = 65,536).") width: Int,
+        @RpcParamDoc("Grid height (max width * height = 65,536).") height: Int
+    ): ByteArray
 }

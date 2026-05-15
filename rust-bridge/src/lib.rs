@@ -92,6 +92,28 @@ pub struct IMirrorServiceGetSongDataArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDiscoveryServiceCreateSongMosaicArgs {
+    pub image: serde_bytes::ByteBuf,
+    pub width: i32,
+    pub height: i32,
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+    pub range: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IDiscoveryServiceCreateAlbumMosaicArgs {
+    pub image: serde_bytes::ByteBuf,
+    pub width: i32,
+    pub height: i32,
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+    pub range: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IDiscoveryServiceGetSimilarSongsArgs {
     #[serde(rename = "seedSongIds")]
     pub seed_song_ids: Vec<PlatformUUID>,
@@ -641,6 +663,13 @@ pub struct IImageServiceMoveImagesArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IImageServiceGenerateMosaicImageArgs {
+    pub image: serde_bytes::ByteBuf,
+    pub width: i32,
+    pub height: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ISongServiceSetLikedArgs {
     pub id: PlatformUUID,
     pub liked: bool,
@@ -1036,6 +1065,17 @@ pub struct BackupImage {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PaginatedResponse<T> {
+    pub data: Vec<T>,
+    pub page: i32,
+    pub total: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+    #[serde(rename = "hasNextPage")]
+    pub has_next_page: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserSong {
     pub id: PlatformUUID,
     pub title: String,
@@ -1082,17 +1122,6 @@ pub struct PlaylistEntry {
     pub id: PlatformUUID,
     pub name: String,
     pub duration: i64,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct PaginatedResponse<T> {
-    pub data: Vec<T>,
-    pub page: i32,
-    pub total: i32,
-    #[serde(rename = "pageSize")]
-    pub page_size: i32,
-    #[serde(rename = "hasNextPage")]
-    pub has_next_page: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -1884,6 +1913,8 @@ pub trait IUserPlaylistBackupService {
 }
 
 pub trait IDiscoveryService {
+    fn create_song_mosaic<'life0, 'async_trait>(&'life0 self, image: serde_bytes::ByteBuf, width: i32, height: i32, page: i32, page_size: i32, range: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn create_album_mosaic<'life0, 'async_trait>(&'life0 self, image: serde_bytes::ByteBuf, width: i32, height: i32, page: i32, page_size: i32, range: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_similar_songs<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_similar_songs_by_playlist<'life0, 'async_trait>(&'life0 self, playlist_id: PlatformUUID, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_similar_songs_by_bpm<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -2101,6 +2132,7 @@ pub trait IImageService {
     fn create_image<'life0, 'async_trait>(&'life0 self, bytes: serde_bytes::ByteBuf, origin: String) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn create_batch<'life0, 'async_trait>(&'life0 self, images: Vec<InsertableImage>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn move_images<'life0, 'async_trait>(&'life0 self, old_path: String, new_path: String) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn generate_mosaic_image<'life0, 'async_trait>(&'life0 self, image: serde_bytes::ByteBuf, width: i32, height: i32) -> Pin<Box<dyn std::future::Future<Output = Result<serde_bytes::ByteBuf, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait ISongService {
@@ -2324,6 +2356,18 @@ impl IUserPlaylistBackupService for RpcClient {
     }
 }
 impl IDiscoveryService for RpcClient {
+    fn create_song_mosaic<'life0, 'async_trait>(&'life0 self, image: serde_bytes::ByteBuf, width: i32, height: i32, page: i32, page_size: i32, range: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDiscoveryServiceCreateSongMosaicArgs { image, width, height, page, page_size, range };
+            self.call("IDiscoveryService", "createSongMosaic", &args).await
+        })
+    }
+    fn create_album_mosaic<'life0, 'async_trait>(&'life0 self, image: serde_bytes::ByteBuf, width: i32, height: i32, page: i32, page_size: i32, range: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IDiscoveryServiceCreateAlbumMosaicArgs { image, width, height, page, page_size, range };
+            self.call("IDiscoveryService", "createAlbumMosaic", &args).await
+        })
+    }
     fn get_similar_songs<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             let args = IDiscoveryServiceGetSimilarSongsArgs { seed_song_ids, limit };
@@ -3168,6 +3212,12 @@ impl IImageService for RpcClient {
         Box::pin(async move {
             let args = IImageServiceMoveImagesArgs { old_path, new_path };
             self.call("IImageService", "moveImages", &args).await
+        })
+    }
+    fn generate_mosaic_image<'life0, 'async_trait>(&'life0 self, image: serde_bytes::ByteBuf, width: i32, height: i32) -> Pin<Box<dyn std::future::Future<Output = Result<serde_bytes::ByteBuf, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IImageServiceGenerateMosaicImageArgs { image, width, height };
+            self.call("IImageService", "generateMosaicImage", &args).await
         })
     }
 }
