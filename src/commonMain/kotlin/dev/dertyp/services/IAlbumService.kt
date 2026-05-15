@@ -42,6 +42,15 @@ interface IAlbumService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<Album>
+
+    @RpcDoc("Search for albums by color.")
+    suspend fun byColor(
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
+        @RpcParamDoc("The target color in ARGB format.") color: Int,
+        @RpcParamDoc("The allowed range (0-255).") range: Int = 20
+    ): PaginatedResponse<Album>
+
     @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Update album metadata.")
     suspend fun updateAlbum(@RpcParamDoc("The album object with updated fields.") album: Album): Album?

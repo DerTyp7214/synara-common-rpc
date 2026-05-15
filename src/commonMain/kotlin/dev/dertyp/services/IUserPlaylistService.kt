@@ -32,6 +32,16 @@ interface IUserPlaylistService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<UserPlaylist>
+
+    @RpcDoc("Search for user playlists by color.")
+    suspend fun byColor(
+        @RpcParamDoc("Optional creator ID to filter by.") creator: PlatformUUID?,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
+        @RpcParamDoc("The target color in ARGB format.") color: Int,
+        @RpcParamDoc("The allowed range (0-255).") range: Int = 20
+    ): PaginatedResponse<UserPlaylist>
+
     @RpcDoc("Delete a user playlist.")
     suspend fun delete(@RpcParamDoc("The playlist unique identifier.") id: PlatformUUID): Boolean
     @RpcDoc("Create a new user playlist or retrieve an existing one by a custom identifier.")

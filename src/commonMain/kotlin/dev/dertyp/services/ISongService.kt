@@ -106,6 +106,15 @@ interface ISongService {
         @RpcParamDoc("Invert the tag filter.") invertTags: Boolean = false,
     ): PaginatedResponse<UserSong>
 
+    @RpcDoc("Search for songs by color.")
+    suspend fun byColor(
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
+        @RpcParamDoc("The target color in ARGB format.") color: Int,
+        @RpcParamDoc("The allowed range (0-255).") range: Int = 20,
+        @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
+    ): PaginatedResponse<UserSong>
+
     @RequiresCapability(UserCapability.DELETE)
     @RpcDoc("Delete multiple songs from the library.")
     suspend fun deleteSongs(@RpcParamDoc("Collection of song IDs to delete.") ids: List<PlatformUUID>): Boolean

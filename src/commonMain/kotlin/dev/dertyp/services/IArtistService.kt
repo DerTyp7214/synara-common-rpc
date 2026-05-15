@@ -49,6 +49,15 @@ interface IArtistService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<Artist>
+
+    @RpcDoc("Search for artists by color.")
+    suspend fun byColor(
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
+        @RpcParamDoc("The target color in ARGB format.") color: Int,
+        @RpcParamDoc("The allowed range (0-255).") range: Int = 20
+    ): PaginatedResponse<Artist>
+
     @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Manually create an artist record.")
     suspend fun createArtist(
