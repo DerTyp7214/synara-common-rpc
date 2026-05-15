@@ -5,6 +5,7 @@ import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.util.network.UnresolvedAddressException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -66,6 +67,7 @@ class ReconnectingRpcClient(
             return try {
                 delegate.call(call)
             } catch (e: Throwable) {
+                if (e is CancellationException) throw e
                 attempts++
                 if (isRetriable(e) && attempts < maxRetries) {
                     mutex.withLock { cachedDelegate = null }
