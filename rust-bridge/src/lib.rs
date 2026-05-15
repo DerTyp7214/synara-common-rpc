@@ -2030,6 +2030,7 @@ pub trait IImportService {
 pub trait IAlbumService {
     fn by_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_music_brainz_id<'life0, 'async_trait>(&'life0 self, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn by_music_brainz_ids<'life0, 'async_trait>(&'life0 self, mb_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<PlatformUUID, Vec<Album>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn versions<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_name<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, name: String) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -2988,6 +2989,11 @@ impl IAlbumService for RpcClient {
     fn by_music_brainz_id<'life0, 'async_trait>(&'life0 self, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IAlbumService", "byMusicBrainzId", &mb_id).await
+        })
+    }
+    fn by_music_brainz_ids<'life0, 'async_trait>(&'life0 self, mb_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<PlatformUUID, Vec<Album>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAlbumService", "byMusicBrainzIds", &mb_ids).await
         })
     }
     fn by_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
