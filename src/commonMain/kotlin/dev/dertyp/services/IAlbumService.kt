@@ -18,7 +18,7 @@ interface IAlbumService {
     @RpcDoc("Get album by ID.")
     suspend fun byId(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): Album?
     @RpcDoc("Get album by MusicBrainz ID.")
-    suspend fun byMusicBrainzId(@RpcParamDoc("The MusicBrainz release UUID.") mbId: PlatformUUID): List<Album>
+    suspend fun byMusicBrainzId(@RpcParamDoc("The MusicBrainz release (or release-group) UUID.") mbId: PlatformUUID): List<Album>
     @RpcDoc("Get multiple albums by their IDs.")
     suspend fun byIds(@RpcParamDoc("Collection of album IDs.") ids: List<PlatformUUID>): List<Album>
     @RpcDoc("List different versions of an album.")
