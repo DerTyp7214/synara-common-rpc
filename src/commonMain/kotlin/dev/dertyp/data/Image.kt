@@ -65,3 +65,37 @@ data class InsertableImage(
         return result
     }
 }
+
+@Serializable
+@ModelDoc("Progress information for an image mosaic generation task.")
+data class MosaicGenerationResponse(
+    @FieldDoc("Current progress fraction (0.0 to 1.0).")
+    val progress: Double,
+    @FieldDoc("Status or log message.")
+    val status: String,
+    @FieldDoc("The generated mosaic image data. Only present on completion.")
+    val image: ByteArray? = null
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as MosaicGenerationResponse
+
+        if (progress != other.progress) return false
+        if (status != other.status) return false
+        if (image != null) {
+            if (other.image == null) return false
+            if (!image.contentEquals(other.image)) return false
+        } else if (other.image != null) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = progress.hashCode()
+        result = 31 * result + status.hashCode()
+        result = 31 * result + (image?.contentHashCode() ?: 0)
+        return result
+    }
+}

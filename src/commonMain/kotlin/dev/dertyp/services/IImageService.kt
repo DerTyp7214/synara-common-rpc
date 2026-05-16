@@ -5,10 +5,12 @@ package dev.dertyp.services
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.Image
 import dev.dertyp.data.InsertableImage
+import dev.dertyp.data.MosaicGenerationResponse
 import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.rpc.annotations.RestPublic
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
+import kotlinx.coroutines.flow.Flow
 import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.UseContextualSerialization
 
@@ -43,10 +45,10 @@ interface IImageService {
         @RpcParamDoc("New base path.") newPath: String
     ): Int
 
-    @RpcDoc("Generate an 8k mosaic image from a source image where each pixel is replaced by a matching cover.", errors = ["IllegalArgumentException"])
-    suspend fun generateMosaicImage(
+    @RpcDoc("Generate an 16k mosaic image from a source image where each pixel is replaced by a matching cover.", errors = ["IllegalArgumentException"])
+    fun generateMosaicImage(
         @RpcParamDoc("The source image data.") image: ByteArray,
         @RpcParamDoc("Grid width (max width * height = 65,536).") width: Int,
         @RpcParamDoc("Grid height (max width * height = 65,536).") height: Int
-    ): ByteArray
+    ): Flow<MosaicGenerationResponse>
 }
