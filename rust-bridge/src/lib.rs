@@ -1737,8 +1737,8 @@ pub struct MosaicGenerationResponse {
     pub progress: Double,
     pub status: String,
     pub chunk: Option<serde_bytes::ByteBuf>,
-    #[serde(rename = "totalChunks")]
-    pub total_chunks: Option<i32>,
+    #[serde(rename = "isLast")]
+    pub is_last: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

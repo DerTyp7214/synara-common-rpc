@@ -75,8 +75,8 @@ data class MosaicGenerationResponse(
     val status: String,
     @FieldDoc("A chunk of the generated mosaic image data.")
     val chunk: ByteArray? = null,
-    @FieldDoc("The total number of chunks being sent. Only present when chunk is not null.")
-    val totalChunks: Int? = null
+    @FieldDoc("True if this is the final message in the flow.")
+    val isLast: Boolean = false
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -86,7 +86,7 @@ data class MosaicGenerationResponse(
 
         if (progress != other.progress) return false
         if (status != other.status) return false
-        if (totalChunks != other.totalChunks) return false
+        if (isLast != other.isLast) return false
         if (chunk != null) {
             if (other.chunk == null) return false
             if (!chunk.contentEquals(other.chunk)) return false
@@ -99,7 +99,7 @@ data class MosaicGenerationResponse(
         var result = progress.hashCode()
         result = 31 * result + status.hashCode()
         result = 31 * result + (chunk?.contentHashCode() ?: 0)
-        result = 31 * result + (totalChunks ?: 0)
+        result = 31 * result + isLast.hashCode()
         return result
     }
 }
