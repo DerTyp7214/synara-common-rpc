@@ -667,6 +667,8 @@ pub struct IImageServiceGenerateMosaicImageArgs {
     pub image: serde_bytes::ByteBuf,
     pub width: i32,
     pub height: i32,
+    #[serde(rename = "resultSize")]
+    pub result_size: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2139,7 +2141,7 @@ pub trait IImageService {
     fn create_image<'life0, 'async_trait>(&'life0 self, bytes: serde_bytes::ByteBuf, origin: String) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn create_batch<'life0, 'async_trait>(&'life0 self, images: Vec<InsertableImage>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn move_images<'life0, 'async_trait>(&'life0 self, old_path: String, new_path: String) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn generate_mosaic_image(&self, image: serde_bytes::ByteBuf, width: i32, height: i32) -> RpcStream<MosaicGenerationResponse>;
+    fn generate_mosaic_image(&self, image: serde_bytes::ByteBuf, width: i32, height: i32, result_size: i32) -> RpcStream<MosaicGenerationResponse>;
 }
 
 pub trait ISongService {
@@ -3221,8 +3223,8 @@ impl IImageService for RpcClient {
             self.call("IImageService", "moveImages", &args).await
         })
     }
-    fn generate_mosaic_image(&self, image: serde_bytes::ByteBuf, width: i32, height: i32) -> RpcStream<MosaicGenerationResponse> {
-        let args = IImageServiceGenerateMosaicImageArgs { image, width, height };
+    fn generate_mosaic_image(&self, image: serde_bytes::ByteBuf, width: i32, height: i32, result_size: i32) -> RpcStream<MosaicGenerationResponse> {
+        let args = IImageServiceGenerateMosaicImageArgs { image, width, height, result_size };
         self.subscribe("IImageService", "generateMosaicImage", &args)
     }
 }

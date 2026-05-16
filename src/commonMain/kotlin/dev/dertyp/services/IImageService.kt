@@ -45,10 +45,11 @@ interface IImageService {
         @RpcParamDoc("New base path.") newPath: String
     ): Int
 
-    @RpcDoc("Generate an 16k mosaic image from a source image where each pixel is replaced by a matching cover.", errors = ["IllegalArgumentException"])
+    @RpcDoc("Generate a mosaic image from a source image where each pixel is replaced by a matching cover.", errors = ["IllegalArgumentException"])
     fun generateMosaicImage(
         @RpcParamDoc("The source image data.") image: ByteArray,
         @RpcParamDoc("Grid width (max width * height = 65,536).") width: Int,
-        @RpcParamDoc("Grid height (max width * height = 65,536).") height: Int
+        @RpcParamDoc("Grid height (max width * height = 65,536).") height: Int,
+        @RpcParamDoc("The resolution of the resulting square image.") resultSize: Int = 16384
     ): Flow<MosaicGenerationResponse>
 }
