@@ -1736,7 +1736,9 @@ pub struct InsertableImage {
 pub struct MosaicGenerationResponse {
     pub progress: Double,
     pub status: String,
-    pub image: Option<serde_bytes::ByteBuf>,
+    pub chunk: Option<serde_bytes::ByteBuf>,
+    #[serde(rename = "totalChunks")]
+    pub total_chunks: Option<i32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
