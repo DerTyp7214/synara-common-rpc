@@ -4,6 +4,7 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformInstant
 import dev.dertyp.PlatformUUID
+import dev.dertyp.PrefixedId
 import dev.dertyp.data.*
 import dev.dertyp.rpc.annotations.RestFileResponse
 import dev.dertyp.rpc.annotations.RestGet
@@ -88,7 +89,9 @@ interface ISongService {
         @RpcParamDoc("The user playlist unique identifier.") playlistId: PlatformUUID
     ): PaginatedResponse<UserSong>
     @RpcDoc("Find songs by their original platform-specific unique identifiers.")
-    suspend fun byOriginalIds(@RpcParamDoc("Collection of original platform-specific track identifiers.") ids: Collection<String>): List<UserSong>
+    suspend fun byOriginalIds(@RpcParamDoc("Collection of original platform-specific track identifiers.") ids: Collection<PrefixedId>): List<UserSong>
+    @RpcDoc("Find songs by their original platform URLs, returning a mapping.")
+    suspend fun byOriginalUrls(@RpcParamDoc("Collection of original platform URLs.") urls: Collection<String>): Map<String, UserSong?>
     @RpcDoc("Find songs matching external metadata records.")
     suspend fun byOriginalTracks(@RpcParamDoc("Collection of track metadata.") tracks: Collection<IMetadataService.Track>): List<UserSong>
     @RpcDoc("Get all songs liked by the current user.")

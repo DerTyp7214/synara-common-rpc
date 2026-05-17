@@ -1,6 +1,7 @@
 package dev.dertyp.services.import
 
 import dev.dertyp.PlatformUUID
+import dev.dertyp.PrefixedId
 import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.data.RequiresCapability
 import dev.dertyp.data.UserCapability
@@ -14,14 +15,6 @@ import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-
-/**
- * An ID that can optionally be prefixed with an importer ID (e.g., "<importerId>:123").
- */
-typealias PrefixedId = String
-
-fun PrefixedId.getPrefix(): String? = if (this.contains(":")) this.substringBefore(":") else null
-fun PrefixedId.stripPrefix(): String = if (this.contains(":")) this.substringAfter(":") else this
 
 @Rpc
 @RpcDoc("Management of the integrated media importer.")
