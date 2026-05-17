@@ -2114,6 +2114,8 @@ pub trait IAlbumService {
     fn by_music_brainz_id<'life0, 'async_trait>(&'life0 self, mb_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_music_brainz_ids<'life0, 'async_trait>(&'life0 self, mb_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Option<Album>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn by_original_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<PrefixedId>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn by_original_urls<'life0, 'async_trait>(&'life0 self, urls: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, Option<Album>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn versions<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_name<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, name: String) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn ranked_search<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, query: String) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -3109,6 +3111,16 @@ impl IAlbumService for RpcClient {
     fn by_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IAlbumService", "byIds", &ids).await
+        })
+    }
+    fn by_original_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<PrefixedId>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAlbumService", "byOriginalIds", &ids).await
+        })
+    }
+    fn by_original_urls<'life0, 'async_trait>(&'life0 self, urls: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, Option<Album>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAlbumService", "byOriginalUrls", &urls).await
         })
     }
     fn versions<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {

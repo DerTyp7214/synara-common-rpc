@@ -3,6 +3,7 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
+import dev.dertyp.PrefixedId
 import dev.dertyp.data.Album
 import dev.dertyp.data.PaginatedResponse
 import dev.dertyp.data.RequiresCapability
@@ -23,6 +24,10 @@ interface IAlbumService {
     suspend fun byMusicBrainzIds(@RpcParamDoc("Collection of MusicBrainz release (or release-group) UUIDs.") mbIds: List<PlatformUUID>): List<Album?>
     @RpcDoc("Get multiple albums by their IDs.")
     suspend fun byIds(@RpcParamDoc("Collection of album IDs.") ids: List<PlatformUUID>): List<Album>
+    @RpcDoc("Find albums by their original platform-specific unique identifiers.")
+    suspend fun byOriginalIds(@RpcParamDoc("Collection of original platform-specific album identifiers.") ids: Collection<PrefixedId>): List<Album>
+    @RpcDoc("Find albums by their original platform URLs, returning a mapping.")
+    suspend fun byOriginalUrls(@RpcParamDoc("Collection of original platform URLs.") urls: Collection<String>): Map<String, Album?>
     @RpcDoc("List different versions of an album.")
     suspend fun versions(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): List<Album>
     @RpcDoc("Search albums by name.")
