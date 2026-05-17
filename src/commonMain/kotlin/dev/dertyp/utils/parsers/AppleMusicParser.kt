@@ -12,9 +12,9 @@ class AppleMusicParser : UrlParser() {
         return host == "music.apple.com" || host == "itunes.apple.com" || host == "geo.music.apple.com"
     }
 
-    override suspend fun parse(url: String): Pair<String, Type>? {
+    override suspend fun parse(url: String): Pair<String, Type?>? {
         if (!canHandle(url)) return null
-        handlePrefix(url)?.let { return it to Type.SONG }
+        handlePrefix(url)?.let { return it to null }
 
         val uri = getUri(url) ?: return null
         uri.parameters["i"]?.let { return it to Type.SONG }

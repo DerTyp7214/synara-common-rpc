@@ -11,9 +11,9 @@ class SpotifyParser : UrlParser() {
         return host == "open.spotify.com" || host == "spotify.com" || host.endsWith(".spotify.com")
     }
 
-    override suspend fun parse(url: String): Pair<String, Type>? {
+    override suspend fun parse(url: String): Pair<String, Type?>? {
         if (!canHandle(url)) return null
-        handlePrefix(url)?.let { return it to Type.SONG }
+        handlePrefix(url)?.let { return it to null }
 
         val uri = getUri(url) ?: return null
         val host = uri.host.lowercase()

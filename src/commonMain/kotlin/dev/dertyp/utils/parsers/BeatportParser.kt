@@ -11,9 +11,9 @@ class BeatportParser : UrlParser() {
         return host == "beatport.com" || host.endsWith(".beatport.com")
     }
 
-    override suspend fun parse(url: String): Pair<String, Type>? {
+    override suspend fun parse(url: String): Pair<String, Type?>? {
         if (!canHandle(url)) return null
-        handlePrefix(url)?.let { return it to Type.SONG }
+        handlePrefix(url)?.let { return it to null }
 
         val uri = getUri(url) ?: return null
         val pathParts = uri.encodedPath.trim('/').split("/")

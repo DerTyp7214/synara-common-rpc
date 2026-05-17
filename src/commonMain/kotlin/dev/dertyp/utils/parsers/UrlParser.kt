@@ -8,7 +8,7 @@ abstract class UrlParser {
     open val alternativeNames: List<String> = emptyList()
 
     abstract fun canHandle(url: String): Boolean
-    abstract suspend fun parse(url: String): Pair<String, Type>?
+    abstract suspend fun parse(url: String): Pair<String, Type?>?
 
     protected fun getUri(url: String): Url? {
         return try {

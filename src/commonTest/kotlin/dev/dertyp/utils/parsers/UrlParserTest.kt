@@ -9,7 +9,7 @@ class UrlParserTest {
 
     enum class ParserTestData(
         val parser: UrlParser,
-        val testCases: List<Pair<String, Pair<String, Type>?>>
+        val testCases: List<Pair<String, Pair<String, Type?>?>>
     ) {
         YOUTUBE(
             YoutubeParser(), listOf(
@@ -44,9 +44,9 @@ class UrlParserTest {
                 "https://tidal.com/playlist/abcde" to ("abcde" to Type.PLAYLIST),
                 "https://tidal.com/artist/fghij" to ("fghij" to Type.ARTIST),
                 "https://tidal.com/video/klmno" to ("klmno" to Type.VIDEO),
-                "tiddl:12345" to ("12345" to Type.SONG),
-                "tdn:12345" to ("12345" to Type.SONG),
-                "tidal:12345" to ("12345" to Type.SONG)
+                "tiddl:12345" to ("12345" to null),
+                "tdn:12345" to ("12345" to null),
+                "tidal:12345" to ("12345" to null)
             )
         ),
         SPOTIFY(
@@ -57,7 +57,7 @@ class UrlParserTest {
                 "https://open.spotify.com/playlist/789" to ("789" to Type.PLAYLIST),
                 "https://open.spotify.com/show/789" to ("789" to Type.PLAYLIST),
                 "https://open.spotify.com/artist/abc" to ("abc" to Type.ARTIST),
-                "spotify:123" to ("123" to Type.SONG)
+                "spotify:123" to ("123" to null)
             )
         ),
         MUSICBRAINZ(
