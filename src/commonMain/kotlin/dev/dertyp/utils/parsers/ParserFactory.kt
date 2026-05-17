@@ -23,7 +23,22 @@ object ParserFactory {
         QobuzParser(),
         AnghamiParser(),
         LiveMixtapesParser(),
-        MusikSammlerParser()
+        MusikSammlerParser(),
+        BandcampParser(),
+        GeniusParser(),
+        AllMusicParser(),
+        LastFmParser(),
+        DatPiffParser(),
+        AudiomackParser(),
+        SpinrillaParser(),
+        JaxstaParser(),
+        JunoDownloadParser(),
+        OtotoyParser(),
+        HdTracksParser(),
+        AudiusParser(),
+        SevenDigitalParser(),
+        OffizielleChartsParser(),
+        LautParser()
     )
 
     fun getParser(url: String): UrlParser? {
