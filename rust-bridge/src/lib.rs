@@ -1718,6 +1718,24 @@ pub struct ImportSong {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct AlbumExtendedMetadata {
+    pub providers: Vec<ProviderEntry>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ProviderEntry {
+    pub provider: String,
+    #[serde(rename = "externalId")]
+    pub external_id: String,
+    #[serde(rename = "type")]
+    pub r#type: Option<String>,
+    #[serde(rename = "rawUrl")]
+    pub raw_url: String,
+    #[serde(rename = "addedAt")]
+    pub added_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HandshakeResponse {
     pub secure: bool,
     #[serde(rename = "sslSupported")]
@@ -1759,6 +1777,15 @@ pub enum SongTag {
     CustomUpload,
     #[serde(rename = "HAS_MUSICBRAINZ_ID")]
     HasMusicbrainzId,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SongExtendedMetadata {
+    pub providers: Vec<ProviderEntry>,
+    #[serde(rename = "audioData")]
+    pub audio_data: Option<SongAudioData>,
+    #[serde(rename = "insertedAt")]
+    pub inserted_at: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2126,6 +2153,7 @@ pub trait IAlbumService {
     fn fetch_music_brainz_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_music_brainz_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, music_brainz_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_artist<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, artist_id: PlatformUUID, singles: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn extended_metadata<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<AlbumExtendedMetadata>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IHandshakeService {
@@ -2182,6 +2210,7 @@ pub trait ISongService {
     fn song_ids_by_playlist(&self, playlist_id: PlatformUUID) -> RpcStream<PlatformUUID>;
     fn song_ids_by_user_playlist(&self, playlist_id: PlatformUUID) -> RpcStream<PlatformUUID>;
     fn move_songs<'life0, 'async_trait>(&'life0 self, old_path: String, new_path: String, original_id_prefix: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn extended_metadata<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SongExtendedMetadata>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IServerStatsService {
@@ -3179,6 +3208,11 @@ impl IAlbumService for RpcClient {
             self.call("IAlbumService", "byArtist", &args).await
         })
     }
+    fn extended_metadata<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<AlbumExtendedMetadata>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAlbumService", "extendedMetadata", &id).await
+        })
+    }
 }
 impl IHandshakeService for RpcClient {
     fn handshake<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<HandshakeResponse, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
@@ -3410,6 +3444,11 @@ impl ISongService for RpcClient {
         Box::pin(async move {
             let args = ISongServiceMoveSongsArgs { old_path, new_path, original_id_prefix };
             self.call("ISongService", "moveSongs", &args).await
+        })
+    }
+    fn extended_metadata<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SongExtendedMetadata>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ISongService", "extendedMetadata", &id).await
         })
     }
 }

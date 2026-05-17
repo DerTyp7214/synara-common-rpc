@@ -184,4 +184,7 @@ interface ISongService {
         @RpcParamDoc("New base path.") newPath: String,
         @RpcParamDoc("Optional originalId prefix to filter by.") originalIdPrefix: String? = null
     ): Int
+
+    @RpcDoc("Get extended metadata for a song.")
+    suspend fun extendedMetadata(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): SongExtendedMetadata?
 }

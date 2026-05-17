@@ -4,10 +4,7 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.PrefixedId
-import dev.dertyp.data.Album
-import dev.dertyp.data.PaginatedResponse
-import dev.dertyp.data.RequiresCapability
-import dev.dertyp.data.UserCapability
+import dev.dertyp.data.*
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -79,4 +76,7 @@ interface IAlbumService {
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
         @RpcParamDoc("Whether to include singles.") singles: Boolean = false
     ): PaginatedResponse<Album>
+
+    @RpcDoc("Get extended metadata for an album.")
+    suspend fun extendedMetadata(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): AlbumExtendedMetadata?
 }
