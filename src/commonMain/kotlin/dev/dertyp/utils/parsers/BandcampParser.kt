@@ -43,4 +43,15 @@ class BandcampParser : UrlParser() {
             else -> "$subdomain/${pathParts.joinToString("/")}" to Type.ALBUM
         }
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        val subdomain = id.substringBefore("/")
+        val rest = id.substringAfter("/")
+        return when (type) {
+            Type.ALBUM -> "https://$subdomain.bandcamp.com/$rest"
+            Type.SONG -> "https://$subdomain.bandcamp.com/$rest"
+            Type.ARTIST -> "https://$subdomain.bandcamp.com"
+            else -> null
+        }
+    }
 }

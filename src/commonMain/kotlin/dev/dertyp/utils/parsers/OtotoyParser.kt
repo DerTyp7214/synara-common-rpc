@@ -38,4 +38,14 @@ class OtotoyParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        val segment = when (type) {
+            Type.ALBUM -> "p"
+            Type.SONG -> "t"
+            Type.ARTIST -> "a"
+            else -> return null
+        }
+        return "https://ototoy.jp/_/default/$segment/$id"
+    }
 }

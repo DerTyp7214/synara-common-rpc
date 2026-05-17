@@ -30,4 +30,14 @@ class MusicBrainzParser : UrlParser() {
 
         return pathParts[1] to type
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.SONG -> "https://musicbrainz.org/recording/$id"
+            Type.ALBUM -> "https://musicbrainz.org/release-group/$id"
+            Type.ARTIST -> "https://musicbrainz.org/artist/$id"
+            Type.PLAYLIST -> "https://musicbrainz.org/series/$id"
+            else -> null
+        }
+    }
 }

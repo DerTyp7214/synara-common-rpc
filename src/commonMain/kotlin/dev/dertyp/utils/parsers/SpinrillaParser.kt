@@ -24,4 +24,11 @@ class SpinrillaParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://spinrilla.com/mixtapes/$id"
+            else -> null
+        }
+    }
 }

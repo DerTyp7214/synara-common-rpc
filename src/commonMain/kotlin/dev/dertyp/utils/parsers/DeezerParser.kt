@@ -40,4 +40,14 @@ class DeezerParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.SONG -> "https://www.deezer.com/track/$id"
+            Type.ALBUM -> "https://www.deezer.com/album/$id"
+            Type.ARTIST -> "https://www.deezer.com/artist/$id"
+            Type.PLAYLIST -> "https://www.deezer.com/playlist/$id"
+            else -> null
+        }
+    }
 }

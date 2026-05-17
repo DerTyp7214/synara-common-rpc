@@ -28,9 +28,19 @@ class BoomplayParser : UrlParser() {
 
         val id = pathParts.lastOrNull()
         if (id != null && id.all { it.isDigit() }) {
-            return id to (type ?: Type.ALBUM)
+            return id to (type ?: return null)
         }
 
         return null
+    }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://www.boomplay.com/albums/$id"
+            Type.SONG -> "https://www.boomplay.com/songs/$id"
+            Type.ARTIST -> "https://www.boomplay.com/artists/$id"
+            Type.PLAYLIST -> "https://www.boomplay.com/playlists/$id"
+            else -> null
+        }
     }
 }

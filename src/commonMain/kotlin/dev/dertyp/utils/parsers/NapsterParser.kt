@@ -27,4 +27,8 @@ class NapsterParser : UrlParser() {
             else -> null
         }
     }
+
+    override fun toUrl(id: String, type: Type): String {
+        return "https://play.napster.com/$id"
+    }
 }

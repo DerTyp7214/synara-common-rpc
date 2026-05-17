@@ -28,9 +28,19 @@ class AnghamiParser : UrlParser() {
 
         val id = pathParts.lastOrNull()
         if (id != null && id.all { it.isDigit() }) {
-            return id to (type ?: Type.ALBUM)
+            return id to (type ?: return null)
         }
 
         return null
+    }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://play.anghami.com/album/$id"
+            Type.SONG -> "https://play.anghami.com/song/$id"
+            Type.ARTIST -> "https://play.anghami.com/artist/$id"
+            Type.PLAYLIST -> "https://play.anghami.com/playlist/$id"
+            else -> null
+        }
     }
 }

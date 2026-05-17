@@ -42,4 +42,15 @@ class TidalParser : UrlParser() {
 
         return id to type
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.SONG -> "https://tidal.com/track/$id"
+            Type.ALBUM -> "https://tidal.com/album/$id"
+            Type.PLAYLIST -> "https://tidal.com/playlist/$id"
+            Type.ARTIST -> "https://tidal.com/artist/$id"
+            Type.VIDEO -> "https://tidal.com/video/$id"
+            else -> null
+        }
+    }
 }

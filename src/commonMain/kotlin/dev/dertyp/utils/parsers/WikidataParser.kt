@@ -25,4 +25,11 @@ class WikidataParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://www.wikidata.org/wiki/$id"
+            else -> null
+        }
+    }
 }

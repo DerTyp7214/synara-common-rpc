@@ -34,4 +34,12 @@ class QobuzParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://www.qobuz.com/album/$id"
+            Type.SONG -> "https://www.qobuz.com/track/$id"
+            else -> null
+        }
+    }
 }

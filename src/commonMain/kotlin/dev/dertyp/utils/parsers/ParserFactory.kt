@@ -1,5 +1,7 @@
 package dev.dertyp.utils.parsers
 
+import dev.dertyp.services.import.Type
+
 object ParserFactory {
     private val parsers = listOf(
         YoutubeParser(),
@@ -38,7 +40,8 @@ object ParserFactory {
         AudiusParser(),
         SevenDigitalParser(),
         OffizielleChartsParser(),
-        LautParser()
+        LautParser(),
+        TikTokParser()
     )
 
     fun getParser(url: String): UrlParser? {
@@ -54,5 +57,15 @@ object ParserFactory {
             it.name.equals(provider, ignoreCase = true) ||
                     it.alternativeNames.any { alt -> alt.equals(provider, ignoreCase = true) }
         }
+    }
+
+    fun toUrl(provider: String, id: String, type: Type): String? {
+        return getParserForProvider(provider)?.toUrl(id, type)
+    }
+
+    fun toUrl(prefixedId: String, type: Type): String? {
+        val provider = prefixedId.substringBefore(":")
+        val id = prefixedId.substringAfter(":")
+        return toUrl(provider, id, type)
     }
 }

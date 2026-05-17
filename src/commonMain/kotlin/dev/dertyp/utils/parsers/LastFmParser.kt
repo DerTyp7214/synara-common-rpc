@@ -26,4 +26,21 @@ class LastFmParser : UrlParser() {
             else -> null
         }
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ARTIST -> "https://www.last.fm/music/$id"
+            Type.ALBUM -> "https://www.last.fm/music/$id"
+            Type.SONG -> {
+                if (id.contains("/")) {
+                    val artist = id.substringBefore("/")
+                    val track = id.substringAfter("/")
+                    "https://www.last.fm/music/$artist/_/$track"
+                } else {
+                    "https://www.last.fm/music/$id"
+                }
+            }
+            else -> null
+        }
+    }
 }

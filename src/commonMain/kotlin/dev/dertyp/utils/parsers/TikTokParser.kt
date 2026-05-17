@@ -2,13 +2,13 @@ package dev.dertyp.utils.parsers
 
 import dev.dertyp.services.import.Type
 
-class MusikSammlerParser : UrlParser() {
-    override val name: String = "musiksammler"
+class TikTokParser : UrlParser() {
+    override val name: String = "tiktok"
 
     override fun canHandle(url: String): Boolean {
         if (handlePrefix(url) != null) return true
         val host = getUri(url)?.host?.lowercase() ?: ""
-        return host.contains("musik-sammler.de")
+        return host == "music.tiktok.com" || host == "tiktok.com"
     }
 
     override suspend fun parse(url: String): Pair<String, Type?>? {
@@ -18,12 +18,14 @@ class MusikSammlerParser : UrlParser() {
         val uri = getUri(url) ?: return null
         val pathParts = uri.encodedPath.trim('/').split("/")
 
-        if (pathParts.contains("album")) {
-            val albumIndex = pathParts.indexOf("album")
-            if (albumIndex + 1 < pathParts.size) {
-                val id = pathParts[albumIndex + 1]
-                if (id.all { it.isDigit() }) return id to Type.ALBUM
+        if (pathParts.size >= 2) {
+            val type = when (pathParts[0]) {
+                "album" -> Type.ALBUM
+                "track" -> Type.SONG
+                "artist" -> Type.ARTIST
+                else -> null
             }
+            if (type != null) return pathParts[1] to type
         }
 
         return null
@@ -31,7 +33,9 @@ class MusikSammlerParser : UrlParser() {
 
     override fun toUrl(id: String, type: Type): String? {
         return when (type) {
-            Type.ALBUM -> "https://www.musik-sammler.de/album/$id/"
+            Type.ALBUM -> "https://music.tiktok.com/album/$id"
+            Type.SONG -> "https://music.tiktok.com/track/$id"
+            Type.ARTIST -> "https://music.tiktok.com/artist/$id"
             else -> null
         }
     }

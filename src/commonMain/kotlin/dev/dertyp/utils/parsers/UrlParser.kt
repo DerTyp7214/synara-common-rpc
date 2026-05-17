@@ -9,6 +9,7 @@ abstract class UrlParser {
 
     abstract fun canHandle(url: String): Boolean
     abstract suspend fun parse(url: String): Pair<String, Type?>?
+    open fun toUrl(id: String, type: Type): String? = null
 
     protected fun getUri(url: String): Url? {
         return try {

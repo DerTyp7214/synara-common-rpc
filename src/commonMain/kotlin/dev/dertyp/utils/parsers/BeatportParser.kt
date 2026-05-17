@@ -28,9 +28,18 @@ class BeatportParser : UrlParser() {
 
         val id = pathParts.lastOrNull()
         if (id != null && id.all { it.isDigit() }) {
-            return id to (type ?: Type.ALBUM)
+            return id to (type ?: return null)
         }
 
         return null
+    }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://www.beatport.com/release/slug/$id"
+            Type.SONG -> "https://www.beatport.com/track/slug/$id"
+            Type.ARTIST -> "https://www.beatport.com/artist/slug/$id"
+            else -> null
+        }
     }
 }

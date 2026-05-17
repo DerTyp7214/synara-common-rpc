@@ -35,6 +35,19 @@ class AmazonParser : UrlParser() {
             return pathParts[albumsIndex + 1] to Type.ALBUM
         }
 
+        val tracksIndex = pathParts.indexOf("tracks")
+        if (tracksIndex != -1 && tracksIndex + 1 < pathParts.size) {
+            return pathParts[tracksIndex + 1] to Type.SONG
+        }
+
         return null
+    }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://music.amazon.com/albums/$id"
+            Type.SONG -> "https://music.amazon.com/tracks/$id"
+            else -> null
+        }
     }
 }

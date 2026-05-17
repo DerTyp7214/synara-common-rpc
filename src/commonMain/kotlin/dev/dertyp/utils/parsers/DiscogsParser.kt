@@ -32,4 +32,11 @@ class DiscogsParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://www.discogs.com/release/$id"
+            else -> null
+        }
+    }
 }

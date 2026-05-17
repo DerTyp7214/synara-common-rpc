@@ -37,4 +37,14 @@ class SpotifyParser : UrlParser() {
 
         return id to type
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.SONG -> "https://open.spotify.com/track/$id"
+            Type.ALBUM -> "https://open.spotify.com/album/$id"
+            Type.PLAYLIST -> "https://open.spotify.com/playlist/$id"
+            Type.ARTIST -> "https://open.spotify.com/artist/$id"
+            else -> null
+        }
+    }
 }

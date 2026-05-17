@@ -38,4 +38,14 @@ class AudiusParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        val segment = when (type) {
+            Type.SONG -> "tracks"
+            Type.ALBUM -> "albums"
+            Type.PLAYLIST -> "playlists"
+            else -> return null
+        }
+        return "https://audius.co/$segment/$id"
+    }
 }

@@ -44,4 +44,21 @@ class AudiomackParser : UrlParser() {
             else -> null
         }
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        val segment = when (type) {
+            Type.ALBUM -> "album"
+            Type.SONG -> "song"
+            Type.PLAYLIST -> "playlist"
+            Type.ARTIST -> return "https://audiomack.com/$id"
+            else -> return null
+        }
+        return if (id.contains("/")) {
+            val artist = id.substringBefore("/")
+            val slug = id.substringAfter("/")
+            "https://audiomack.com/$artist/$segment/$slug"
+        } else {
+            "https://audiomack.com/$id"
+        }
+    }
 }

@@ -34,4 +34,12 @@ class MoraParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://mora.jp/package/$id"
+            Type.SONG -> "https://mora.jp/track/$id"
+            else -> null
+        }
+    }
 }

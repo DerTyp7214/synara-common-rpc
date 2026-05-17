@@ -28,4 +28,11 @@ class LiveMixtapesParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://www.livemixtapes.com/mixtapes/$id"
+            else -> null
+        }
+    }
 }

@@ -35,4 +35,13 @@ class YandexParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://music.yandex.ru/album/$id"
+            Type.SONG -> "https://music.yandex.ru/track/$id"
+            Type.ARTIST -> "https://music.yandex.ru/artist/$id"
+            else -> null
+        }
+    }
 }

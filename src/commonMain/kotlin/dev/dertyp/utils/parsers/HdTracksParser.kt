@@ -31,4 +31,11 @@ class HdTracksParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://www.hdtracks.com/album/$id"
+            else -> null
+        }
+    }
 }

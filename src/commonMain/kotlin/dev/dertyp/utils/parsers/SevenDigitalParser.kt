@@ -28,4 +28,11 @@ class SevenDigitalParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://us.7digital.com/artist/a/release/b-$id"
+            else -> null
+        }
+    }
 }

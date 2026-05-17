@@ -81,6 +81,7 @@ data class MusicBrainzRecording(
     @SerialName("artist-credit")
     val artistCredit: List<MusicBrainzArtistCredit>? = null,
     val releases: List<MusicBrainzRelease>? = null,
+    val relations: List<MusicBrainzRelation>? = null,
     val length: Long? = null,
     val tags: List<MusicBrainzTag>? = null,
     val genres: List<MusicBrainzGenre>? = null,

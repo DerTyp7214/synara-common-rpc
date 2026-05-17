@@ -39,4 +39,16 @@ class YoutubeParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.SONG -> "https://www.youtube.com/watch?v=$id"
+            Type.PLAYLIST -> "https://www.youtube.com/playlist?list=$id"
+            Type.ARTIST -> {
+                if (id.startsWith("@") || id.startsWith("channel/") || id.startsWith("user/")) "https://www.youtube.com/$id"
+                else "https://www.youtube.com/@$id"
+            }
+            else -> null
+        }
+    }
 }

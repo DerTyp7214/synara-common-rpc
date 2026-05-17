@@ -32,4 +32,13 @@ class GeniusParser : UrlParser() {
             else -> pathParts[0] to Type.SONG
         }
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://genius.com/albums/$id"
+            Type.ARTIST -> "https://genius.com/artists/$id"
+            Type.SONG -> "https://genius.com/$id-lyrics"
+            else -> null
+        }
+    }
 }

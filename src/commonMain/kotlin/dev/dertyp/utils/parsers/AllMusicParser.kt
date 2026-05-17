@@ -35,4 +35,13 @@ class AllMusicParser : UrlParser() {
 
         return if (type != null) id to type else null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> if (id.startsWith("mw")) "https://www.allmusic.com/album/$id" else "https://www.allmusic.com/album/mw$id"
+            Type.ARTIST -> if (id.startsWith("mn")) "https://www.allmusic.com/artist/$id" else "https://www.allmusic.com/artist/mn$id"
+            Type.SONG -> if (id.startsWith("mt")) "https://www.allmusic.com/song/$id" else "https://www.allmusic.com/song/mt$id"
+            else -> null
+        }
+    }
 }

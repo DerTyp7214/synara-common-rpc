@@ -18,16 +18,30 @@ class RateYourMusicParser : UrlParser() {
 
         val uri = getUri(url) ?: return null
         val pathParts = uri.encodedPath.trim('/').split("/")
+        if (pathParts.isEmpty()) return null
 
-        if (pathParts.size >= 4 && pathParts[0] == "release") {
-            val type = when (pathParts[1]) {
-                "album", "ep", "comp", "mixtape", "single" -> Type.ALBUM
+        if (pathParts[0] == "release" && pathParts.size >= 4) {
+            val rymType = pathParts[1]
+            val type = when (rymType) {
+                "album", "ep", "comp", "mixtape", "single", "djmix", "bootleg" -> Type.ALBUM
                 "video" -> Type.VIDEO
-                else -> Type.ALBUM
+                else -> return null
             }
-            return pathParts.subList(1, 4).joinToString("/") to type
+            return pathParts.drop(1).joinToString("/") to type
+        }
+        
+        if (pathParts[0] == "artist" && pathParts.size >= 2) {
+            return pathParts[1] to Type.ARTIST
         }
 
         return null
+    }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM, Type.VIDEO -> "https://rateyourmusic.com/release/$id"
+            Type.ARTIST -> "https://rateyourmusic.com/artist/$id"
+            else -> null
+        }
     }
 }

@@ -36,4 +36,8 @@ class SoundcloudParser : UrlParser() {
             else -> path to Type.SONG
         }
     }
+
+    override fun toUrl(id: String, type: Type): String {
+        return "https://soundcloud.com/$id"
+    }
 }

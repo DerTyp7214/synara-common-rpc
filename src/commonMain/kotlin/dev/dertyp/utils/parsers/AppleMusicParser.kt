@@ -38,4 +38,16 @@ class AppleMusicParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        val segment = when (type) {
+            Type.SONG -> "song"
+            Type.ALBUM -> "album"
+            Type.ARTIST -> "artist"
+            Type.PLAYLIST -> "playlist"
+            Type.VIDEO -> "music-video"
+            else -> return null
+        }
+        return "https://music.apple.com/$segment/$id"
+    }
 }

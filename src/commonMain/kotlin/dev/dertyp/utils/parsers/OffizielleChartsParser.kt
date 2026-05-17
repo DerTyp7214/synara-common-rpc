@@ -30,4 +30,12 @@ class OffizielleChartsParser : UrlParser() {
             else -> null
         }
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://www.offiziellecharts.de/album-details-$id"
+            Type.SONG -> "https://www.offiziellecharts.de/titel-details-$id"
+            else -> null
+        }
+    }
 }

@@ -30,4 +30,11 @@ class LautParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ARTIST -> "https://www.laut.de/$id"
+            else -> null
+        }
+    }
 }

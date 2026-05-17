@@ -27,4 +27,11 @@ class DatPiffParser : UrlParser() {
 
         return null
     }
+
+    override fun toUrl(id: String, type: Type): String? {
+        return when (type) {
+            Type.ALBUM -> "https://www.datpiff.com/mixtape.$id.html"
+            else -> null
+        }
+    }
 }
