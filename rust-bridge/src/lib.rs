@@ -1357,6 +1357,7 @@ pub struct MusicBrainzRecording {
     pub artist_credit: Option<Vec<MusicBrainzArtistCredit>>,
     pub releases: Option<Vec<MusicBrainzRelease>>,
     pub relations: Option<Vec<MusicBrainzRelation>>,
+    pub isrcs: Option<Vec<String>>,
     pub length: Option<i64>,
     pub tags: Option<Vec<MusicBrainzTag>>,
     pub genres: Option<Vec<MusicBrainzGenre>>,

@@ -82,6 +82,7 @@ data class MusicBrainzRecording(
     val artistCredit: List<MusicBrainzArtistCredit>? = null,
     val releases: List<MusicBrainzRelease>? = null,
     val relations: List<MusicBrainzRelation>? = null,
+    val isrcs: List<String>? = null,
     val length: Long? = null,
     val tags: List<MusicBrainzTag>? = null,
     val genres: List<MusicBrainzGenre>? = null,
