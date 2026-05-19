@@ -571,6 +571,24 @@ pub struct IReleaseServiceGetRecentReleasesArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IReleaseServiceGetArtistRecentReleasesArgs {
+    #[serde(rename = "artistId")]
+    pub artist_id: PlatformUUID,
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IReleaseServiceGetRecentReleasesByMusicBrainzIdArgs {
+    #[serde(rename = "musicBrainzId")]
+    pub music_brainz_id: PlatformUUID,
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IImportServiceImportIdsArgs {
     pub ids: Vec<PrefixedId>,
     #[serde(rename = "type")]
@@ -1834,6 +1852,18 @@ pub struct ProxyInfo {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TaskConfiguration {
+    pub key: String,
+    pub name: String,
+    pub enabled: bool,
+    pub trigger: TriggerDefinition,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TriggerDefinition {
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BackupResult {
     #[serde(rename = "fileName")]
     pub file_name: String,
@@ -2114,6 +2144,8 @@ pub trait IReleaseService {
     fn unfollow_artist<'life0, 'async_trait>(&'life0 self, artist_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_followed_artists<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<FollowedArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_recent_releases<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_artist_recent_releases<'life0, 'async_trait>(&'life0 self, artist_id: PlatformUUID, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_recent_releases_by_music_brainz_id<'life0, 'async_trait>(&'life0 self, music_brainz_id: PlatformUUID, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IImportService {
@@ -2219,6 +2251,12 @@ pub trait IServerStatsService {
     fn get_stats<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ServerStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn health<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_proxy_info<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<ProxyInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IScheduledTaskConfigurationService {
+    fn get_configurations<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TaskConfiguration>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn update_configuration<'life0, 'async_trait>(&'life0 self, configuration: TaskConfiguration) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_configurations_flow(&self, ) -> RpcStream<Vec<TaskConfiguration>>;
 }
 
 pub trait IBackupService {
@@ -3026,6 +3064,18 @@ impl IReleaseService for RpcClient {
             self.call("IReleaseService", "getRecentReleases", &args).await
         })
     }
+    fn get_artist_recent_releases<'life0, 'async_trait>(&'life0 self, artist_id: PlatformUUID, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IReleaseServiceGetArtistRecentReleasesArgs { artist_id, page, page_size };
+            self.call("IReleaseService", "getArtistRecentReleases", &args).await
+        })
+    }
+    fn get_recent_releases_by_music_brainz_id<'life0, 'async_trait>(&'life0 self, music_brainz_id: PlatformUUID, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IReleaseServiceGetRecentReleasesByMusicBrainzIdArgs { music_brainz_id, page, page_size };
+            self.call("IReleaseService", "getRecentReleasesByMusicBrainzId", &args).await
+        })
+    }
 }
 impl IImportService for RpcClient {
     fn logs(&self, ) -> RpcStream<LogLine> {
@@ -3469,6 +3519,21 @@ impl IServerStatsService for RpcClient {
         Box::pin(async move {
             self.call("IServerStatsService", "getProxyInfo", &()).await
         })
+    }
+}
+impl IScheduledTaskConfigurationService for RpcClient {
+    fn get_configurations<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TaskConfiguration>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IScheduledTaskConfigurationService", "getConfigurations", &()).await
+        })
+    }
+    fn update_configuration<'life0, 'async_trait>(&'life0 self, configuration: TaskConfiguration) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IScheduledTaskConfigurationService", "updateConfiguration", &configuration).await
+        })
+    }
+    fn get_configurations_flow(&self, ) -> RpcStream<Vec<TaskConfiguration>> {
+        self.subscribe("IScheduledTaskConfigurationService", "getConfigurationsFlow", &())
     }
 }
 impl IBackupService for RpcClient {

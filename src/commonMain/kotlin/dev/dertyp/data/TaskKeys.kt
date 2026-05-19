@@ -1,0 +1,25 @@
+package dev.dertyp.data
+
+object TaskKeys {
+    const val REVERSE_PROXY_HEALTH_CHECK = "reverse-proxy-health-check"
+    const val DATABASE_BACKUP = "database-backup"
+    const val USER_PLAYLIST_BACKUP = "user-playlist-backup"
+    const val SESSION_CLEANUP = "session-cleanup"
+    const val MERGE_LIBRARY_DUPLICATES = "merge-library-duplicates"
+    const val AUDIO_ANALYSIS = "audio-analysis"
+    const val FLAC_ANALYSIS = "flac-analysis"
+    const val MUSICBRAINZ_WORKER = "musicbrainz-worker"
+    const val MUSICBRAINZ_CACHE_WORKER = "musicbrainz-cache-worker"
+    const val GENRE_METADATA_WORKER = "genre-metadata-worker"
+    const val ARTIST_IMAGE_WORKER = "artist-image-worker"
+    const val FETCH_METADATA_THEAUDIODB = "fetch-metadata-theaudiodb"
+    const val AUTO_TRANSCODING = "auto-transcoding"
+    const val LYRICS_SYNC_WORKER = "lyrics-sync-worker"
+    const val LRCLIB_WORKER = "lrclib-worker"
+    const val RECENT_RELEASE_WORKER = "recent-release-worker"
+    const val PROVIDER_ENRICHMENT_WORKER = "provider-enrichment-worker"
+    const val DELETE_EMPTY_ALBUMS = "delete-empty-albums"
+    const val DELETE_UNREFERENCED_ARTISTS = "delete-unreferenced-artists"
+    const val DELETE_UNREFERENCED_IMAGES = "delete-unreferenced-images"
+    const val IMAGE_ANALYSIS = "image-analysis"
+}
