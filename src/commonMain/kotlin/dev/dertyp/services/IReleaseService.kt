@@ -25,4 +25,18 @@ interface IReleaseService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 150
     ): PaginatedResponse<RecentRelease>
+
+    @RpcDoc("Retrieve recent music releases for a specific artist.")
+    suspend fun getArtistRecentReleases(
+        @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 150
+    ): PaginatedResponse<RecentRelease>
+
+    @RpcDoc("Retrieve recent music releases for an artist by their MusicBrainz ID.")
+    suspend fun getRecentReleasesByMusicBrainzId(
+        @RpcParamDoc("The MusicBrainz Artist UUID.") musicBrainzId: PlatformUUID,
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 150
+    ): PaginatedResponse<RecentRelease>
 }
