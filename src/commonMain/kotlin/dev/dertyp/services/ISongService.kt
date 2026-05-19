@@ -131,6 +131,14 @@ interface ISongService {
         @RpcParamDoc("Only search within liked songs.") liked: Boolean = false
     ): PaginatedResponse<UserSong>
 
+    @RpcDoc("Search for songs by their lyrics.")
+    suspend fun searchByLyrics(
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
+        @RpcParamDoc("The search query.") query: String,
+        @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
+    ): PaginatedResponse<UserSong>
+
     @RpcDoc("Stream song audio data for playback.")
     @RestFileResponse
     fun streamSong(
