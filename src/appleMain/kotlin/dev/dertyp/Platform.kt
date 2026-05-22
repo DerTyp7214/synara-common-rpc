@@ -93,7 +93,7 @@ actual fun nowAsPlatformInstant(): PlatformInstant = PlatformInstant(NSDate())
 actual val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 actual val imageDispatcher: CoroutineDispatcher = Dispatchers.IO
 
-actual fun getStacktrace(): String? = NSThread.callStackSymbols.joinToString("\n")
+actual fun getStacktrace(): String? = null
 
 actual fun getPlatformName(): String {
     return when (Platform.osFamily) {
