@@ -181,6 +181,8 @@ data class UrlImportQueueEntry(
     override val type: Type? = null,
     @FieldDoc("The importer backend to use for this entry.")
     override val importer: ImportBackend? = null,
+    @FieldDoc("Metadata for the content.")
+    val metadata: IMetadataService.BaseMetadata? = null,
     @Transient
     override val maxRetries: Int = 5,
     @Transient
@@ -199,6 +201,8 @@ data class FavouriteImportQueueEntry(
     override val type: Type? = null,
     @FieldDoc("The importer backend to use for this entry.")
     override val importer: ImportBackend? = null,
+    @FieldDoc("Metadata for the content.")
+    val metadata: IMetadataService.BaseMetadata? = null,
     @Transient
     override val maxRetries: Int = 5,
     @Transient
