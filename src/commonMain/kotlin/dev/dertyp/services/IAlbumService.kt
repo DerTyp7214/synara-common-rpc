@@ -5,7 +5,6 @@ package dev.dertyp.services
 import dev.dertyp.PlatformUUID
 import dev.dertyp.PrefixedId
 import dev.dertyp.data.*
-import dev.dertyp.rpc.annotations.Cached
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -26,7 +25,6 @@ interface IAlbumService {
     suspend fun byOriginalIds(@RpcParamDoc("Collection of original platform-specific album identifiers.") ids: Collection<PrefixedId>): List<Album>
     @RpcDoc("Find albums by their original platform URLs, returning a mapping.")
     suspend fun byOriginalUrls(@RpcParamDoc("Collection of original platform URLs.") urls: Collection<String>): Map<String, Album?>
-    @Cached("5m")
     @RpcDoc("List different versions of an album.")
     suspend fun versions(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): List<Album>
     @RpcDoc("Search albums by name.")
