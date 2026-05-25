@@ -2267,6 +2267,7 @@ pub trait IScheduledTaskConfigurationService {
     fn get_configurations<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TaskConfiguration>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn update_configuration<'life0, 'async_trait>(&'life0 self, configuration: TaskConfiguration) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_configurations_flow(&self, ) -> RpcStream<Vec<TaskConfiguration>>;
+    fn trigger_task<'life0, 'async_trait>(&'life0 self, key: String) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IBackupService {
@@ -3550,6 +3551,11 @@ impl IScheduledTaskConfigurationService for RpcClient {
     }
     fn get_configurations_flow(&self, ) -> RpcStream<Vec<TaskConfiguration>> {
         self.subscribe("IScheduledTaskConfigurationService", "getConfigurationsFlow", &())
+    }
+    fn trigger_task<'life0, 'async_trait>(&'life0 self, key: String) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IScheduledTaskConfigurationService", "triggerTask", &key).await
+        })
     }
 }
 impl IBackupService for RpcClient {
