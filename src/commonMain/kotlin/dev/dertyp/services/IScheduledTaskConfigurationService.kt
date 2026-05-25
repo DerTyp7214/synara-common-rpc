@@ -20,4 +20,8 @@ interface IScheduledTaskConfigurationService {
     @RequiresAdmin
     @RpcDoc("Stream real-time updates for all background task configurations.", errors = ["SecurityException"])
     fun getConfigurationsFlow(): Flow<List<TaskConfiguration>>
+
+    @RequiresAdmin
+    @RpcDoc("Manually trigger a background task by its unique key.", errors = ["SecurityException"])
+    suspend fun triggerTask(key: String): Boolean
 }
