@@ -6,6 +6,7 @@ import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -101,8 +102,9 @@ class ReconnectingRpcClient(
         if (e is UnresolvedAddressException) return false
 
         val isCancelled = e is IllegalStateException && e.message?.contains("RpcClient was cancelled") == true
-        
+
         return isCancelled ||
+                e is ClosedSendChannelException ||
                 e is ConnectTimeoutException ||
                 e is HttpRequestTimeoutException ||
                 e is IOException
