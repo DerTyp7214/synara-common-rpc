@@ -37,6 +37,8 @@ data class Album(
     val genres: List<Genre> = listOf(),
     @FieldDoc("The original ID of the album on external sources.")
     val originalId: String? = null,
+    @FieldDoc("The barcode or UPC of the album.")
+    val barcode: String? = null,
     @FieldDoc("The MusicBrainz Release unique identifier.")
     val musicbrainzId: PlatformUUID? = null,
 )
@@ -57,6 +59,8 @@ data class InsertableAlbum(
     val coverHash: String? = null,
     @FieldDoc("The original ID of the album on external sources.")
     val originalId: String? = null,
+    @FieldDoc("The barcode or UPC of the album.")
+    val barcode: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is InsertableAlbum) contentEquals(other) else false

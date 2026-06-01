@@ -49,6 +49,7 @@ abstract class BaseSong() {
     abstract val coverId: PlatformUUID?
     abstract val blurHash: String?
     abstract val musicBrainzId: PlatformUUID?
+    abstract val isrc: String?
     abstract val genres: List<Genre>
 }
 
@@ -96,6 +97,8 @@ data class Song(
     override val blurHash: String? = null,
     @FieldDoc("The MusicBrainz Recording unique identifier.")
     override val musicBrainzId: PlatformUUID? = null,
+    @FieldDoc("The International Standard Recording Code.")
+    override val isrc: String? = null,
     @FieldDoc("Collection of genres associated with this song.")
     override val genres: List<Genre> = listOf(),
 ): BaseSong()
@@ -144,6 +147,8 @@ data class UserSong(
     override val blurHash: String? = null,
     @FieldDoc("The MusicBrainz Recording unique identifier.")
     override val musicBrainzId: PlatformUUID? = null,
+    @FieldDoc("The International Standard Recording Code.")
+    override val isrc: String? = null,
     @FieldDoc("Collection of genres associated with this song.")
     override val genres: List<Genre> = listOf(),
 
@@ -236,6 +241,8 @@ data class SimpleSong(
     val blurHash: String? = null,
     @FieldDoc("The MusicBrainz Recording unique identifier.")
     val musicBrainzId: PlatformUUID? = null,
+    @FieldDoc("The International Standard Recording Code.")
+    val isrc: String? = null,
     @FieldDoc("List of bitrates for which a transcoded version exists.")
     val transcodedTo: List<Int>
 )
@@ -280,6 +287,8 @@ data class InsertableSong(
     val coverHash: String? = null,
     @FieldDoc("The MusicBrainz Recording unique identifier.")
     val musicBrainzId: PlatformUUID? = null,
+    @FieldDoc("The International Standard Recording Code.")
+    val isrc: String? = null,
     @FieldDoc("Additional audio analysis data.")
     val audioData: SongAudioData? = null,
 ) {
