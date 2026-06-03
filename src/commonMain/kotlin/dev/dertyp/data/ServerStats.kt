@@ -25,9 +25,32 @@ data class ServerStats(
     val averageSizePerSong: Long,
     @FieldDoc("Summed duration of all tracks in milliseconds.")
     val totalDuration: Long,
+    @FieldDoc("Statistics about the MusicBrainz metadata cache.")
+    val musicBrainzCache: MusicBrainzCacheStats,
     @FieldDoc("Information about the server software version.")
     val version: Version
 ) {
+    @Serializable
+    @ModelDoc("Statistics about the MusicBrainz metadata cache.")
+    data class MusicBrainzCacheStats(
+        @FieldDoc("Total number of cached artists.")
+        val artistCount: Int,
+        @FieldDoc("Number of stale artists in the cache.")
+        val staleArtistCount: Int,
+        @FieldDoc("Total number of cached release groups.")
+        val releaseGroupCount: Int,
+        @FieldDoc("Number of stale release groups in the cache.")
+        val staleReleaseGroupCount: Int,
+        @FieldDoc("Total number of cached releases.")
+        val releaseCount: Int,
+        @FieldDoc("Number of stale releases in the cache.")
+        val staleReleaseCount: Int,
+        @FieldDoc("Total number of cached recordings.")
+        val recordingCount: Int,
+        @FieldDoc("Number of stale recordings in the cache.")
+        val staleRecordingCount: Int,
+    )
+
     @Serializable
     @ModelDoc("Details about the server's version and build environment.")
     data class Version(

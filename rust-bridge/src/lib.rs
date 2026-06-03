@@ -1868,7 +1868,29 @@ pub struct ServerStats {
     pub average_size_per_song: i64,
     #[serde(rename = "totalDuration")]
     pub total_duration: i64,
+    #[serde(rename = "musicBrainzCache")]
+    pub music_brainz_cache: MusicBrainzCacheStats,
     pub version: Version,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MusicBrainzCacheStats {
+    #[serde(rename = "artistCount")]
+    pub artist_count: i32,
+    #[serde(rename = "staleArtistCount")]
+    pub stale_artist_count: i32,
+    #[serde(rename = "releaseGroupCount")]
+    pub release_group_count: i32,
+    #[serde(rename = "staleReleaseGroupCount")]
+    pub stale_release_group_count: i32,
+    #[serde(rename = "releaseCount")]
+    pub release_count: i32,
+    #[serde(rename = "staleReleaseCount")]
+    pub stale_release_count: i32,
+    #[serde(rename = "recordingCount")]
+    pub recording_count: i32,
+    #[serde(rename = "staleRecordingCount")]
+    pub stale_recording_count: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
