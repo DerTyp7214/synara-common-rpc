@@ -133,9 +133,24 @@ data class InsertablePlaylist(
     @FieldDoc("Optional description.")
     val description: String = "",
     @FieldDoc("Collection of file paths for the songs to include.")
-    val songPaths: List<String>,
+    val songPaths: List<String> = emptyList(),
     @FieldDoc("Optional hash of the cover image.")
     val imageHash: String? = null,
     @FieldDoc("Optional source platform identifier.")
     val origin: String? = null,
 )
+
+@Serializable
+@ModelDoc("Strategy for sorting songs when creating a playlist from artists.")
+enum class ArtistPlaylistSortStrategy {
+    @FieldDoc("Sort by MusicBrainz release date (newest first).")
+    MB_RELEASE_DATE,
+    @FieldDoc("Sort by MusicBrainz release date (oldest first).")
+    MB_RELEASE_DATE_ASC,
+    @FieldDoc("Randomly shuffle the songs.")
+    SHUFFLED,
+    @FieldDoc("Group by artist and album, following track order.")
+    ALBUM_ORDER,
+    @FieldDoc("Group by genre.")
+    BY_GENRE
+}

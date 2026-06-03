@@ -3,9 +3,9 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
+import dev.dertyp.data.ArtistPlaylistSortStrategy
 import dev.dertyp.data.InsertablePlaylist
 import dev.dertyp.data.PaginatedResponse
-import dev.dertyp.data.User
 import dev.dertyp.data.UserPlaylist
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -46,7 +46,7 @@ interface IUserPlaylistService {
     suspend fun delete(@RpcParamDoc("The playlist unique identifier.") id: PlatformUUID): Boolean
     @RpcDoc("Create a new user playlist or retrieve an existing one by a custom identifier.")
     suspend fun getOrAddPlaylist(
-        @RpcParamDoc("The user who owns the playlist.") user: User,
+        @RpcParamDoc("The user ID who owns the playlist.") userId: PlatformUUID,
         @RpcParamDoc("Optional unique string identifier from an external source.") customIdentifier: String?,
         @RpcParamDoc("The initial playlist data.") playlist: InsertablePlaylist
     ): PlatformUUID
@@ -85,4 +85,13 @@ interface IUserPlaylistService {
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The image unique identifier.") imageId: PlatformUUID?
     ): Boolean
+
+    @RpcDoc("Create a smart playlist based on artists.")
+    suspend fun createPlaylistFromArtists(
+        @RpcParamDoc("The user ID who owns the playlist.") userId: PlatformUUID,
+        @RpcParamDoc("The name of the playlist.") name: String,
+        @RpcParamDoc("Collection of artist IDs.") artistIds: List<PlatformUUID>,
+        @RpcParamDoc("Maximum number of songs per artist.") maxSongsPerArtist: Int = 10,
+        @RpcParamDoc("Sorting strategy.") sortStrategy: ArtistPlaylistSortStrategy = ArtistPlaylistSortStrategy.MB_RELEASE_DATE
+    ): PlatformUUID
 }

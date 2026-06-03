@@ -228,7 +228,8 @@ pub struct IUserPlaylistServiceByColorArgs {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IUserPlaylistServiceGetOrAddPlaylistArgs {
-    pub user: User,
+    #[serde(rename = "userId")]
+    pub user_id: PlatformUUID,
     #[serde(rename = "customIdentifier")]
     pub custom_identifier: Option<String>,
     pub playlist: InsertablePlaylist,
@@ -281,6 +282,19 @@ pub struct IUserPlaylistServiceSetPlaylistImageArgs {
     pub id: PlatformUUID,
     #[serde(rename = "imageId")]
     pub image_id: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUserPlaylistServiceCreatePlaylistFromArtistsArgs {
+    #[serde(rename = "userId")]
+    pub user_id: PlatformUUID,
+    pub name: String,
+    #[serde(rename = "artistIds")]
+    pub artist_ids: Vec<PlatformUUID>,
+    #[serde(rename = "maxSongsPerArtist")]
+    pub max_songs_per_artist: i32,
+    #[serde(rename = "sortStrategy")]
+    pub sort_strategy: ArtistPlaylistSortStrategy,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1184,6 +1198,20 @@ pub struct InsertablePlaylist {
     pub origin: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum ArtistPlaylistSortStrategy {
+    #[serde(rename = "MB_RELEASE_DATE")]
+    MbReleaseDate,
+    #[serde(rename = "MB_RELEASE_DATE_ASC")]
+    MbReleaseDateAsc,
+    #[serde(rename = "SHUFFLED")]
+    Shuffled,
+    #[serde(rename = "ALBUM_ORDER")]
+    AlbumOrder,
+    #[serde(rename = "BY_GENRE")]
+    ByGenre,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MetadataType {
     pub value: String,
@@ -2036,7 +2064,7 @@ pub trait IUserPlaylistService {
     fn all_playlists<'life0, 'async_trait>(&'life0 self, creator: Option<PlatformUUID>, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserPlaylist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_color<'life0, 'async_trait>(&'life0 self, creator: Option<PlatformUUID>, page: i32, page_size: i32, color: i32, range: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserPlaylist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn delete<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn get_or_add_playlist<'life0, 'async_trait>(&'life0 self, user: User, custom_identifier: Option<String>, playlist: InsertablePlaylist) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_or_add_playlist<'life0, 'async_trait>(&'life0 self, user_id: PlatformUUID, custom_identifier: Option<String>, playlist: InsertablePlaylist) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn add_to_playlist<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, song_ids: Vec<(i64, PlatformUUID)>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn add_songs_to_playlist<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, song_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn add_album_to_playlist<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, album_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -2044,6 +2072,7 @@ pub trait IUserPlaylistService {
     fn add_user_playlist_to_playlist<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, source_playlist_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn remove_from_playlist<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, song_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_playlist_image<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, image_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn create_playlist_from_artists<'life0, 'async_trait>(&'life0 self, user_id: PlatformUUID, name: String, artist_ids: Vec<PlatformUUID>, max_songs_per_artist: i32, sort_strategy: ArtistPlaylistSortStrategy) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IMetadataService {
@@ -2610,9 +2639,9 @@ impl IUserPlaylistService for RpcClient {
             self.call("IUserPlaylistService", "delete", &id).await
         })
     }
-    fn get_or_add_playlist<'life0, 'async_trait>(&'life0 self, user: User, custom_identifier: Option<String>, playlist: InsertablePlaylist) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn get_or_add_playlist<'life0, 'async_trait>(&'life0 self, user_id: PlatformUUID, custom_identifier: Option<String>, playlist: InsertablePlaylist) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
-            let args = IUserPlaylistServiceGetOrAddPlaylistArgs { user, custom_identifier, playlist };
+            let args = IUserPlaylistServiceGetOrAddPlaylistArgs { user_id, custom_identifier, playlist };
             self.call("IUserPlaylistService", "getOrAddPlaylist", &args).await
         })
     }
@@ -2656,6 +2685,12 @@ impl IUserPlaylistService for RpcClient {
         Box::pin(async move {
             let args = IUserPlaylistServiceSetPlaylistImageArgs { id, image_id };
             self.call("IUserPlaylistService", "setPlaylistImage", &args).await
+        })
+    }
+    fn create_playlist_from_artists<'life0, 'async_trait>(&'life0 self, user_id: PlatformUUID, name: String, artist_ids: Vec<PlatformUUID>, max_songs_per_artist: i32, sort_strategy: ArtistPlaylistSortStrategy) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUserPlaylistServiceCreatePlaylistFromArtistsArgs { user_id, name, artist_ids, max_songs_per_artist, sort_strategy };
+            self.call("IUserPlaylistService", "createPlaylistFromArtists", &args).await
         })
     }
 }
