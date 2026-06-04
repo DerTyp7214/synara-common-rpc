@@ -344,6 +344,8 @@ interface IMetadataService {
         val albumId: String? = null,
         @FieldDoc("The title of the album.")
         val albumTitle: String? = null,
+        @FieldDoc("The International Standard Recording Code.")
+        val isrc: String? = null,
     ) : BaseMetadata()
 
     @Serializable
@@ -373,7 +375,9 @@ interface IMetadataService {
         @FieldDoc("Genres associated with the album.")
         val genres: List<String> = emptyList(),
         @FieldDoc("Alternative titles for the album.")
-        val additionalTitles: List<String> = emptyList()
+        val additionalTitles: List<String> = emptyList(),
+        @FieldDoc("The barcode or UPC of the album.")
+        val barcode: String? = null
     ) : BaseMetadata()
 
     @Serializable

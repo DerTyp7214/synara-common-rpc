@@ -1305,6 +1305,7 @@ pub struct Track {
     pub album_id: Option<String>,
     #[serde(rename = "albumTitle")]
     pub album_title: Option<String>,
+    pub isrc: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1323,6 +1324,7 @@ pub struct IMetadataServiceAlbum {
     pub genres: Vec<String>,
     #[serde(rename = "additionalTitles")]
     pub additional_titles: Vec<String>,
+    pub barcode: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
