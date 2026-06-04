@@ -1878,9 +1878,20 @@ pub struct ServerStats {
     pub average_size_per_song: i64,
     #[serde(rename = "totalDuration")]
     pub total_duration: i64,
+    #[serde(rename = "transcodeStats")]
+    pub transcode_stats: Vec<TranscodeStats>,
     #[serde(rename = "musicBrainzCache")]
     pub music_brainz_cache: MusicBrainzCacheStats,
     pub version: Version,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TranscodeStats {
+    pub bitrate: i32,
+    pub format: AudioFormat,
+    pub count: i32,
+    #[serde(rename = "totalSize")]
+    pub total_size: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

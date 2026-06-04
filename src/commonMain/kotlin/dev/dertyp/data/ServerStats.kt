@@ -25,11 +25,26 @@ data class ServerStats(
     val averageSizePerSong: Long,
     @FieldDoc("Summed duration of all tracks in milliseconds.")
     val totalDuration: Long,
+    @FieldDoc("Statistics about transcoded audio versions.")
+    val transcodeStats: List<TranscodeStats>,
     @FieldDoc("Statistics about the MusicBrainz metadata cache.")
     val musicBrainzCache: MusicBrainzCacheStats,
     @FieldDoc("Information about the server software version.")
     val version: Version
 ) {
+    @Serializable
+    @ModelDoc("Statistics for a specific bitrate and format combination.")
+    data class TranscodeStats(
+        @FieldDoc("The audio bitrate in kbps.")
+        val bitrate: Int,
+        @FieldDoc("The audio format.")
+        val format: AudioFormat,
+        @FieldDoc("Number of songs transcoded to this version.")
+        val count: Int,
+        @FieldDoc("Total file size in bytes.")
+        val totalSize: Long
+    )
+
     @Serializable
     @ModelDoc("Statistics about the MusicBrainz metadata cache.")
     data class MusicBrainzCacheStats(
