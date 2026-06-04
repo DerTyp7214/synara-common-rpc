@@ -244,7 +244,7 @@ data class SimpleSong(
     @FieldDoc("The International Standard Recording Code.")
     val isrc: String? = null,
     @FieldDoc("List of bitrates for which a transcoded version exists.")
-    val transcodedTo: List<Int>
+    val transcodedTo: List<TranscodedVersion>
 )
 
 @Serializable
