@@ -61,6 +61,8 @@ data class InsertableAlbum(
     val originalId: String? = null,
     @FieldDoc("The barcode or UPC of the album.")
     val barcode: String? = null,
+    @FieldDoc("The MusicBrainz Release unique identifier.")
+    val musicBrainzId: PlatformUUID? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is InsertableAlbum) contentEquals(other) else false
