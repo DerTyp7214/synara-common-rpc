@@ -33,6 +33,12 @@ interface IMusicBrainzService {
         @RpcParamDoc("The artists of the release.") artists: List<String>
     ): MusicBrainzRelease?
 
+    @RpcDoc("Search for a release by barcode on MusicBrainz.")
+    suspend fun searchReleaseByBarcode(
+        @RpcParamDoc("The barcode (UPC/EAN).") barcode: String,
+        @RpcParamDoc("The artists of the release.") artists: List<String>
+    ): MusicBrainzRelease?
+
     @RpcDoc("Retrieve all releases in a MusicBrainz Release Group.")
     suspend fun getReleasesByReleaseGroup(@RpcParamDoc("The MusicBrainz Release Group UUID.") id: PlatformUUID): List<MusicBrainzRelease>
 }

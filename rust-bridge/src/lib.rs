@@ -456,6 +456,12 @@ pub struct IMusicBrainzServiceSearchReleaseArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMusicBrainzServiceSearchReleaseByBarcodeArgs {
+    pub barcode: String,
+    pub artists: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsServiceTranscribeLyricsArgs {
     #[serde(rename = "songId")]
     pub song_id: PlatformUUID,
@@ -2150,6 +2156,7 @@ pub trait IMusicBrainzService {
     fn get_release_group<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzReleaseGroup>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn search_recording<'life0, 'async_trait>(&'life0 self, title: String, artists: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRecording>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn search_release<'life0, 'async_trait>(&'life0 self, title: String, artists: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn search_release_by_barcode<'life0, 'async_trait>(&'life0 self, barcode: String, artists: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_releases_by_release_group<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<MusicBrainzRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
@@ -2890,6 +2897,12 @@ impl IMusicBrainzService for RpcClient {
         Box::pin(async move {
             let args = IMusicBrainzServiceSearchReleaseArgs { title, artists };
             self.call("IMusicBrainzService", "searchRelease", &args).await
+        })
+    }
+    fn search_release_by_barcode<'life0, 'async_trait>(&'life0 self, barcode: String, artists: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMusicBrainzServiceSearchReleaseByBarcodeArgs { barcode, artists };
+            self.call("IMusicBrainzService", "searchReleaseByBarcode", &args).await
         })
     }
     fn get_releases_by_release_group<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<MusicBrainzRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
