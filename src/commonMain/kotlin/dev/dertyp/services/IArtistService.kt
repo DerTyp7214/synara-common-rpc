@@ -97,4 +97,21 @@ interface IArtistService {
     fun artistsWithoutMusicBrainzIdFlow(): Flow<Artist>
     @RpcDoc("Stream IDs of all artists that are missing a MusicBrainz ID.")
     fun artistIdsWithoutMusicBrainzId(): Flow<PlatformUUID>
+
+    @RpcDoc("List aliases for an artist.")
+    suspend fun aliases(@RpcParamDoc("The artist unique identifier.") id: PlatformUUID): List<ArtistAlias>
+
+    @RequiresCapability(UserCapability.EDIT)
+    @RpcDoc("Add an alias to an artist.")
+    suspend fun addAlias(
+        @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
+        @RpcParamDoc("The alternative name.") name: String
+    ): Boolean
+
+    @RequiresCapability(UserCapability.EDIT)
+    @RpcDoc("Remove an alias from an artist.")
+    suspend fun removeAlias(
+        @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
+        @RpcParamDoc("The alternative name.") name: String
+    ): Boolean
 }

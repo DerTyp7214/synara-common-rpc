@@ -578,6 +578,20 @@ pub struct IArtistServiceSetArtistImageByUrlArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IArtistServiceAddAliasArgs {
+    #[serde(rename = "artistId")]
+    pub artist_id: PlatformUUID,
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IArtistServiceRemoveAliasArgs {
+    #[serde(rename = "artistId")]
+    pub artist_id: PlatformUUID,
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IAuthServiceAuthenticateArgs {
     pub username: String,
     pub password: String,
@@ -2220,6 +2234,9 @@ pub trait IArtistService {
     fn set_artist_image_by_url<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, url: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Artist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn artists_without_music_brainz_id_flow(&self, ) -> RpcStream<Artist>;
     fn artist_ids_without_music_brainz_id(&self, ) -> RpcStream<PlatformUUID>;
+    fn aliases<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ArtistAlias>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn add_alias<'life0, 'async_trait>(&'life0 self, artist_id: PlatformUUID, name: String) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn remove_alias<'life0, 'async_trait>(&'life0 self, artist_id: PlatformUUID, name: String) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IAuthService {
@@ -3122,6 +3139,23 @@ impl IArtistService for RpcClient {
     }
     fn artist_ids_without_music_brainz_id(&self, ) -> RpcStream<PlatformUUID> {
         self.subscribe("IArtistService", "artistIdsWithoutMusicBrainzId", &())
+    }
+    fn aliases<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ArtistAlias>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IArtistService", "aliases", &id).await
+        })
+    }
+    fn add_alias<'life0, 'async_trait>(&'life0 self, artist_id: PlatformUUID, name: String) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IArtistServiceAddAliasArgs { artist_id, name };
+            self.call("IArtistService", "addAlias", &args).await
+        })
+    }
+    fn remove_alias<'life0, 'async_trait>(&'life0 self, artist_id: PlatformUUID, name: String) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IArtistServiceRemoveAliasArgs { artist_id, name };
+            self.call("IArtistService", "removeAlias", &args).await
+        })
     }
 }
 impl IAuthService for RpcClient {
