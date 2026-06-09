@@ -14,8 +14,10 @@ import kotlinx.rpc.annotations.Rpc
 interface IMusicBrainzService {
     @RpcDoc("Retrieve a MusicBrainz Artist record.")
     suspend fun getArtist(@RpcParamDoc("The MusicBrainz Artist UUID.") id: PlatformUUID): MusicBrainzArtist?
-    @RpcDoc("Retrieve a MusicBrainz Recording record.")
+    @RpcDoc("Retrieve a MusicBrainz Recording record by its MusicBrainz Recording UUID.")
     suspend fun getRecording(@RpcParamDoc("The MusicBrainz Recording UUID.") id: PlatformUUID): MusicBrainzRecording?
+    @RpcDoc("Retrieve a MusicBrainz Recording record by its ISRC.")
+    suspend fun getRecordingByIsrc(@RpcParamDoc("The ISRC.") isrc: String): MusicBrainzRecording?
     @RpcDoc("Retrieve a MusicBrainz Release record.")
     suspend fun getRelease(@RpcParamDoc("The MusicBrainz Release UUID.") id: PlatformUUID): MusicBrainzRelease?
     @RpcDoc("Retrieve a MusicBrainz Release Group record.")

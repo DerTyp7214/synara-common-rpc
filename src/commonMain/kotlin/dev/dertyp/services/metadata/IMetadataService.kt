@@ -68,6 +68,7 @@ interface IMetadataService {
         GET_IMAGE_URLS_BY_ALBUM_IDS,
         GET_IMAGE_URL_BY_IMAGE_ID,
         GET_TRACK_BY_ID,
+        GET_TRACK_BY_ISRC,
         GET_TRACKS_BY_IDS,
         GET_ALBUMS_BY_IDS,
         ALBUM_EXISTS_BY_ID,
@@ -225,6 +226,15 @@ interface IMetadataService {
         type: MetadataType,
         @RpcParamDoc("The external track ID.")
         trackId: String
+    ): Track?
+
+    @ProvidesFeature(Feature.GET_TRACK_BY_ISRC)
+    @RpcDoc("Get a track by its ISRC.")
+    suspend fun getTrackByIsrc(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The ISRC.")
+        isrc: String
     ): Track?
 
     @ProvidesFeature(Feature.GET_TRACKS_BY_IDS)

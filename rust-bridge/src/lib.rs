@@ -412,6 +412,13 @@ pub struct IMetadataServiceGetTrackByIdArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IMetadataServiceGetTrackByIsrcArgs {
+    #[serde(rename = "type")]
+    pub r#type: MetadataType,
+    pub isrc: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IMetadataServiceGetTracksByIdsArgs {
     #[serde(rename = "type")]
     pub r#type: MetadataType,
@@ -1269,6 +1276,8 @@ pub enum Feature {
     GetImageUrlByImageId,
     #[serde(rename = "GET_TRACK_BY_ID")]
     GetTrackById,
+    #[serde(rename = "GET_TRACK_BY_ISRC")]
+    GetTrackByIsrc,
     #[serde(rename = "GET_TRACKS_BY_IDS")]
     GetTracksByIds,
     #[serde(rename = "GET_ALBUMS_BY_IDS")]
@@ -2157,6 +2166,7 @@ pub trait IMetadataService {
     fn get_image_urls_by_album_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, Vec<IMetadataServiceImage>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_image_url_by_image_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, image_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<String>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_track_by_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, track_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_track_by_isrc<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, isrc: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_tracks_by_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, track_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_albums_by_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<IMetadataServiceAlbum>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn album_exists_by_id<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, album_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -2166,6 +2176,7 @@ pub trait IMetadataService {
 pub trait IMusicBrainzService {
     fn get_artist<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_recording<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRecording>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_recording_by_isrc<'life0, 'async_trait>(&'life0 self, isrc: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRecording>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_release<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_release_group<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzReleaseGroup>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn search_recording<'life0, 'async_trait>(&'life0 self, title: String, artists: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRecording>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -2858,6 +2869,12 @@ impl IMetadataService for RpcClient {
             self.call("IMetadataService", "getTrackById", &args).await
         })
     }
+    fn get_track_by_isrc<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, isrc: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IMetadataServiceGetTrackByIsrcArgs { r#type, isrc };
+            self.call("IMetadataService", "getTrackByIsrc", &args).await
+        })
+    }
     fn get_tracks_by_ids<'life0, 'async_trait>(&'life0 self, r#type: MetadataType, track_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Track>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             let args = IMetadataServiceGetTracksByIdsArgs { r#type, track_ids };
@@ -2892,6 +2909,11 @@ impl IMusicBrainzService for RpcClient {
     fn get_recording<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRecording>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IMusicBrainzService", "getRecording", &id).await
+        })
+    }
+    fn get_recording_by_isrc<'life0, 'async_trait>(&'life0 self, isrc: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRecording>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IMusicBrainzService", "getRecordingByIsrc", &isrc).await
         })
     }
     fn get_release<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
