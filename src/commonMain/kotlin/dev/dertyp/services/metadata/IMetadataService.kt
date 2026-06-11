@@ -71,6 +71,7 @@ interface IMetadataService {
         GET_TRACK_BY_ISRC,
         GET_TRACKS_BY_IDS,
         GET_ALBUMS_BY_IDS,
+        GET_ALBUM_BY_BARCODE,
         ALBUM_EXISTS_BY_ID,
         GET_ARTISTS_BY_IDS,
         GET_ALBUM_TRACKS,
@@ -254,6 +255,15 @@ interface IMetadataService {
         @RpcParamDoc("List of external album IDs.")
         albumIds: List<String>
     ): List<Album>
+
+    @ProvidesFeature(Feature.GET_ALBUM_BY_BARCODE)
+    @RpcDoc("Get an album by its barcode.")
+    suspend fun getAlbumByBarcode(
+        @RpcParamDoc("The metadata provider to use.")
+        type: MetadataType,
+        @RpcParamDoc("The barcode.")
+        barcode: String
+    ): Album?
 
     @ProvidesFeature(Feature.ALBUM_EXISTS_BY_ID)
     @RpcDoc("Check if an album exists by its external ID.")

@@ -18,6 +18,7 @@ object TaskKeys {
     const val LRCLIB_WORKER = "lrclib-worker"
     const val RECENT_RELEASE_WORKER = "recent-release-worker"
     const val PROVIDER_ENRICHMENT_WORKER = "provider-enrichment-worker"
+    const val ISRC_PROVIDER_ENRICHMENT_WORKER = "isrc-provider-enrichment-worker"
     const val DELETE_EMPTY_ALBUMS = "delete-empty-albums"
     const val DELETE_UNREFERENCED_ARTISTS = "delete-unreferenced-artists"
     const val DELETE_UNREFERENCED_IMAGES = "delete-unreferenced-images"
