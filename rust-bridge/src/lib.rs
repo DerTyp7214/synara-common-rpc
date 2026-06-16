@@ -92,6 +92,12 @@ pub struct IMirrorServiceGetSongDataArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IAnimatedImageServiceCreateAnimatedImageArgs {
+    pub bytes: serde_bytes::ByteBuf,
+    pub origin: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IDiscoveryServiceCreateSongMosaicArgs {
     pub image: serde_bytes::ByteBuf,
     pub width: i32,
@@ -1146,6 +1152,28 @@ pub struct BackupImage {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct AnimatedImage {
+    pub id: PlatformUUID,
+    pub path: String,
+    #[serde(rename = "contentHash")]
+    pub content_hash: String,
+    pub origin: String,
+    pub format: Option<String>,
+    #[serde(rename = "imageId")]
+    pub image_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct InsertableAnimatedImage {
+    pub data: serde_bytes::ByteBuf,
+    #[serde(rename = "contentHash")]
+    pub content_hash: String,
+    pub origin: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PaginatedResponse<T> {
     pub data: Vec<T>,
     pub page: i32,
@@ -2105,6 +2133,15 @@ pub trait IUserPlaylistBackupService {
     fn delete_backup<'life0, 'async_trait>(&'life0 self, file_name: String) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
+pub trait IAnimatedImageService {
+    fn by_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<AnimatedImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn by_hash<'life0, 'async_trait>(&'life0 self, hash: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<AnimatedImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_cover_hashes<'life0, 'async_trait>(&'life0 self, hashes: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_animated_image_data<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<serde_bytes::ByteBuf>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn create_animated_image<'life0, 'async_trait>(&'life0 self, bytes: serde_bytes::ByteBuf, origin: String) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn create_batch<'life0, 'async_trait>(&'life0 self, images: Vec<InsertableAnimatedImage>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
 pub trait IDiscoveryService {
     fn create_song_mosaic<'life0, 'async_trait>(&'life0 self, image: serde_bytes::ByteBuf, width: i32, height: i32, page: i32, page_size: i32, range: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn create_album_mosaic<'life0, 'async_trait>(&'life0 self, image: serde_bytes::ByteBuf, width: i32, height: i32, page: i32, page_size: i32, range: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -2568,6 +2605,39 @@ impl IUserPlaylistBackupService for RpcClient {
     fn delete_backup<'life0, 'async_trait>(&'life0 self, file_name: String) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IUserPlaylistBackupService", "deleteBackup", &file_name).await
+        })
+    }
+}
+impl IAnimatedImageService for RpcClient {
+    fn by_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<AnimatedImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAnimatedImageService", "byId", &id).await
+        })
+    }
+    fn by_hash<'life0, 'async_trait>(&'life0 self, hash: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<AnimatedImage>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAnimatedImageService", "byHash", &hash).await
+        })
+    }
+    fn get_cover_hashes<'life0, 'async_trait>(&'life0 self, hashes: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAnimatedImageService", "getCoverHashes", &hashes).await
+        })
+    }
+    fn get_animated_image_data<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<serde_bytes::ByteBuf>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAnimatedImageService", "getAnimatedImageData", &id).await
+        })
+    }
+    fn create_animated_image<'life0, 'async_trait>(&'life0 self, bytes: serde_bytes::ByteBuf, origin: String) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IAnimatedImageServiceCreateAnimatedImageArgs { bytes, origin };
+            self.call("IAnimatedImageService", "createAnimatedImage", &args).await
+        })
+    }
+    fn create_batch<'life0, 'async_trait>(&'life0 self, images: Vec<InsertableAnimatedImage>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, PlatformUUID>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IAnimatedImageService", "createBatch", &images).await
         })
     }
 }
