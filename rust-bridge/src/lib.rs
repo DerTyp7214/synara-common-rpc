@@ -975,6 +975,12 @@ pub struct Song {
     pub music_brainz_id: Option<PlatformUUID>,
     pub isrc: Option<String>,
     pub genres: Vec<Genre>,
+    #[serde(rename = "animatedCoverId")]
+    pub animated_cover_id: Option<PlatformUUID>,
+    #[serde(rename = "animatedCoverImageId")]
+    pub animated_cover_image_id: Option<PlatformUUID>,
+    #[serde(rename = "animatedCoverBlurHash")]
+    pub animated_cover_blur_hash: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1025,6 +1031,12 @@ pub struct Album {
     pub barcode: Option<String>,
     #[serde(rename = "musicbrainzId")]
     pub musicbrainz_id: Option<PlatformUUID>,
+    #[serde(rename = "animatedCoverId")]
+    pub animated_cover_id: Option<PlatformUUID>,
+    #[serde(rename = "animatedCoverImageId")]
+    pub animated_cover_image_id: Option<PlatformUUID>,
+    #[serde(rename = "animatedCoverBlurHash")]
+    pub animated_cover_blur_hash: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1219,6 +1231,12 @@ pub struct UserSong {
     pub music_brainz_id: Option<PlatformUUID>,
     pub isrc: Option<String>,
     pub genres: Vec<Genre>,
+    #[serde(rename = "animatedCoverId")]
+    pub animated_cover_id: Option<PlatformUUID>,
+    #[serde(rename = "animatedCoverImageId")]
+    pub animated_cover_image_id: Option<PlatformUUID>,
+    #[serde(rename = "animatedCoverBlurHash")]
+    pub animated_cover_blur_hash: Option<String>,
     #[serde(rename = "isFavourite")]
     pub is_favourite: Option<bool>,
     #[serde(rename = "userSongCreatedAt")]

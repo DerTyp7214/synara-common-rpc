@@ -41,6 +41,12 @@ data class Album(
     val barcode: String? = null,
     @FieldDoc("The MusicBrainz Release unique identifier.")
     val musicbrainzId: PlatformUUID? = null,
+    @FieldDoc("The animated cover unique identifier.")
+    val animatedCoverId: PlatformUUID? = null,
+    @FieldDoc("Identifier of the still Image from the animated cover's first frame.")
+    val animatedCoverImageId: PlatformUUID? = null,
+    @FieldDoc("BlurHash of the animated cover's first frame.")
+    val animatedCoverBlurHash: String? = null,
 )
 
 @Serializable

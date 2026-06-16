@@ -51,6 +51,9 @@ abstract class BaseSong() {
     abstract val musicBrainzId: PlatformUUID?
     abstract val isrc: String?
     abstract val genres: List<Genre>
+    abstract val animatedCoverId: PlatformUUID?
+    abstract val animatedCoverImageId: PlatformUUID?
+    abstract val animatedCoverBlurHash: String?
 }
 
 @Serializable
@@ -101,6 +104,12 @@ data class Song(
     override val isrc: String? = null,
     @FieldDoc("Collection of genres associated with this song.")
     override val genres: List<Genre> = listOf(),
+    @FieldDoc("The animated cover unique identifier.")
+    override val animatedCoverId: PlatformUUID? = null,
+    @FieldDoc("Identifier of the still Image from the animated cover's first frame.")
+    override val animatedCoverImageId: PlatformUUID? = null,
+    @FieldDoc("BlurHash of the animated cover's first frame.")
+    override val animatedCoverBlurHash: String? = null,
 ): BaseSong()
 
 @Serializable
@@ -151,6 +160,12 @@ data class UserSong(
     override val isrc: String? = null,
     @FieldDoc("Collection of genres associated with this song.")
     override val genres: List<Genre> = listOf(),
+    @FieldDoc("The animated cover unique identifier.")
+    override val animatedCoverId: PlatformUUID? = null,
+    @FieldDoc("Identifier of the still Image from the animated cover's first frame.")
+    override val animatedCoverImageId: PlatformUUID? = null,
+    @FieldDoc("BlurHash of the animated cover's first frame.")
+    override val animatedCoverBlurHash: String? = null,
 
     @FieldDoc("Whether the current user has marked this song as a favorite.")
     val isFavourite: Boolean? = false,
