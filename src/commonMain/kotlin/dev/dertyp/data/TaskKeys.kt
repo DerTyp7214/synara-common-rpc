@@ -22,6 +22,7 @@ object TaskKeys {
     const val DELETE_EMPTY_ALBUMS = "delete-empty-albums"
     const val DELETE_UNREFERENCED_ARTISTS = "delete-unreferenced-artists"
     const val DELETE_UNREFERENCED_IMAGES = "delete-unreferenced-images"
+    const val DELETE_UNREFERENCED_ANIMATED_IMAGES = "delete-unreferenced-animated-images"
     const val IMAGE_ANALYSIS = "image-analysis"
     const val LOG_CLEANUP_WORKER = "log-cleanup-worker"
     const val SEARCH_INDEX_REBUILD_WORKER = "search-index-rebuild-worker"
