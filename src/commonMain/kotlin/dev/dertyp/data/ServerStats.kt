@@ -15,6 +15,8 @@ data class ServerStats(
     val artistCount: Int,
     @FieldDoc("Total number of images stored.")
     val imagesCount: Int,
+    @FieldDoc("Total number of animated images stored.")
+    val animatedImagesCount: Int,
     @FieldDoc("Total number of system playlists.")
     val playlistCount: Int,
     @FieldDoc("Total file size of the media library in bytes.")

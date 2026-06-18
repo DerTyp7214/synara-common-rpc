@@ -1954,6 +1954,8 @@ pub struct ServerStats {
     pub artist_count: i32,
     #[serde(rename = "imagesCount")]
     pub images_count: i32,
+    #[serde(rename = "animatedImagesCount")]
+    pub animated_images_count: i32,
     #[serde(rename = "playlistCount")]
     pub playlist_count: i32,
     #[serde(rename = "totalFileSize")]
