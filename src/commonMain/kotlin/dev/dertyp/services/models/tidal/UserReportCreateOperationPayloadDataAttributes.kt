@@ -1,11 +1,12 @@
 package dev.dertyp.services.models.tidal
 
 
+import kotlin.native.ObjCName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class UserReportCreateOperationPayloadDataAttributes(
-    val description: String,
+    @property:ObjCName("reportDescription") val description: String,
     val reason: Reason
 ): BaseAttributes() {
     @Suppress("unused")

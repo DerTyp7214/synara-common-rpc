@@ -1,5 +1,6 @@
 package dev.dertyp.services.models.tidal
 
+import kotlin.native.ObjCName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -7,7 +8,7 @@ data class TrackManifestsAttributes(
     val albumAudioNormalizationData: AudioNormalizationData? = null,
     val drmData: DrmData? = null,
     val formats: List<Formats>? = null,
-    val hash: String? = null,
+    @property:ObjCName("hashValue") val hash: String? = null,
     val trackAudioNormalizationData: AudioNormalizationData? = null,
     val trackPresentation: TrackPresentation? = null,
     val uri: String? = null

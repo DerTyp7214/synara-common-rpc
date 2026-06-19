@@ -7,6 +7,7 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
 import dev.dertyp.serializers.DateSerializer
+import kotlin.native.ObjCName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
@@ -68,7 +69,7 @@ data class UserPlaylist(
     @FieldDoc("The unique identifier of the user who created the playlist.")
     val creator: PlatformUUID,
     @FieldDoc("A user-provided description of the playlist.")
-    val description: String,
+    @property:ObjCName("playlistDescription") val description: String,
     @FieldDoc("The source or platform where the playlist originated.")
     val origin: String? = null,
     @Serializable(with = DateSerializer::class)
@@ -131,7 +132,7 @@ data class InsertablePlaylist(
     @FieldDoc("The name of the playlist.")
     val name: String,
     @FieldDoc("Optional description.")
-    val description: String = "",
+    @property:ObjCName("playlistDescription") val description: String = "",
     @FieldDoc("Collection of file paths for the songs to include.")
     val songPaths: List<String> = emptyList(),
     @FieldDoc("Optional hash of the cover image.")

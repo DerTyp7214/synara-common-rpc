@@ -1,6 +1,7 @@
 package dev.dertyp.services.models.tidal
 
 import dev.dertyp.PlatformOffsetDateTime
+import kotlin.native.ObjCName
 import dev.dertyp.serializers.DurationSerializer
 import dev.dertyp.serializers.OffsetDateTimeSerializer
 import kotlinx.serialization.Serializable
@@ -17,7 +18,7 @@ data class PlaylistsAttributes(
     val lastModifiedAt: PlatformOffsetDateTime,
     val name: String,
     val playlistType: PlaylistType,
-    val description: String? = null,
+    @property:ObjCName("playlistDescription") val description: String? = null,
     @Serializable(with = DurationSerializer::class)
     val duration: Duration,
     val numberOfItems: Int? = null

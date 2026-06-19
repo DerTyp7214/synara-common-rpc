@@ -1,5 +1,6 @@
 package dev.dertyp.services.models.tidal
 
+import kotlin.native.ObjCName
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -12,6 +13,7 @@ import kotlin.jvm.JvmInline
 
 interface AttributeType
 
+@ObjCName("TidalResourceType")
 @Serializable
 enum class Type(val value: String) {
     @SerialName("tracks") TRACKS("tracks"),

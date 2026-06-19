@@ -21,6 +21,7 @@ import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlin.native.ObjCName
 import kotlin.time.Duration
 
 @Rpc
@@ -422,7 +423,7 @@ interface IMetadataService {
         @FieldDoc("The name of the playlist.")
         val name: String,
         @FieldDoc("Description of the playlist.")
-        val description: String,
+        @property:ObjCName("playlistDescription") val description: String,
         @FieldDoc("List of tracks in the playlist.")
         val tracks: List<Track> = emptyList(),
         @FieldDoc("Number of tracks in the playlist.")
@@ -445,7 +446,7 @@ interface IMetadataService {
         @FieldDoc("The name of the playlist.")
         val name: String,
         @FieldDoc("Description of the playlist.")
-        val description: String,
+        @property:ObjCName("playlistDescription") val description: String,
         @Transient
         @FieldDoc("Stream of tracks in the playlist.")
         val tracks: Flow<Track> = emptyFlow(),
