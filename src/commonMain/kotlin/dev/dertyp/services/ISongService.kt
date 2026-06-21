@@ -100,6 +100,8 @@ interface ISongService {
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
     ): PaginatedResponse<UserSong>
+    @RpcDoc("Export all favorited songs as a CSV string.")
+    suspend fun exportFavouritesAsCsv(): String
     @RpcDoc("Get all songs with optional filtering.")
     suspend fun allSongs(
         @RpcParamDoc("Page index.") page: Int = 0,
