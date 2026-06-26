@@ -482,6 +482,37 @@ pub struct IMusicBrainzServiceSearchReleaseByBarcodeArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ICollectionServiceUpdateCollectionArgs {
+    pub id: PlatformUUID,
+    pub collection: InsertableCollection,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ICollectionServiceAddItemArgs {
+    pub id: PlatformUUID,
+    #[serde(rename = "itemType")]
+    pub item_type: CollectionItemType,
+    #[serde(rename = "itemId")]
+    pub item_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ICollectionServiceRemoveItemArgs {
+    pub id: PlatformUUID,
+    #[serde(rename = "itemType")]
+    pub item_type: CollectionItemType,
+    #[serde(rename = "itemId")]
+    pub item_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ICollectionServiceSetCollectionImageArgs {
+    pub id: PlatformUUID,
+    #[serde(rename = "imageId")]
+    pub image_id: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsServiceTranscribeLyricsArgs {
     #[serde(rename = "songId")]
     pub song_id: PlatformUUID,
@@ -1582,6 +1613,50 @@ pub struct MusicBrainzTrack {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MediaCollection {
+    pub id: PlatformUUID,
+    pub name: String,
+    pub description: Option<String>,
+    #[serde(rename = "imageId")]
+    pub image_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
+    pub creator: PlatformUUID,
+    #[serde(rename = "totalSizeBytes")]
+    pub total_size_bytes: i64,
+    #[serde(rename = "songCount")]
+    pub song_count: i32,
+    #[serde(rename = "songItemCount")]
+    pub song_item_count: i32,
+    #[serde(rename = "albumCount")]
+    pub album_count: i32,
+    #[serde(rename = "artistCount")]
+    pub artist_count: i32,
+    #[serde(rename = "playlistCount")]
+    pub playlist_count: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct InsertableCollection {
+    pub name: String,
+    pub description: Option<String>,
+    #[serde(rename = "imageId")]
+    pub image_id: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum CollectionItemType {
+    #[serde(rename = "SONG")]
+    Song,
+    #[serde(rename = "ALBUM")]
+    Album,
+    #[serde(rename = "ARTIST")]
+    Artist,
+    #[serde(rename = "PLAYLIST")]
+    Playlist,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SyncedLyrics {
     pub lines: Vec<LyricLine>,
 }
@@ -2250,6 +2325,21 @@ pub trait IMusicBrainzService {
     fn search_release<'life0, 'async_trait>(&'life0 self, title: String, artists: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn search_release_by_barcode<'life0, 'async_trait>(&'life0 self, barcode: String, artists: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MusicBrainzRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_releases_by_release_group<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<MusicBrainzRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait ICollectionService {
+    fn by_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MediaCollection>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn all_collections<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<MediaCollection>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn create_collection<'life0, 'async_trait>(&'life0 self, collection: InsertableCollection) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn update_collection<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, collection: InsertableCollection) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn add_item<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, item_type: CollectionItemType, item_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn remove_item<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, item_type: CollectionItemType, item_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_collection_image<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, image_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn delete<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn song_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID>;
+    fn album_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID>;
+    fn artist_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID>;
+    fn playlist_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID>;
 }
 
 pub trait ILyricsService {
@@ -3055,6 +3145,64 @@ impl IMusicBrainzService for RpcClient {
         Box::pin(async move {
             self.call("IMusicBrainzService", "getReleasesByReleaseGroup", &id).await
         })
+    }
+}
+impl ICollectionService for RpcClient {
+    fn by_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<MediaCollection>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ICollectionService", "byId", &id).await
+        })
+    }
+    fn all_collections<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<MediaCollection>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ICollectionService", "allCollections", &()).await
+        })
+    }
+    fn create_collection<'life0, 'async_trait>(&'life0 self, collection: InsertableCollection) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ICollectionService", "createCollection", &collection).await
+        })
+    }
+    fn update_collection<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, collection: InsertableCollection) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ICollectionServiceUpdateCollectionArgs { id, collection };
+            self.call("ICollectionService", "updateCollection", &args).await
+        })
+    }
+    fn add_item<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, item_type: CollectionItemType, item_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ICollectionServiceAddItemArgs { id, item_type, item_id };
+            self.call("ICollectionService", "addItem", &args).await
+        })
+    }
+    fn remove_item<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, item_type: CollectionItemType, item_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ICollectionServiceRemoveItemArgs { id, item_type, item_id };
+            self.call("ICollectionService", "removeItem", &args).await
+        })
+    }
+    fn set_collection_image<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, image_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ICollectionServiceSetCollectionImageArgs { id, image_id };
+            self.call("ICollectionService", "setCollectionImage", &args).await
+        })
+    }
+    fn delete<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ICollectionService", "delete", &id).await
+        })
+    }
+    fn song_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID> {
+        self.subscribe("ICollectionService", "songIds", &collection_id)
+    }
+    fn album_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID> {
+        self.subscribe("ICollectionService", "albumIds", &collection_id)
+    }
+    fn artist_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID> {
+        self.subscribe("ICollectionService", "artistIds", &collection_id)
+    }
+    fn playlist_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID> {
+        self.subscribe("ICollectionService", "playlistIds", &collection_id)
     }
 }
 impl ILyricsService for RpcClient {
