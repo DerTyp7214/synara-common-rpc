@@ -52,6 +52,28 @@ data class MediaCollection(
 )
 
 @Serializable
+@ModelDoc("A song matched by a collection search, with how it belongs to the collection.")
+data class CollectionSongMatch(
+    @FieldDoc("The matched song.")
+    val song: UserSong,
+    @FieldDoc("True when the song is added directly to the collection; false when it is reached via an album, artist or playlist that is in the collection.")
+    val explicitMember: Boolean,
+)
+
+@Serializable
+@ModelDoc("Ranked search results within a single collection, grouped by entity type.")
+data class CollectionSearchResults(
+    @FieldDoc("Matching songs the collection resolves to (explicit and implicit members).")
+    val songs: PaginatedResponse<CollectionSongMatch>,
+    @FieldDoc("Matching artists explicitly added to the collection.")
+    val artists: PaginatedResponse<Artist>,
+    @FieldDoc("Matching albums explicitly added to the collection.")
+    val albums: PaginatedResponse<Album>,
+    @FieldDoc("Matching playlists explicitly added to the collection.")
+    val playlists: PaginatedResponse<UserPlaylist>,
+)
+
+@Serializable
 @ModelDoc("Configuration for creating or updating a collection.")
 data class InsertableCollection(
     @FieldDoc("The name of the collection.")

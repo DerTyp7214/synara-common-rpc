@@ -513,6 +513,17 @@ pub struct ICollectionServiceSetCollectionImageArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ICollectionServiceRankedSearchArgs {
+    #[serde(rename = "collectionId")]
+    pub collection_id: PlatformUUID,
+    pub query: String,
+    pub explicit: bool,
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsServiceTranscribeLyricsArgs {
     #[serde(rename = "songId")]
     pub song_id: PlatformUUID,
@@ -1658,6 +1669,21 @@ pub enum CollectionItemType {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CollectionSearchResults {
+    pub songs: PaginatedResponse<CollectionSongMatch>,
+    pub artists: PaginatedResponse<Artist>,
+    pub albums: PaginatedResponse<Album>,
+    pub playlists: PaginatedResponse<UserPlaylist>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CollectionSongMatch {
+    pub song: UserSong,
+    #[serde(rename = "explicitMember")]
+    pub explicit_member: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SyncedLyrics {
     pub lines: Vec<LyricLine>,
 }
@@ -2337,6 +2363,7 @@ pub trait ICollectionService {
     fn remove_item<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, item_type: CollectionItemType, item_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_collection_image<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, image_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn delete<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn ranked_search<'life0, 'async_trait>(&'life0 self, collection_id: PlatformUUID, query: String, explicit: bool, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<CollectionSearchResults, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn song_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID>;
     fn album_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID>;
     fn artist_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID>;
@@ -3191,6 +3218,12 @@ impl ICollectionService for RpcClient {
     fn delete<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("ICollectionService", "delete", &id).await
+        })
+    }
+    fn ranked_search<'life0, 'async_trait>(&'life0 self, collection_id: PlatformUUID, query: String, explicit: bool, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<CollectionSearchResults, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ICollectionServiceRankedSearchArgs { collection_id, query, explicit, page, page_size };
+            self.call("ICollectionService", "rankedSearch", &args).await
         })
     }
     fn song_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID> {

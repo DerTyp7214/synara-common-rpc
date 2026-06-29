@@ -4,6 +4,7 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.CollectionItemType
+import dev.dertyp.data.CollectionSearchResults
 import dev.dertyp.data.MediaCollection
 import dev.dertyp.data.InsertableCollection
 import dev.dertyp.rpc.annotations.RestGet
@@ -55,6 +56,15 @@ interface ICollectionService {
 
     @RpcDoc("Delete a collection.")
     suspend fun delete(@RpcParamDoc("The collection unique identifier.") id: PlatformUUID): Boolean
+
+    @RpcDoc("Ranked search within a single collection across songs, artists, albums and playlists.")
+    suspend fun rankedSearch(
+        @RpcParamDoc("The collection unique identifier.") collectionId: PlatformUUID,
+        @RpcParamDoc("The search query.") query: String,
+        @RpcParamDoc("Whether to include explicit-content songs.") explicit: Boolean = false,
+        @RpcParamDoc("The page index (starting from 0).") page: Int = 0,
+        @RpcParamDoc("Items per page, applied per result type.") pageSize: Int = 50,
+    ): CollectionSearchResults
 
     @RestGet
     @RpcDoc("Stream the IDs of songs explicitly added to a collection.")
