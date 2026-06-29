@@ -47,9 +47,9 @@ interface IImportService {
     )
     @RestPost
     @RequiresCapability(UserCapability.IMPORT)
-    @RpcDoc("Queue content for import by its URLs.")
+    @RpcDoc("Queue content for import. Each entry may be a URL, an ISRC (track), or a UPC (album barcode); codes are resolved to a supported importer (preferring the default).")
     suspend fun importUrls(
-        @RpcParamDoc("Collection of URLs.") urls: List<String>
+        @RpcParamDoc("Collection of URLs, ISRCs, or UPCs.") urls: List<String>
     )
 
     @RestGet
