@@ -28,6 +28,7 @@ data class MusicBrainzArtist(
     val tags: List<MusicBrainzTag>? = null,
     val genres: List<MusicBrainzGenre>? = null,
     val aliases: List<MusicBrainzAlias>? = null,
+    val relations: List<MusicBrainzRelation>? = null,
     @Transient
     val fetchedAt: Long = 0
 )

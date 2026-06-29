@@ -1463,6 +1463,7 @@ pub struct MusicBrainzArtist {
     pub tags: Option<Vec<MusicBrainzTag>>,
     pub genres: Option<Vec<MusicBrainzGenre>>,
     pub aliases: Option<Vec<MusicBrainzAlias>>,
+    pub relations: Option<Vec<MusicBrainzRelation>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -1527,6 +1528,34 @@ pub struct MusicBrainzAlias {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MusicBrainzRelation {
+    #[serde(rename = "type")]
+    pub r#type: Option<String>,
+    pub url: Option<MusicBrainzRelationUrl>,
+    #[serde(rename = "releaseGroup")]
+    pub release_group: Option<MusicBrainzReleaseGroup>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MusicBrainzRelationUrl {
+    pub id: PlatformUUID,
+    pub resource: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MusicBrainzReleaseGroup {
+    pub id: PlatformUUID,
+    pub title: String,
+    #[serde(rename = "primaryType")]
+    pub primary_type: Option<String>,
+    #[serde(rename = "firstReleaseDate")]
+    pub first_release_date: Option<String>,
+    pub relations: Option<Vec<MusicBrainzRelation>>,
+    pub tags: Option<Vec<MusicBrainzTag>>,
+    pub genres: Option<Vec<MusicBrainzGenre>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MusicBrainzRecording {
     pub id: PlatformUUID,
     pub title: Option<String>,
@@ -1565,34 +1594,6 @@ pub struct MusicBrainzRelease {
     #[serde(rename = "artistCredit")]
     pub artist_credit: Option<Vec<MusicBrainzArtistCredit>>,
     pub media: Option<Vec<MusicBrainzMedia>>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MusicBrainzReleaseGroup {
-    pub id: PlatformUUID,
-    pub title: String,
-    #[serde(rename = "primaryType")]
-    pub primary_type: Option<String>,
-    #[serde(rename = "firstReleaseDate")]
-    pub first_release_date: Option<String>,
-    pub relations: Option<Vec<MusicBrainzRelation>>,
-    pub tags: Option<Vec<MusicBrainzTag>>,
-    pub genres: Option<Vec<MusicBrainzGenre>>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MusicBrainzRelation {
-    #[serde(rename = "type")]
-    pub r#type: Option<String>,
-    pub url: Option<MusicBrainzRelationUrl>,
-    #[serde(rename = "releaseGroup")]
-    pub release_group: Option<MusicBrainzReleaseGroup>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct MusicBrainzRelationUrl {
-    pub id: PlatformUUID,
-    pub resource: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
