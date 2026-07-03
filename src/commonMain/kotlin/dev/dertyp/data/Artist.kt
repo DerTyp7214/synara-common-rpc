@@ -44,6 +44,8 @@ data class Artist(
     val musicbrainzId: PlatformUUID? = null,
     @FieldDoc("Whether the current user is following this artist.")
     val isFollowed: Boolean = false,
+    @FieldDoc("The name this artist was credited as in the current song/album context, if different from the canonical name.")
+    val creditedName: String? = null,
 )
 
 @Serializable

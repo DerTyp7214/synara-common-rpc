@@ -37,6 +37,11 @@ interface ISongService {
         @RpcParamDoc("Collection of artist IDs.") artistIds: List<PlatformUUID>
     ): UserSong?
     @RequiresCapability(UserCapability.EDIT)
+    @RpcDoc("Update a song's editable metadata (title, artists and their credited names, MusicBrainz link, album, lyrics, release date, track and disc number).")
+    suspend fun updateSong(
+        @RpcParamDoc("The song with its updated editable fields.") song: Song
+    ): UserSong?
+    @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Link a song to its MusicBrainz Recording record.")
     suspend fun setMusicBrainzId(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
