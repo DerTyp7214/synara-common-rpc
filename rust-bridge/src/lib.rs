@@ -531,6 +531,20 @@ pub struct ILyricsServiceTranscribeLyricsArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IRpcMetricsServiceLifetimeTotalsArgs {
+    pub limit: i32,
+    pub username: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IRpcMetricsServiceTimeSeriesArgs {
+    pub service: String,
+    pub method: String,
+    #[serde(rename = "sinceMillis")]
+    pub since_millis: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ICustomAudioServiceUploadCustomAudioArgs {
     #[serde(rename = "fileData")]
     pub file_data: serde_bytes::ByteBuf,
@@ -1719,6 +1733,32 @@ pub struct LyricChar {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RpcCallTotal {
+    pub service: String,
+    pub method: String,
+    pub username: Option<String>,
+    pub count: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RpcCallStat {
+    pub service: String,
+    pub method: String,
+    pub username: Option<String>,
+    #[serde(rename = "bucketStart")]
+    pub bucket_start: i64,
+    pub count: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RpcCallEvent {
+    pub service: String,
+    pub method: String,
+    pub username: Option<String>,
+    pub timestamp: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ScheduledTaskLog {
     pub id: PlatformUUID,
     #[serde(rename = "taskName")]
@@ -2376,6 +2416,12 @@ pub trait ILyricsService {
     fn get_synced_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SyncedLyrics>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn transcribe_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, lyrics: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SyncedLyrics>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn start_sync_worker<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IRpcMetricsService {
+    fn lifetime_totals<'life0, 'async_trait>(&'life0 self, limit: i32, username: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<RpcCallTotal>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn time_series<'life0, 'async_trait>(&'life0 self, service: String, method: String, since_millis: i64) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<RpcCallStat>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn recent_events<'life0, 'async_trait>(&'life0 self, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<RpcCallEvent>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IScheduledTaskLogService {
@@ -3257,6 +3303,25 @@ impl ILyricsService for RpcClient {
     fn start_sync_worker<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("ILyricsService", "startSyncWorker", &()).await
+        })
+    }
+}
+impl IRpcMetricsService for RpcClient {
+    fn lifetime_totals<'life0, 'async_trait>(&'life0 self, limit: i32, username: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<RpcCallTotal>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IRpcMetricsServiceLifetimeTotalsArgs { limit, username };
+            self.call("IRpcMetricsService", "lifetimeTotals", &args).await
+        })
+    }
+    fn time_series<'life0, 'async_trait>(&'life0 self, service: String, method: String, since_millis: i64) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<RpcCallStat>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IRpcMetricsServiceTimeSeriesArgs { service, method, since_millis };
+            self.call("IRpcMetricsService", "timeSeries", &args).await
+        })
+    }
+    fn recent_events<'life0, 'async_trait>(&'life0 self, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<RpcCallEvent>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IRpcMetricsService", "recentEvents", &limit).await
         })
     }
 }
