@@ -76,6 +76,17 @@ interface IImportService {
     suspend fun getAllImportServices(): List<ImportBackend>
 
     @RestGet
+    @RpcDoc("Get the capabilities supported by each importer backend, keyed by backend id.")
+    suspend fun getImporterCapabilities(): Map<String, Set<ImporterCapability>>
+
+    @RequiresAdmin
+    @RpcDoc("Provide credentials to an importer backend that supports credential injection.", errors = ["IllegalArgumentException"])
+    suspend fun setImportCredentials(
+        @RpcParamDoc("The importer backend to configure.") backend: ImportBackend,
+        @RpcParamDoc("The credentials to supply.") credentials: ImporterCredentials
+    )
+
+    @RestGet
     @RpcDoc("Check if the importer is authorized.")
     suspend fun importAuthorized(): Boolean
     @RpcDoc("Trigger the OAuth login flow and stream the login URL.")

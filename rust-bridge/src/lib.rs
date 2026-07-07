@@ -714,6 +714,12 @@ pub struct IImportServiceExistsByOriginalIdArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IImportServiceSetImportCredentialsArgs {
+    pub backend: ImportBackend,
+    pub credentials: ImporterCredentials,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IImportServiceSearchArgs {
     pub query: Option<String>,
     pub title: Option<String>,
@@ -2001,6 +2007,34 @@ pub struct ProcessExecutionResult {
     pub error: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum ImporterCapability {
+    #[serde(rename = "IMPORT_SONG")]
+    ImportSong,
+    #[serde(rename = "IMPORT_ALBUM")]
+    ImportAlbum,
+    #[serde(rename = "IMPORT_ARTIST")]
+    ImportArtist,
+    #[serde(rename = "IMPORT_PLAYLIST")]
+    ImportPlaylist,
+    #[serde(rename = "IMPORT_VIDEO")]
+    ImportVideo,
+    #[serde(rename = "IMPORT_MIX")]
+    ImportMix,
+    #[serde(rename = "CREDENTIALS")]
+    Credentials,
+    #[serde(rename = "LOGIN")]
+    Login,
+    #[serde(rename = "FAVORITES")]
+    Favorites,
+    #[serde(rename = "SEARCH")]
+    Search,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ImporterCredentials {
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ImportSong {
     pub id: String,
@@ -2516,6 +2550,8 @@ pub trait IImportService {
     fn set_import_service<'life0, 'async_trait>(&'life0 self, service: ImportBackend) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_import_service<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ImportBackend, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_all_import_services<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ImportBackend>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_importer_capabilities<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, Vec<ImporterCapability>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_import_credentials<'life0, 'async_trait>(&'life0 self, backend: ImportBackend, credentials: ImporterCredentials) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn import_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn import_login(&self, ) -> RpcStream<String>;
     fn tidal_sync_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -3661,6 +3697,17 @@ impl IImportService for RpcClient {
     fn get_all_import_services<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ImportBackend>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IImportService", "getAllImportServices", &()).await
+        })
+    }
+    fn get_importer_capabilities<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, Vec<ImporterCapability>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IImportService", "getImporterCapabilities", &()).await
+        })
+    }
+    fn set_import_credentials<'life0, 'async_trait>(&'life0 self, backend: ImportBackend, credentials: ImporterCredentials) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IImportServiceSetImportCredentialsArgs { backend, credentials };
+            self.call("IImportService", "setImportCredentials", &args).await
         })
     }
     fn import_authorized<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
