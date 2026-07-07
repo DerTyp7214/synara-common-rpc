@@ -524,10 +524,35 @@ pub struct ICollectionServiceRankedSearchArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IListenBrainzServiceLinkArgs {
+    pub username: String,
+    pub token: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsServiceTranscribeLyricsArgs {
     #[serde(rename = "songId")]
     pub song_id: PlatformUUID,
     pub lyrics: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IRecommendationServiceGetSimilarSongsArgs {
+    #[serde(rename = "seedSongIds")]
+    pub seed_song_ids: Vec<PlatformUUID>,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IRecommendationServiceGetMixArgs {
+    pub window: RecommendationWindow,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IRecommendationServiceGetMoodPlaylistArgs {
+    pub mood: String,
+    pub limit: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1706,6 +1731,18 @@ pub struct CollectionSongMatch {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListenBrainzStatus {
+    pub username: String,
+    pub enabled: bool,
+    #[serde(rename = "lastListenedAt")]
+    pub last_listened_at: Option<i64>,
+    #[serde(rename = "lastSyncedAt")]
+    pub last_synced_at: Option<i64>,
+    #[serde(rename = "matchedListenCount")]
+    pub matched_listen_count: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SyncedLyrics {
     pub lines: Vec<LyricLine>,
 }
@@ -1736,6 +1773,22 @@ pub struct LyricChar {
     pub start_time: String,
     #[serde(rename = "endTime")]
     pub end_time: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum RecommendationWindow {
+    #[serde(rename = "DAY")]
+    Day,
+    #[serde(rename = "WEEK")]
+    Week,
+    #[serde(rename = "MONTH")]
+    Month,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MoodSummary {
+    pub mood: String,
+    pub count: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2446,10 +2499,24 @@ pub trait ICollectionService {
     fn playlist_ids(&self, collection_id: PlatformUUID) -> RpcStream<PlatformUUID>;
 }
 
+pub trait IListenBrainzService {
+    fn link<'life0, 'async_trait>(&'life0 self, username: String, token: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBrainzStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn unlink<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_status<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<ListenBrainzStatus>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn sync_now<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBrainzStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
 pub trait ILyricsService {
     fn get_synced_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SyncedLyrics>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn transcribe_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, lyrics: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SyncedLyrics>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn start_sync_worker<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IRecommendationService {
+    fn get_similar_songs<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_mix<'life0, 'async_trait>(&'life0 self, window: RecommendationWindow, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_mood_playlist<'life0, 'async_trait>(&'life0 self, mood: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_moods<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<MoodSummary>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IRpcMetricsService {
@@ -3324,6 +3391,29 @@ impl ICollectionService for RpcClient {
         self.subscribe("ICollectionService", "playlistIds", &collection_id)
     }
 }
+impl IListenBrainzService for RpcClient {
+    fn link<'life0, 'async_trait>(&'life0 self, username: String, token: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBrainzStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IListenBrainzServiceLinkArgs { username, token };
+            self.call("IListenBrainzService", "link", &args).await
+        })
+    }
+    fn unlink<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListenBrainzService", "unlink", &()).await
+        })
+    }
+    fn get_status<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<ListenBrainzStatus>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListenBrainzService", "getStatus", &()).await
+        })
+    }
+    fn sync_now<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBrainzStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListenBrainzService", "syncNow", &()).await
+        })
+    }
+}
 impl ILyricsService for RpcClient {
     fn get_synced_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SyncedLyrics>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
@@ -3339,6 +3429,31 @@ impl ILyricsService for RpcClient {
     fn start_sync_worker<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("ILyricsService", "startSyncWorker", &()).await
+        })
+    }
+}
+impl IRecommendationService for RpcClient {
+    fn get_similar_songs<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IRecommendationServiceGetSimilarSongsArgs { seed_song_ids, limit };
+            self.call("IRecommendationService", "getSimilarSongs", &args).await
+        })
+    }
+    fn get_mix<'life0, 'async_trait>(&'life0 self, window: RecommendationWindow, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IRecommendationServiceGetMixArgs { window, limit };
+            self.call("IRecommendationService", "getMix", &args).await
+        })
+    }
+    fn get_mood_playlist<'life0, 'async_trait>(&'life0 self, mood: String, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IRecommendationServiceGetMoodPlaylistArgs { mood, limit };
+            self.call("IRecommendationService", "getMoodPlaylist", &args).await
+        })
+    }
+    fn get_moods<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<MoodSummary>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IRecommendationService", "getMoods", &()).await
         })
     }
 }

@@ -26,4 +26,7 @@ object TaskKeys {
     const val IMAGE_ANALYSIS = "image-analysis"
     const val LOG_CLEANUP_WORKER = "log-cleanup-worker"
     const val SEARCH_INDEX_REBUILD_WORKER = "search-index-rebuild-worker"
+    const val LISTENBRAINZ_SYNC = "listenbrainz-sync"
+    const val AUDIO_EMBEDDING = "audio-embedding"
+    const val RECOMMENDATION_TRAINING = "recommendation-training"
 }
