@@ -2503,6 +2503,7 @@ pub trait IListenBrainzService {
     fn link<'life0, 'async_trait>(&'life0 self, username: String, token: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBrainzStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn unlink<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_status<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<ListenBrainzStatus>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_status_flow(&self, ) -> RpcStream<Option<ListenBrainzStatus>>;
     fn sync_now<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBrainzStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
@@ -3407,6 +3408,9 @@ impl IListenBrainzService for RpcClient {
         Box::pin(async move {
             self.call("IListenBrainzService", "getStatus", &()).await
         })
+    }
+    fn get_status_flow(&self, ) -> RpcStream<Option<ListenBrainzStatus>> {
+        self.subscribe("IListenBrainzService", "getStatusFlow", &())
     }
     fn sync_now<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBrainzStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
