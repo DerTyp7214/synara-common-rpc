@@ -3,9 +3,11 @@ package dev.dertyp.rpc
 import io.ktor.client.HttpClient
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.websocket.WebSocketException
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ClosedSendChannelException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -105,6 +107,8 @@ class ReconnectingRpcClient(
 
         return isCancelled ||
                 e is ClosedSendChannelException ||
+                e is ClosedReceiveChannelException ||
+                (e is WebSocketException && e.message?.contains("401") != true) ||
                 e is ConnectTimeoutException ||
                 e is HttpRequestTimeoutException ||
                 e is IOException
