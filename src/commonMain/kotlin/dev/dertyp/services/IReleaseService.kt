@@ -4,6 +4,9 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.PaginatedResponse
+import dev.dertyp.data.RequiresCapability
+import dev.dertyp.data.UserCapability
+import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import dev.dertyp.services.models.FollowedArtist
@@ -39,4 +42,11 @@ interface IReleaseService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 150
     ): PaginatedResponse<RecentRelease>
+
+    @RequiresCapability(UserCapability.EDIT)
+    @RestPost
+    @RpcDoc("Force-refresh the cached metadata, provider links and cover image for a single recent release.")
+    suspend fun refreshRecentRelease(
+        @RpcParamDoc("The MusicBrainz release-group UUID of the recent release to refresh.") releaseId: PlatformUUID
+    ): RecentRelease?
 }
