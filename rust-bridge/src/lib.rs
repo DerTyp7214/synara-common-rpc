@@ -1743,6 +1743,13 @@ pub struct ListenBrainzStatus {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListenedSong {
+    pub song: UserSong,
+    #[serde(rename = "listenedAt")]
+    pub listened_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SyncedLyrics {
     pub lines: Vec<LyricLine>,
 }
@@ -2505,6 +2512,7 @@ pub trait IListenBrainzService {
     fn get_status<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<ListenBrainzStatus>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_status_flow(&self, ) -> RpcStream<Option<ListenBrainzStatus>>;
     fn sync_now<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBrainzStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn recent_listens<'life0, 'async_trait>(&'life0 self, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ListenedSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait ILyricsService {
@@ -2602,7 +2610,7 @@ pub trait IReleaseService {
     fn get_recent_releases<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_artist_recent_releases<'life0, 'async_trait>(&'life0 self, artist_id: PlatformUUID, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_recent_releases_by_music_brainz_id<'life0, 'async_trait>(&'life0 self, music_brainz_id: PlatformUUID, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn refresh_recent_release<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn refresh_recent_release<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IImportService {
@@ -3418,6 +3426,11 @@ impl IListenBrainzService for RpcClient {
             self.call("IListenBrainzService", "syncNow", &()).await
         })
     }
+    fn recent_listens<'life0, 'async_trait>(&'life0 self, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ListenedSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListenBrainzService", "recentListens", &limit).await
+        })
+    }
 }
 impl ILyricsService for RpcClient {
     fn get_synced_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SyncedLyrics>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
@@ -3752,7 +3765,7 @@ impl IReleaseService for RpcClient {
             self.call("IReleaseService", "getRecentReleasesByMusicBrainzId", &args).await
         })
     }
-    fn refresh_recent_release<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn refresh_recent_release<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IReleaseService", "refreshRecentRelease", &release_id).await
         })

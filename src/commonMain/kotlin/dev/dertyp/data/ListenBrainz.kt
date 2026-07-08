@@ -18,3 +18,12 @@ data class ListenBrainzStatus(
     @FieldDoc("Number of the account's listens matched to local songs.")
     val matchedListenCount: Long
 )
+
+@Serializable
+@ModelDoc("A song from the user's listen history, with when it was played.")
+data class ListenedSong(
+    @FieldDoc("The listened song with full metadata.")
+    val song: UserSong,
+    @FieldDoc("When the song was played (epoch milliseconds).")
+    val listenedAt: Long,
+)

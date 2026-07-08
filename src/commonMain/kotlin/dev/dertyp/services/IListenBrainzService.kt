@@ -1,6 +1,7 @@
 package dev.dertyp.services
 
 import dev.dertyp.data.ListenBrainzStatus
+import dev.dertyp.data.ListenedSong
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.coroutines.flow.Flow
@@ -26,4 +27,9 @@ interface IListenBrainzService {
 
     @RpcDoc("Trigger an incremental sync of the current user's ListenBrainz listens now.")
     suspend fun syncNow(): ListenBrainzStatus
+
+    @RpcDoc("Return the current user's most recent listened songs (newest first), capped at 1000.")
+    suspend fun recentListens(
+        @RpcParamDoc("Maximum number of listens to return; clamped to 1..1000.") limit: Int
+    ): List<ListenedSong>
 }

@@ -45,8 +45,8 @@ interface IReleaseService {
 
     @RequiresCapability(UserCapability.EDIT)
     @RestPost
-    @RpcDoc("Force-refresh the cached metadata, provider links and cover image for a single recent release.")
+    @RpcDoc("Kick off a background refresh of the cached metadata, provider links and cover image for a single recent release, returning immediately.")
     suspend fun refreshRecentRelease(
         @RpcParamDoc("The MusicBrainz release-group UUID of the recent release to refresh.") releaseId: PlatformUUID
-    ): RecentRelease?
+    )
 }
