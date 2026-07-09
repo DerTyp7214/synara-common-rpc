@@ -1335,6 +1335,37 @@ pub struct UserSong {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ScrobbleRequest {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    #[serde(rename = "listenedAt")]
+    pub listened_at: Option<i64>,
+    #[serde(rename = "msPlayed")]
+    pub ms_played: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RecentListens {
+    #[serde(rename = "nowPlaying")]
+    pub now_playing: Option<NowPlaying>,
+    pub recent: Vec<ListenedSong>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NowPlaying {
+    pub song: UserSong,
+    #[serde(rename = "startedAt")]
+    pub started_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListenedSong {
+    pub song: UserSong,
+    #[serde(rename = "listenedAt")]
+    pub listened_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PlaylistEntry {
     pub id: PlatformUUID,
     pub name: String,
@@ -1740,13 +1771,6 @@ pub struct ListenBrainzStatus {
     pub last_synced_at: Option<i64>,
     #[serde(rename = "matchedListenCount")]
     pub matched_listen_count: i64,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ListenedSong {
-    pub song: UserSong,
-    #[serde(rename = "listenedAt")]
-    pub listened_at: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2420,6 +2444,13 @@ pub trait ILyricsSearch {
 pub trait ISyncService {
 }
 
+pub trait IScrobbleService {
+    fn now_playing<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn clear_now_playing<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn listened<'life0, 'async_trait>(&'life0 self, request: ScrobbleRequest) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn recent_listens_flow(&self, limit: i32) -> RpcStream<RecentListens>;
+}
+
 pub trait IPlaylistService {
     fn by_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Playlist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Playlist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -3013,6 +3044,26 @@ impl ILyricsSearch for RpcClient {
     }
 }
 impl ISyncService for RpcClient {
+}
+impl IScrobbleService for RpcClient {
+    fn now_playing<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IScrobbleService", "nowPlaying", &song_id).await
+        })
+    }
+    fn clear_now_playing<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IScrobbleService", "clearNowPlaying", &()).await
+        })
+    }
+    fn listened<'life0, 'async_trait>(&'life0 self, request: ScrobbleRequest) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IScrobbleService", "listened", &request).await
+        })
+    }
+    fn recent_listens_flow(&self, limit: i32) -> RpcStream<RecentListens> {
+        self.subscribe("IScrobbleService", "recentListensFlow", &limit)
+    }
 }
 impl IPlaylistService for RpcClient {
     fn by_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<Playlist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
