@@ -15,6 +15,7 @@ import dev.dertyp.services.IUserService
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.websocket.WebSocketException
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -80,19 +81,12 @@ abstract class BaseRpcServiceManager(
 
     protected val transparentClient = ReconnectingRpcClient(
         delegateProvider = {
-            try {
-                getAuthenticatedClient().also {
-                    onServerReachable()
-                }
-            } catch (e: Throwable) {
-                if (e is IllegalStateException && !isAuthenticated()) {
-                    handleAuthFailure()
-                }
-                throw e
+            getAuthenticatedClient().also {
+                onServerReachable()
             }
         },
-        onCancel = { 
-            scope.launch { clear() } 
+        onCancel = {
+            scope.launch { clear() }
         },
         onFailure = { onServerUnreachable() }
     )
@@ -212,11 +206,13 @@ abstract class BaseRpcServiceManager(
                 try {
                     val authService = getAuthService()
                     authService.refreshToken(refreshToken)
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Throwable) {
                     e
                 }
             } else if (isAuthenticated()) {
-                IllegalStateException("Session expired and no refresh token available")
+                SessionExpiredException()
             } else {
                 null
             }
@@ -225,8 +221,15 @@ abstract class BaseRpcServiceManager(
         if (result is AuthenticationResponse) {
             clear()
             updateAuth(result)
-        } else if (result is Exception) {
-            handleAuthFailure()
+        } else if (result is Throwable) {
+            val genuineRejection = result is SessionExpiredException ||
+                isAuthException(result) ||
+                !isTransportException(result)
+            if (genuineRejection) {
+                onAuthFailure()
+            } else {
+                onServerUnreachable()
+            }
             throw result
         }
     }
@@ -289,7 +292,7 @@ abstract class BaseRpcServiceManager(
         }
 
         if (authException != null) {
-            handleAuthFailure()
+            onAuthFailure()
             throw authException
         }
 
@@ -340,8 +343,17 @@ abstract class BaseRpcServiceManager(
             }
         }
 
-        handleAuthFailure()
+        onAuthFailure()
         throw authException
+    }
+
+    private val authFailureMutex = Mutex()
+
+    protected suspend fun onAuthFailure() {
+        authFailureMutex.withLock {
+            if (!isAuthenticated()) return
+            handleAuthFailure()
+        }
     }
 
     protected open fun isAuthException(e: Throwable): Boolean {
@@ -349,6 +361,15 @@ abstract class BaseRpcServiceManager(
             is WebSocketException if e.message?.contains("401") == true -> true
             else -> false
         }
+    }
+
+    protected open fun isTransportException(e: Throwable): Boolean = when (e) {
+        is IOException,
+        is ConnectTimeoutException,
+        is HttpRequestTimeoutException,
+        is UnresolvedAddressException -> true
+        is WebSocketException -> !isAuthException(e)
+        else -> e.cause?.let { isTransportException(it) } == true
     }
 
     protected open fun isSslException(e: Throwable): Boolean {
@@ -392,3 +413,6 @@ abstract class BaseRpcServiceManager(
         }
     }
 }
+
+private class SessionExpiredException :
+    IllegalStateException("Session expired and no refresh token available")
