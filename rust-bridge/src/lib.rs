@@ -2224,6 +2224,10 @@ pub struct ServerStats {
     pub total_file_size: i64,
     #[serde(rename = "indexedFileSize")]
     pub indexed_file_size: i64,
+    #[serde(rename = "imagesFileSize")]
+    pub images_file_size: i64,
+    #[serde(rename = "animatedImagesFileSize")]
+    pub animated_images_file_size: i64,
     #[serde(rename = "averageSizePerSong")]
     pub average_size_per_song: i64,
     #[serde(rename = "totalDuration")]

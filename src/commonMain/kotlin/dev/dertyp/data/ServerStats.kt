@@ -23,6 +23,10 @@ data class ServerStats(
     val totalFileSize: Long,
     @FieldDoc("Size of files that have been successfully indexed.")
     val indexedFileSize: Long,
+    @FieldDoc("Total disk space consumed by stored images in bytes.")
+    val imagesFileSize: Long = 0L,
+    @FieldDoc("Total disk space consumed by stored animated images in bytes.")
+    val animatedImagesFileSize: Long = 0L,
     @FieldDoc("Average file size per track in bytes.")
     val averageSizePerSong: Long,
     @FieldDoc("Summed duration of all tracks in milliseconds.")
