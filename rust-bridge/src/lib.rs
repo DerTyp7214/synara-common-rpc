@@ -699,6 +699,13 @@ pub struct IAuthServiceAuthenticateArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IRadioServiceCreateRadioSessionArgs {
+    #[serde(rename = "type")]
+    pub r#type: RadioType,
+    pub seed: Option<RadioSeed>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IReleaseServiceGetRecentReleasesArgs {
     pub page: i32,
     #[serde(rename = "pageSize")]
@@ -1229,6 +1236,20 @@ pub enum UserCapability {
     Edit,
     #[serde(rename = "DELETE")]
     Delete,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ApiKeyInfo {
+    pub id: PlatformUUID,
+    pub label: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    #[serde(rename = "lastUsed")]
+    pub last_used: Option<i64>,
+    #[serde(rename = "expiresAt")]
+    pub expires_at: Option<i64>,
+    #[serde(rename = "isRevoked")]
+    pub is_revoked: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1964,6 +1985,30 @@ pub struct AuthenticationResponse {
     pub expires_at: PlatformDate,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum RadioType {
+    #[serde(rename = "RANDOM")]
+    Random,
+    #[serde(rename = "LAST_WEEK")]
+    LastWeek,
+    #[serde(rename = "LAST_MONTH")]
+    LastMonth,
+    #[serde(rename = "LAST_YEAR")]
+    LastYear,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RadioSeed {
+    #[serde(rename = "songIds")]
+    pub song_ids: Vec<PlatformUUID>,
+    #[serde(rename = "playlistId")]
+    pub playlist_id: Option<PlatformUUID>,
+    #[serde(rename = "albumId")]
+    pub album_id: Option<PlatformUUID>,
+    #[serde(rename = "artistId")]
+    pub artist_id: Option<PlatformUUID>,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SongAudioData {
     pub bpm: Option<Double>,
@@ -2411,6 +2456,12 @@ pub trait IMirrorService {
     fn get_liked_songs(&self, user_id: PlatformUUID) -> RpcStream<Song>;
 }
 
+pub trait IApiKeyService {
+    fn create_api_key<'life0, 'async_trait>(&'life0 self, label: String) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn list_api_keys<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ApiKeyInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn revoke_api_key<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
 pub trait IUserPlaylistBackupService {
     fn create_backup<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn list_backups<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<BackupInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -2631,6 +2682,11 @@ pub trait IArtistService {
 pub trait IAuthService {
     fn authenticate<'life0, 'async_trait>(&'life0 self, username: String, password: String) -> Pin<Box<dyn std::future::Future<Output = Result<AuthenticationResponse, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn refresh_token<'life0, 'async_trait>(&'life0 self, refresh_token: String) -> Pin<Box<dyn std::future::Future<Output = Result<AuthenticationResponse, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IRadioService {
+    fn create_radio_session<'life0, 'async_trait>(&'life0 self, r#type: RadioType, seed: Option<RadioSeed>) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn radio_flow(&self, session_id: PlatformUUID) -> RpcStream<PlatformUUID>;
 }
 
 pub trait IAudioAnalysisService {
@@ -2915,6 +2971,23 @@ impl IMirrorService for RpcClient {
     }
     fn get_liked_songs(&self, user_id: PlatformUUID) -> RpcStream<Song> {
         self.subscribe("IMirrorService", "getLikedSongs", &user_id)
+    }
+}
+impl IApiKeyService for RpcClient {
+    fn create_api_key<'life0, 'async_trait>(&'life0 self, label: String) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IApiKeyService", "createApiKey", &label).await
+        })
+    }
+    fn list_api_keys<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ApiKeyInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IApiKeyService", "listApiKeys", &()).await
+        })
+    }
+    fn revoke_api_key<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IApiKeyService", "revokeApiKey", &id).await
+        })
     }
 }
 impl IUserPlaylistBackupService for RpcClient {
@@ -3772,6 +3845,17 @@ impl IAuthService for RpcClient {
         Box::pin(async move {
             self.call("IAuthService", "refreshToken", &refresh_token).await
         })
+    }
+}
+impl IRadioService for RpcClient {
+    fn create_radio_session<'life0, 'async_trait>(&'life0 self, r#type: RadioType, seed: Option<RadioSeed>) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IRadioServiceCreateRadioSessionArgs { r#type, seed };
+            self.call("IRadioService", "createRadioSession", &args).await
+        })
+    }
+    fn radio_flow(&self, session_id: PlatformUUID) -> RpcStream<PlatformUUID> {
+        self.subscribe("IRadioService", "radioFlow", &session_id)
     }
 }
 impl IAudioAnalysisService for RpcClient {

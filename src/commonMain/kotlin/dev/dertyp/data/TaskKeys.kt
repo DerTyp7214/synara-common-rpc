@@ -29,4 +29,5 @@ object TaskKeys {
     const val LISTENBRAINZ_SYNC = "listenbrainz-sync"
     const val AUDIO_EMBEDDING = "audio-embedding"
     const val RECOMMENDATION_TRAINING = "recommendation-training"
+    const val RADIO_SESSION_CLEANUP = "radio-session-cleanup"
 }
