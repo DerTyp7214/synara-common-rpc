@@ -7,6 +7,7 @@ import dev.dertyp.data.PaginatedResponse
 import dev.dertyp.data.RequiresCapability
 import dev.dertyp.data.UserCapability
 import dev.dertyp.rpc.annotations.RestPost
+import dev.dertyp.rpc.annotations.RestPublic
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import dev.dertyp.services.models.FollowedArtist
@@ -42,6 +43,13 @@ interface IReleaseService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 150
     ): PaginatedResponse<RecentRelease>
+
+    @RestPublic
+    @RpcDoc("Retrieve the cover image for a recent release, served from local storage when persisted or proxied from the Cover Art Archive on demand.")
+    suspend fun getReleaseImage(
+        @RpcParamDoc("The MusicBrainz release-group UUID of the recent release.") releaseId: PlatformUUID,
+        @RpcParamDoc("Requested image size (width/height). 0 for original size.") size: Int = 0
+    ): ByteArray?
 
     @RequiresCapability(UserCapability.EDIT)
     @RestPost
