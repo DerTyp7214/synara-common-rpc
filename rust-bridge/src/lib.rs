@@ -206,6 +206,17 @@ pub struct IFavSyncServiceInsertFavSyncArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IRadioChannelServiceRankedSearchArgs {
+    #[serde(rename = "channelId")]
+    pub channel_id: PlatformUUID,
+    pub query: String,
+    pub explicit: bool,
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IRadioChannelServiceUpdateChannelArgs {
     pub id: PlatformUUID,
     pub channel: InsertableRadioChannel,
@@ -1468,6 +1479,20 @@ pub struct RadioChannel {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RadioChannelSearchResults {
+    pub songs: PaginatedResponse<RadioChannelSongMatch>,
+    pub artists: PaginatedResponse<Artist>,
+    pub albums: PaginatedResponse<Album>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RadioChannelSongMatch {
+    pub song: UserSong,
+    #[serde(rename = "explicitMember")]
+    pub explicit_member: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct InsertableRadioChannel {
     pub name: String,
     pub description: Option<String>,
@@ -2600,6 +2625,7 @@ pub trait IFavSyncService {
 pub trait IRadioChannelService {
     fn list_channels<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<RadioChannel>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_channel<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<RadioChannel>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn ranked_search<'life0, 'async_trait>(&'life0 self, channel_id: PlatformUUID, query: String, explicit: bool, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<RadioChannelSearchResults, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn start_channel<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn create_channel<'life0, 'async_trait>(&'life0 self, channel: InsertableRadioChannel) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn update_channel<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, channel: InsertableRadioChannel) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -3292,6 +3318,12 @@ impl IRadioChannelService for RpcClient {
     fn get_channel<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<RadioChannel>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IRadioChannelService", "getChannel", &id).await
+        })
+    }
+    fn ranked_search<'life0, 'async_trait>(&'life0 self, channel_id: PlatformUUID, query: String, explicit: bool, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<RadioChannelSearchResults, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IRadioChannelServiceRankedSearchArgs { channel_id, query, explicit, page, page_size };
+            self.call("IRadioChannelService", "rankedSearch", &args).await
         })
     }
     fn start_channel<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {

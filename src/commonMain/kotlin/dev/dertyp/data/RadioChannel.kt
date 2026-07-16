@@ -48,6 +48,26 @@ data class RadioChannel(
 )
 
 @Serializable
+@ModelDoc("A song matched by a radio channel search, with how it belongs to the channel.")
+data class RadioChannelSongMatch(
+    @FieldDoc("The matched song.")
+    val song: UserSong,
+    @FieldDoc("True when the song is added directly to the channel; false when it is reached via an album or artist that is configured on the channel.")
+    val explicitMember: Boolean,
+)
+
+@Serializable
+@ModelDoc("Ranked search results within a single radio channel's configured content, grouped by entity type.")
+data class RadioChannelSearchResults(
+    @FieldDoc("Matching songs the channel resolves to (explicit and implicit members).")
+    val songs: PaginatedResponse<RadioChannelSongMatch>,
+    @FieldDoc("Matching artists configured on the channel.")
+    val artists: PaginatedResponse<Artist>,
+    @FieldDoc("Matching albums configured on the channel.")
+    val albums: PaginatedResponse<Album>,
+)
+
+@Serializable
 @ModelDoc("Configuration for creating or updating a radio channel's metadata.")
 data class InsertableRadioChannel(
     @FieldDoc("The channel name.")

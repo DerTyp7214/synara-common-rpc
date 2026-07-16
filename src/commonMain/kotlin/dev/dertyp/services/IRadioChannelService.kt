@@ -4,6 +4,7 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.data.InsertableRadioChannel
 import dev.dertyp.data.RadioChannel
 import dev.dertyp.data.RadioChannelItemType
+import dev.dertyp.data.RadioChannelSearchResults
 import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -19,6 +20,15 @@ interface IRadioChannelService {
     suspend fun getChannel(
         @RpcParamDoc("The channel unique identifier.") id: PlatformUUID
     ): RadioChannel?
+
+    @RpcDoc("Ranked search across the songs, artists and albums configured on a channel. An empty query lists all configured content.")
+    suspend fun rankedSearch(
+        @RpcParamDoc("The channel unique identifier.") channelId: PlatformUUID,
+        @RpcParamDoc("The search query; empty to list all configured content.") query: String = "",
+        @RpcParamDoc("Whether to include explicit-content songs.") explicit: Boolean = false,
+        @RpcParamDoc("The page index (starting from 0).") page: Int = 0,
+        @RpcParamDoc("Items per page, applied per result type.") pageSize: Int = 50,
+    ): RadioChannelSearchResults
 
     @RpcDoc("Start playing a channel. Returns a radio session id to feed into IRadioService.radioFlow.")
     suspend fun startChannel(
