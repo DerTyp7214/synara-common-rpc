@@ -23,4 +23,19 @@ data class ApiKeyInfo(
     val expiresAt: Long? = null,
     @FieldDoc("Whether the key has been revoked.")
     val isRevoked: Boolean = false,
+    @FieldDoc("Identifiers of the scopes granted to this key.")
+    val scopes: List<String> = emptyList(),
+)
+
+@Serializable
+@ModelDoc("Describes an API key scope that can be granted to keys.")
+data class ApiKeyScopeInfo(
+    @FieldDoc("The unique scope identifier.")
+    val id: String,
+    @FieldDoc("Human-readable scope name.")
+    val name: String,
+    @FieldDoc("Description of what the scope grants access to.")
+    val description: String,
+    @FieldDoc("Origin of the scope: \"server\" for built-in scopes, otherwise the id of the plugin that registered it.")
+    val source: String,
 )

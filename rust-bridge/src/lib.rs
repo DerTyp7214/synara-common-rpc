@@ -92,6 +92,12 @@ pub struct IMirrorServiceGetSongDataArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IApiKeyServiceCreateApiKeyArgs {
+    pub label: String,
+    pub scopes: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IAnimatedImageServiceCreateAnimatedImageArgs {
     pub bytes: serde_bytes::ByteBuf,
     pub origin: String,
@@ -1287,6 +1293,14 @@ pub enum UserCapability {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ApiKeyScopeInfo {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub source: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ApiKeyInfo {
     pub id: PlatformUUID,
     pub label: String,
@@ -1298,6 +1312,7 @@ pub struct ApiKeyInfo {
     pub expires_at: Option<i64>,
     #[serde(rename = "isRevoked")]
     pub is_revoked: bool,
+    pub scopes: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2353,6 +2368,14 @@ pub struct SongExtendedMetadata {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SubsonicCredentialInfo {
+    pub username: String,
+    pub password: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ServerStats {
     #[serde(rename = "songCount")]
     pub song_count: i32,
@@ -2558,7 +2581,8 @@ pub trait IMirrorService {
 }
 
 pub trait IApiKeyService {
-    fn create_api_key<'life0, 'async_trait>(&'life0 self, label: String) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn create_api_key<'life0, 'async_trait>(&'life0 self, label: String, scopes: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn list_available_scopes<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ApiKeyScopeInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn list_api_keys<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ApiKeyInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn revoke_api_key<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
@@ -2923,6 +2947,12 @@ pub trait ISongService {
     fn extended_metadata<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SongExtendedMetadata>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
+pub trait ISubsonicCredentialService {
+    fn get_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SubsonicCredentialInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn regenerate_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<SubsonicCredentialInfo, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn revoke_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
 pub trait IServerStatsService {
     fn get_stats<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ServerStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn health<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -3089,9 +3119,15 @@ impl IMirrorService for RpcClient {
     }
 }
 impl IApiKeyService for RpcClient {
-    fn create_api_key<'life0, 'async_trait>(&'life0 self, label: String) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn create_api_key<'life0, 'async_trait>(&'life0 self, label: String, scopes: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
-            self.call("IApiKeyService", "createApiKey", &label).await
+            let args = IApiKeyServiceCreateApiKeyArgs { label, scopes };
+            self.call("IApiKeyService", "createApiKey", &args).await
+        })
+    }
+    fn list_available_scopes<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ApiKeyScopeInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IApiKeyService", "listAvailableScopes", &()).await
         })
     }
     fn list_api_keys<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ApiKeyInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
@@ -4539,6 +4575,23 @@ impl ISongService for RpcClient {
     fn extended_metadata<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SongExtendedMetadata>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("ISongService", "extendedMetadata", &id).await
+        })
+    }
+}
+impl ISubsonicCredentialService for RpcClient {
+    fn get_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SubsonicCredentialInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ISubsonicCredentialService", "getSubsonicCredential", &()).await
+        })
+    }
+    fn regenerate_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<SubsonicCredentialInfo, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ISubsonicCredentialService", "regenerateSubsonicCredential", &()).await
+        })
+    }
+    fn revoke_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ISubsonicCredentialService", "revokeSubsonicCredential", &()).await
         })
     }
 }
