@@ -10,11 +10,16 @@ import kotlinx.rpc.annotations.Rpc
 @Rpc
 @RpcDoc("Manages long-lived API keys for authenticating non-interactive clients (e.g. media players).")
 interface IApiKeyService {
-    @RpcDoc("Create a new API key and return the raw secret. The secret is shown only once and cannot be retrieved again.")
+    @RpcDoc("Create a new API key and return the raw secret.")
     suspend fun createApiKey(
         @RpcParamDoc("Human-readable label describing where the key will be used.") label: String,
         @RpcParamDoc("Identifiers of the scopes to grant to the key. Must be registered scopes.") scopes: List<String>,
     ): String
+
+    @RpcDoc("Get the raw secret of one of the current user's API keys. Returns null for keys created before secrets were stored.")
+    suspend fun getApiKeyString(
+        @RpcParamDoc("The API key unique identifier.") id: PlatformUUID
+    ): String?
 
     @RpcDoc("List all scopes that can be granted to API keys.")
     suspend fun listAvailableScopes(): List<ApiKeyScopeInfo>

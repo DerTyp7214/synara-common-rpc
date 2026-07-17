@@ -2582,6 +2582,7 @@ pub trait IMirrorService {
 
 pub trait IApiKeyService {
     fn create_api_key<'life0, 'async_trait>(&'life0 self, label: String, scopes: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_api_key_string<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<String>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn list_available_scopes<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ApiKeyScopeInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn list_api_keys<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ApiKeyInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn revoke_api_key<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -3123,6 +3124,11 @@ impl IApiKeyService for RpcClient {
         Box::pin(async move {
             let args = IApiKeyServiceCreateApiKeyArgs { label, scopes };
             self.call("IApiKeyService", "createApiKey", &args).await
+        })
+    }
+    fn get_api_key_string<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<String>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IApiKeyService", "getApiKeyString", &id).await
         })
     }
     fn list_available_scopes<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ApiKeyScopeInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
