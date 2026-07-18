@@ -40,6 +40,10 @@ data class TopSongEntry(
     val coverId: PlatformUUID?,
     @FieldDoc("Deduplicated listen count in the range.")
     val listenCount: Long,
+    @FieldDoc("The MusicBrainz recording MBID of an unmatched entry, or null.")
+    val recordingMbid: PlatformUUID? = null,
+    @FieldDoc("A representative ListenBrainz recording MSID of an unmatched entry, or null. When recordingMbid and recordingMsid are both null the entry cannot be linked.")
+    val recordingMsid: PlatformUUID? = null,
 )
 
 @Serializable
@@ -93,6 +97,26 @@ data class Discoveries(
     val songs: List<TopSongEntry>,
     @FieldDoc("Artists first listened to within the range, ranked by listen count.")
     val artists: List<TopArtistEntry>,
+)
+
+@Serializable
+@ModelDoc("Request to link a user's unmatched listens of a track to a library song, identified by recording MSID and/or MBID.")
+data class LinkUnmatchedTrackRequest(
+    @FieldDoc("The library song to link the listens to.")
+    val songId: PlatformUUID,
+    @FieldDoc("A ListenBrainz recording MSID of the unmatched track; the server expands it to the whole group.")
+    val recordingMsid: PlatformUUID? = null,
+    @FieldDoc("The MusicBrainz recording MBID of the unmatched track.")
+    val recordingMbid: PlatformUUID? = null,
+)
+
+@Serializable
+@ModelDoc("Result of linking unmatched listens to a library song.")
+data class LinkUnmatchedTrackResult(
+    @FieldDoc("Number of listens that were linked to the song.")
+    val linkedListens: Int,
+    @FieldDoc("Number of manual mappings accepted by the ListenBrainz API; 0 when the song has no recording MBID, no account token is stored, or no listens carry an MSID.")
+    val submittedToListenBrainz: Int,
 )
 
 @Serializable

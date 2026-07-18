@@ -2451,6 +2451,10 @@ pub struct TopSongEntry {
     pub cover_id: Option<PlatformUUID>,
     #[serde(rename = "listenCount")]
     pub listen_count: i64,
+    #[serde(rename = "recordingMbid")]
+    pub recording_mbid: Option<PlatformUUID>,
+    #[serde(rename = "recordingMsid")]
+    pub recording_msid: Option<PlatformUUID>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2495,6 +2499,24 @@ pub struct ListeningStreaks {
 pub struct Discoveries {
     pub songs: Vec<TopSongEntry>,
     pub artists: Vec<TopArtistEntry>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LinkUnmatchedTrackRequest {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    #[serde(rename = "recordingMsid")]
+    pub recording_msid: Option<PlatformUUID>,
+    #[serde(rename = "recordingMbid")]
+    pub recording_mbid: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LinkUnmatchedTrackResult {
+    #[serde(rename = "linkedListens")]
+    pub linked_listens: i32,
+    #[serde(rename = "submittedToListenBrainz")]
+    pub submitted_to_listen_brainz: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -3078,6 +3100,7 @@ pub trait ISubsonicCredentialService {
 
 pub trait IListeningStatsService {
     fn get_stats<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, top_limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<ListeningStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn link_unmatched_track<'life0, 'async_trait>(&'life0 self, request: LinkUnmatchedTrackRequest) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IServerStatsService {
@@ -4732,6 +4755,11 @@ impl IListeningStatsService for RpcClient {
         Box::pin(async move {
             let args = IListeningStatsServiceGetStatsArgs { range, timezone, top_limit };
             self.call("IListeningStatsService", "getStats", &args).await
+        })
+    }
+    fn link_unmatched_track<'life0, 'async_trait>(&'life0 self, request: LinkUnmatchedTrackRequest) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListeningStatsService", "linkUnmatchedTrack", &request).await
         })
     }
 }
