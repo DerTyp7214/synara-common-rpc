@@ -1067,6 +1067,14 @@ pub struct ISongServiceMoveSongsArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IListeningStatsServiceGetStatsArgs {
+    pub range: StatsRange,
+    pub timezone: String,
+    #[serde(rename = "topLimit")]
+    pub top_limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IRemoteMirrorServiceGetRemoteImageDataArgs {
     pub config: RemoteServerConfig,
     #[serde(rename = "imageId")]
@@ -2375,6 +2383,120 @@ pub struct SubsonicCredentialInfo {
     pub created_at: i64,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum StatsRange {
+    #[serde(rename = "DAY")]
+    Day,
+    #[serde(rename = "WEEK")]
+    Week,
+    #[serde(rename = "MONTH")]
+    Month,
+    #[serde(rename = "YEAR")]
+    Year,
+    #[serde(rename = "ALL_TIME")]
+    AllTime,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListeningStats {
+    pub range: StatsRange,
+    pub timezone: String,
+    #[serde(rename = "rangeStart")]
+    pub range_start: i64,
+    #[serde(rename = "rangeEnd")]
+    pub range_end: i64,
+    #[serde(rename = "listenCount")]
+    pub listen_count: i64,
+    pub comparison: Option<RangeComparison>,
+    #[serde(rename = "uniqueSongs")]
+    pub unique_songs: i32,
+    #[serde(rename = "uniqueArtists")]
+    pub unique_artists: i32,
+    #[serde(rename = "uniqueAlbums")]
+    pub unique_albums: i32,
+    #[serde(rename = "topSongs")]
+    pub top_songs: Vec<TopSongEntry>,
+    #[serde(rename = "topArtists")]
+    pub top_artists: Vec<TopArtistEntry>,
+    #[serde(rename = "topAlbums")]
+    pub top_albums: Vec<TopAlbumEntry>,
+    #[serde(rename = "listenClock")]
+    pub listen_clock: ListenClock,
+    pub streaks: ListeningStreaks,
+    pub discoveries: Discoveries,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RangeComparison {
+    #[serde(rename = "previousStart")]
+    pub previous_start: i64,
+    #[serde(rename = "previousEnd")]
+    pub previous_end: i64,
+    #[serde(rename = "previousCount")]
+    pub previous_count: i64,
+    #[serde(rename = "percentChange")]
+    pub percent_change: Option<Double>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TopSongEntry {
+    #[serde(rename = "songId")]
+    pub song_id: Option<PlatformUUID>,
+    pub title: String,
+    #[serde(rename = "artistName")]
+    pub artist_name: Option<String>,
+    #[serde(rename = "albumName")]
+    pub album_name: Option<String>,
+    #[serde(rename = "coverId")]
+    pub cover_id: Option<PlatformUUID>,
+    #[serde(rename = "listenCount")]
+    pub listen_count: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TopArtistEntry {
+    #[serde(rename = "artistId")]
+    pub artist_id: Option<PlatformUUID>,
+    pub name: String,
+    #[serde(rename = "imageId")]
+    pub image_id: Option<PlatformUUID>,
+    #[serde(rename = "listenCount")]
+    pub listen_count: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TopAlbumEntry {
+    #[serde(rename = "albumId")]
+    pub album_id: Option<PlatformUUID>,
+    pub name: String,
+    #[serde(rename = "coverId")]
+    pub cover_id: Option<PlatformUUID>,
+    #[serde(rename = "listenCount")]
+    pub listen_count: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListenClock {
+    #[serde(rename = "hourOfDay")]
+    pub hour_of_day: Vec<i64>,
+    #[serde(rename = "dayOfWeek")]
+    pub day_of_week: Vec<i64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListeningStreaks {
+    #[serde(rename = "currentStreakDays")]
+    pub current_streak_days: i32,
+    #[serde(rename = "longestStreakDays")]
+    pub longest_streak_days: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Discoveries {
+    pub songs: Vec<TopSongEntry>,
+    pub artists: Vec<TopArtistEntry>,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ServerStats {
     #[serde(rename = "songCount")]
@@ -2952,6 +3074,10 @@ pub trait ISubsonicCredentialService {
     fn get_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SubsonicCredentialInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn regenerate_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<SubsonicCredentialInfo, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn revoke_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IListeningStatsService {
+    fn get_stats<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, top_limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<ListeningStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IServerStatsService {
@@ -4598,6 +4724,14 @@ impl ISubsonicCredentialService for RpcClient {
     fn revoke_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("ISubsonicCredentialService", "revokeSubsonicCredential", &()).await
+        })
+    }
+}
+impl IListeningStatsService for RpcClient {
+    fn get_stats<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, top_limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<ListeningStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IListeningStatsServiceGetStatsArgs { range, timezone, top_limit };
+            self.call("IListeningStatsService", "getStats", &args).await
         })
     }
 }
