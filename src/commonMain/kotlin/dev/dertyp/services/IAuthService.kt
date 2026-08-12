@@ -17,4 +17,11 @@ interface IAuthService {
     suspend fun refreshToken(
         @RpcParamDoc("The refresh token.") refreshToken: String
     ): AuthenticationResponse
+    @RpcDoc(
+        "Creates a new session for another device (e.g. Apple TV) on behalf of the authenticated user.",
+        errors = ["IllegalStateException"]
+    )
+    suspend fun createDeviceSession(
+        @RpcParamDoc("The user agent of the device the session is created for.") userAgent: String
+    ): AuthenticationResponse
 }
