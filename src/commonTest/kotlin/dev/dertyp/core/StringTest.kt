@@ -19,6 +19,16 @@ class StringTest {
         assertEquals("Song Title", "Song Title (Live)".cleanTitle())
         assertEquals("Song Title", "Song Title (ft. Someone)".cleanTitle())
         assertEquals("Song Title", "Song Title feat Artist".cleanTitle())
+        assertEquals("Song Title", "Song Title (with Artist)".cleanTitle())
+    }
+
+    @Test
+    fun testCleanTitleKeepsLegitimateWords() {
+        assertEquals("go with the flow", "go with the flow".cleanTitle())
+        assertEquals("Dance with Somebody", "Dance with Somebody".cleanTitle())
+        assertEquals("Song (Drift)", "Song (Drift)".cleanTitle())
+        assertEquals("Song (Lofty Mix)", "Song (Lofty Mix)".cleanTitle())
+        assertEquals("Song (Delivery)", "Song (Delivery)".cleanTitle())
     }
 
     @Test

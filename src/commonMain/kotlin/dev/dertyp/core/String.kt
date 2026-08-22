@@ -9,7 +9,7 @@ import io.ktor.http.Url
 import kotlin.jvm.JvmName
 
 private val titleCleanRegex = Regex(
-    """\s*([(\[][^()\[\]]*(feat|ft|with|prod|live|remix|demo|acoustic|radio\sedit|album\sversion|immortal\sversion|single\sversion|explicit|clean|remaster)[^()\[\]]*[)\]])|\s+(feat|ft|with|prod)\.?\s+.*$""",
+    """\s*([(\[][^()\[\]]*\b(feat|ft|with|prod|live|remix|demo|acoustic|radio\sedit|album\sversion|immortal\sversion|single\sversion|explicit|clean|remaster)[^()\[\]]*[)\]])|\s+\b(feat|ft|prod)\.?\s+.*$""",
     RegexOption.IGNORE_CASE
 )
 
