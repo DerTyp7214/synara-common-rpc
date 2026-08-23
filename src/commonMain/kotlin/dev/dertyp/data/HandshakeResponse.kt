@@ -10,5 +10,7 @@ data class HandshakeResponse(
     @FieldDoc("Whether the current connection is secure (HTTPS/WSS).")
     val secure: Boolean,
     @FieldDoc("Whether the server supports secure connections (HTTPS/WSS).")
-    val sslSupported: Boolean
+    val sslSupported: Boolean,
+    @FieldDoc("Highest API version the server supports. Clients send the version they support in the X-Api-Version header; absent means 1.")
+    val apiVersion: Int = 1
 )

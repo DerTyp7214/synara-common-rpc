@@ -8,6 +8,7 @@ object TaskKeys {
     const val MERGE_LIBRARY_DUPLICATES = "merge-library-duplicates"
     const val AUDIO_ANALYSIS = "audio-analysis"
     const val FLAC_ANALYSIS = "flac-analysis"
+    const val PCM_ANALYSIS = "pcm-analysis"
     const val MUSICBRAINZ_WORKER = "musicbrainz-worker"
     const val MUSICBRAINZ_CACHE_WORKER = "musicbrainz-cache-worker"
     const val GENRE_METADATA_WORKER = "genre-metadata-worker"

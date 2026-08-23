@@ -1525,6 +1525,8 @@ pub struct HandshakeResponse {
     pub secure: bool,
     #[serde(rename = "sslSupported")]
     pub ssl_supported: bool,
+    #[serde(rename = "apiVersion")]
+    pub api_version: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
