@@ -4,6 +4,7 @@ package dev.dertyp.rpc
 
 import dev.dertyp.core.ConcurrentMutableMap
 import dev.dertyp.core.prefixIfNotBlank
+import dev.dertyp.data.ApiVersion
 import dev.dertyp.data.AuthenticationResponse
 import dev.dertyp.data.HandshakeResponse
 import dev.dertyp.data.ServerValidationResult
@@ -18,6 +19,7 @@ import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.websocket.WebSocketException
 import io.ktor.client.request.get
+import io.ktor.http.HttpMessageBuilder
 import io.ktor.client.request.header
 import io.ktor.client.request.url
 import io.ktor.http.Url
@@ -37,6 +39,10 @@ import kotlinx.rpc.withService
 import kotlin.reflect.KClass
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+
+fun HttpMessageBuilder.apiVersionHeader() {
+    headers.append(ApiVersion.HEADER, ApiVersion.CURRENT.toString())
+}
 
 abstract class BaseRpcServiceManager(
     protected val client: HttpClient,
@@ -105,6 +111,7 @@ abstract class BaseRpcServiceManager(
             }
         ) {
             url("${baseUrl}/rpc${endpoint.prefixIfNotBlank("/")}")
+            apiVersionHeader()
             //header(SynaraPackHeader, "true")
             token?.let { header("Authorization", "Bearer $it") }
         }
@@ -138,7 +145,7 @@ abstract class BaseRpcServiceManager(
 
         try {
             val handshakeUrl = baseUrl.replace("wss://", "https://").replace("ws://", "http://")
-            val response = client.get("${handshakeUrl}/handshake").body<HandshakeResponse>()
+            val response = client.get("${handshakeUrl}/handshake") { apiVersionHeader() }.body<HandshakeResponse>()
             sslChecked = true
             
             if (!response.secure) {
@@ -177,6 +184,7 @@ abstract class BaseRpcServiceManager(
                 val result = withTimeoutOrNull(5.seconds) {
                     val rpcClient = client.rpc {
                         url("$baseUrl/rpc")
+                        apiVersionHeader()
                     }
 
                     try {
@@ -256,6 +264,7 @@ abstract class BaseRpcServiceManager(
                         val rpcClientInstance = withContext(scope.coroutineContext) {
                             client.rpc {
                                 url("${baseUrl}/rpc/services")
+                                apiVersionHeader()
                                 header("Authorization", "Bearer $token")
                             }
                         }

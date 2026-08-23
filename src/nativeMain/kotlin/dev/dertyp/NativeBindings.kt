@@ -10,6 +10,7 @@ package dev.dertyp
 import dev.dertyp.data.AuthenticationResponse
 import dev.dertyp.data.RpcEnvelope
 import dev.dertyp.rpc.BaseRpcServiceManager
+import dev.dertyp.rpc.apiVersionHeader
 import dev.dertyp.rpc.dispatchService
 import dev.dertyp.rpc.subscribeService
 import dev.dertyp.serializers.AppCbor
@@ -17,6 +18,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.pingInterval
 import kotlinx.cinterop.*
@@ -91,6 +93,7 @@ fun createManager(): COpaquePointer {
         install(UserAgent) {
             agent = "Synara/Rust"
         }
+        defaultRequest { apiVersionHeader() }
         install(HttpTimeout) {
             requestTimeoutMillis = 30000
             connectTimeoutMillis = 10000

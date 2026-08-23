@@ -6,6 +6,7 @@ import dev.dertyp.getPlatformName
 import dev.dertyp.serializers.AppCbor
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.websocket.WebSockets
 import kotlinx.rpc.krpc.ktor.client.Krpc
 import kotlinx.rpc.krpc.serialization.cbor.cbor
@@ -19,6 +20,7 @@ fun createRpcHttpClient(appVersion: String): HttpClient {
         install(UserAgent) {
             agent = "Synara/$appVersion (${getPlatformName()})"
         }
+        defaultRequest { apiVersionHeader() }
         install(WebSockets)
         install(Krpc) {
             serialization {
