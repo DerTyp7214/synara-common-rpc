@@ -324,6 +324,7 @@ abstract class BaseRpcServiceManager(
                         client.rpc {
                             url("${baseUrl}/rpc/services")
                             header("Authorization", "Bearer $token")
+                            apiVersionHeader()
                         }
                     }
                 } catch (e: Throwable) {
