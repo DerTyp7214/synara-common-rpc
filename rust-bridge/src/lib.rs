@@ -2391,10 +2391,16 @@ pub enum StatsRange {
     Day,
     #[serde(rename = "WEEK")]
     Week,
+    #[serde(rename = "LAST_WEEK")]
+    LastWeek,
     #[serde(rename = "MONTH")]
     Month,
+    #[serde(rename = "LAST_MONTH")]
+    LastMonth,
     #[serde(rename = "YEAR")]
     Year,
+    #[serde(rename = "LAST_YEAR")]
+    LastYear,
     #[serde(rename = "ALL_TIME")]
     AllTime,
 }

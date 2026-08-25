@@ -9,8 +9,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
 @Serializable
-@ModelDoc("A time range for listening statistics.")
-enum class StatsRange { DAY, WEEK, MONTH, YEAR, ALL_TIME }
+@ModelDoc("A time range for listening statistics. DAY, WEEK, MONTH and YEAR run from the period start to now; LAST_WEEK, LAST_MONTH and LAST_YEAR cover the previous completed period.")
+enum class StatsRange { DAY, WEEK, LAST_WEEK, MONTH, LAST_MONTH, YEAR, LAST_YEAR, ALL_TIME }
 
 @Serializable
 @ModelDoc("Comparison of the current range's listen count against the previous equivalent range.")
@@ -136,7 +136,7 @@ data class ListeningStats(
     val timezone: String,
     @FieldDoc("Start of the range (epoch milliseconds, inclusive); 0 for ALL_TIME.")
     val rangeStart: Long,
-    @FieldDoc("End of the range (epoch milliseconds, exclusive).")
+    @FieldDoc("End of the range (epoch milliseconds, exclusive); now for open-ended ranges, the period end for LAST_WEEK, LAST_MONTH and LAST_YEAR.")
     val rangeEnd: Long,
     @FieldDoc("Deduplicated listen count in the range. A play only counts when at least half of the song or at least 3 minutes were played; plays without a known played duration always count.")
     val listenCount: Long,
