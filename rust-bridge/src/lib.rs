@@ -2409,6 +2409,8 @@ pub struct ListeningStats {
     pub range_end: i64,
     #[serde(rename = "listenCount")]
     pub listen_count: i64,
+    #[serde(rename = "listenedMs")]
+    pub listened_ms: i64,
     pub comparison: Option<RangeComparison>,
     #[serde(rename = "uniqueSongs")]
     pub unique_songs: i32,
@@ -2438,6 +2440,8 @@ pub struct RangeComparison {
     pub previous_count: i64,
     #[serde(rename = "percentChange")]
     pub percent_change: Option<Double>,
+    #[serde(rename = "previousListenedMs")]
+    pub previous_listened_ms: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2457,6 +2461,8 @@ pub struct TopSongEntry {
     pub recording_mbid: Option<PlatformUUID>,
     #[serde(rename = "recordingMsid")]
     pub recording_msid: Option<PlatformUUID>,
+    #[serde(rename = "listenedMs")]
+    pub listened_ms: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2468,6 +2474,8 @@ pub struct TopArtistEntry {
     pub image_id: Option<PlatformUUID>,
     #[serde(rename = "listenCount")]
     pub listen_count: i64,
+    #[serde(rename = "listenedMs")]
+    pub listened_ms: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2479,6 +2487,8 @@ pub struct TopAlbumEntry {
     pub cover_id: Option<PlatformUUID>,
     #[serde(rename = "listenCount")]
     pub listen_count: i64,
+    #[serde(rename = "listenedMs")]
+    pub listened_ms: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

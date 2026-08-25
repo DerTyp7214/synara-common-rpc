@@ -23,6 +23,8 @@ data class RangeComparison(
     val previousCount: Long,
     @FieldDoc("Percent change of the current count relative to the previous count, or null if the previous range had no listens.")
     val percentChange: Double?,
+    @FieldDoc("Total milliseconds listened in the previous range.")
+    val previousListenedMs: Long = 0,
 )
 
 @Serializable
@@ -44,6 +46,8 @@ data class TopSongEntry(
     val recordingMbid: PlatformUUID? = null,
     @FieldDoc("A representative ListenBrainz recording MSID of an unmatched entry, or null. When recordingMbid and recordingMsid are both null the entry cannot be linked.")
     val recordingMsid: PlatformUUID? = null,
+    @FieldDoc("Total milliseconds listened to this song in the range, including plays too short to count as a listen.")
+    val listenedMs: Long = 0,
 )
 
 @Serializable
@@ -57,6 +61,8 @@ data class TopArtistEntry(
     val imageId: PlatformUUID?,
     @FieldDoc("Deduplicated listen count in the range.")
     val listenCount: Long,
+    @FieldDoc("Total milliseconds listened to this artist in the range, including plays too short to count as a listen.")
+    val listenedMs: Long = 0,
 )
 
 @Serializable
@@ -70,6 +76,8 @@ data class TopAlbumEntry(
     val coverId: PlatformUUID?,
     @FieldDoc("Deduplicated listen count in the range.")
     val listenCount: Long,
+    @FieldDoc("Total milliseconds listened to this album in the range, including plays too short to count as a listen.")
+    val listenedMs: Long = 0,
 )
 
 @Serializable
@@ -130,8 +138,10 @@ data class ListeningStats(
     val rangeStart: Long,
     @FieldDoc("End of the range (epoch milliseconds, exclusive).")
     val rangeEnd: Long,
-    @FieldDoc("Deduplicated listen count in the range.")
+    @FieldDoc("Deduplicated listen count in the range. A play only counts when at least half of the song or at least 3 minutes were played; plays without a known played duration always count.")
     val listenCount: Long,
+    @FieldDoc("Total milliseconds listened in the range, including plays too short to count as a listen. Plays without a known played duration count the whole song duration.")
+    val listenedMs: Long = 0,
     @FieldDoc("Comparison against the previous equivalent range, or null for ALL_TIME.")
     val comparison: RangeComparison?,
     @FieldDoc("Distinct songs listened to in the range.")
