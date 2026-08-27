@@ -1137,6 +1137,8 @@ pub struct Song {
     pub animated_cover_image_id: Option<PlatformUUID>,
     #[serde(rename = "animatedCoverBlurHash")]
     pub animated_cover_blur_hash: Option<String>,
+    #[serde(rename = "audioStartMs")]
+    pub audio_start_ms: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1418,6 +1420,8 @@ pub struct UserSong {
     pub animated_cover_image_id: Option<PlatformUUID>,
     #[serde(rename = "animatedCoverBlurHash")]
     pub animated_cover_blur_hash: Option<String>,
+    #[serde(rename = "audioStartMs")]
+    pub audio_start_ms: Option<i64>,
     #[serde(rename = "isFavourite")]
     pub is_favourite: Option<bool>,
     #[serde(rename = "userSongCreatedAt")]
