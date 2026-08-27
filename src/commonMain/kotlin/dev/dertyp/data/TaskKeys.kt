@@ -9,6 +9,7 @@ object TaskKeys {
     const val AUDIO_ANALYSIS = "audio-analysis"
     const val FLAC_ANALYSIS = "flac-analysis"
     const val PCM_ANALYSIS = "pcm-analysis"
+    const val AUDIO_START_ANALYSIS = "audio-start-analysis"
     const val MUSICBRAINZ_WORKER = "musicbrainz-worker"
     const val MUSICBRAINZ_CACHE_WORKER = "musicbrainz-cache-worker"
     const val GENRE_METADATA_WORKER = "genre-metadata-worker"

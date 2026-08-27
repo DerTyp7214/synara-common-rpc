@@ -3,8 +3,11 @@ package dev.dertyp.core
 import dev.dertyp.data.Song
 import dev.dertyp.data.UserSong
 import dev.dertyp.platformUUIDFromString
+import dev.dertyp.serializers.AppJson
+import kotlinx.serialization.encodeToString
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class SongTest {
 
@@ -63,5 +66,18 @@ class SongTest {
         
         val omitted = song.omitLyrics()
         assertEquals("", omitted.lyrics)
+    }
+
+    @Test
+    fun testAudioStartMsDefaultsToNullWhenMissing() {
+        val json = """{"id":"00000000-0000-0000-0000-000000000000","title":"Title","artists":[],"album":null,"duration":1000,"explicit":false,"path":"path"}"""
+        assertNull(AppJson.decodeFromString<Song>(json).audioStartMs)
+        assertNull(AppJson.decodeFromString<UserSong>(json).audioStartMs)
+    }
+
+    @Test
+    fun testAudioStartMsRoundTrip() {
+        val song = Song(id = testId, title = "Title", artists = emptyList(), album = null, duration = 1000, explicit = false, path = "path", audioStartMs = 1234)
+        assertEquals(1234, AppJson.decodeFromString<Song>(AppJson.encodeToString(song)).audioStartMs)
     }
 }

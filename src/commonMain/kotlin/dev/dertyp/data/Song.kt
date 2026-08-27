@@ -54,6 +54,7 @@ abstract class BaseSong() {
     abstract val animatedCoverId: PlatformUUID?
     abstract val animatedCoverImageId: PlatformUUID?
     abstract val animatedCoverBlurHash: String?
+    abstract val audioStartMs: Long?
 }
 
 @Serializable
@@ -110,6 +111,8 @@ data class Song(
     override val animatedCoverImageId: PlatformUUID? = null,
     @FieldDoc("BlurHash of the animated cover's first frame.")
     override val animatedCoverBlurHash: String? = null,
+    @FieldDoc("Offset in milliseconds of the first audible sound, or null if not yet analyzed.")
+    override val audioStartMs: Long? = null,
 ): BaseSong()
 
 @Serializable
@@ -166,6 +169,8 @@ data class UserSong(
     override val animatedCoverImageId: PlatformUUID? = null,
     @FieldDoc("BlurHash of the animated cover's first frame.")
     override val animatedCoverBlurHash: String? = null,
+    @FieldDoc("Offset in milliseconds of the first audible sound, or null if not yet analyzed.")
+    override val audioStartMs: Long? = null,
 
     @FieldDoc("Whether the current user has marked this song as a favorite.")
     val isFavourite: Boolean? = false,
