@@ -45,6 +45,7 @@ val AppCbor = Cbor {
     alwaysUseByteString = true
     ignoreUnknownKeys = true
     encodeDefaults = true
+    preferCborLabelsOverNames = true
     serializersModule = SerializersModule {
         include(BaseSerializersModule)
         contextual(UUIDByteSerializer)

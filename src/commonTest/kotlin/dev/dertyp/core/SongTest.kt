@@ -1,5 +1,6 @@
 package dev.dertyp.core
 
+import dev.dertyp.data.AudioInfo
 import dev.dertyp.data.Song
 import dev.dertyp.data.UserSong
 import dev.dertyp.platformUUIDFromString
@@ -29,10 +30,7 @@ class SongTest {
             trackNumber = 1,
             discNumber = 1,
             copyright = "",
-            sampleRate = 44100,
-            bitsPerSample = 16,
-            bitRate = 320000,
-            fileSize = 1000000,
+            audio = AudioInfo("flac", 44100, 16, 320000, 1000000, 2),
             coverId = null
         )
         
@@ -57,10 +55,7 @@ class SongTest {
             trackNumber = 1,
             discNumber = 1,
             copyright = "",
-            sampleRate = 44100,
-            bitsPerSample = 16,
-            bitRate = 320000,
-            fileSize = 1000000,
+            audio = AudioInfo("flac", 44100, 16, 320000, 1000000, 2),
             coverId = null
         )
         

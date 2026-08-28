@@ -1,4 +1,5 @@
 @file:UseContextualSerialization(Artist::class, Album::class, Genre::class, Image::class, PlatformUUID::class)
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package dev.dertyp.data
 
@@ -11,8 +12,12 @@ import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
 import dev.dertyp.serializers.DateSerializer
 import dev.dertyp.serializers.LocalDateSerializer
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.UseContextualSerialization
+import kotlinx.serialization.cbor.CborLabel
 
 @Serializable
 @ModelDoc("Flags and metadata attributes for a song.")
@@ -26,6 +31,49 @@ enum class SongTag {
     @FieldDoc("The song was manually uploaded by a user.") CUSTOM_UPLOAD,
     @FieldDoc("The song has a linked MusicBrainz Recording ID.") HAS_MUSICBRAINZ_ID
 }
+
+@Serializable
+@ModelDoc("Physical properties of one audio file belonging to a song.")
+data class AudioInfo(
+    @CborLabel(1)
+    @FieldDoc("Audio codec of the file, e.g. flac, wav, eac3.")
+    val codec: String,
+    @CborLabel(2)
+    @FieldDoc("Audio sample rate in Hz.")
+    val sampleRate: Int,
+    @CborLabel(3)
+    @FieldDoc("Number of bits per audio sample; 0 for lossy codecs.")
+    val bitsPerSample: Int,
+    @CborLabel(4)
+    @FieldDoc("Audio bit rate in bits per second.")
+    val bitRate: Long,
+    @CborLabel(5)
+    @FieldDoc("Size of the audio file in bytes.")
+    val fileSize: Long,
+    @CborLabel(6)
+    @FieldDoc("Number of audio channels, e.g. 2 for stereo or 6 for 5.1.")
+    val channels: Int,
+) {
+    companion object {
+        val EMPTY = AudioInfo("", 0, 0, 0, 0, 0)
+    }
+}
+
+const val LEGACY_AUDIO_FIELDS = "API version 3 wire compatibility only; populated by the server's response shaping, never by services. Use audio/atmos."
+
+val BaseSong.effectiveAudio: AudioInfo?
+    get() = audio ?: run {
+        @Suppress("DEPRECATION")
+        if (sampleRate == null && bitsPerSample == null && bitRate == null && fileSize == null) null
+        else AudioInfo(
+            codec = path.substringAfterLast('.', "").lowercase(),
+            sampleRate = sampleRate ?: 0,
+            bitsPerSample = bitsPerSample ?: 0,
+            bitRate = bitRate ?: 0,
+            fileSize = fileSize ?: 0,
+            channels = 0,
+        )
+    }
 
 abstract class BaseSong() {
     abstract val id: PlatformUUID
@@ -42,10 +90,16 @@ abstract class BaseSong() {
     abstract val trackNumber: Int
     abstract val discNumber: Int
     abstract val copyright: String
-    abstract val sampleRate: Int
-    abstract val bitsPerSample: Int
-    abstract val bitRate: Long
-    abstract val fileSize: Long
+    abstract val audio: AudioInfo?
+    abstract val atmos: AudioInfo?
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    abstract val sampleRate: Int?
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    abstract val bitsPerSample: Int?
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    abstract val bitRate: Long?
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    abstract val fileSize: Long?
     abstract val coverId: PlatformUUID?
     abstract val blurHash: String?
     abstract val musicBrainzId: PlatformUUID?
@@ -55,6 +109,7 @@ abstract class BaseSong() {
     abstract val animatedCoverImageId: PlatformUUID?
     abstract val animatedCoverBlurHash: String?
     abstract val audioStartMs: Long?
+    @Deprecated(LEGACY_AUDIO_FIELDS)
     abstract val atmosPath: String?
 }
 
@@ -88,14 +143,28 @@ data class Song(
     override val discNumber: Int = 1,
     @FieldDoc("Copyright information for the track.")
     override val copyright: String = "",
-    @FieldDoc("Audio sample rate in Hz.")
-    override val sampleRate: Int = 0,
-    @FieldDoc("Number of bits per audio sample.")
-    override val bitsPerSample: Int = 0,
-    @FieldDoc("Audio bit rate in bits per second.")
-    override val bitRate: Long = 0,
-    @FieldDoc("Size of the audio file in bytes.")
-    override val fileSize: Long = 0,
+    @FieldDoc("Properties of the primary audio file.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val audio: AudioInfo? = null,
+    @FieldDoc("Properties of the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val atmos: AudioInfo? = null,
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    @FieldDoc("Audio sample rate in Hz. API version 3 and below only; see audio.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val sampleRate: Int? = null,
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    @FieldDoc("Number of bits per audio sample. API version 3 and below only; see audio.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val bitsPerSample: Int? = null,
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    @FieldDoc("Audio bit rate in bits per second. API version 3 and below only; see audio.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val bitRate: Long? = null,
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    @FieldDoc("Size of the audio file in bytes. API version 3 and below only; see audio.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val fileSize: Long? = null,
     @FieldDoc("The song cover image unique identifier.")
     override val coverId: PlatformUUID? = null,
     @FieldDoc("The blur hash of the song cover image.")
@@ -114,8 +183,12 @@ data class Song(
     override val animatedCoverBlurHash: String? = null,
     @FieldDoc("Offset in milliseconds of the first audible sound, or null if not yet analyzed.")
     override val audioStartMs: Long? = null,
-    @FieldDoc("Internal server path to the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    @FieldDoc("Internal server path to the Dolby Atmos variant. API version 3 only; use atmos and streamSongAtmos.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val atmosPath: String? = null,
+    @Transient
+    val atmosVariantPath: String? = null,
 ): BaseSong()
 
 @Serializable
@@ -148,14 +221,28 @@ data class UserSong(
     override val discNumber: Int = 1,
     @FieldDoc("Copyright information for the track.")
     override val copyright: String = "",
-    @FieldDoc("Audio sample rate in Hz.")
-    override val sampleRate: Int = 0,
-    @FieldDoc("Number of bits per audio sample.")
-    override val bitsPerSample: Int = 0,
-    @FieldDoc("Audio bit rate in bits per second.")
-    override val bitRate: Long = 0,
-    @FieldDoc("Size of the audio file in bytes.")
-    override val fileSize: Long = 0,
+    @FieldDoc("Properties of the primary audio file.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val audio: AudioInfo? = null,
+    @FieldDoc("Properties of the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val atmos: AudioInfo? = null,
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    @FieldDoc("Audio sample rate in Hz. API version 3 and below only; see audio.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val sampleRate: Int? = null,
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    @FieldDoc("Number of bits per audio sample. API version 3 and below only; see audio.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val bitsPerSample: Int? = null,
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    @FieldDoc("Audio bit rate in bits per second. API version 3 and below only; see audio.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val bitRate: Long? = null,
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    @FieldDoc("Size of the audio file in bytes. API version 3 and below only; see audio.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val fileSize: Long? = null,
     @FieldDoc("The song cover image unique identifier.")
     override val coverId: PlatformUUID? = null,
     @FieldDoc("The blur hash of the song cover image.")
@@ -174,8 +261,12 @@ data class UserSong(
     override val animatedCoverBlurHash: String? = null,
     @FieldDoc("Offset in milliseconds of the first audible sound, or null if not yet analyzed.")
     override val audioStartMs: Long? = null,
-    @FieldDoc("Internal server path to the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
+    @Deprecated(LEGACY_AUDIO_FIELDS)
+    @FieldDoc("Internal server path to the Dolby Atmos variant. API version 3 only; use atmos and streamSongAtmos.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val atmosPath: String? = null,
+    @Transient
+    val atmosVariantPath: String? = null,
 
     @FieldDoc("Whether the current user has marked this song as a favorite.")
     val isFavourite: Boolean? = false,
@@ -252,14 +343,8 @@ data class SimpleSong(
     val trackNumber: Int,
     @FieldDoc("The disc number in a multi-disc album.")
     val discNumber: Int,
-    @FieldDoc("Audio sample rate in Hz.")
-    val sampleRate: Int,
-    @FieldDoc("Number of bits per audio sample.")
-    val bitsPerSample: Int,
-    @FieldDoc("Audio bit rate in bits per second.")
-    val bitRate: Long,
-    @FieldDoc("Size of the audio file in bytes.")
-    val fileSize: Long,
+    @FieldDoc("Properties of the primary audio file.")
+    val audio: AudioInfo,
     @FieldDoc("The song cover image unique identifier.")
     val coverId: PlatformUUID?,
     @FieldDoc("The blur hash of the song cover image.")
@@ -300,14 +385,8 @@ data class InsertableSong(
     val discNumber: Int = 1,
     @FieldDoc("Copyright information for the track.")
     val copyright: String = "",
-    @FieldDoc("Audio sample rate in Hz.")
-    val sampleRate: Int = 0,
-    @FieldDoc("Number of bits per audio sample.")
-    val bitsPerSample: Int = 0,
-    @FieldDoc("Audio bit rate in bits per second.")
-    val bitRate: Long = 0,
-    @FieldDoc("Size of the audio file in bytes.")
-    val fileSize: Long = 0,
+    @FieldDoc("Properties of the primary audio file.")
+    val audio: AudioInfo = AudioInfo.EMPTY,
     @FieldDoc("The hash of the cover image.")
     val coverHash: String? = null,
     @FieldDoc("The MusicBrainz Recording unique identifier.")
@@ -318,6 +397,8 @@ data class InsertableSong(
     val audioData: SongAudioData? = null,
     @FieldDoc("Internal server path to the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
     val atmosPath: String? = null,
+    @FieldDoc("Properties of the Dolby Atmos variant; probed by the server when null and atmosPath is set.")
+    val atmos: AudioInfo? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is InsertableSong) contentEquals(other) else false

@@ -1125,14 +1125,16 @@ pub struct Song {
     #[serde(rename = "discNumber")]
     pub disc_number: i32,
     pub copyright: String,
+    pub audio: Option<AudioInfo>,
+    pub atmos: Option<AudioInfo>,
     #[serde(rename = "sampleRate")]
-    pub sample_rate: i32,
+    pub sample_rate: Option<i32>,
     #[serde(rename = "bitsPerSample")]
-    pub bits_per_sample: i32,
+    pub bits_per_sample: Option<i32>,
     #[serde(rename = "bitRate")]
-    pub bit_rate: i64,
+    pub bit_rate: Option<i64>,
     #[serde(rename = "fileSize")]
-    pub file_size: i64,
+    pub file_size: Option<i64>,
     #[serde(rename = "coverId")]
     pub cover_id: Option<PlatformUUID>,
     #[serde(rename = "blurHash")]
@@ -1209,6 +1211,20 @@ pub struct Album {
     pub animated_cover_image_id: Option<PlatformUUID>,
     #[serde(rename = "animatedCoverBlurHash")]
     pub animated_cover_blur_hash: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct AudioInfo {
+    pub codec: String,
+    #[serde(rename = "sampleRate")]
+    pub sample_rate: i32,
+    #[serde(rename = "bitsPerSample")]
+    pub bits_per_sample: i32,
+    #[serde(rename = "bitRate")]
+    pub bit_rate: i64,
+    #[serde(rename = "fileSize")]
+    pub file_size: i64,
+    pub channels: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1410,14 +1426,16 @@ pub struct UserSong {
     #[serde(rename = "discNumber")]
     pub disc_number: i32,
     pub copyright: String,
+    pub audio: Option<AudioInfo>,
+    pub atmos: Option<AudioInfo>,
     #[serde(rename = "sampleRate")]
-    pub sample_rate: i32,
+    pub sample_rate: Option<i32>,
     #[serde(rename = "bitsPerSample")]
-    pub bits_per_sample: i32,
+    pub bits_per_sample: Option<i32>,
     #[serde(rename = "bitRate")]
-    pub bit_rate: i64,
+    pub bit_rate: Option<i64>,
     #[serde(rename = "fileSize")]
-    pub file_size: i64,
+    pub file_size: Option<i64>,
     #[serde(rename = "coverId")]
     pub cover_id: Option<PlatformUUID>,
     #[serde(rename = "blurHash")]
