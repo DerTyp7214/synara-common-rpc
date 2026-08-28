@@ -29,6 +29,7 @@ object TaskKeys {
     const val LOG_CLEANUP_WORKER = "log-cleanup-worker"
     const val SEARCH_INDEX_REBUILD_WORKER = "search-index-rebuild-worker"
     const val LISTENBRAINZ_SYNC = "listenbrainz-sync"
+    const val LISTEN_BACKUP = "listen-backup"
     const val AUDIO_EMBEDDING = "audio-embedding"
     const val RECOMMENDATION_TRAINING = "recommendation-training"
     const val RADIO_SESSION_CLEANUP = "radio-session-cleanup"

@@ -2209,6 +2209,42 @@ pub enum ReleaseType {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListenBackupState {
+    pub config: ListenBackupConfig,
+    #[serde(rename = "hasKey")]
+    pub has_key: bool,
+    #[serde(rename = "serverId")]
+    pub server_id: PlatformUUID,
+    #[serde(rename = "lastSyncAt")]
+    pub last_sync_at: Option<i64>,
+    #[serde(rename = "lastSyncedUpdatedAt")]
+    pub last_synced_updated_at: i64,
+    #[serde(rename = "lastSyncedCount")]
+    pub last_synced_count: i32,
+    #[serde(rename = "lastError")]
+    pub last_error: Option<String>,
+    #[serde(rename = "pendingCount")]
+    pub pending_count: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListenBackupConfig {
+    pub enabled: bool,
+    pub url: String,
+    pub key: Option<String>,
+    #[serde(rename = "batchSize")]
+    pub batch_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListenBackupConnectionTest {
+    pub ok: bool,
+    pub message: Option<String>,
+    #[serde(rename = "remoteListenCount")]
+    pub remote_listen_count: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LogLine {
     #[serde(rename = "queueEntry")]
     pub queue_entry: ImportQueueEntry,
@@ -3019,6 +3055,15 @@ pub trait IReleaseService {
     fn get_recent_releases_by_music_brainz_id<'life0, 'async_trait>(&'life0 self, music_brainz_id: PlatformUUID, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<RecentRelease>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_release_image<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID, size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Option<serde_bytes::ByteBuf>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn refresh_recent_release<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IListenBackupService {
+    fn get_state<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBackupState, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_state_flow(&self, ) -> RpcStream<ListenBackupState>;
+    fn update_config<'life0, 'async_trait>(&'life0 self, config: ListenBackupConfig) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBackupState, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn test_connection<'life0, 'async_trait>(&'life0 self, config: Option<ListenBackupConfig>) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBackupConnectionTest, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn sync_now<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBackupState, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn reset_cursor<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBackupState, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IImportService {
@@ -4314,6 +4359,36 @@ impl IReleaseService for RpcClient {
     fn refresh_recent_release<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IReleaseService", "refreshRecentRelease", &release_id).await
+        })
+    }
+}
+impl IListenBackupService for RpcClient {
+    fn get_state<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBackupState, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListenBackupService", "getState", &()).await
+        })
+    }
+    fn get_state_flow(&self, ) -> RpcStream<ListenBackupState> {
+        self.subscribe("IListenBackupService", "getStateFlow", &())
+    }
+    fn update_config<'life0, 'async_trait>(&'life0 self, config: ListenBackupConfig) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBackupState, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListenBackupService", "updateConfig", &config).await
+        })
+    }
+    fn test_connection<'life0, 'async_trait>(&'life0 self, config: Option<ListenBackupConfig>) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBackupConnectionTest, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListenBackupService", "testConnection", &config).await
+        })
+    }
+    fn sync_now<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBackupState, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListenBackupService", "syncNow", &()).await
+        })
+    }
+    fn reset_cursor<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<ListenBackupState, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListenBackupService", "resetCursor", &()).await
         })
     }
 }
