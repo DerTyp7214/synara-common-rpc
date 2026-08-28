@@ -45,7 +45,7 @@ data class AudioInfo(
     @FieldDoc("Number of bits per audio sample; 0 for lossy codecs.")
     val bitsPerSample: Int,
     @CborLabel(4)
-    @FieldDoc("Audio bit rate in bits per second.")
+    @FieldDoc("Audio bit rate in kilobits per second.")
     val bitRate: Long,
     @CborLabel(5)
     @FieldDoc("Size of the audio file in bytes.")
@@ -158,7 +158,7 @@ data class Song(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val bitsPerSample: Int? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Audio bit rate in bits per second. API version 3 and below only; see audio.")
+    @FieldDoc("Audio bit rate in kilobits per second. API version 3 and below only; see audio.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val bitRate: Long? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
@@ -236,7 +236,7 @@ data class UserSong(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val bitsPerSample: Int? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Audio bit rate in bits per second. API version 3 and below only; see audio.")
+    @FieldDoc("Audio bit rate in kilobits per second. API version 3 and below only; see audio.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val bitRate: Long? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
