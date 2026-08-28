@@ -55,6 +55,7 @@ abstract class BaseSong() {
     abstract val animatedCoverImageId: PlatformUUID?
     abstract val animatedCoverBlurHash: String?
     abstract val audioStartMs: Long?
+    abstract val atmosPath: String?
 }
 
 @Serializable
@@ -113,6 +114,8 @@ data class Song(
     override val animatedCoverBlurHash: String? = null,
     @FieldDoc("Offset in milliseconds of the first audible sound, or null if not yet analyzed.")
     override val audioStartMs: Long? = null,
+    @FieldDoc("Internal server path to the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
+    override val atmosPath: String? = null,
 ): BaseSong()
 
 @Serializable
@@ -171,6 +174,8 @@ data class UserSong(
     override val animatedCoverBlurHash: String? = null,
     @FieldDoc("Offset in milliseconds of the first audible sound, or null if not yet analyzed.")
     override val audioStartMs: Long? = null,
+    @FieldDoc("Internal server path to the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
+    override val atmosPath: String? = null,
 
     @FieldDoc("Whether the current user has marked this song as a favorite.")
     val isFavourite: Boolean? = false,
@@ -311,6 +316,8 @@ data class InsertableSong(
     val isrc: String? = null,
     @FieldDoc("Additional audio analysis data.")
     val audioData: SongAudioData? = null,
+    @FieldDoc("Internal server path to the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
+    val atmosPath: String? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is InsertableSong) contentEquals(other) else false

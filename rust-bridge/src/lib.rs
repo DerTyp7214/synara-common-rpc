@@ -1041,6 +1041,14 @@ pub struct ISongServiceDownloadSongArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ISongServiceStreamSongAtmosArgs {
+    pub id: PlatformUUID,
+    pub offset: i64,
+    #[serde(rename = "chunkSize")]
+    pub chunk_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ISongServiceGetDownloadSizeArgs {
     pub id: PlatformUUID,
     pub quality: i32,
@@ -1141,6 +1149,8 @@ pub struct Song {
     pub animated_cover_blur_hash: Option<String>,
     #[serde(rename = "audioStartMs")]
     pub audio_start_ms: Option<i64>,
+    #[serde(rename = "atmosPath")]
+    pub atmos_path: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1424,6 +1434,8 @@ pub struct UserSong {
     pub animated_cover_blur_hash: Option<String>,
     #[serde(rename = "audioStartMs")]
     pub audio_start_ms: Option<i64>,
+    #[serde(rename = "atmosPath")]
+    pub atmos_path: Option<String>,
     #[serde(rename = "isFavourite")]
     pub is_favourite: Option<bool>,
     #[serde(rename = "userSongCreatedAt")]
@@ -3159,6 +3171,8 @@ pub trait ISongService {
     fn stream_song(&self, id: PlatformUUID, offset: i64, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf>;
     fn download_song(&self, id: PlatformUUID, quality: i32, offset: i64, chunk_size: i32, force: bool, format: AudioFormat) -> RpcStream<serde_bytes::ByteBuf>;
     fn get_stream_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn stream_song_atmos(&self, id: PlatformUUID, offset: i64, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf>;
+    fn get_atmos_stream_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_download_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, quality: i32, force: bool, format: AudioFormat) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn all_song_ids(&self, explicit: bool, tags: Vec<SongTag>, invert_tags: bool) -> RpcStream<PlatformUUID>;
     fn liked_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID>;
@@ -4807,6 +4821,15 @@ impl ISongService for RpcClient {
     fn get_stream_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("ISongService", "getStreamSize", &id).await
+        })
+    }
+    fn stream_song_atmos(&self, id: PlatformUUID, offset: i64, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf> {
+        let args = ISongServiceStreamSongAtmosArgs { id, offset, chunk_size };
+        self.subscribe("ISongService", "streamSongAtmos", &args)
+    }
+    fn get_atmos_stream_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ISongService", "getAtmosStreamSize", &id).await
         })
     }
     fn get_download_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, quality: i32, force: bool, format: AudioFormat) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {

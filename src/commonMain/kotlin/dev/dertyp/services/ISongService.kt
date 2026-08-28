@@ -165,6 +165,15 @@ interface ISongService {
     ): Flow<ByteArray>?
     @RpcDoc("Get the total size of the song's audio stream.")
     suspend fun getStreamSize(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): Long
+    @RpcDoc("Stream the Dolby Atmos (E-AC-3 JOC in MP4) variant of a song. Returns null if the song has no Atmos variant.")
+    @RestFileResponse
+    fun streamSongAtmos(
+        @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("Byte offset to start streaming from.") offset: Long = 0,
+        @RpcParamDoc("Size of each data chunk.") chunkSize: Int = 4096
+    ): Flow<ByteArray>?
+    @RpcDoc("Get the size of the song's Dolby Atmos stream, or 0 if the song has no Atmos variant.")
+    suspend fun getAtmosStreamSize(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): Long
     @RpcDoc("Get the size of the song audio for a specific quality.")
     suspend fun getDownloadSize(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
