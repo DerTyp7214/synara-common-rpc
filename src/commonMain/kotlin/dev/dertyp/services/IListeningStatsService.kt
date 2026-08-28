@@ -4,6 +4,7 @@ import dev.dertyp.data.LinkUnmatchedTrackRequest
 import dev.dertyp.data.LinkUnmatchedTrackResult
 import dev.dertyp.data.ListeningStats
 import dev.dertyp.data.StatsRange
+import dev.dertyp.data.TopOrder
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -19,6 +20,7 @@ interface IListeningStatsService {
         @RpcParamDoc("The time range to aggregate.") range: StatsRange,
         @RpcParamDoc("IANA timezone for range boundaries, e.g. Europe/Berlin. Invalid or blank falls back to UTC.") timezone: String,
         @RpcParamDoc("Maximum entries per top list; clamped to 1..100.") topLimit: Int,
+        @RpcParamDoc("Metric used to rank the top and discovery lists.") topOrder: TopOrder = TopOrder.LISTEN_COUNT,
     ): ListeningStats
 
     @RestPost

@@ -13,6 +13,10 @@ import kotlinx.serialization.UseContextualSerialization
 enum class StatsRange { DAY, WEEK, LAST_WEEK, MONTH, LAST_MONTH, YEAR, LAST_YEAR, ALL_TIME }
 
 @Serializable
+@ModelDoc("How top lists are ranked. LISTEN_COUNT ranks by deduplicated listen count; LISTENED_MS ranks by total milliseconds listened, which also surfaces entries whose plays were too short to count as listens.")
+enum class TopOrder { LISTEN_COUNT, LISTENED_MS }
+
+@Serializable
 @ModelDoc("Comparison of the current range's listen count against the previous equivalent range.")
 data class RangeComparison(
     @FieldDoc("Start of the previous range (epoch milliseconds, inclusive).")
@@ -28,7 +32,7 @@ data class RangeComparison(
 )
 
 @Serializable
-@ModelDoc("A song ranked by listen count. Fallback entries for listens not matched to a library song carry a null songId.")
+@ModelDoc("A song ranked by listen count or time listened. Fallback entries for listens not matched to a library song carry a null songId.")
 data class TopSongEntry(
     @FieldDoc("The library song, or null for listens not matched to the library.")
     val songId: PlatformUUID?,
@@ -51,7 +55,7 @@ data class TopSongEntry(
 )
 
 @Serializable
-@ModelDoc("An artist ranked by listen count. Fallback entries for listens not matched to a library artist carry a null artistId.")
+@ModelDoc("An artist ranked by listen count or time listened. Fallback entries for listens not matched to a library artist carry a null artistId.")
 data class TopArtistEntry(
     @FieldDoc("The library artist, or null for listens not matched to the library.")
     val artistId: PlatformUUID?,
@@ -66,7 +70,7 @@ data class TopArtistEntry(
 )
 
 @Serializable
-@ModelDoc("An album ranked by listen count. Fallback entries for listens not matched to a library album carry a null albumId.")
+@ModelDoc("An album ranked by listen count or time listened. Fallback entries for listens not matched to a library album carry a null albumId.")
 data class TopAlbumEntry(
     @FieldDoc("The library album, or null for listens not matched to the library.")
     val albumId: PlatformUUID?,
@@ -101,9 +105,9 @@ data class ListeningStreaks(
 @Serializable
 @ModelDoc("Songs and artists listened to for the first time within the range.")
 data class Discoveries(
-    @FieldDoc("Songs first listened to within the range, ranked by listen count.")
+    @FieldDoc("Songs first listened to within the range, ranked by the requested top order.")
     val songs: List<TopSongEntry>,
-    @FieldDoc("Artists first listened to within the range, ranked by listen count.")
+    @FieldDoc("Artists first listened to within the range, ranked by the requested top order.")
     val artists: List<TopArtistEntry>,
 )
 
@@ -150,11 +154,11 @@ data class ListeningStats(
     val uniqueArtists: Int,
     @FieldDoc("Distinct albums listened to in the range.")
     val uniqueAlbums: Int,
-    @FieldDoc("Most listened songs in the range.")
+    @FieldDoc("Most listened songs in the range, ranked by the requested top order.")
     val topSongs: List<TopSongEntry>,
-    @FieldDoc("Most listened artists in the range.")
+    @FieldDoc("Most listened artists in the range, ranked by the requested top order.")
     val topArtists: List<TopArtistEntry>,
-    @FieldDoc("Most listened albums in the range.")
+    @FieldDoc("Most listened albums in the range, ranked by the requested top order.")
     val topAlbums: List<TopAlbumEntry>,
     @FieldDoc("Hour-of-day and day-of-week listen distribution for the range.")
     val listenClock: ListenClock,

@@ -1072,6 +1072,8 @@ pub struct IListeningStatsServiceGetStatsArgs {
     pub timezone: String,
     #[serde(rename = "topLimit")]
     pub top_limit: i32,
+    #[serde(rename = "topOrder")]
+    pub top_order: TopOrder,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2409,6 +2411,14 @@ pub enum StatsRange {
     AllTime,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum TopOrder {
+    #[serde(rename = "LISTEN_COUNT")]
+    ListenCount,
+    #[serde(rename = "LISTENED_MS")]
+    ListenedMs,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ListeningStats {
     pub range: StatsRange,
@@ -3122,7 +3132,7 @@ pub trait ISubsonicCredentialService {
 }
 
 pub trait IListeningStatsService {
-    fn get_stats<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, top_limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<ListeningStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_stats<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, top_limit: i32, top_order: TopOrder) -> Pin<Box<dyn std::future::Future<Output = Result<ListeningStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn link_unmatched_track<'life0, 'async_trait>(&'life0 self, request: LinkUnmatchedTrackRequest) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
@@ -4779,9 +4789,9 @@ impl ISubsonicCredentialService for RpcClient {
     }
 }
 impl IListeningStatsService for RpcClient {
-    fn get_stats<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, top_limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<ListeningStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn get_stats<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, top_limit: i32, top_order: TopOrder) -> Pin<Box<dyn std::future::Future<Output = Result<ListeningStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
-            let args = IListeningStatsServiceGetStatsArgs { range, timezone, top_limit };
+            let args = IListeningStatsServiceGetStatsArgs { range, timezone, top_limit, top_order };
             self.call("IListeningStatsService", "getStats", &args).await
         })
     }
