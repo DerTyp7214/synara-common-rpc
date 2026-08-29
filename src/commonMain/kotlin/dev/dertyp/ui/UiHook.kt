@@ -55,4 +55,6 @@ data class UiHookHandler(
     val icon: UiIcon? = null,
     @FieldDoc("Action to perform when chosen.")
     val action: UiAction,
+    @FieldDoc("If set, ask the user to confirm with this text before performing the action, even when it is the only handler.")
+    val confirmText: String? = null,
 )

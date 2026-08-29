@@ -2266,6 +2266,8 @@ pub struct UiHookHandler {
     pub description: Option<String>,
     pub icon: Option<UiIcon>,
     pub action: UiAction,
+    #[serde(rename = "confirmText")]
+    pub confirm_text: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
