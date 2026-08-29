@@ -662,6 +662,13 @@ pub struct IUiServiceInvokeArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceIntakeArgs {
+    pub items: Vec<IntakeItem>,
+    #[serde(rename = "resolverId")]
+    pub resolver_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IUiServiceSetHomeCardPinnedArgs {
     #[serde(rename = "contributionId")]
     pub contribution_id: String,
@@ -2271,6 +2278,34 @@ pub struct UiHookHandler {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IntakeItem {
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiIntakeResult {
+    pub status: UiIntakeStatus,
+    pub message: Option<String>,
+    pub accepted: i32,
+    pub rejected: Vec<IntakeItem>,
+    pub handlers: Vec<UiHookHandler>,
+    pub next: Option<UiAction>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum UiIntakeStatus {
+    #[serde(rename = "OK")]
+    Ok,
+    #[serde(rename = "NEEDS_CHOICE")]
+    NeedsChoice,
+    #[serde(rename = "UNHANDLED")]
+    Unhandled,
+    #[serde(rename = "UNAUTHORIZED")]
+    Unauthorized,
+    #[serde(rename = "ERROR")]
+    Error,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UiHomeLayout {
     pub cards: Vec<UiHomeCard>,
 }
@@ -3243,6 +3278,8 @@ pub trait IUiService {
     fn subscribe_live(&self, contribution_id: String, key: String, entity_id: Option<PlatformUUID>) -> RpcStream<UiLiveUpdate>;
     fn invoke<'life0, 'async_trait>(&'life0 self, contribution_id: String, action_id: String, payload: UiInvokePayload) -> Pin<Box<dyn std::future::Future<Output = Result<UiInvokeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn dispatch_hook<'life0, 'async_trait>(&'life0 self, event: UiHookEvent) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn intake<'life0, 'async_trait>(&'life0 self, items: Vec<IntakeItem>, resolver_id: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<UiIntakeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn resolve_intake<'life0, 'async_trait>(&'life0 self, items: Vec<IntakeItem>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_home_cards<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_home_card_pinned<'life0, 'async_trait>(&'life0 self, contribution_id: String, pinned: bool) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_home_card_order<'life0, 'async_trait>(&'life0 self, contribution_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -4384,6 +4421,17 @@ impl IUiService for RpcClient {
     fn dispatch_hook<'life0, 'async_trait>(&'life0 self, event: UiHookEvent) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IUiService", "dispatchHook", &event).await
+        })
+    }
+    fn intake<'life0, 'async_trait>(&'life0 self, items: Vec<IntakeItem>, resolver_id: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<UiIntakeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUiServiceIntakeArgs { items, resolver_id };
+            self.call("IUiService", "intake", &args).await
+        })
+    }
+    fn resolve_intake<'life0, 'async_trait>(&'life0 self, items: Vec<IntakeItem>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IUiService", "resolveIntake", &items).await
         })
     }
     fn get_home_cards<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {

@@ -76,6 +76,18 @@ sealed class UiAction {
     ) : UiAction()
 
     @Serializable
+    @SerialName("intake")
+    @ModelDoc("Hand items to the server through IUiService.intake and show the result: toast on OK, chooser on NEEDS_CHOICE, error otherwise.")
+    data class Intake(
+        @FieldDoc("Items to submit.")
+        val items: List<IntakeItem>,
+        @FieldDoc("Preselected handler (resolver id); null lets the server decide.")
+        val resolverId: String? = null,
+        @FieldDoc("If set, ask the user to confirm with this text first.")
+        val confirmText: String? = null,
+    ) : UiAction()
+
+    @Serializable
     @SerialName("dismissKeyboard")
     @ModelDoc("Unfocus the current input and close the on-screen keyboard; no-op where there is none.")
     data object DismissKeyboard : UiAction()

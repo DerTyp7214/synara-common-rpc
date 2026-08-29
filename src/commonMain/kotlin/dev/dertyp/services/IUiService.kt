@@ -4,7 +4,9 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
+import dev.dertyp.ui.IntakeItem
 import dev.dertyp.ui.UiContext
+import dev.dertyp.ui.UiIntakeResult
 import dev.dertyp.ui.UiContributionInfo
 import dev.dertyp.ui.UiContributionKind
 import dev.dertyp.ui.UiHomeLayout
@@ -66,6 +68,19 @@ interface IUiService {
     @RpcDoc("Forward an app-level event (e.g. a shared URL). Returns every contribution offering to handle it; perform the single action directly or let the user choose. An empty list means no server-side handler; fall back to native behaviour.")
     suspend fun dispatchHook(
         @RpcParamDoc("The event.") event: UiHookEvent,
+    ): List<UiHookHandler>
+
+    @RestPost
+    @RpcDoc("Hand items (links, codes, ids, text) to the server. Unambiguous items are submitted immediately; when several handlers offer, NEEDS_CHOICE returns them and the client calls intake again with the chosen handler's action. Items nobody accepts are returned as rejected.")
+    suspend fun intake(
+        @RpcParamDoc("Items to submit.") items: List<IntakeItem>,
+        @RpcParamDoc("Handler to use, from a previous NEEDS_CHOICE result; null lets the server decide.") resolverId: String? = null,
+    ): UiIntakeResult
+
+    @RestPost
+    @RpcDoc("List the handlers offering to take the items without submitting anything.")
+    suspend fun resolveIntake(
+        @RpcParamDoc("Items to resolve.") items: List<IntakeItem>,
     ): List<UiHookHandler>
 
     @RpcDoc("Home-card layout of the current user, including cards available for pinning.")
