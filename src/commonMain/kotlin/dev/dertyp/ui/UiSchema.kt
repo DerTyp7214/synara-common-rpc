@@ -25,6 +25,7 @@ object UiSchema {
         UiComponent.Fallback::class to 1,
         UiComponent.Native::class to 1,
         UiComponent.Log::class to 1,
+        UiComponent.EmptyState::class to 1,
         UiComponent.Live::class to 1,
         UiComponent.TextField::class to 1,
         UiComponent.NumberField::class to 1,

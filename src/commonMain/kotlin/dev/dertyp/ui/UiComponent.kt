@@ -276,6 +276,20 @@ sealed class UiComponent {
     ) : UiComponent()
 
     @Serializable
+    @SerialName("emptyState")
+    @ModelDoc("Placeholder for a screen or section without content: large muted icon, title and description, centered (iOS ContentUnavailableView).")
+    data class EmptyState(
+        @FieldDoc("Title.")
+        val title: String,
+        @FieldDoc("Description.")
+        val description: String? = null,
+        @FieldDoc("Icon.")
+        val icon: UiIcon? = null,
+        @FieldDoc("Optional action elements (Buttons) below the text.")
+        val actions: List<UiComponent> = emptyList(),
+    ) : UiComponent()
+
+    @Serializable
     @SerialName("log")
     @ModelDoc("Fixed-height log pane: small monospaced secondary text, one entry per line, scrolled to the newest line. Usually wrapped in Live so lines can be appended via UiLiveUpdate.AppendLines.")
     data class Log(
