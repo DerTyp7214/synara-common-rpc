@@ -2127,7 +2127,7 @@ pub struct UiContributionInfo {
     pub slot: Option<String>,
     pub title: String,
     pub description: Option<String>,
-    pub icon: Option<String>,
+    pub icon: Option<UiIcon>,
     pub order: i32,
     pub live: bool,
     #[serde(rename = "cardSize")]
@@ -2137,6 +2137,10 @@ pub struct UiContributionInfo {
     #[serde(rename = "requiredCapabilities")]
     pub required_capabilities: Vec<UserCapability>,
     pub hooks: Vec<UiHookKind>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiIcon {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -2260,7 +2264,7 @@ pub struct UiHookHandler {
     pub source: String,
     pub title: String,
     pub description: Option<String>,
-    pub icon: Option<String>,
+    pub icon: Option<UiIcon>,
     pub action: UiAction,
 }
 

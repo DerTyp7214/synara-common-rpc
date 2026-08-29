@@ -42,8 +42,8 @@ data class UiContributionInfo(
     val title: String,
     @FieldDoc("Localized description.")
     val description: String? = null,
-    @FieldDoc("Semantic icon name.")
-    val icon: String? = null,
+    @FieldDoc("Icon.")
+    val icon: UiIcon? = null,
     @FieldDoc("Sort order within a slot; lower first.")
     val order: Int = 0,
     @FieldDoc("Whether subscribe() emits updates after the initial render.")

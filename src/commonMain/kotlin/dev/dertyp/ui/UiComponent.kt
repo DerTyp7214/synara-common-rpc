@@ -16,8 +16,8 @@ data class UiOption(
     val value: String,
     @FieldDoc("Display label.")
     val label: String,
-    @FieldDoc("Optional semantic icon name.")
-    val icon: String? = null,
+    @FieldDoc("Optional icon.")
+    val icon: UiIcon? = null,
 )
 
 @Serializable
@@ -83,7 +83,7 @@ sealed class UiComponent {
         @FieldDoc("Header subtitle.")
         val subtitle: String? = null,
         @FieldDoc("Semantic icon name shown in the header.")
-        val icon: String? = null,
+        val icon: UiIcon? = null,
         @FieldDoc("Tone of the card.")
         val tone: UiTone = UiTone.DEFAULT,
         @FieldDoc("Action elements (typically Buttons) rendered in the card footer.")
@@ -138,10 +138,10 @@ sealed class UiComponent {
 
     @Serializable
     @SerialName("icon")
-    @ModelDoc("A semantic icon. Clients map the name to their icon set.")
+    @ModelDoc("A standalone icon.")
     data class Icon(
-        @FieldDoc("Semantic icon name (e.g. settings, music, warning, database, task, user).")
-        val name: String,
+        @FieldDoc("The icon.")
+        val icon: UiIcon,
         @FieldDoc("Tone.")
         val tone: UiTone = UiTone.DEFAULT,
     ) : UiComponent()
@@ -167,7 +167,7 @@ sealed class UiComponent {
         @FieldDoc("Tone.")
         val tone: UiTone = UiTone.DEFAULT,
         @FieldDoc("Semantic icon name shown before the text.")
-        val icon: String? = null,
+        val icon: UiIcon? = null,
     ) : UiComponent()
 
     @Serializable
@@ -181,7 +181,7 @@ sealed class UiComponent {
         @FieldDoc("Optional unit suffix.")
         val unit: String? = null,
         @FieldDoc("Semantic icon name.")
-        val icon: String? = null,
+        val icon: UiIcon? = null,
         @FieldDoc("Tone.")
         val tone: UiTone = UiTone.DEFAULT,
     ) : UiComponent()
@@ -205,7 +205,7 @@ sealed class UiComponent {
         @FieldDoc("Subtitle.")
         val subtitle: String? = null,
         @FieldDoc("Semantic icon name.")
-        val icon: String? = null,
+        val icon: UiIcon? = null,
         @FieldDoc("Action performed when activated.")
         val action: UiAction? = null,
         @FieldDoc("Tone.")
@@ -223,7 +223,7 @@ sealed class UiComponent {
         @FieldDoc("Style.")
         val style: UiButtonStyle = UiButtonStyle.SECONDARY,
         @FieldDoc("Semantic icon name.")
-        val icon: String? = null,
+        val icon: UiIcon? = null,
         @FieldDoc("Whether the button is enabled.")
         val enabled: Boolean = true,
     ) : UiComponent()
@@ -237,7 +237,7 @@ sealed class UiComponent {
         @FieldDoc("Subtitle.")
         val subtitle: String? = null,
         @FieldDoc("Semantic icon name.")
-        val icon: String? = null,
+        val icon: UiIcon? = null,
         @FieldDoc("Trailing text.")
         val trailing: String? = null,
         @FieldDoc("Action performed when activated.")

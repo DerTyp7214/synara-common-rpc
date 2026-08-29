@@ -16,8 +16,8 @@ data class UiMenuItem(
     val label: String,
     @FieldDoc("Action performed when chosen; may itself be OpenMenu for a sub-menu.")
     val action: UiAction,
-    @FieldDoc("Semantic icon name.")
-    val icon: String? = null,
+    @FieldDoc("Icon.")
+    val icon: UiIcon? = null,
     @FieldDoc("Tone, e.g. ERROR for destructive entries.")
     val tone: UiTone = UiTone.DEFAULT,
     @FieldDoc("Whether the entry can be chosen.")

@@ -51,8 +51,8 @@ data class UiHookHandler(
     val title: String,
     @FieldDoc("Localized description.")
     val description: String? = null,
-    @FieldDoc("Semantic icon name.")
-    val icon: String? = null,
+    @FieldDoc("Icon.")
+    val icon: UiIcon? = null,
     @FieldDoc("Action to perform when chosen.")
     val action: UiAction,
 )
