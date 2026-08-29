@@ -19,6 +19,8 @@ import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.websocket.WebSocketException
 import io.ktor.client.request.get
+import dev.dertyp.ui.UiSchemaVersion
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMessageBuilder
 import io.ktor.client.request.header
 import io.ktor.client.request.url
@@ -42,6 +44,11 @@ import kotlin.time.Duration.Companion.seconds
 
 fun HttpMessageBuilder.apiVersionHeader() {
     headers.append(ApiVersion.HEADER, ApiVersion.CURRENT.toString())
+}
+
+fun HttpMessageBuilder.uiHeaders(locale: String? = null) {
+    headers.append(UiSchemaVersion.HEADER, UiSchemaVersion.CURRENT.toString())
+    locale?.let { headers.append(HttpHeaders.AcceptLanguage, it) }
 }
 
 abstract class BaseRpcServiceManager(

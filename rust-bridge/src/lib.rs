@@ -617,6 +617,58 @@ pub struct IRpcMetricsServiceTimeSeriesArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceListContributionsArgs {
+    pub kind: Option<UiContributionKind>,
+    pub slot: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceRenderSlotArgs {
+    pub slot: String,
+    pub context: UiContext,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceRenderArgs {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    pub context: UiContext,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceSubscribeArgs {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    #[serde(rename = "entityId")]
+    pub entity_id: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceSubscribeLiveArgs {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    pub key: String,
+    #[serde(rename = "entityId")]
+    pub entity_id: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceInvokeArgs {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    #[serde(rename = "actionId")]
+    pub action_id: String,
+    pub payload: UiInvokePayload,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceSetHomeCardPinnedArgs {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    pub pinned: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ICustomAudioServiceUploadCustomAudioArgs {
     #[serde(rename = "fileData")]
     pub file_data: serde_bytes::ByteBuf,
@@ -2057,6 +2109,175 @@ pub enum TaskStatus {
     Running,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum UiContributionKind {
+    #[serde(rename = "SLOT")]
+    Slot,
+    #[serde(rename = "PAGE")]
+    Page,
+    #[serde(rename = "HOME_CARD")]
+    HomeCard,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiContributionInfo {
+    pub id: String,
+    pub source: String,
+    pub kind: UiContributionKind,
+    pub slot: Option<String>,
+    pub title: String,
+    pub description: Option<String>,
+    pub icon: Option<String>,
+    pub order: i32,
+    pub live: bool,
+    #[serde(rename = "cardSize")]
+    pub card_size: UiCardSize,
+    #[serde(rename = "requiresAdmin")]
+    pub requires_admin: bool,
+    #[serde(rename = "requiredCapabilities")]
+    pub required_capabilities: Vec<UserCapability>,
+    pub hooks: Vec<UiHookKind>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum UiCardSize {
+    #[serde(rename = "SMALL")]
+    Small,
+    #[serde(rename = "MEDIUM")]
+    Medium,
+    #[serde(rename = "LARGE")]
+    Large,
+    #[serde(rename = "WIDE")]
+    Wide,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum UiHookKind {
+    #[serde(rename = "SHARE_URL")]
+    ShareUrl,
+    #[serde(rename = "SHARE_TEXT")]
+    ShareText,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiContext {
+    #[serde(rename = "entityType")]
+    pub entity_type: Option<UiEntityType>,
+    #[serde(rename = "entityId")]
+    pub entity_id: Option<PlatformUUID>,
+    pub params: std::collections::HashMap<String, String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum UiEntityType {
+    #[serde(rename = "SONG")]
+    Song,
+    #[serde(rename = "ALBUM")]
+    Album,
+    #[serde(rename = "ARTIST")]
+    Artist,
+    #[serde(rename = "PLAYLIST")]
+    Playlist,
+    #[serde(rename = "USER")]
+    User,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiSlotRender {
+    pub slot: String,
+    pub items: Vec<UiRender>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiRender {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    pub root: UiComponent,
+    pub title: Option<String>,
+    #[serde(rename = "schemaVersion")]
+    pub schema_version: i32,
+    pub revision: i64,
+    pub toolbar: Vec<UiComponent>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiComponent {
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiLiveUpdate {
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiInvokePayload {
+    pub values: std::collections::HashMap<String, UiValue>,
+    pub context: UiContext,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiValue {
+    pub text: Option<String>,
+    pub number: Option<Double>,
+    pub flag: Option<bool>,
+    pub items: Option<Vec<UiValue>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiInvokeResult {
+    pub status: UiInvokeStatus,
+    pub message: Option<String>,
+    #[serde(rename = "fieldErrors")]
+    pub field_errors: std::collections::HashMap<String, String>,
+    pub refresh: bool,
+    pub next: Option<UiAction>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum UiInvokeStatus {
+    #[serde(rename = "OK")]
+    Ok,
+    #[serde(rename = "VALIDATION_ERROR")]
+    ValidationError,
+    #[serde(rename = "ERROR")]
+    Error,
+    #[serde(rename = "UNAUTHORIZED")]
+    Unauthorized,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiAction {
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiHookEvent {
+    pub kind: UiHookKind,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiHookHandler {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    pub source: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub icon: Option<String>,
+    pub action: UiAction,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiHomeLayout {
+    pub cards: Vec<UiHomeCard>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiHomeCard {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    pub pinned: bool,
+    pub position: i32,
+    pub size: UiCardSize,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CustomMetadata {
     pub title: Option<String>,
@@ -2393,6 +2614,8 @@ pub struct HandshakeResponse {
     pub ssl_supported: bool,
     #[serde(rename = "apiVersion")]
     pub api_version: i32,
+    #[serde(rename = "uiSchemaVersion")]
+    pub ui_schema_version: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -3004,6 +3227,20 @@ pub trait IRpcMetricsService {
 pub trait IScheduledTaskLogService {
     fn get_grouped_logs<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, Vec<ScheduledTaskLog>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_grouped_logs_flow(&self, ) -> RpcStream<std::collections::HashMap<String, Vec<ScheduledTaskLog>>>;
+}
+
+pub trait IUiService {
+    fn list_contributions<'life0, 'async_trait>(&'life0 self, kind: Option<UiContributionKind>, slot: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiContributionInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn render_slot<'life0, 'async_trait>(&'life0 self, slot: String, context: UiContext) -> Pin<Box<dyn std::future::Future<Output = Result<UiSlotRender, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn render<'life0, 'async_trait>(&'life0 self, contribution_id: String, context: UiContext) -> Pin<Box<dyn std::future::Future<Output = Result<UiRender, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn subscribe(&self, contribution_id: String, entity_id: Option<PlatformUUID>) -> RpcStream<UiRender>;
+    fn subscribe_live(&self, contribution_id: String, key: String, entity_id: Option<PlatformUUID>) -> RpcStream<UiLiveUpdate>;
+    fn invoke<'life0, 'async_trait>(&'life0 self, contribution_id: String, action_id: String, payload: UiInvokePayload) -> Pin<Box<dyn std::future::Future<Output = Result<UiInvokeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn dispatch_hook<'life0, 'async_trait>(&'life0 self, event: UiHookEvent) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_home_cards<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_home_card_pinned<'life0, 'async_trait>(&'life0 self, contribution_id: String, pinned: bool) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_home_card_order<'life0, 'async_trait>(&'life0 self, contribution_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_home_cards_flow(&self, ) -> RpcStream<UiHomeLayout>;
 }
 
 pub trait ICustomAudioService {
@@ -4103,6 +4340,64 @@ impl IScheduledTaskLogService for RpcClient {
     }
     fn get_grouped_logs_flow(&self, ) -> RpcStream<std::collections::HashMap<String, Vec<ScheduledTaskLog>>> {
         self.subscribe("IScheduledTaskLogService", "getGroupedLogsFlow", &())
+    }
+}
+impl IUiService for RpcClient {
+    fn list_contributions<'life0, 'async_trait>(&'life0 self, kind: Option<UiContributionKind>, slot: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiContributionInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUiServiceListContributionsArgs { kind, slot };
+            self.call("IUiService", "listContributions", &args).await
+        })
+    }
+    fn render_slot<'life0, 'async_trait>(&'life0 self, slot: String, context: UiContext) -> Pin<Box<dyn std::future::Future<Output = Result<UiSlotRender, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUiServiceRenderSlotArgs { slot, context };
+            self.call("IUiService", "renderSlot", &args).await
+        })
+    }
+    fn render<'life0, 'async_trait>(&'life0 self, contribution_id: String, context: UiContext) -> Pin<Box<dyn std::future::Future<Output = Result<UiRender, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUiServiceRenderArgs { contribution_id, context };
+            self.call("IUiService", "render", &args).await
+        })
+    }
+    fn subscribe(&self, contribution_id: String, entity_id: Option<PlatformUUID>) -> RpcStream<UiRender> {
+        let args = IUiServiceSubscribeArgs { contribution_id, entity_id };
+        self.subscribe("IUiService", "subscribe", &args)
+    }
+    fn subscribe_live(&self, contribution_id: String, key: String, entity_id: Option<PlatformUUID>) -> RpcStream<UiLiveUpdate> {
+        let args = IUiServiceSubscribeLiveArgs { contribution_id, key, entity_id };
+        self.subscribe("IUiService", "subscribeLive", &args)
+    }
+    fn invoke<'life0, 'async_trait>(&'life0 self, contribution_id: String, action_id: String, payload: UiInvokePayload) -> Pin<Box<dyn std::future::Future<Output = Result<UiInvokeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUiServiceInvokeArgs { contribution_id, action_id, payload };
+            self.call("IUiService", "invoke", &args).await
+        })
+    }
+    fn dispatch_hook<'life0, 'async_trait>(&'life0 self, event: UiHookEvent) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IUiService", "dispatchHook", &event).await
+        })
+    }
+    fn get_home_cards<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IUiService", "getHomeCards", &()).await
+        })
+    }
+    fn set_home_card_pinned<'life0, 'async_trait>(&'life0 self, contribution_id: String, pinned: bool) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUiServiceSetHomeCardPinnedArgs { contribution_id, pinned };
+            self.call("IUiService", "setHomeCardPinned", &args).await
+        })
+    }
+    fn set_home_card_order<'life0, 'async_trait>(&'life0 self, contribution_ids: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IUiService", "setHomeCardOrder", &contribution_ids).await
+        })
+    }
+    fn get_home_cards_flow(&self, ) -> RpcStream<UiHomeLayout> {
+        self.subscribe("IUiService", "getHomeCardsFlow", &())
     }
 }
 impl ICustomAudioService for RpcClient {
