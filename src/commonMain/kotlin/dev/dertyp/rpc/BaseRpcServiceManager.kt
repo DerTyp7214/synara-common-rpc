@@ -75,6 +75,39 @@ abstract class BaseRpcServiceManager(
     private val _isServerReachable = MutableStateFlow(true)
     val isServerReachable: StateFlow<Boolean> = _isServerReachable.asStateFlow()
 
+    private val _handshake = MutableStateFlow<HandshakeResponse?>(null)
+    val handshake: StateFlow<HandshakeResponse?> = _handshake.asStateFlow()
+
+    private val _uiSchemaVersion = MutableStateFlow(UiSchemaVersion.NONE)
+    val uiSchemaVersion: StateFlow<Int> = _uiSchemaVersion.asStateFlow()
+
+    protected open fun uiLocale(): String? = null
+
+    protected fun HttpMessageBuilder.connectionHeaders() {
+        apiVersionHeader()
+        uiHeaders(uiLocale())
+    }
+
+    protected fun storeHandshake(response: HandshakeResponse) {
+        _handshake.value = response
+        _uiSchemaVersion.value = minOf(response.uiSchemaVersion, UiSchemaVersion.CURRENT)
+    }
+
+    protected fun resetHandshake() {
+        _handshake.value = null
+        _uiSchemaVersion.value = UiSchemaVersion.NONE
+    }
+
+    suspend fun fetchHandshake(): HandshakeResponse? = withContext(ioDispatcher) {
+        try {
+            getHandshakeService().handshake().also { storeHandshake(it) }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
     protected abstract suspend fun getRpcUrl(): String?
     protected abstract suspend fun setRpcUrl(host: String, port: Int, ssl: Boolean, path: String = "/")
     protected abstract fun getAuthToken(): String?
@@ -118,7 +151,7 @@ abstract class BaseRpcServiceManager(
             }
         ) {
             url("${baseUrl}/rpc${endpoint.prefixIfNotBlank("/")}")
-            apiVersionHeader()
+            connectionHeaders()
             //header(SynaraPackHeader, "true")
             token?.let { header("Authorization", "Bearer $it") }
         }
@@ -152,7 +185,8 @@ abstract class BaseRpcServiceManager(
 
         try {
             val handshakeUrl = baseUrl.replace("wss://", "https://").replace("ws://", "http://")
-            val response = client.get("${handshakeUrl}/handshake") { apiVersionHeader() }.body<HandshakeResponse>()
+            val response = client.get("${handshakeUrl}/handshake") { connectionHeaders() }.body<HandshakeResponse>()
+            storeHandshake(response)
             sslChecked = true
             
             if (!response.secure) {
@@ -271,7 +305,7 @@ abstract class BaseRpcServiceManager(
                         val rpcClientInstance = withContext(scope.coroutineContext) {
                             client.rpc {
                                 url("${baseUrl}/rpc/services")
-                                apiVersionHeader()
+                                connectionHeaders()
                                 header("Authorization", "Bearer $token")
                             }
                         }
@@ -331,7 +365,7 @@ abstract class BaseRpcServiceManager(
                         client.rpc {
                             url("${baseUrl}/rpc/services")
                             header("Authorization", "Bearer $token")
-                            apiVersionHeader()
+                            connectionHeaders()
                         }
                     }
                 } catch (e: Throwable) {
