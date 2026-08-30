@@ -72,6 +72,12 @@ abstract class BaseRpcServiceManager(
     open val supportsSsl: Boolean = true
     private var sslChecked = false
 
+    private val _sessionSslOverride = MutableStateFlow<Boolean?>(null)
+    val sessionSslOverride: StateFlow<Boolean?> = _sessionSslOverride.asStateFlow()
+
+    protected abstract val sslConfirmed: Boolean
+    protected abstract suspend fun setSslConfirmed(value: Boolean)
+
     private val _isServerReachable = MutableStateFlow(true)
     val isServerReachable: StateFlow<Boolean> = _isServerReachable.asStateFlow()
 
@@ -188,18 +194,16 @@ abstract class BaseRpcServiceManager(
             val response = client.get("${handshakeUrl}/handshake") { connectionHeaders() }.body<HandshakeResponse>()
             storeHandshake(response)
             sslChecked = true
-            
-            if (!response.secure) {
-                val url = Url(baseUrl)
-                setRpcUrl(url.host, url.port, false, url.encodedPath)
-                clear()
-                return@withContext false
-            }
+            setSslConfirmed(true)
             true
         } catch (e: Throwable) {
             if (isSslException(e)) {
-                val url = Url(baseUrl)
-                setRpcUrl(url.host, url.port, false, url.encodedPath)
+                if (sslConfirmed) {
+                    _sessionSslOverride.value = false
+                } else {
+                    val url = Url(baseUrl)
+                    setRpcUrl(url.host, url.port, false, url.encodedPath)
+                }
                 clear()
                 sslChecked = true
                 return@withContext false
