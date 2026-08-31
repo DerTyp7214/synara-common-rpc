@@ -402,6 +402,10 @@ abstract class BaseRpcServiceManager(
         throw authException
     }
 
+    protected fun reportConnectFailure(e: Throwable) {
+        if (!isAuthException(e)) onServerUnreachable()
+    }
+
     private val authFailureMutex = Mutex()
 
     protected suspend fun onAuthFailure() {
