@@ -65,7 +65,7 @@ class NativeRpcManager(client: HttpClient) : BaseRpcServiceManager(client) {
         expiresAt = response.expiresAt
     }
 
-    override suspend fun handleAuthFailure() {
+    override suspend fun handleAuthFailure(reason: Throwable?) {
         authenticated = false
         authToken = null
         refreshToken = null

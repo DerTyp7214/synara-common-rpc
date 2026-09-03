@@ -16,7 +16,6 @@ import dev.dertyp.services.IUserService
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
-import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.websocket.WebSocketException
 import io.ktor.client.request.get
 import dev.dertyp.ui.UiSchemaVersion
@@ -121,7 +120,7 @@ abstract class BaseRpcServiceManager(
     protected abstract fun isTokenExpired(): Boolean
     protected abstract fun isAuthenticated(): Boolean
     protected abstract suspend fun updateAuth(response: AuthenticationResponse)
-    protected abstract suspend fun handleAuthFailure()
+    protected abstract suspend fun handleAuthFailure(reason: Throwable?)
     
     protected open fun onServerUnreachable() {
         _isServerReachable.value = false
@@ -163,7 +162,7 @@ abstract class BaseRpcServiceManager(
         }
     }
 
-    suspend fun getAuthService(): IAuthService = withContext(ioDispatcher) {
+    open suspend fun getAuthService(): IAuthService = withContext(ioDispatcher) {
         checkSslSupport()
         val baseUrl = getRpcUrl()
         val rpcClient = createReconnectingClient(baseUrl, "auth")
@@ -248,11 +247,11 @@ abstract class BaseRpcServiceManager(
         ServerValidationResult(validated = false, useSsl = false)
     }
 
-    private suspend fun ensureAuthenticated() {
-        if (!isTokenExpired()) return
+    private suspend fun ensureAuthenticated(force: Boolean = false) {
+        if (!force && !isTokenExpired()) return
 
         val result: Any? = mutex.withLock {
-            if (!isTokenExpired()) return@withLock null
+            if (!force && !isTokenExpired()) return@withLock null
 
             val refreshToken = getRefreshToken()
             if (refreshToken != null) {
@@ -277,13 +276,31 @@ abstract class BaseRpcServiceManager(
         } else if (result is Throwable) {
             val genuineRejection = result is SessionExpiredException ||
                 isAuthException(result) ||
-                !isTransportException(result)
+                isRefreshRejected(result)
             if (genuineRejection) {
-                onAuthFailure()
+                onAuthFailure(result)
             } else {
                 onServerUnreachable()
             }
             throw result
+        }
+    }
+
+    private suspend inline fun <T> connectWithAuthRetry(connect: () -> T): T {
+        var refreshed = false
+        while (true) {
+            val authException = try {
+                return connect()
+            } catch (e: Throwable) {
+                if (isAuthException(e)) e else throw e
+            }
+            if (!refreshed) {
+                refreshed = true
+                ensureAuthenticated(force = true)
+                continue
+            }
+            onAuthFailure(authException)
+            throw authException
         }
     }
 
@@ -295,111 +312,88 @@ abstract class BaseRpcServiceManager(
 
         ensureAuthenticated()
 
-        var authException: Throwable? = null
-        val rpcClient = try {
-            mutex.withLock {
-                _servicesClient?.let { return@withLock it }
+        return connectWithAuthRetry { connectServicesClient() }
+    }
 
-                val baseUrl = getRpcUrl()
-                val token = getAuthToken() ?: throw IllegalStateException("Not authenticated")
+    private suspend fun connectServicesClient(): KtorRpcClient = mutex.withLock {
+        _servicesClient?.let { return@withLock it }
 
-                var lastException: Throwable? = null
-                for (attempt in 1..3) {
-                    try {
-                        val rpcClientInstance = withContext(scope.coroutineContext) {
-                            client.rpc {
-                                url("${baseUrl}/rpc/services")
-                                connectionHeaders()
-                                header("Authorization", "Bearer $token")
-                            }
-                        }
-                        rpcClientInstance.withService<IUserService>().me()
-                        _servicesClient = rpcClientInstance
-                        return@withLock rpcClientInstance
-                    } catch (e: Throwable) {
-                        lastException = e
-                        if (isAuthException(e)) {
-                            throw e
-                        }
-                        when (e) {
-                            is ConnectTimeoutException,
-                            is IOException,
-                            is UnresolvedAddressException -> {
-                                delay((1000L * attempt).milliseconds)
-                                continue
-                            }
+        val baseUrl = getRpcUrl()
+        val token = getAuthToken() ?: throw IllegalStateException("Not authenticated")
 
-                            else -> throw e
-                        }
+        var lastException: Throwable? = null
+        for (attempt in 1..3) {
+            try {
+                val rpcClientInstance = withContext(scope.coroutineContext) {
+                    client.rpc {
+                        url("${baseUrl}/rpc/services")
+                        connectionHeaders()
+                        header("Authorization", "Bearer $token")
                     }
                 }
-                onServerUnreachable()
-                throw lastException ?: IllegalStateException("Failed to connect after retries")
-            }
-        } catch (e: Throwable) {
-            if (isAuthException(e)) {
-                authException = e
-                null
-            } else {
-                throw e
+                rpcClientInstance.withService<IUserService>().me()
+                _servicesClient = rpcClientInstance
+                return@withLock rpcClientInstance
+            } catch (e: Throwable) {
+                lastException = e
+                if (isAuthException(e)) {
+                    throw e
+                }
+                when (e) {
+                    is ConnectTimeoutException,
+                    is IOException,
+                    is UnresolvedAddressException -> {
+                        delay((1000L * attempt).milliseconds)
+                        continue
+                    }
+
+                    else -> throw e
+                }
             }
         }
-
-        if (authException != null) {
-            onAuthFailure()
-            throw authException
-        }
-
-        return rpcClient!!
+        onServerUnreachable()
+        throw lastException ?: IllegalStateException("Failed to connect after retries")
     }
 
     open suspend fun getDedicatedClient(): KtorRpcClient {
         checkSslSupport()
         ensureAuthenticated()
-        
-        var authException: Throwable?
-        try {
-            val baseUrl = getRpcUrl()
-            val token = getAuthToken() ?: throw IllegalStateException("Not authenticated")
 
-            var lastException: Throwable? = null
-            for (attempt in 1..3) {
-                try {
-                    return withContext(scope.coroutineContext) {
-                        client.rpc {
-                            url("${baseUrl}/rpc/services")
-                            header("Authorization", "Bearer $token")
-                            connectionHeaders()
-                        }
-                    }
-                } catch (e: Throwable) {
-                    lastException = e
-                    if (isAuthException(e)) {
-                        throw e
-                    }
-                    when (e) {
-                        is ConnectTimeoutException,
-                        is IOException,
-                        is UnresolvedAddressException -> {
-                            delay((1000L * attempt).milliseconds)
-                            continue
-                        }
-                        else -> throw e
+        return connectWithAuthRetry { connectDedicatedClient() }
+    }
+
+    private suspend fun connectDedicatedClient(): KtorRpcClient {
+        val baseUrl = getRpcUrl()
+        val token = getAuthToken() ?: throw IllegalStateException("Not authenticated")
+
+        var lastException: Throwable? = null
+        for (attempt in 1..3) {
+            try {
+                return withContext(scope.coroutineContext) {
+                    client.rpc {
+                        url("${baseUrl}/rpc/services")
+                        header("Authorization", "Bearer $token")
+                        connectionHeaders()
                     }
                 }
-            }
-            onServerUnreachable()
-            throw lastException ?: IllegalStateException("Failed to connect dedicated client after retries")
-        } catch (e: Throwable) {
-            if (isAuthException(e)) {
-                authException = e
-            } else {
-                throw e
+            } catch (e: Throwable) {
+                lastException = e
+                if (isAuthException(e)) {
+                    throw e
+                }
+                when (e) {
+                    is ConnectTimeoutException,
+                    is IOException,
+                    is UnresolvedAddressException -> {
+                        delay((1000L * attempt).milliseconds)
+                        continue
+                    }
+                    else -> throw e
+                }
             }
         }
-
-        onAuthFailure()
-        throw authException
+        onServerUnreachable()
+        throw lastException ?: IllegalStateException("Failed to connect dedicated client after retries")
     }
 
     protected fun reportConnectFailure(e: Throwable) {
@@ -408,10 +402,10 @@ abstract class BaseRpcServiceManager(
 
     private val authFailureMutex = Mutex()
 
-    protected suspend fun onAuthFailure() {
+    protected suspend fun onAuthFailure(reason: Throwable? = null) {
         authFailureMutex.withLock {
             if (!isAuthenticated()) return
-            handleAuthFailure()
+            handleAuthFailure(reason)
         }
     }
 
@@ -422,13 +416,17 @@ abstract class BaseRpcServiceManager(
         }
     }
 
-    protected open fun isTransportException(e: Throwable): Boolean = when (e) {
-        is IOException,
-        is ConnectTimeoutException,
-        is HttpRequestTimeoutException,
-        is UnresolvedAddressException -> true
-        is WebSocketException -> !isAuthException(e)
+    protected open fun isTransportException(e: Throwable): Boolean = when {
+        e is WebSocketException -> !isAuthException(e)
+        e.isTransportFailure() -> true
         else -> e.cause?.let { isTransportException(it) } == true
+    }
+
+    protected open fun isRefreshRejected(e: Throwable): Boolean {
+        if (isTransportException(e)) return false
+        if (e is IllegalArgumentException) return true
+        val message = e.message ?: return false
+        return message.contains("Invalid refresh token") || message.contains("Invalid user")
     }
 
     protected open fun isSslException(e: Throwable): Boolean {

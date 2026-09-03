@@ -102,15 +102,18 @@ class ReconnectingRpcClient(
 
     private fun isRetriable(e: Throwable): Boolean {
         if (e is UnresolvedAddressException) return false
-
-        val isCancelled = e is IllegalStateException && e.message?.contains("RpcClient was cancelled") == true
-
-        return isCancelled ||
-                e is ClosedSendChannelException ||
-                e is ClosedReceiveChannelException ||
-                (e is WebSocketException && e.message?.contains("401") != true) ||
-                e is ConnectTimeoutException ||
-                e is HttpRequestTimeoutException ||
-                e is IOException
+        return e.isTransportFailure()
     }
+}
+
+fun Throwable.isTransportFailure(): Boolean = when (this) {
+    is ClosedSendChannelException,
+    is ClosedReceiveChannelException,
+    is ConnectTimeoutException,
+    is HttpRequestTimeoutException,
+    is UnresolvedAddressException,
+    is IOException -> true
+    is WebSocketException -> message?.contains("401") != true
+    is IllegalStateException -> message?.contains("RpcClient was cancelled") == true
+    else -> false
 }
