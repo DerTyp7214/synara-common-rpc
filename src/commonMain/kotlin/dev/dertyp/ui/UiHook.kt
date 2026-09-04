@@ -58,3 +58,20 @@ data class UiHookHandler(
     @FieldDoc("If set, ask the user to confirm with this text before performing the action, even when it is the only handler.")
     val confirmText: String? = null,
 )
+
+@Serializable
+@ModelDoc("A handler that may offer to take hook events, listed without an input. Use for pickers; whether it accepts a specific event is only known from IUiService.dispatchHook.")
+data class UiHookHandlerInfo(
+    @FieldDoc("Handler id, matches UiHookHandler.contributionId.")
+    val id: String,
+    @FieldDoc("Origin: \"server\" or a plugin id.")
+    val source: String,
+    @FieldDoc("Localized title, e.g. \"Import with Tidal\".")
+    val title: String,
+    @FieldDoc("Localized description.")
+    val description: String? = null,
+    @FieldDoc("Icon.")
+    val icon: UiIcon? = null,
+    @FieldDoc("Hook kinds the handler can serve.")
+    val kinds: List<UiHookKind>,
+)

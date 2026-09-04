@@ -1896,6 +1896,16 @@ pub struct UiHookHandler {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiHookHandlerInfo {
+    pub id: String,
+    pub source: String,
+    pub title: String,
+    pub description: Option<String>,
+    pub icon: Option<UiIcon>,
+    pub kinds: Vec<UiHookKind>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IntakeItem {
 }
 
@@ -3205,6 +3215,7 @@ pub trait IUiService {
     fn subscribe_live(&self, contribution_id: String, key: String, entity_id: Option<PlatformUUID>) -> RpcStream<UiLiveUpdate>;
     fn invoke<'life0, 'async_trait>(&'life0 self, contribution_id: String, action_id: String, payload: UiInvokePayload) -> Pin<Box<dyn std::future::Future<Output = Result<UiInvokeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn dispatch_hook<'life0, 'async_trait>(&'life0 self, event: UiHookEvent) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn list_hook_handlers<'life0, 'async_trait>(&'life0 self, kind: Option<UiHookKind>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandlerInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn intake<'life0, 'async_trait>(&'life0 self, items: Vec<IntakeItem>, resolver_id: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<UiIntakeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn resolve_intake<'life0, 'async_trait>(&'life0 self, items: Vec<IntakeItem>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_home_cards<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<UiHomeLayout, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -4110,6 +4121,11 @@ impl IUiService for RpcClient {
     fn dispatch_hook<'life0, 'async_trait>(&'life0 self, event: UiHookEvent) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IUiService", "dispatchHook", &event).await
+        })
+    }
+    fn list_hook_handlers<'life0, 'async_trait>(&'life0 self, kind: Option<UiHookKind>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandlerInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IUiService", "listHookHandlers", &kind).await
         })
     }
     fn intake<'life0, 'async_trait>(&'life0 self, items: Vec<IntakeItem>, resolver_id: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<UiIntakeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {

@@ -12,6 +12,8 @@ import dev.dertyp.ui.UiContributionKind
 import dev.dertyp.ui.UiHomeLayout
 import dev.dertyp.ui.UiHookEvent
 import dev.dertyp.ui.UiHookHandler
+import dev.dertyp.ui.UiHookHandlerInfo
+import dev.dertyp.ui.UiHookKind
 import dev.dertyp.ui.UiInvokePayload
 import dev.dertyp.ui.UiInvokeResult
 import dev.dertyp.ui.UiLiveUpdate
@@ -69,6 +71,11 @@ interface IUiService {
     suspend fun dispatchHook(
         @RpcParamDoc("The event.") event: UiHookEvent,
     ): List<UiHookHandler>
+
+    @RpcDoc("List every handler that may offer to take hook events for the current user, without an input. Intake resolvers serve every kind; contributions list the kinds they declare. Whether a handler accepts a specific event is only known from dispatchHook.")
+    suspend fun listHookHandlers(
+        @RpcParamDoc("Only handlers serving this kind; null lists all.") kind: UiHookKind? = null,
+    ): List<UiHookHandlerInfo>
 
     @RestPost
     @RpcDoc("Hand items (links, codes, ids, text) to the server. Unambiguous items are submitted immediately; when several handlers offer, NEEDS_CHOICE returns them and the client calls intake again with the chosen handler's action. Items nobody accepts are returned as rejected.")
