@@ -49,6 +49,8 @@ data class MediaCollection(
     val artistCount: Int = 0,
     @FieldDoc("Number of playlists explicitly added as items.")
     val playlistCount: Int = 0,
+    @FieldDoc("Where the cover image came from; null when there is no cover.")
+    val imageSource: ImageSource? = null,
 )
 
 @Serializable

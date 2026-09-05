@@ -2,6 +2,8 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.SongAudioData
+import dev.dertyp.data.SongAudioTimeline
+import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -13,6 +15,12 @@ interface IAudioAnalysisService {
     suspend fun getAudioData(
         @RpcParamDoc("The song unique identifier.") songId: PlatformUUID
     ): SongAudioData?
+
+    @RestGet
+    @RpcDoc("Get the beat grid and loudness envelope of a song, or null when not extracted yet. Call analyzeSong to extract it.")
+    suspend fun getAudioTimeline(
+        @RpcParamDoc("The song unique identifier.") songId: PlatformUUID
+    ): SongAudioTimeline?
 
     @RpcDoc("Trigger analysis for a song.")
     suspend fun analyzeSong(

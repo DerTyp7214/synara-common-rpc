@@ -322,6 +322,31 @@ data class SongAudioData(
 }
 
 @Serializable
+@ModelDoc("Time-based analysis data of a song: beat grid and loudness envelope, for visualisations and light sync.")
+data class SongAudioTimeline(
+    @FieldDoc("The song unique identifier.")
+    val songId: PlatformUUID,
+    @FieldDoc("Beat positions in milliseconds from the start of the file.")
+    val beatsMs: List<Int> = emptyList(),
+    @FieldDoc("Number of detected beats.")
+    val beatsCount: Int? = null,
+    @FieldDoc("Onsets per second.")
+    val onsetRate: Double? = null,
+    @FieldDoc("Sample rate of the loudness envelope in samples per second.")
+    val envelopeHz: Int = 10,
+    @FieldDoc("Loudness envelope in dBFS, one value per 1/envelopeHz seconds.")
+    val envelopeDb: List<Float> = emptyList(),
+    @FieldDoc("Loudness range in LU.")
+    val loudnessRange: Double? = null,
+    @FieldDoc("Dynamic complexity of the loudness.")
+    val dynamicComplexity: Double? = null,
+    @FieldDoc("Where the beat grid came from: essentia, rms or none.")
+    val source: String = "none",
+    @FieldDoc("Encoding version of the stored data.")
+    val version: Int = 1,
+)
+
+@Serializable
 @ModelDoc("A simplified representation of a song.")
 data class SimpleSong(
     @FieldDoc("The song unique identifier.")

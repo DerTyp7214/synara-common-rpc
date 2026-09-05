@@ -20,6 +20,7 @@ object UiSlots {
     const val SONG_DETAIL = "song.detail"
     const val SONG_MENU = "song.menu"
     const val PLAYLIST_DETAIL = "playlist.detail"
+    const val COLLECTION_DETAIL = "collection.detail"
 }
 
 object UiPortals {

@@ -34,4 +34,6 @@ object TaskKeys {
     const val RECOMMENDATION_TRAINING = "recommendation-training"
     const val RADIO_SESSION_CLEANUP = "radio-session-cleanup"
     const val STORAGE_SIZE_REFRESH = "storage-size-refresh"
+    const val COVER_BACKFILL = "cover-backfill"
+    const val AUDIO_TIMELINE_BACKFILL = "audio-timeline-backfill"
 }
