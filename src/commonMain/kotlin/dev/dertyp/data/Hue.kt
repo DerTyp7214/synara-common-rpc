@@ -19,6 +19,8 @@ data class HueBridgeCandidate(
     val modelId: String? = null,
     @FieldDoc("Whether this bridge is already paired with the server.")
     val paired: Boolean = false,
+    @FieldDoc("Name reported by the bridge, when it answered.")
+    val name: String? = null,
 )
 
 @Serializable

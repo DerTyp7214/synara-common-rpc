@@ -2127,6 +2127,7 @@ pub struct HueBridgeCandidate {
     #[serde(rename = "modelId")]
     pub model_id: Option<String>,
     pub paired: bool,
+    pub name: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
