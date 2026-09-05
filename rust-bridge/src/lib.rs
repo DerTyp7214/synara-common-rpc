@@ -2200,6 +2200,7 @@ pub struct HueUserLink {
     pub on_stop: HueStopMode,
     #[serde(rename = "updatedAt")]
     pub updated_at: i64,
+    pub motion: HueMotionMode,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -2228,6 +2229,16 @@ pub enum HueStopMode {
     Off,
     #[serde(rename = "RESTORE")]
     Restore,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum HueMotionMode {
+    #[serde(rename = "OFF")]
+    Off,
+    #[serde(rename = "SLOW")]
+    Slow,
+    #[serde(rename = "TEMPO")]
+    Tempo,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

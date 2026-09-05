@@ -122,6 +122,17 @@ enum class HueStopMode {
 }
 
 @Serializable
+@ModelDoc("Ambient light movement while a song plays.")
+enum class HueMotionMode {
+    @FieldDoc("Set the colors once per track.")
+    OFF,
+    @FieldDoc("Slowly rotate the palette across the lights with long crossfades.")
+    SLOW,
+    @FieldDoc("Rotate the palette once per bar of the song's tempo and let brightness follow the loudness envelope.")
+    TEMPO
+}
+
+@Serializable
 @ModelDoc("A user's link to a bridge: which lights follow the user's playback and how.")
 data class HueUserLink(
     @FieldDoc("Server-side unique identifier of the bridge.")
@@ -140,6 +151,8 @@ data class HueUserLink(
     val onStop: HueStopMode = HueStopMode.KEEP,
     @FieldDoc("Unix timestamp in milliseconds of the last change.")
     val updatedAt: Long = 0L,
+    @FieldDoc("Ambient movement while a song plays.")
+    val motion: HueMotionMode = HueMotionMode.OFF,
 )
 
 @Serializable
