@@ -103,6 +103,12 @@ abstract class BaseRpcServiceManager(
         _uiSchemaVersion.value = UiSchemaVersion.NONE
     }
 
+    fun resetSslSession() {
+        sslChecked = false
+        _sessionSslOverride.value = null
+        resetHandshake()
+    }
+
     suspend fun fetchHandshake(): HandshakeResponse? = withContext(ioDispatcher) {
         try {
             getHandshakeService().handshake().also { storeHandshake(it) }
