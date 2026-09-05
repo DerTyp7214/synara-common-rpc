@@ -1551,6 +1551,17 @@ pub struct UserSong {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PlaybackReport {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    #[serde(rename = "positionMs")]
+    pub position_ms: i64,
+    pub playing: bool,
+    #[serde(rename = "sentAt")]
+    pub sent_at: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ScrobbleRequest {
     #[serde(rename = "songId")]
     pub song_id: PlatformUUID,
@@ -2202,6 +2213,8 @@ pub struct HueUserLink {
     #[serde(rename = "updatedAt")]
     pub updated_at: i64,
     pub motion: HueMotionMode,
+    #[serde(rename = "latencyMs")]
+    pub latency_ms: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -3398,6 +3411,7 @@ pub trait ISyncService {
 
 pub trait IScrobbleService {
     fn now_playing<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn report_playback<'life0, 'async_trait>(&'life0 self, report: PlaybackReport) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn clear_now_playing<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn listened<'life0, 'async_trait>(&'life0 self, request: ScrobbleRequest) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn recent_listens_flow(&self, limit: i32) -> RpcStream<RecentListens>;
@@ -4111,6 +4125,11 @@ impl IScrobbleService for RpcClient {
     fn now_playing<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IScrobbleService", "nowPlaying", &song_id).await
+        })
+    }
+    fn report_playback<'life0, 'async_trait>(&'life0 self, report: PlaybackReport) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IScrobbleService", "reportPlayback", &report).await
         })
     }
     fn clear_now_playing<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {

@@ -20,6 +20,19 @@ data class ScrobbleRequest(
 )
 
 @Serializable
+@ModelDoc("A playback progress report for the song the user is playing.")
+data class PlaybackReport(
+    @FieldDoc("The library song being played.")
+    val songId: PlatformUUID,
+    @FieldDoc("Playback position in milliseconds at the time the report was sampled.")
+    val positionMs: Long = 0,
+    @FieldDoc("Whether playback is running; false while paused.")
+    val playing: Boolean = true,
+    @FieldDoc("Client epoch milliseconds when the position was sampled; lets the server compensate transport delay.")
+    val sentAt: Long? = null,
+)
+
+@Serializable
 @ModelDoc("The song a user is currently playing.")
 data class NowPlaying(
     @FieldDoc("The song being played, with full metadata.")

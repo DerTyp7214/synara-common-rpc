@@ -1,6 +1,7 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
+import dev.dertyp.data.PlaybackReport
 import dev.dertyp.data.RecentListens
 import dev.dertyp.data.ScrobbleRequest
 import dev.dertyp.rpc.annotations.RestGet
@@ -18,6 +19,12 @@ interface IScrobbleService {
     suspend fun nowPlaying(
         @RpcParamDoc("The library song now playing.") songId: PlatformUUID
     )
+
+    @RestPost
+    @RpcDoc("Report playback progress for the current user: call on play, pause, resume, seek and every 10-15 seconds while playing. Returns the server's epoch milliseconds at receipt so clients can align their clocks.")
+    suspend fun reportPlayback(
+        @RpcParamDoc("The current playback state.") report: PlaybackReport
+    ): Long
 
     @RestPost
     @RpcDoc("Clear the current user's now-playing state, e.g. when playback stops.")

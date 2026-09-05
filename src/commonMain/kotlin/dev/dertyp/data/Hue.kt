@@ -155,6 +155,8 @@ data class HueUserLink(
     val updatedAt: Long = 0L,
     @FieldDoc("Ambient movement while a song plays.")
     val motion: HueMotionMode = HueMotionMode.OFF,
+    @FieldDoc("Milliseconds by which light changes are sent early to compensate bridge and lamp latency; 0..1000.")
+    val latencyMs: Int = 150,
 )
 
 @Serializable
