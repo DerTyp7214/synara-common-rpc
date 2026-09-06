@@ -131,7 +131,9 @@ enum class HueMotionMode {
     @FieldDoc("Slowly rotate the palette across the lights with long crossfades.")
     SLOW,
     @FieldDoc("Rotate the palette once per bar of the song's tempo and let brightness follow the loudness envelope.")
-    TEMPO
+    TEMPO,
+    @FieldDoc("Rotate the palette once per bar of the song's tempo and let brightness follow the bass energy (kick and sub) with a wide swing.")
+    BASS
 }
 
 @Serializable

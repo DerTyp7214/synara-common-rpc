@@ -2253,6 +2253,8 @@ pub enum HueMotionMode {
     Slow,
     #[serde(rename = "TEMPO")]
     Tempo,
+    #[serde(rename = "BASS")]
+    Bass,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2658,6 +2660,8 @@ pub struct SongAudioTimeline {
     pub envelope_hz: i32,
     #[serde(rename = "envelopeDb")]
     pub envelope_db: Vec<Float>,
+    #[serde(rename = "bassEnvelopeDb")]
+    pub bass_envelope_db: Vec<Float>,
     #[serde(rename = "loudnessRange")]
     pub loudness_range: Option<Double>,
     #[serde(rename = "dynamicComplexity")]

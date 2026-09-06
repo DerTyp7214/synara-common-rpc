@@ -322,7 +322,7 @@ data class SongAudioData(
 }
 
 @Serializable
-@ModelDoc("Time-based analysis data of a song: beat grid and loudness envelope, for visualisations and light sync.")
+@ModelDoc("Time-based analysis data of a song: beat grid, loudness envelope and bass envelope, for visualisations and light sync.")
 data class SongAudioTimeline(
     @FieldDoc("The song unique identifier.")
     val songId: PlatformUUID,
@@ -336,6 +336,8 @@ data class SongAudioTimeline(
     val envelopeHz: Int = 10,
     @FieldDoc("Loudness envelope in dBFS, one value per 1/envelopeHz seconds.")
     val envelopeDb: List<Float> = emptyList(),
+    @FieldDoc("Bass band (30-150 Hz) envelope in dBFS, one value per 1/envelopeHz seconds; empty when not extracted yet.")
+    val bassEnvelopeDb: List<Float> = emptyList(),
     @FieldDoc("Loudness range in LU.")
     val loudnessRange: Double? = null,
     @FieldDoc("Dynamic complexity of the loudness.")
