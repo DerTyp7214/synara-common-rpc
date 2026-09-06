@@ -43,7 +43,9 @@ sealed class UiHookEvent {
 @Serializable
 @ModelDoc("A contribution's offer to handle a hook event. The client performs the action directly when it is the only handler, otherwise it lets the user choose.")
 data class UiHookHandler(
-    @FieldDoc("Id of the offering contribution.")
+    @FieldDoc("Handler id, matches UiHookHandlerInfo.id and UiMenuItem.id; pass it as resolverId to IUiService.intake.")
+    val id: String,
+    @FieldDoc("Id of the offering contribution; equals id for the built-in handlers.")
     val contributionId: String,
     @FieldDoc("Origin: \"server\" or a plugin id.")
     val source: String,
@@ -62,7 +64,7 @@ data class UiHookHandler(
 @Serializable
 @ModelDoc("A handler that may offer to take hook events, listed without an input. Use for pickers; whether it accepts a specific event is only known from IUiService.dispatchHook.")
 data class UiHookHandlerInfo(
-    @FieldDoc("Handler id, matches UiHookHandler.contributionId.")
+    @FieldDoc("Handler id, matches UiHookHandler.id.")
     val id: String,
     @FieldDoc("Origin: \"server\" or a plugin id.")
     val source: String,

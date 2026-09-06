@@ -22,6 +22,8 @@ data class UiMenuItem(
     val tone: UiTone = UiTone.DEFAULT,
     @FieldDoc("Whether the entry can be chosen.")
     val enabled: Boolean = true,
+    @FieldDoc("Stable id, e.g. the handler id (UiHookHandler.id) when the menu lists hook handlers; null for plain entries.")
+    val id: String? = null,
 )
 
 @Serializable

@@ -2443,6 +2443,7 @@ pub struct UiHookEvent {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UiHookHandler {
+    pub id: String,
     #[serde(rename = "contributionId")]
     pub contribution_id: String,
     pub source: String,
