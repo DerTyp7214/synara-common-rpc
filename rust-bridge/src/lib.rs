@@ -2678,12 +2678,40 @@ pub struct SongAudioTimeline {
     pub envelope_db: Vec<Float>,
     #[serde(rename = "bassEnvelopeDb")]
     pub bass_envelope_db: Vec<Float>,
+    #[serde(rename = "bandHz")]
+    pub band_hz: i32,
+    pub bands: Vec<SongAudioBand>,
     #[serde(rename = "loudnessRange")]
     pub loudness_range: Option<Double>,
     #[serde(rename = "dynamicComplexity")]
     pub dynamic_complexity: Option<Double>,
     pub source: String,
     pub version: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SongAudioBand {
+    pub band: AudioBand,
+    #[serde(rename = "lowHz")]
+    pub low_hz: i32,
+    #[serde(rename = "highHz")]
+    pub high_hz: i32,
+    #[serde(rename = "levelsDb")]
+    pub levels_db: Vec<Float>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum AudioBand {
+    #[serde(rename = "SUB")]
+    Sub,
+    #[serde(rename = "KICK")]
+    Kick,
+    #[serde(rename = "LOW_MID")]
+    LowMid,
+    #[serde(rename = "MID")]
+    Mid,
+    #[serde(rename = "HIGH")]
+    High,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

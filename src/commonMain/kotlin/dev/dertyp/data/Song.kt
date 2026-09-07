@@ -322,7 +322,7 @@ data class SongAudioData(
 }
 
 @Serializable
-@ModelDoc("Time-based analysis data of a song: beat grid, loudness envelope and bass envelope, for visualisations and light sync.")
+@ModelDoc("Time-based analysis data of a song: beat grid, loudness envelope, bass envelope and per-band level tracks, for visualisations and light sync.")
 data class SongAudioTimeline(
     @FieldDoc("The song unique identifier.")
     val songId: PlatformUUID,
@@ -336,8 +336,12 @@ data class SongAudioTimeline(
     val envelopeHz: Int = 10,
     @FieldDoc("Loudness envelope in dBFS, one value per 1/envelopeHz seconds.")
     val envelopeDb: List<Float> = emptyList(),
-    @FieldDoc("Bass band (30-150 Hz) envelope in dBFS, one value per 1/envelopeHz seconds; empty when not extracted yet.")
+    @FieldDoc("Bass band (20-130 Hz) envelope in dBFS derived from the sub and kick bands, one value per 1/envelopeHz seconds; empty when not extracted yet.")
     val bassEnvelopeDb: List<Float> = emptyList(),
+    @FieldDoc("Sample rate of the band level tracks in samples per second; 0 when no bands are stored.")
+    val bandHz: Int = 0,
+    @FieldDoc("Per-band level tracks (sub, kick, low mid, mid, high) for visualisations and light sync; empty when not extracted yet.")
+    val bands: List<SongAudioBand> = emptyList(),
     @FieldDoc("Loudness range in LU.")
     val loudnessRange: Double? = null,
     @FieldDoc("Dynamic complexity of the loudness.")
@@ -346,6 +350,34 @@ data class SongAudioTimeline(
     val source: String = "none",
     @FieldDoc("Encoding version of the stored data.")
     val version: Int = 1,
+)
+
+@Serializable
+@ModelDoc("Frequency band of a song's level tracks.")
+enum class AudioBand {
+    @FieldDoc("Sub bass, 20-60 Hz.")
+    SUB,
+    @FieldDoc("Kick and bass fundamentals, 60-130 Hz.")
+    KICK,
+    @FieldDoc("Low mids, 130-400 Hz.")
+    LOW_MID,
+    @FieldDoc("Mids, 400-2000 Hz.")
+    MID,
+    @FieldDoc("Highs, 2000-8000 Hz.")
+    HIGH
+}
+
+@Serializable
+@ModelDoc("Level track of one frequency band of a song.")
+data class SongAudioBand(
+    @FieldDoc("The band.")
+    val band: AudioBand,
+    @FieldDoc("Lower edge of the band in Hz.")
+    val lowHz: Int,
+    @FieldDoc("Upper edge of the band in Hz.")
+    val highHz: Int,
+    @FieldDoc("Band level in dBFS, one value per 1/bandHz seconds.")
+    val levelsDb: List<Float> = emptyList(),
 )
 
 @Serializable
