@@ -2198,6 +2198,18 @@ pub enum HueTargetType {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct HueScene {
+    pub id: String,
+    pub name: String,
+    #[serde(rename = "groupType")]
+    pub group_type: HueTargetType,
+    #[serde(rename = "groupId")]
+    pub group_id: String,
+    #[serde(rename = "groupName")]
+    pub group_name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HueUserLink {
     #[serde(rename = "bridgeId")]
     pub bridge_id: PlatformUUID,
@@ -2215,6 +2227,8 @@ pub struct HueUserLink {
     pub motion: HueMotionMode,
     #[serde(rename = "latencyMs")]
     pub latency_ms: i32,
+    #[serde(rename = "stopScenes")]
+    pub stop_scenes: Vec<HueScene>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -2241,8 +2255,8 @@ pub enum HueStopMode {
     Keep,
     #[serde(rename = "OFF")]
     Off,
-    #[serde(rename = "RESTORE")]
-    Restore,
+    #[serde(rename = "SCENE")]
+    Scene,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -3555,6 +3569,7 @@ pub trait IHueService {
     fn start_pairing(&self, ip: String) -> RpcStream<HuePairingStatus>;
     fn remove_bridge<'life0, 'async_trait>(&'life0 self, bridge_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn list_targets<'life0, 'async_trait>(&'life0 self, bridge_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<HueTarget>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn list_scenes<'life0, 'async_trait>(&'life0 self, bridge_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<HueScene>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_links<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<HueUserLink>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_link<'life0, 'async_trait>(&'life0 self, link: HueUserLink) -> Pin<Box<dyn std::future::Future<Output = Result<HueUserLink, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn remove_link<'life0, 'async_trait>(&'life0 self, bridge_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -4710,6 +4725,11 @@ impl IHueService for RpcClient {
     fn list_targets<'life0, 'async_trait>(&'life0 self, bridge_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<HueTarget>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IHueService", "listTargets", &bridge_id).await
+        })
+    }
+    fn list_scenes<'life0, 'async_trait>(&'life0 self, bridge_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<HueScene>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IHueService", "listScenes", &bridge_id).await
         })
     }
     fn get_links<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<HueUserLink>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {

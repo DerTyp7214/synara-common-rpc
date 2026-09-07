@@ -119,8 +119,8 @@ enum class HueStopMode {
     KEEP,
     @FieldDoc("Turn the linked lights off.")
     OFF,
-    @FieldDoc("Restore the state the lights had before playback started.")
-    RESTORE
+    @FieldDoc("Recall the configured Hue scenes.")
+    SCENE
 }
 
 @Serializable
@@ -135,6 +135,21 @@ enum class HueMotionMode {
     @FieldDoc("Rotate the palette once per bar of the song's tempo and let brightness follow the bass energy (kick and sub) with a wide swing.")
     BASS
 }
+
+@Serializable
+@ModelDoc("A scene on a bridge, scoped to a room or zone.")
+data class HueScene(
+    @FieldDoc("Bridge resource id of the scene.")
+    val id: String,
+    @FieldDoc("Display name.")
+    val name: String,
+    @FieldDoc("Kind of group the scene belongs to; ROOM or ZONE.")
+    val groupType: HueTargetType,
+    @FieldDoc("Bridge resource id of the room or zone.")
+    val groupId: String,
+    @FieldDoc("Display name of the room or zone.")
+    val groupName: String,
+)
 
 @Serializable
 @ModelDoc("A user's link to a bridge: which lights follow the user's playback and how.")
@@ -159,6 +174,8 @@ data class HueUserLink(
     val motion: HueMotionMode = HueMotionMode.OFF,
     @FieldDoc("Milliseconds by which light changes are sent early to compensate bridge and lamp latency; 0..1000.")
     val latencyMs: Int = 150,
+    @FieldDoc("Scenes recalled when playback stops in SCENE mode; at most one per room or zone.")
+    val stopScenes: List<HueScene> = emptyList(),
 )
 
 @Serializable

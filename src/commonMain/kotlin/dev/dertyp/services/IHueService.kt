@@ -6,6 +6,7 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.data.HueBridgeCandidate
 import dev.dertyp.data.HueBridgeInfo
 import dev.dertyp.data.HuePairingStatus
+import dev.dertyp.data.HueScene
 import dev.dertyp.data.HueStatus
 import dev.dertyp.data.HueTarget
 import dev.dertyp.data.HueUserLink
@@ -41,6 +42,10 @@ interface IHueService {
     @RestGet
     @RpcDoc("Lights, rooms and zones exposed by a bridge.", errors = ["IllegalArgumentException"])
     suspend fun listTargets(@RpcParamDoc("Server-side bridge unique identifier.") bridgeId: PlatformUUID): List<HueTarget>
+
+    @RestGet
+    @RpcDoc("Scenes exposed by a bridge, each scoped to a room or zone that the bridge reports.", errors = ["IllegalArgumentException"])
+    suspend fun listScenes(@RpcParamDoc("Server-side bridge unique identifier.") bridgeId: PlatformUUID): List<HueScene>
 
     @RestGet
     @RpcDoc("The current user's light links.")
