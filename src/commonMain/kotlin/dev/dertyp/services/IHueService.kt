@@ -10,7 +10,6 @@ import dev.dertyp.data.HueScene
 import dev.dertyp.data.HueStatus
 import dev.dertyp.data.HueTarget
 import dev.dertyp.data.HueUserLink
-import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -20,23 +19,22 @@ import kotlinx.rpc.annotations.Rpc
 import kotlinx.serialization.UseContextualSerialization
 
 @Rpc
-@RpcDoc("Philips Hue bridges paired with this server and the current user's light links, driven by now-playing changes.")
+@RpcDoc("Philips Hue bridges paired by the current user and their light links, driven by now-playing changes.")
 interface IHueService {
     @RestGet
-    @RpcDoc("Discover Hue bridges on the local network via mDNS and the Hue cloud discovery endpoint.")
+    @RpcDoc("Discover Hue bridges on the local network via mDNS and the Hue cloud discovery endpoint; paired is relative to the current user.")
     suspend fun discoverBridges(): List<HueBridgeCandidate>
 
     @RestGet
-    @RpcDoc("Bridges already paired with this server.")
+    @RpcDoc("Bridges paired by the current user.")
     suspend fun listBridges(): List<HueBridgeInfo>
 
     @RestPost
-    @RpcDoc("Pair with a bridge. Press the link button on the bridge while this flow polls for up to 30 seconds.")
+    @RpcDoc("Pair with a bridge. Press the link button on the bridge while this flow polls for up to 30 seconds. The bridge is stored for the current user; other users pair it separately.")
     fun startPairing(@RpcParamDoc("IP address of the bridge.") ip: String): Flow<HuePairingStatus>
 
     @RestPost
-    @RequiresAdmin
-    @RpcDoc("Remove a paired bridge together with every user link to it.")
+    @RpcDoc("Remove one of the current user's bridges together with the user's link to it.")
     suspend fun removeBridge(@RpcParamDoc("Server-side bridge unique identifier.") bridgeId: PlatformUUID): Boolean
 
     @RestGet

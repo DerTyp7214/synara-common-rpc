@@ -2195,6 +2195,8 @@ pub enum HueTargetType {
     Room,
     #[serde(rename = "ZONE")]
     Zone,
+    #[serde(rename = "ENTERTAINMENT")]
+    Entertainment,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

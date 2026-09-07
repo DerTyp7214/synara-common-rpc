@@ -17,7 +17,7 @@ data class HueBridgeCandidate(
     val ip: String,
     @FieldDoc("Model id, when known.")
     val modelId: String? = null,
-    @FieldDoc("Whether this bridge is already paired with the server.")
+    @FieldDoc("Whether this bridge is already paired by the current user.")
     val paired: Boolean = false,
     @FieldDoc("Name reported by the bridge, when it answered.")
     val name: String? = null,
@@ -69,22 +69,24 @@ data class HuePairingStatus(
 )
 
 @Serializable
-@ModelDoc("Kind of light target on a bridge.")
+@ModelDoc("Kind of light target on a bridge, including entertainment areas.")
 enum class HueTargetType {
     @FieldDoc("A single light.")
     LIGHT,
     @FieldDoc("A room; controlled through its grouped light.")
     ROOM,
     @FieldDoc("A zone; controlled through its grouped light.")
-    ZONE
+    ZONE,
+    @FieldDoc("An entertainment area; streamed over the Entertainment API at up to 25 frames per second, at most one per bridge link.")
+    ENTERTAINMENT
 }
 
 @Serializable
-@ModelDoc("A light, room or zone on a bridge.")
+@ModelDoc("A light, room, zone or entertainment area on a bridge.")
 data class HueTarget(
     @FieldDoc("Kind of target.")
     val type: HueTargetType,
-    @FieldDoc("Bridge resource id of the light, room or zone.")
+    @FieldDoc("Bridge resource id of the light, room, zone or entertainment configuration.")
     val id: String,
     @FieldDoc("Display name.")
     val name: String,
@@ -158,7 +160,7 @@ data class HueUserLink(
     val bridgeId: PlatformUUID,
     @FieldDoc("Whether the link is active.")
     val enabled: Boolean = false,
-    @FieldDoc("Lights, rooms and zones that follow playback.")
+    @FieldDoc("Lights, rooms and zones that follow playback; at most one entertainment area.")
     val targets: List<HueTarget> = emptyList(),
     @FieldDoc("Reaction strength.")
     val intensity: HueIntensity = HueIntensity.MEDIUM,
