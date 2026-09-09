@@ -1231,6 +1231,7 @@ pub struct Song {
     pub audio_start_ms: Option<i64>,
     #[serde(rename = "atmosPath")]
     pub atmos_path: Option<String>,
+    pub tags: Vec<TitleTag>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1303,6 +1304,40 @@ pub struct AudioInfo {
     #[serde(rename = "fileSize")]
     pub file_size: i64,
     pub channels: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TitleTag {
+    pub kind: TitleTagKind,
+    pub label: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum TitleTagKind {
+    #[serde(rename = "FEAT")]
+    Feat,
+    #[serde(rename = "PROD")]
+    Prod,
+    #[serde(rename = "REMIX")]
+    Remix,
+    #[serde(rename = "MIX")]
+    Mix,
+    #[serde(rename = "LIVE")]
+    Live,
+    #[serde(rename = "COVER")]
+    Cover,
+    #[serde(rename = "ACOUSTIC")]
+    Acoustic,
+    #[serde(rename = "INSTRUMENTAL")]
+    Instrumental,
+    #[serde(rename = "EDIT")]
+    Edit,
+    #[serde(rename = "VERSION")]
+    Version,
+    #[serde(rename = "REMASTER")]
+    Remaster,
+    #[serde(rename = "DEMO")]
+    Demo,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1542,6 +1577,7 @@ pub struct UserSong {
     pub audio_start_ms: Option<i64>,
     #[serde(rename = "atmosPath")]
     pub atmos_path: Option<String>,
+    pub tags: Vec<TitleTag>,
     #[serde(rename = "isFavourite")]
     pub is_favourite: Option<bool>,
     #[serde(rename = "userSongCreatedAt")]

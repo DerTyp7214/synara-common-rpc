@@ -33,6 +33,32 @@ enum class SongTag {
 }
 
 @Serializable
+@ModelDoc("Kind of version marker split off a song title.")
+enum class TitleTagKind {
+    @FieldDoc("Featured artists, e.g. feat. Drake or with Artist.") FEAT,
+    @FieldDoc("Producer credit, e.g. prod. Metro Boomin.") PROD,
+    @FieldDoc("A remix, rework, bootleg, flip or VIP.") REMIX,
+    @FieldDoc("A named mix, e.g. Extended Mix, Club Mix, Radio Mix.") MIX,
+    @FieldDoc("A live recording, optionally with venue or date.") LIVE,
+    @FieldDoc("A cover version.") COVER,
+    @FieldDoc("An acoustic or unplugged version.") ACOUSTIC,
+    @FieldDoc("An instrumental version.") INSTRUMENTAL,
+    @FieldDoc("An edit, e.g. Radio Edit or Extended Edit.") EDIT,
+    @FieldDoc("A generic alternate version, e.g. Album Version, Take 2, Sped Up, Bonus Track or Deluxe.") VERSION,
+    @FieldDoc("A remaster, optionally with year.") REMASTER,
+    @FieldDoc("A demo recording.") DEMO,
+}
+
+@Serializable
+@ModelDoc("A version marker that was split off the song title, shown by clients separately from the title.")
+data class TitleTag(
+    @FieldDoc("The kind of marker.")
+    val kind: TitleTagKind,
+    @FieldDoc("The original text without brackets, e.g. Skrillex Remix, Live at Wembley, feat. Drake or Radio Edit.")
+    val label: String,
+)
+
+@Serializable
 @ModelDoc("Physical properties of one audio file belonging to a song.")
 data class AudioInfo(
     @CborLabel(1)
@@ -111,6 +137,7 @@ abstract class BaseSong() {
     abstract val audioStartMs: Long?
     @Deprecated(LEGACY_AUDIO_FIELDS)
     abstract val atmosPath: String?
+    abstract val tags: List<TitleTag>
 }
 
 @Serializable
@@ -187,6 +214,9 @@ data class Song(
     @FieldDoc("Internal server path to the Dolby Atmos variant. API version 3 only; use atmos and streamSongAtmos.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val atmosPath: String? = null,
+    @FieldDoc("Version markers split off the title, e.g. remix, live or featuring, in order of extraction. The title never contains them.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val tags: List<TitleTag> = emptyList(),
     @Transient
     val atmosVariantPath: String? = null,
 ): BaseSong()
@@ -265,6 +295,9 @@ data class UserSong(
     @FieldDoc("Internal server path to the Dolby Atmos variant. API version 3 only; use atmos and streamSongAtmos.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val atmosPath: String? = null,
+    @FieldDoc("Version markers split off the title, e.g. remix, live or featuring, in order of extraction. The title never contains them.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    override val tags: List<TitleTag> = emptyList(),
     @Transient
     val atmosVariantPath: String? = null,
 
@@ -413,7 +446,10 @@ data class SimpleSong(
     @FieldDoc("The International Standard Recording Code.")
     val isrc: String? = null,
     @FieldDoc("List of bitrates for which a transcoded version exists.")
-    val transcodedTo: List<TranscodedVersion>
+    val transcodedTo: List<TranscodedVersion>,
+    @FieldDoc("Version markers split off the title, e.g. remix, live or featuring, in order of extraction. The title never contains them.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val tags: List<TitleTag> = emptyList(),
 )
 
 @Serializable
@@ -458,6 +494,8 @@ data class InsertableSong(
     val atmosPath: String? = null,
     @FieldDoc("Properties of the Dolby Atmos variant; probed by the server when null and atmosPath is set.")
     val atmos: AudioInfo? = null,
+    @FieldDoc("Version markers; when empty the server splits them off the title.")
+    val tags: List<TitleTag> = emptyList(),
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is InsertableSong) contentEquals(other) else false
@@ -470,6 +508,7 @@ data class InsertableSong(
         result = 31 * result + discNumber.hashCode()
         result = 31 * result + album.name.hashCode()
         result = 31 * result + (releaseDate?.hashCode() ?: 0)
+        result = 31 * result + tags.hashCode()
         return result
     }
 }

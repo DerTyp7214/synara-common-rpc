@@ -8,20 +8,7 @@ import dev.dertyp.platformUUIDFromString
 import io.ktor.http.Url
 import kotlin.jvm.JvmName
 
-private val titleCleanRegex = Regex(
-    """\s*([(\[][^()\[\]]*\b(feat|ft|with|prod|live|remix|demo|acoustic|radio\sedit|album\sversion|immortal\sversion|single\sversion|explicit|clean|remaster)[^()\[\]]*[)\]])|\s+\b(feat|ft|prod)\.?\s+.*$""",
-    RegexOption.IGNORE_CASE
-)
-
-fun String.cleanTitle(): String {
-    var current = this
-    var last: String
-    do {
-        last = current
-        current = current.replace(titleCleanRegex, "").trim()
-    } while (current != last)
-    return current
-}
+fun String.cleanTitle(): String = splitTitleTags().title
 
 fun String.prefixIfNotBlank(prefix: String): String = if (isNotBlank()) "$prefix$this" else this
 
