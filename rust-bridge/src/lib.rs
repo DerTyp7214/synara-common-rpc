@@ -212,6 +212,94 @@ pub struct IFavSyncServiceInsertFavSyncArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IQueueServiceGetQueueArgs {
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+    #[serde(rename = "includeSongs")]
+    pub include_songs: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IQueueServiceBeginUploadArgs {
+    #[serde(rename = "baseVersion")]
+    pub base_version: i64,
+    pub force: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IQueueServiceUploadPageArgs {
+    #[serde(rename = "uploadId")]
+    pub upload_id: PlatformUUID,
+    pub items: Vec<QueueItem>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IQueueServiceCommitUploadArgs {
+    #[serde(rename = "uploadId")]
+    pub upload_id: PlatformUUID,
+    pub meta: QueueMeta,
+    #[serde(rename = "requestId")]
+    pub request_id: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IQueueServiceInsertArgs {
+    #[serde(rename = "baseVersion")]
+    pub base_version: i64,
+    pub position: i32,
+    pub items: Vec<QueueItem>,
+    pub force: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IQueueServiceRemoveArgs {
+    #[serde(rename = "baseVersion")]
+    pub base_version: i64,
+    #[serde(rename = "queueIds")]
+    pub queue_ids: Vec<i64>,
+    pub force: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IQueueServiceMoveArgs {
+    #[serde(rename = "baseVersion")]
+    pub base_version: i64,
+    #[serde(rename = "queueId")]
+    pub queue_id: i64,
+    #[serde(rename = "toPosition")]
+    pub to_position: i32,
+    pub force: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IQueueServiceSetCurrentIndexArgs {
+    #[serde(rename = "baseVersion")]
+    pub base_version: i64,
+    #[serde(rename = "currentIndex")]
+    pub current_index: i32,
+    pub force: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IQueueServiceSetModesArgs {
+    #[serde(rename = "baseVersion")]
+    pub base_version: i64,
+    #[serde(rename = "shuffleMode")]
+    pub shuffle_mode: bool,
+    #[serde(rename = "repeatMode")]
+    pub repeat_mode: RepeatMode,
+    pub force: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IQueueServiceSetSyncEnabledArgs {
+    pub enabled: bool,
+    #[serde(rename = "deviceName")]
+    pub device_name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IRadioChannelServiceRankedSearchArgs {
     #[serde(rename = "channelId")]
     pub channel_id: PlatformUUID,
@@ -941,6 +1029,13 @@ pub struct IAlbumServiceByArtistArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IClientRequestServiceCompleteArgs {
+    #[serde(rename = "requestId")]
+    pub request_id: PlatformUUID,
+    pub status: ClientRequestStatus,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IImageServiceGetImageDataArgs {
     pub id: PlatformUUID,
     pub size: i32,
@@ -1650,6 +1745,99 @@ pub struct FavSync {
     pub service: SyncServiceType,
     #[serde(rename = "syncedAt")]
     pub synced_at: PlatformDate,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct QueueInfo {
+    pub version: i64,
+    #[serde(rename = "modifiedAt")]
+    pub modified_at: i64,
+    #[serde(rename = "modifiedBySessionId")]
+    pub modified_by_session_id: Option<PlatformUUID>,
+    #[serde(rename = "modifiedByDeviceName")]
+    pub modified_by_device_name: Option<String>,
+    #[serde(rename = "currentIndex")]
+    pub current_index: i32,
+    #[serde(rename = "shuffleMode")]
+    pub shuffle_mode: bool,
+    #[serde(rename = "repeatMode")]
+    pub repeat_mode: RepeatMode,
+    #[serde(rename = "sourceId")]
+    pub source_id: Option<String>,
+    pub total: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum RepeatMode {
+    #[serde(rename = "OFF")]
+    Off,
+    #[serde(rename = "ALL")]
+    All,
+    #[serde(rename = "ONE")]
+    One,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct QueueItem {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    #[serde(rename = "queueId")]
+    pub queue_id: i64,
+    pub position: i32,
+    #[serde(rename = "shuffledPosition")]
+    pub shuffled_position: Option<i32>,
+    pub explicit: bool,
+    pub song: Option<UserSong>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct QueueUploadStart {
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct QueueMeta {
+    #[serde(rename = "currentIndex")]
+    pub current_index: i32,
+    #[serde(rename = "shuffleMode")]
+    pub shuffle_mode: bool,
+    #[serde(rename = "repeatMode")]
+    pub repeat_mode: RepeatMode,
+    #[serde(rename = "sourceId")]
+    pub source_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct QueueWriteResult {
+    pub info: QueueInfo,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct QueueSyncDevice {
+    #[serde(rename = "sessionId")]
+    pub session_id: PlatformUUID,
+    #[serde(rename = "deviceName")]
+    pub device_name: String,
+    pub enabled: bool,
+    #[serde(rename = "lastSyncedVersion")]
+    pub last_synced_version: i64,
+    #[serde(rename = "lastSyncAt")]
+    pub last_sync_at: i64,
+    #[serde(rename = "lastActive")]
+    pub last_active: i64,
+    #[serde(rename = "isCurrent")]
+    pub is_current: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum ClientRequestStatus {
+    #[serde(rename = "COMPLETED")]
+    Completed,
+    #[serde(rename = "REJECTED")]
+    Rejected,
+    #[serde(rename = "TIMED_OUT")]
+    TimedOut,
+    #[serde(rename = "UNREACHABLE")]
+    Unreachable,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2601,16 +2789,6 @@ pub struct QueueEntry {
     pub queue_id: i64,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum RepeatMode {
-    #[serde(rename = "OFF")]
-    Off,
-    #[serde(rename = "ALL")]
-    All,
-    #[serde(rename = "ONE")]
-    One,
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Session {
     pub id: PlatformUUID,
@@ -3020,6 +3198,13 @@ pub struct HandshakeResponse {
     pub api_version: i32,
     #[serde(rename = "uiSchemaVersion")]
     pub ui_schema_version: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientRequest {
+    pub id: PlatformUUID,
+    #[serde(rename = "requestedAt")]
+    pub requested_at: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -3517,6 +3702,25 @@ pub trait IFavSyncService {
     fn insert_fav_sync<'life0, 'async_trait>(&'life0 self, service: SyncServiceType, synced_at: PlatformDate) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
+pub trait IQueueService {
+    fn get_queue_info<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<QueueInfo, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_queue<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, include_songs: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<QueueItem>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn observe_queue(&self, ) -> RpcStream<QueueInfo>;
+    fn begin_upload<'life0, 'async_trait>(&'life0 self, base_version: i64, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueUploadStart, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn upload_page<'life0, 'async_trait>(&'life0 self, upload_id: PlatformUUID, items: Vec<QueueItem>) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn commit_upload<'life0, 'async_trait>(&'life0 self, upload_id: PlatformUUID, meta: QueueMeta, request_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn cancel_upload<'life0, 'async_trait>(&'life0 self, upload_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn insert<'life0, 'async_trait>(&'life0 self, base_version: i64, position: i32, items: Vec<QueueItem>, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn remove<'life0, 'async_trait>(&'life0 self, base_version: i64, queue_ids: Vec<i64>, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn move<'life0, 'async_trait>(&'life0 self, base_version: i64, queue_id: i64, to_position: i32, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_current_index<'life0, 'async_trait>(&'life0 self, base_version: i64, current_index: i32, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_modes<'life0, 'async_trait>(&'life0 self, base_version: i64, shuffle_mode: bool, repeat_mode: RepeatMode, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_sync_enabled<'life0, 'async_trait>(&'life0 self, enabled: bool, device_name: String) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn ack_synced<'life0, 'async_trait>(&'life0 self, version: i64) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_sync_devices<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<QueueSyncDevice>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn request_upload_from<'life0, 'async_trait>(&'life0 self, session_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<ClientRequestStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
 pub trait IRadioChannelService {
     fn list_channels<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<RadioChannel>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_channel<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<RadioChannel>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -3816,6 +4020,11 @@ pub trait IHandshakeService {
 pub trait IDbManagementService {
     fn export_data<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<serde_bytes::ByteBuf, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn import_data<'life0, 'async_trait>(&'life0 self, data: serde_bytes::ByteBuf) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IClientRequestService {
+    fn observe_requests(&self, ) -> RpcStream<ClientRequest>;
+    fn complete<'life0, 'async_trait>(&'life0 self, request_id: PlatformUUID, status: ClientRequestStatus) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IImageService {
@@ -4281,6 +4490,96 @@ impl IFavSyncService for RpcClient {
         Box::pin(async move {
             let args = IFavSyncServiceInsertFavSyncArgs { service, synced_at };
             self.call("IFavSyncService", "insertFavSync", &args).await
+        })
+    }
+}
+impl IQueueService for RpcClient {
+    fn get_queue_info<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<QueueInfo, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IQueueService", "getQueueInfo", &()).await
+        })
+    }
+    fn get_queue<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, include_songs: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<QueueItem>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IQueueServiceGetQueueArgs { page, page_size, include_songs };
+            self.call("IQueueService", "getQueue", &args).await
+        })
+    }
+    fn observe_queue(&self, ) -> RpcStream<QueueInfo> {
+        self.subscribe("IQueueService", "observeQueue", &())
+    }
+    fn begin_upload<'life0, 'async_trait>(&'life0 self, base_version: i64, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueUploadStart, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IQueueServiceBeginUploadArgs { base_version, force };
+            self.call("IQueueService", "beginUpload", &args).await
+        })
+    }
+    fn upload_page<'life0, 'async_trait>(&'life0 self, upload_id: PlatformUUID, items: Vec<QueueItem>) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IQueueServiceUploadPageArgs { upload_id, items };
+            self.call("IQueueService", "uploadPage", &args).await
+        })
+    }
+    fn commit_upload<'life0, 'async_trait>(&'life0 self, upload_id: PlatformUUID, meta: QueueMeta, request_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IQueueServiceCommitUploadArgs { upload_id, meta, request_id };
+            self.call("IQueueService", "commitUpload", &args).await
+        })
+    }
+    fn cancel_upload<'life0, 'async_trait>(&'life0 self, upload_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IQueueService", "cancelUpload", &upload_id).await
+        })
+    }
+    fn insert<'life0, 'async_trait>(&'life0 self, base_version: i64, position: i32, items: Vec<QueueItem>, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IQueueServiceInsertArgs { base_version, position, items, force };
+            self.call("IQueueService", "insert", &args).await
+        })
+    }
+    fn remove<'life0, 'async_trait>(&'life0 self, base_version: i64, queue_ids: Vec<i64>, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IQueueServiceRemoveArgs { base_version, queue_ids, force };
+            self.call("IQueueService", "remove", &args).await
+        })
+    }
+    fn move<'life0, 'async_trait>(&'life0 self, base_version: i64, queue_id: i64, to_position: i32, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IQueueServiceMoveArgs { base_version, queue_id, to_position, force };
+            self.call("IQueueService", "move", &args).await
+        })
+    }
+    fn set_current_index<'life0, 'async_trait>(&'life0 self, base_version: i64, current_index: i32, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IQueueServiceSetCurrentIndexArgs { base_version, current_index, force };
+            self.call("IQueueService", "setCurrentIndex", &args).await
+        })
+    }
+    fn set_modes<'life0, 'async_trait>(&'life0 self, base_version: i64, shuffle_mode: bool, repeat_mode: RepeatMode, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<QueueWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IQueueServiceSetModesArgs { base_version, shuffle_mode, repeat_mode, force };
+            self.call("IQueueService", "setModes", &args).await
+        })
+    }
+    fn set_sync_enabled<'life0, 'async_trait>(&'life0 self, enabled: bool, device_name: String) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IQueueServiceSetSyncEnabledArgs { enabled, device_name };
+            self.call("IQueueService", "setSyncEnabled", &args).await
+        })
+    }
+    fn ack_synced<'life0, 'async_trait>(&'life0 self, version: i64) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IQueueService", "ackSynced", &version).await
+        })
+    }
+    fn get_sync_devices<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<QueueSyncDevice>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IQueueService", "getSyncDevices", &()).await
+        })
+    }
+    fn request_upload_from<'life0, 'async_trait>(&'life0 self, session_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<ClientRequestStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IQueueService", "requestUploadFrom", &session_id).await
         })
     }
 }
@@ -5483,6 +5782,17 @@ impl IDbManagementService for RpcClient {
     fn import_data<'life0, 'async_trait>(&'life0 self, data: serde_bytes::ByteBuf) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IDbManagementService", "importData", &serde_bytes::Bytes::new(&data)).await
+        })
+    }
+}
+impl IClientRequestService for RpcClient {
+    fn observe_requests(&self, ) -> RpcStream<ClientRequest> {
+        self.subscribe("IClientRequestService", "observeRequests", &())
+    }
+    fn complete<'life0, 'async_trait>(&'life0 self, request_id: PlatformUUID, status: ClientRequestStatus) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IClientRequestServiceCompleteArgs { request_id, status };
+            self.call("IClientRequestService", "complete", &args).await
         })
     }
 }

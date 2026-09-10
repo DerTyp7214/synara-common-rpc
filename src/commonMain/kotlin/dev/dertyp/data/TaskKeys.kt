@@ -5,6 +5,7 @@ object TaskKeys {
     const val DATABASE_BACKUP = "database-backup"
     const val USER_PLAYLIST_BACKUP = "user-playlist-backup"
     const val SESSION_CLEANUP = "session-cleanup"
+    const val QUEUE_CLEANUP = "queue-cleanup"
     const val MERGE_LIBRARY_DUPLICATES = "merge-library-duplicates"
     const val AUDIO_ANALYSIS = "audio-analysis"
     const val FLAC_ANALYSIS = "flac-analysis"
