@@ -951,6 +951,56 @@ pub struct ICoverGenerationServiceApplyCoverArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IClientSettingsServiceGetSettingsArgs {
+    pub scope: ClientSettingScope,
+    pub device: Option<String>,
+    #[serde(rename = "includeDeleted")]
+    pub include_deleted: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IClientSettingsServiceGetChangesArgs {
+    pub scope: ClientSettingScope,
+    #[serde(rename = "sinceVersion")]
+    pub since_version: i64,
+    pub device: Option<String>,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IClientSettingsServiceSetSettingsArgs {
+    pub entries: Vec<ClientSettingWrite>,
+    pub scope: ClientSettingScope,
+    pub device: Option<String>,
+    pub force: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IClientSettingsServiceGetHistoryArgs {
+    pub scope: ClientSettingScope,
+    pub key: String,
+    pub device: Option<String>,
+    pub limit: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IClientSettingsServiceRestoreArgs {
+    pub scope: ClientSettingScope,
+    pub key: String,
+    pub version: i64,
+    pub device: Option<String>,
+    pub force: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IClientSettingsServiceRegisterDeviceArgs {
+    #[serde(rename = "deviceId")]
+    pub device_id: String,
+    pub name: String,
+    pub platform: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IImportServiceImportIdsArgs {
     pub ids: Vec<PrefixedId>,
     #[serde(rename = "type")]
@@ -3041,6 +3091,91 @@ pub struct CoverGenerationParams {
     pub pack: Option<String>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum ClientSettingScope {
+    #[serde(rename = "SYNCED")]
+    Synced,
+    #[serde(rename = "DEVICE")]
+    Device,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientSetting {
+    pub key: String,
+    pub value: Option<String>,
+    pub deleted: bool,
+    pub version: i64,
+    #[serde(rename = "modifiedAt")]
+    pub modified_at: i64,
+    #[serde(rename = "modifiedByDeviceId")]
+    pub modified_by_device_id: Option<String>,
+    pub scope: ClientSettingScope,
+    #[serde(rename = "deviceId")]
+    pub device_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientSettingsSnapshot {
+    #[serde(rename = "deviceId")]
+    pub device_id: String,
+    #[serde(rename = "syncedVersion")]
+    pub synced_version: i64,
+    #[serde(rename = "deviceVersion")]
+    pub device_version: i64,
+    pub entries: Vec<ClientSetting>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientSettingsChanges {
+    pub scope: ClientSettingScope,
+    #[serde(rename = "deviceId")]
+    pub device_id: Option<String>,
+    pub version: i64,
+    pub entries: Vec<ClientSetting>,
+    #[serde(rename = "hasMore")]
+    pub has_more: bool,
+    #[serde(rename = "fullResync")]
+    pub full_resync: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientSettingWrite {
+    pub key: String,
+    pub value: Option<String>,
+    #[serde(rename = "baseVersion")]
+    pub base_version: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientSettingsWriteResult {
+    pub version: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientSettingsChange {
+    pub scope: ClientSettingScope,
+    #[serde(rename = "deviceId")]
+    pub device_id: Option<String>,
+    pub version: i64,
+    pub keys: Vec<String>,
+    #[serde(rename = "modifiedByDeviceId")]
+    pub modified_by_device_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientDevice {
+    #[serde(rename = "deviceId")]
+    pub device_id: String,
+    pub name: String,
+    pub platform: String,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    #[serde(rename = "lastSeenAt")]
+    pub last_seen_at: i64,
+    #[serde(rename = "settingsVersion")]
+    pub settings_version: i64,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ListenBackupState {
     pub config: ListenBackupConfig,
@@ -3958,6 +4093,19 @@ pub trait ICoverGenerationService {
     fn apply_cover<'life0, 'async_trait>(&'life0 self, target: CoverTarget, params: CoverGenerationParams) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn reset_cover<'life0, 'async_trait>(&'life0 self, target: CoverTarget) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn generate_missing<'life0, 'async_trait>(&'life0 self, params: CoverGenerationParams) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IClientSettingsService {
+    fn get_settings<'life0, 'async_trait>(&'life0 self, scope: ClientSettingScope, device: Option<String>, include_deleted: bool) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ClientSetting>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_snapshot<'life0, 'async_trait>(&'life0 self, device_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<ClientSettingsSnapshot, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_changes<'life0, 'async_trait>(&'life0 self, scope: ClientSettingScope, since_version: i64, device: Option<String>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<ClientSettingsChanges, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_settings<'life0, 'async_trait>(&'life0 self, entries: Vec<ClientSettingWrite>, scope: ClientSettingScope, device: Option<String>, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<ClientSettingsWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_history<'life0, 'async_trait>(&'life0 self, scope: ClientSettingScope, key: String, device: Option<String>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ClientSetting>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn restore<'life0, 'async_trait>(&'life0 self, scope: ClientSettingScope, key: String, version: i64, device: Option<String>, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<ClientSettingsWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn observe_settings(&self, ) -> RpcStream<ClientSettingsChange>;
+    fn get_devices<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ClientDevice>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn register_device<'life0, 'async_trait>(&'life0 self, device_id: String, name: String, platform: String) -> Pin<Box<dyn std::future::Future<Output = Result<ClientDevice, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn delete_device<'life0, 'async_trait>(&'life0 self, device_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IListenBackupService {
@@ -5533,6 +5681,62 @@ impl ICoverGenerationService for RpcClient {
     fn generate_missing<'life0, 'async_trait>(&'life0 self, params: CoverGenerationParams) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("ICoverGenerationService", "generateMissing", &params).await
+        })
+    }
+}
+impl IClientSettingsService for RpcClient {
+    fn get_settings<'life0, 'async_trait>(&'life0 self, scope: ClientSettingScope, device: Option<String>, include_deleted: bool) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ClientSetting>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IClientSettingsServiceGetSettingsArgs { scope, device, include_deleted };
+            self.call("IClientSettingsService", "getSettings", &args).await
+        })
+    }
+    fn get_snapshot<'life0, 'async_trait>(&'life0 self, device_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<ClientSettingsSnapshot, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IClientSettingsService", "getSnapshot", &device_id).await
+        })
+    }
+    fn get_changes<'life0, 'async_trait>(&'life0 self, scope: ClientSettingScope, since_version: i64, device: Option<String>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<ClientSettingsChanges, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IClientSettingsServiceGetChangesArgs { scope, since_version, device, limit };
+            self.call("IClientSettingsService", "getChanges", &args).await
+        })
+    }
+    fn set_settings<'life0, 'async_trait>(&'life0 self, entries: Vec<ClientSettingWrite>, scope: ClientSettingScope, device: Option<String>, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<ClientSettingsWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IClientSettingsServiceSetSettingsArgs { entries, scope, device, force };
+            self.call("IClientSettingsService", "setSettings", &args).await
+        })
+    }
+    fn get_history<'life0, 'async_trait>(&'life0 self, scope: ClientSettingScope, key: String, device: Option<String>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ClientSetting>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IClientSettingsServiceGetHistoryArgs { scope, key, device, limit };
+            self.call("IClientSettingsService", "getHistory", &args).await
+        })
+    }
+    fn restore<'life0, 'async_trait>(&'life0 self, scope: ClientSettingScope, key: String, version: i64, device: Option<String>, force: bool) -> Pin<Box<dyn std::future::Future<Output = Result<ClientSettingsWriteResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IClientSettingsServiceRestoreArgs { scope, key, version, device, force };
+            self.call("IClientSettingsService", "restore", &args).await
+        })
+    }
+    fn observe_settings(&self, ) -> RpcStream<ClientSettingsChange> {
+        self.subscribe("IClientSettingsService", "observeSettings", &())
+    }
+    fn get_devices<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ClientDevice>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IClientSettingsService", "getDevices", &()).await
+        })
+    }
+    fn register_device<'life0, 'async_trait>(&'life0 self, device_id: String, name: String, platform: String) -> Pin<Box<dyn std::future::Future<Output = Result<ClientDevice, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IClientSettingsServiceRegisterDeviceArgs { device_id, name, platform };
+            self.call("IClientSettingsService", "registerDevice", &args).await
+        })
+    }
+    fn delete_device<'life0, 'async_trait>(&'life0 self, device_id: String) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IClientSettingsService", "deleteDevice", &device_id).await
         })
     }
 }
