@@ -1298,6 +1298,48 @@ pub struct ISongServiceMoveSongsArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ITimecodeTagServiceCreateTagArgs {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    #[serde(rename = "tagType")]
+    pub tag_type: TimecodeTagType,
+    pub text: String,
+    #[serde(rename = "timestampMs")]
+    pub timestamp_ms: i64,
+    #[serde(rename = "endMs")]
+    pub end_ms: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ITimecodeTagServiceUpdateTagArgs {
+    #[serde(rename = "tagId")]
+    pub tag_id: PlatformUUID,
+    #[serde(rename = "tagType")]
+    pub tag_type: TimecodeTagType,
+    pub text: String,
+    #[serde(rename = "timestampMs")]
+    pub timestamp_ms: i64,
+    #[serde(rename = "endMs")]
+    pub end_ms: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ITimecodeTagServiceReplaceTagsArgs {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    pub tags: Vec<TimecodeTagInput>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ITimecodeTagServiceListTagsArgs {
+    #[serde(rename = "tagType")]
+    pub tag_type: Option<TimecodeTagType>,
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IListeningStatsServiceGetStatsArgs {
     pub range: StatsRange,
     pub timezone: String,
@@ -3405,6 +3447,47 @@ pub struct SubsonicCredentialInfo {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum TimecodeTagType {
+    #[serde(rename = "CHAPTER")]
+    Chapter,
+    #[serde(rename = "MARKER")]
+    Marker,
+    #[serde(rename = "NOTE")]
+    Note,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TimecodeTag {
+    pub id: PlatformUUID,
+    #[serde(rename = "userId")]
+    pub user_id: PlatformUUID,
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    #[serde(rename = "type")]
+    pub r#type: TimecodeTagType,
+    pub text: String,
+    #[serde(rename = "timestampMs")]
+    pub timestamp_ms: i64,
+    #[serde(rename = "endMs")]
+    pub end_ms: Option<i64>,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TimecodeTagInput {
+    #[serde(rename = "type")]
+    pub r#type: TimecodeTagType,
+    pub text: String,
+    #[serde(rename = "timestampMs")]
+    pub timestamp_ms: i64,
+    #[serde(rename = "endMs")]
+    pub end_ms: Option<i64>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum StatsRange {
     #[serde(rename = "DAY")]
     Day,
@@ -4232,6 +4315,15 @@ pub trait ISubsonicCredentialService {
     fn get_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Option<SubsonicCredentialInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn regenerate_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<SubsonicCredentialInfo, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn revoke_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait ITimecodeTagService {
+    fn create_tag<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_tags<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TimecodeTag>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn update_tag<'life0, 'async_trait>(&'life0 self, tag_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn delete_tag<'life0, 'async_trait>(&'life0 self, tag_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn replace_tags<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, tags: Vec<TimecodeTagInput>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TimecodeTag>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn list_tags<'life0, 'async_trait>(&'life0 self, tag_type: Option<TimecodeTagType>, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<TimecodeTag>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IListeningStatsService {
@@ -6258,6 +6350,42 @@ impl ISubsonicCredentialService for RpcClient {
     fn revoke_subsonic_credential<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("ISubsonicCredentialService", "revokeSubsonicCredential", &()).await
+        })
+    }
+}
+impl ITimecodeTagService for RpcClient {
+    fn create_tag<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ITimecodeTagServiceCreateTagArgs { song_id, tag_type, text, timestamp_ms, end_ms };
+            self.call("ITimecodeTagService", "createTag", &args).await
+        })
+    }
+    fn get_tags<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TimecodeTag>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ITimecodeTagService", "getTags", &song_id).await
+        })
+    }
+    fn update_tag<'life0, 'async_trait>(&'life0 self, tag_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ITimecodeTagServiceUpdateTagArgs { tag_id, tag_type, text, timestamp_ms, end_ms };
+            self.call("ITimecodeTagService", "updateTag", &args).await
+        })
+    }
+    fn delete_tag<'life0, 'async_trait>(&'life0 self, tag_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ITimecodeTagService", "deleteTag", &tag_id).await
+        })
+    }
+    fn replace_tags<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, tags: Vec<TimecodeTagInput>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TimecodeTag>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ITimecodeTagServiceReplaceTagsArgs { song_id, tags };
+            self.call("ITimecodeTagService", "replaceTags", &args).await
+        })
+    }
+    fn list_tags<'life0, 'async_trait>(&'life0 self, tag_type: Option<TimecodeTagType>, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<TimecodeTag>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ITimecodeTagServiceListTagsArgs { tag_type, page, page_size };
+            self.call("ITimecodeTagService", "listTags", &args).await
         })
     }
 }
