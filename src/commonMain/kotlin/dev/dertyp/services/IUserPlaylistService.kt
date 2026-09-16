@@ -7,6 +7,8 @@ import dev.dertyp.data.ArtistPlaylistSortStrategy
 import dev.dertyp.data.InsertablePlaylist
 import dev.dertyp.data.PaginatedResponse
 import dev.dertyp.data.UserPlaylist
+import dev.dertyp.rpc.annotations.RestPath
+import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -42,8 +44,10 @@ interface IUserPlaylistService {
         @RpcParamDoc("The allowed range (0-255).") range: Int = 20
     ): PaginatedResponse<UserPlaylist>
 
+    @RestPath("playlist")
     @RpcDoc("Delete a user playlist.")
     suspend fun delete(@RpcParamDoc("The playlist unique identifier.") id: PlatformUUID): Boolean
+    @RestPost
     @RpcDoc("Create a new user playlist or retrieve an existing one by a custom identifier.")
     suspend fun getOrAddPlaylist(
         @RpcParamDoc("The user ID who owns the playlist.") userId: PlatformUUID,
@@ -75,6 +79,7 @@ interface IUserPlaylistService {
         @RpcParamDoc("The target playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The source user playlist unique identifier.") sourcePlaylistId: PlatformUUID
     )
+    @RestPath("songs")
     @RpcDoc("Remove songs from a user playlist.")
     suspend fun removeFromPlaylist(
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,

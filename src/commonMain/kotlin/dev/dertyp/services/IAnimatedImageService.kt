@@ -5,6 +5,7 @@ package dev.dertyp.services
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.AnimatedImage
 import dev.dertyp.data.InsertableAnimatedImage
+import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RestPublic
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -21,6 +22,7 @@ interface IAnimatedImageService {
     @RpcDoc("Map a list of animated image hashes to their existing internal UUIDs.")
     suspend fun getCoverHashes(@RpcParamDoc("Collection of animated image hashes.") hashes: List<String>): Map<String, PlatformUUID>
     @RestPublic
+    @RestPath("imageData")
     @RpcDoc("Retrieve the raw binary data of an animated image.")
     suspend fun getAnimatedImageData(
         @RpcParamDoc("The animated image unique identifier.") id: PlatformUUID

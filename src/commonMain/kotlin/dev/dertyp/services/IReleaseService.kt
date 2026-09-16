@@ -6,6 +6,7 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.data.PaginatedResponse
 import dev.dertyp.data.RequiresCapability
 import dev.dertyp.data.UserCapability
+import dev.dertyp.rpc.annotations.RestDelete
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RestPublic
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -20,6 +21,7 @@ import kotlinx.serialization.UseContextualSerialization
 interface IReleaseService {
     @RpcDoc("Follow an artist by their MusicBrainz ID to track their releases.")
     suspend fun followArtist(@RpcParamDoc("The MusicBrainz Artist UUID.") musicBrainzId: PlatformUUID): Boolean
+    @RestDelete
     @RpcDoc("Unfollow an artist and stop tracking their releases.")
     suspend fun unfollowArtist(@RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID): Boolean
     @RpcDoc("Get a list of all artists the current user is following.")

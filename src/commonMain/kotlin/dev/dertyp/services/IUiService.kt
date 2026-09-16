@@ -1,6 +1,7 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
+import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -45,12 +46,14 @@ interface IUiService {
         @RpcParamDoc("Host context.") context: UiContext,
     ): UiRender
 
+    @RestGet
     @RpcDoc("Stream re-renders of a contribution. Emits the current render immediately, then on every change.", errors = ["IllegalArgumentException", "UnauthorizedException"])
     fun subscribe(
         @RpcParamDoc("Contribution id.") contributionId: String,
         @RpcParamDoc("Host entity id, if the contribution is rendered on an entity screen.") entityId: PlatformUUID? = null,
     ): Flow<UiRender>
 
+    @RestGet
     @RpcDoc("Stream updates for a Live node of a contribution. Subscribe once per Live node while it is on screen.", errors = ["IllegalArgumentException", "UnauthorizedException"])
     fun subscribeLive(
         @RpcParamDoc("Contribution id.") contributionId: String,

@@ -2,6 +2,7 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.Session
+import dev.dertyp.rpc.annotations.RestDelete
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -9,6 +10,7 @@ import kotlinx.rpc.annotations.Rpc
 @Rpc
 @RpcDoc("Manages active user sessions and connected devices.")
 interface ISessionService {
+    @RestDelete
     @RpcDoc("Terminate a specific user session.")
     suspend fun deactivateSession(
         @RpcParamDoc("The session unique identifier.") sessionId: PlatformUUID

@@ -89,6 +89,7 @@ interface IImportService {
     @RestGet
     @RpcDoc("Check if the importer is authorized.")
     suspend fun importAuthorized(): Boolean
+    @RestPost
     @RpcDoc("Trigger the OAuth login flow and stream the login URL.")
     fun importLogin(): Flow<String>
 
@@ -105,6 +106,7 @@ interface IImportService {
     suspend fun killAllChildProcesses()
 
     @RestGet
+    @RestPath("tracks")
     @RpcDoc("Search for tracks directly.", errors = ["IllegalStateException"])
     suspend fun search(
         @RpcParamDoc("General search query.") query: String? = null,

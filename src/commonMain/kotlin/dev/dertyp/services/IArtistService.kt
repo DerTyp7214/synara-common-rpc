@@ -4,6 +4,9 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.*
+import dev.dertyp.rpc.annotations.RestGet
+import dev.dertyp.rpc.annotations.RestPath
+import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import dev.dertyp.services.metadata.IMetadataService
@@ -73,6 +76,7 @@ interface IArtistService {
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<MusicBrainzArtist>
     @RequiresCapability(UserCapability.EDIT)
+    @RestPost
     @RpcDoc("Fetch and link MusicBrainz ID for an artist.")
     suspend fun fetchMusicBrainzId(@RpcParamDoc("The artist unique identifier.") id: PlatformUUID): Artist?
     @RequiresCapability(UserCapability.EDIT)
@@ -93,15 +97,19 @@ interface IArtistService {
         @RpcParamDoc("The artist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The direct image URL.") url: String
     ): Artist?
+    @RestGet
     @RpcDoc("Stream all artists that are missing a MusicBrainz ID.")
     fun artistsWithoutMusicBrainzIdFlow(): Flow<Artist>
+    @RestGet
     @RpcDoc("Stream IDs of all artists that are missing a MusicBrainz ID.")
     fun artistIdsWithoutMusicBrainzId(): Flow<PlatformUUID>
 
+    @RestGet
     @RpcDoc("List aliases for an artist.")
     suspend fun aliases(@RpcParamDoc("The artist unique identifier.") id: PlatformUUID): List<ArtistAlias>
 
     @RequiresCapability(UserCapability.EDIT)
+    @RestPath("alias")
     @RpcDoc("Add an alias to an artist.")
     suspend fun addAlias(
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,

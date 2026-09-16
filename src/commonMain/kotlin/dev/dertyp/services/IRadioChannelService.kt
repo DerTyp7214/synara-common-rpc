@@ -6,6 +6,7 @@ import dev.dertyp.data.RadioChannel
 import dev.dertyp.data.RadioChannelItemType
 import dev.dertyp.data.RadioChannelSearchResults
 import dev.dertyp.data.RequiresAdmin
+import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -62,6 +63,7 @@ interface IRadioChannelService {
     )
 
     @RequiresAdmin
+    @RestPath("channelItem")
     @RpcDoc("Add a song, artist or album to a channel's configured content.")
     suspend fun addChannelItem(
         @RpcParamDoc("The channel unique identifier.") id: PlatformUUID,

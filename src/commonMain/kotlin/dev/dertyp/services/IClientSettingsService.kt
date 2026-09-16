@@ -90,6 +90,7 @@ interface IClientSettingsService {
         @RpcParamDoc("Whether to apply the value even if the server moved past the version the entry currently has.") force: Boolean = false
     ): ClientSettingsWriteResult
 
+    @RestGet
     @RpcDoc(
         "Watch the settings of the user for changes. Every accepted write emits the scope it changed, the version it advanced to and the keys it touched, " +
             "including writes made by other devices, so a client pulls only what it needs."

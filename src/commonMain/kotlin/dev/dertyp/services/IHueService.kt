@@ -10,8 +10,10 @@ import dev.dertyp.data.HueScene
 import dev.dertyp.data.HueStatus
 import dev.dertyp.data.HueTarget
 import dev.dertyp.data.HueUserLink
+import dev.dertyp.rpc.annotations.RestDelete
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPost
+import dev.dertyp.rpc.annotations.RestPut
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.coroutines.flow.Flow
@@ -33,7 +35,7 @@ interface IHueService {
     @RpcDoc("Pair with a bridge. Press the link button on the bridge while this flow polls for up to 30 seconds. The bridge is stored for the current user; other users pair it separately.")
     fun startPairing(@RpcParamDoc("IP address of the bridge.") ip: String): Flow<HuePairingStatus>
 
-    @RestPost
+    @RestDelete
     @RpcDoc("Remove one of the current user's bridges together with the user's link to it.")
     suspend fun removeBridge(@RpcParamDoc("Server-side bridge unique identifier.") bridgeId: PlatformUUID): Boolean
 
@@ -49,11 +51,11 @@ interface IHueService {
     @RpcDoc("The current user's light links.")
     suspend fun getLinks(): List<HueUserLink>
 
-    @RestPost
+    @RestPut
     @RpcDoc("Create or update the current user's link to a bridge.", errors = ["IllegalArgumentException"])
     suspend fun setLink(@RpcParamDoc("Link settings; bridgeId selects the bridge.") link: HueUserLink): HueUserLink
 
-    @RestPost
+    @RestDelete
     @RpcDoc("Remove the current user's link to a bridge.")
     suspend fun removeLink(@RpcParamDoc("Server-side bridge unique identifier.") bridgeId: PlatformUUID): Boolean
 

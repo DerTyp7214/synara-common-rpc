@@ -2,6 +2,7 @@ package dev.dertyp.services
 
 import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.rpc.annotations.RestGet
+import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -14,6 +15,7 @@ interface IDbManagementService {
     @RpcDoc("Export the entire system database as a binary blob.")
     suspend fun exportData(): ByteArray
     @RequiresAdmin
+    @RestPost
     @RpcDoc("Import a previously exported database blob to overwrite the current state.")
     suspend fun importData(@RpcParamDoc("The raw database blob.") data: ByteArray)
 }

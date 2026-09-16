@@ -8,6 +8,7 @@ import dev.dertyp.PrefixedId
 import dev.dertyp.data.*
 import dev.dertyp.rpc.annotations.RestFileResponse
 import dev.dertyp.rpc.annotations.RestGet
+import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import dev.dertyp.services.metadata.IMetadataService
@@ -48,6 +49,7 @@ interface ISongService {
         @RpcParamDoc("The MusicBrainz Recording UUID.") musicBrainzId: PlatformUUID?
     ): UserSong?
     @RequiresCapability(UserCapability.EDIT)
+    @RestPost
     @RpcDoc("Trigger automatic MusicBrainz ID matching for a song.")
     suspend fun fetchMusicBrainzId(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): UserSong?
     @RpcDoc("Get song by its unique identifier.")
@@ -105,6 +107,7 @@ interface ISongService {
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
     ): PaginatedResponse<UserSong>
+    @RestGet
     @RpcDoc("Export all favorited songs as a CSV string.")
     suspend fun exportFavouritesAsCsv(): String
     @RpcDoc("Get all songs with optional filtering.")
@@ -211,6 +214,7 @@ interface ISongService {
         @RpcParamDoc("Optional originalId prefix to filter by.") originalIdPrefix: String? = null
     ): Int
 
+    @RestGet
     @RpcDoc("Get extended metadata for a song.")
     suspend fun extendedMetadata(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): SongExtendedMetadata?
 }

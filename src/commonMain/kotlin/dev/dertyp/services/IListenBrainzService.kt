@@ -2,6 +2,9 @@ package dev.dertyp.services
 
 import dev.dertyp.data.ListenBrainzStatus
 import dev.dertyp.data.ListenedSong
+import dev.dertyp.rpc.annotations.RestDelete
+import dev.dertyp.rpc.annotations.RestGet
+import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +19,8 @@ interface IListenBrainzService {
         @RpcParamDoc("Optional ListenBrainz user token, required for private listens.") token: String? = null
     ): ListenBrainzStatus
 
+    @RestDelete
+    @RestPath("link")
     @RpcDoc("Remove the current user's ListenBrainz link.")
     suspend fun unlink()
 
@@ -28,6 +33,7 @@ interface IListenBrainzService {
     @RpcDoc("Trigger an incremental sync of the current user's ListenBrainz listens now.")
     suspend fun syncNow(): ListenBrainzStatus
 
+    @RestGet
     @RpcDoc("Return the current user's most recent listened songs (newest first), capped at 1000.")
     suspend fun recentListens(
         @RpcParamDoc("Maximum number of listens to return; clamped to 1..1000.") limit: Int

@@ -3,6 +3,7 @@ package dev.dertyp.services
 import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
+import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -37,6 +38,7 @@ interface IBackupService {
     @RpcDoc("List all available system backup files.", errors = ["SecurityException"])
     suspend fun listBackups(): List<BackupInfo>
     @RequiresAdmin
+    @RestPath("restoreBackup")
     @RpcDoc("Restore the entire server state from a backup file.", errors = ["SecurityException", "IllegalArgumentException"])
     suspend fun loadBackup(@RpcParamDoc("The name of the backup file.") fileName: String)
     @RequiresAdmin

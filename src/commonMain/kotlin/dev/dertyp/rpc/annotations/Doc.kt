@@ -78,3 +78,10 @@ annotation class RestPut
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RestDelete
+
+/**
+ * Overrides the REST path segment derived from the function name; type/id path parameters are still appended.
+ */
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class RestPath(val segment: String)

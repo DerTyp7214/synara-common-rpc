@@ -1,6 +1,7 @@
 package dev.dertyp.services
 
 import dev.dertyp.data.SubsonicCredentialInfo
+import dev.dertyp.rpc.annotations.RestDelete
 import dev.dertyp.rpc.annotations.RpcDoc
 import kotlinx.rpc.annotations.Rpc
 
@@ -13,6 +14,7 @@ interface ISubsonicCredentialService {
     @RpcDoc("Generate a new Subsonic credential for the current user, replacing any existing one.")
     suspend fun regenerateSubsonicCredential(): SubsonicCredentialInfo
 
+    @RestDelete
     @RpcDoc("Delete the current user's Subsonic credential. Returns true if a credential was deleted.")
     suspend fun revokeSubsonicCredential(): Boolean
 }

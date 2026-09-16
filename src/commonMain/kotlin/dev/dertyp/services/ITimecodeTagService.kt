@@ -6,6 +6,7 @@ import dev.dertyp.data.TimecodeTag
 import dev.dertyp.data.TimecodeTagInput
 import dev.dertyp.data.TimecodeTagType
 import dev.dertyp.rpc.annotations.RestGet
+import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RestPut
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -19,6 +20,7 @@ import kotlinx.rpc.annotations.Rpc
         "500 tags on a single song."
 )
 interface ITimecodeTagService {
+    @RestPath("tags")
     @RpcDoc(
         "Create a single tag on a song. The position must not be negative and an end position, if one is given, must not lie before the position " +
             "the tag starts at.",
@@ -56,6 +58,7 @@ interface ITimecodeTagService {
     ): Boolean
 
     @RestPut
+    @RestPath("tags")
     @RpcDoc(
         "Replace every tag the user has on a song with the supplied ones. The write is all-or-nothing, so either all tags are stored or none of " +
             "them are, and an empty list clears the tags of the song.",

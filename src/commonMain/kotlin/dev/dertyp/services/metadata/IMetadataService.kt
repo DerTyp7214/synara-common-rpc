@@ -6,6 +6,7 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.ioDispatcher
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
+import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import dev.dertyp.serializers.DurationSerializer
@@ -108,6 +109,7 @@ interface IMetadataService {
     ): List<Artist>
 
     @ProvidesFeature(Feature.SEARCH_TRACKS)
+    @RestPath("tracks")
     @RpcDoc("Search for tracks on the specified metadata provider.")
     suspend fun search(
         @RpcParamDoc("The metadata provider to use.")

@@ -21,6 +21,7 @@ interface ICoverGenerationService {
     @RpcDoc("Styles and asset packs available to the current user.")
     suspend fun options(): CoverGenerationOptions
 
+    @RestGet
     @RpcDoc("The current cover state of a playlist or collection.", errors = ["IllegalArgumentException"])
     suspend fun coverInfo(@RpcParamDoc("The playlist or collection.") target: CoverTarget): CoverInfo
 

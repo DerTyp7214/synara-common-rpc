@@ -3,6 +3,7 @@ package dev.dertyp.services
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.RadioSeed
 import dev.dertyp.data.RadioType
+import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +18,7 @@ interface IRadioService {
         @RpcParamDoc("Optional seed material; when set, the station plays songs similar to the seed.") seed: RadioSeed? = null,
     ): PlatformUUID
 
+    @RestGet
     @RpcDoc("Infinite stream of song identifiers for a radio session. Re-collecting the same session continues without repeating songs.")
     fun radioFlow(
         @RpcParamDoc("The radio session identifier, as returned by createRadioSession.") sessionId: PlatformUUID

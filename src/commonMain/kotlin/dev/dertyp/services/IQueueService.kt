@@ -11,6 +11,7 @@ import dev.dertyp.data.QueueUploadStart
 import dev.dertyp.data.QueueWriteResult
 import dev.dertyp.data.RepeatMode
 import dev.dertyp.rpc.annotations.RestGet
+import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.coroutines.flow.Flow
@@ -82,6 +83,7 @@ interface IQueueService {
         @RpcParamDoc("Whether to apply the change even if the server is past the base version.") force: Boolean = false
     ): QueueWriteResult
 
+    @RestPath("entries")
     @RpcDoc("Remove entries from the queue by their queue identifiers. Unknown identifiers are ignored and the current index is adjusted to stay on the playing entry.")
     suspend fun remove(
         @RpcParamDoc("The queue version the change is based on.") baseVersion: Long,

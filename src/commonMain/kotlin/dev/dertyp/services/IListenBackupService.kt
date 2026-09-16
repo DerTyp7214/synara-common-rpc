@@ -24,7 +24,6 @@ interface IListenBackupService {
     fun getStateFlow(): Flow<ListenBackupState>
 
     @RequiresAdmin
-    @RestPost
     @RpcDoc("Update the backup configuration.", errors = ["SecurityException", "IllegalArgumentException"])
     suspend fun updateConfig(
         @RpcParamDoc("The new configuration. A null key keeps the stored key.") config: ListenBackupConfig

@@ -5,6 +5,8 @@ package dev.dertyp.services
 import dev.dertyp.PlatformUUID
 import dev.dertyp.PrefixedId
 import dev.dertyp.data.*
+import dev.dertyp.rpc.annotations.RestGet
+import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.rpc.annotations.Rpc
@@ -25,6 +27,7 @@ interface IAlbumService {
     suspend fun byOriginalIds(@RpcParamDoc("Collection of original platform-specific album identifiers.") ids: Collection<PrefixedId>): List<Album>
     @RpcDoc("Find albums by their original platform URLs, returning a mapping.")
     suspend fun byOriginalUrls(@RpcParamDoc("Collection of original platform URLs.") urls: Collection<String>): Map<String, Album?>
+    @RestGet
     @RpcDoc("List different versions of an album.")
     suspend fun versions(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): List<Album>
     @RpcDoc("Search albums by name.")
@@ -60,6 +63,7 @@ interface IAlbumService {
     @RpcDoc("Delete multiple albums from the library.")
     suspend fun deleteAlbums(@RpcParamDoc("Collection of album IDs to delete.") ids: List<PlatformUUID>): Boolean
     @RequiresCapability(UserCapability.EDIT)
+    @RestPost
     @RpcDoc("Fetch and link MusicBrainz ID for an album.")
     suspend fun fetchMusicBrainzId(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): Album?
     @RequiresCapability(UserCapability.EDIT)
@@ -77,6 +81,7 @@ interface IAlbumService {
         @RpcParamDoc("Whether to include singles.") singles: Boolean = false
     ): PaginatedResponse<Album>
 
+    @RestGet
     @RpcDoc("Get extended metadata for an album.")
     suspend fun extendedMetadata(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): AlbumExtendedMetadata?
 }

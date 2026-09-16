@@ -8,6 +8,7 @@ import dev.dertyp.data.CollectionSearchResults
 import dev.dertyp.data.MediaCollection
 import dev.dertyp.data.InsertableCollection
 import dev.dertyp.rpc.annotations.RestGet
+import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.coroutines.flow.Flow
@@ -34,6 +35,7 @@ interface ICollectionService {
         @RpcParamDoc("The new metadata.") collection: InsertableCollection
     ): Boolean
 
+    @RestPath("item")
     @RpcDoc("Add an item (song, album, artist or playlist) to a collection.")
     suspend fun addItem(
         @RpcParamDoc("The collection unique identifier.") id: PlatformUUID,
@@ -54,6 +56,7 @@ interface ICollectionService {
         @RpcParamDoc("The image unique identifier.") imageId: PlatformUUID?
     ): Boolean
 
+    @RestPath("collection")
     @RpcDoc("Delete a collection.")
     suspend fun delete(@RpcParamDoc("The collection unique identifier.") id: PlatformUUID): Boolean
 
