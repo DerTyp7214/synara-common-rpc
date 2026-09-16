@@ -3470,6 +3470,7 @@ pub struct PodcastShow {
     pub delivery_mode: PodcastDeliveryMode,
     #[serde(rename = "keepEpisodes")]
     pub keep_episodes: Option<i32>,
+    pub retention: PodcastRetention,
     #[serde(rename = "lastFetchedAt")]
     pub last_fetched_at: Option<i64>,
     #[serde(rename = "lastFetchError")]
@@ -3499,6 +3500,14 @@ pub enum PodcastDeliveryMode {
     Stream,
     #[serde(rename = "IMPORT")]
     Import,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum PodcastRetention {
+    #[serde(rename = "NEWEST")]
+    Newest,
+    #[serde(rename = "UNLISTENED")]
+    Unlistened,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -3612,6 +3621,7 @@ pub struct PodcastShowSettings {
     pub delivery_mode: PodcastDeliveryMode,
     #[serde(rename = "keepEpisodes")]
     pub keep_episodes: Option<i32>,
+    pub retention: PodcastRetention,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

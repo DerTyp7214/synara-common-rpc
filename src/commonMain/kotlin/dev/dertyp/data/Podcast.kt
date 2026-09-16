@@ -25,6 +25,16 @@ enum class PodcastDeliveryMode {
 }
 
 @Serializable
+@ModelDoc("Decides which episodes of an imported show the server keeps on disk.")
+enum class PodcastRetention {
+    @FieldDoc("The server keeps the newest episodes of the show and deletes everything older than that.") NEWEST,
+
+    @FieldDoc(
+        "The server keeps the episodes nobody has finished yet and deletes an episode once every subscriber of the show listened to it to the end."
+    ) UNLISTENED
+}
+
+@Serializable
 @ModelDoc("The role an episode plays within its show.")
 enum class PodcastEpisodeType {
     @FieldDoc("A regular episode of the show.") FULL,
@@ -80,6 +90,8 @@ data class PodcastShow(
     val deliveryMode: PodcastDeliveryMode = PodcastDeliveryMode.STREAM,
     @FieldDoc("How many of the newest episodes are kept on disk while the show is imported, or null to keep every imported episode.")
     val keepEpisodes: Int? = null,
+    @FieldDoc("Which episodes of the show the server keeps on disk while the show is imported.")
+    val retention: PodcastRetention = PodcastRetention.NEWEST,
     @FieldDoc("Unix timestamp in milliseconds of the last time the feed of the show was fetched, or null if it was never fetched.")
     val lastFetchedAt: Long? = null,
     @FieldDoc("The error of the last failed fetch of the feed, or null if the last fetch succeeded.")
@@ -228,8 +240,13 @@ data class EpisodePlaybackReport(
 data class PodcastShowSettings(
     @FieldDoc("Whether the server only relays the audio of the show or stores its episodes on disk.")
     val deliveryMode: PodcastDeliveryMode,
-    @FieldDoc("How many of the newest episodes to keep on disk while the show is imported, at least 1, or null to keep every imported episode.")
-    val keepEpisodes: Int? = null
+    @FieldDoc(
+        "How many episodes to keep on disk while the show is imported, at least 1, or null for no limit. With unlistened retention this caps how " +
+            "many episodes of the show are stored or queued at once."
+    )
+    val keepEpisodes: Int? = null,
+    @FieldDoc("Which episodes of the show the server keeps on disk while the show is imported. Only import delivery accepts unlistened retention.")
+    val retention: PodcastRetention = PodcastRetention.NEWEST
 )
 
 @Serializable

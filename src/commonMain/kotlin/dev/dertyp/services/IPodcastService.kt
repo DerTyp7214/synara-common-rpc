@@ -150,7 +150,10 @@ interface IPodcastService {
     @RequiresCapability(UserCapability.PODCAST_EDIT)
     @RpcDoc(
         "Change how the server keeps the episodes of a show. Switching a show to import makes the server store new episodes on disk, and the " +
-            "number of episodes to keep must be at least 1 when it is given.",
+            "number of episodes to keep must be at least 1 when it is given. With newest retention the server imports the newest episodes and " +
+            "deletes everything beyond that count, while unlistened retention, which needs import delivery, imports the episodes nobody has " +
+            "finished yet and only deletes an episode once every subscriber listened to it to the end, with the keep count capping how many " +
+            "episodes are stored or queued at once.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun updateShowSettings(
