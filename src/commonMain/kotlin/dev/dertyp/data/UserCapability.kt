@@ -8,13 +8,15 @@ import kotlinx.serialization.Serializable
 enum class UserCapability {
     IMPORT,
     EDIT,
-    DELETE;
+    DELETE,
+    PODCAST_EDIT;
 
     companion object {
         fun fromString(value: String?): UserCapability? = when (value?.uppercase()) {
             "IMPORT" -> IMPORT
             "EDIT" -> EDIT
             "DELETE" -> DELETE
+            "PODCAST_EDIT" -> PODCAST_EDIT
             else -> null
         }
     }

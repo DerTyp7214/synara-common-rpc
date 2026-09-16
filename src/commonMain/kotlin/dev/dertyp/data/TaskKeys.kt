@@ -38,4 +38,6 @@ object TaskKeys {
     const val STORAGE_SIZE_REFRESH = "storage-size-refresh"
     const val COVER_BACKFILL = "cover-backfill"
     const val AUDIO_TIMELINE_BACKFILL = "audio-timeline-backfill"
+    const val PODCAST_REFRESH = "podcast-refresh"
+    const val PODCAST_IMPORT = "podcast-import"
 }

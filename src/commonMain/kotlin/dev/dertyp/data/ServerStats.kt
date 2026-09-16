@@ -31,6 +31,14 @@ data class ServerStats(
     val averageSizePerSong: Long,
     @FieldDoc("Summed duration of all tracks in milliseconds.")
     val totalDuration: Long,
+    @FieldDoc("Total number of podcast shows known to the server, from feed subscriptions and from the local podcast library.")
+    val podcastShowCount: Int = 0,
+    @FieldDoc("Total number of podcast episodes known to the server.")
+    val podcastEpisodeCount: Int = 0,
+    @FieldDoc("Number of podcast episodes whose audio is stored on the server, either imported from a feed or part of the local podcast library.")
+    val podcastImportedEpisodeCount: Int = 0,
+    @FieldDoc("Total disk space consumed by the podcast library and by imported episodes in bytes.")
+    val podcastFileSize: Long = 0L,
     @FieldDoc("Statistics about transcoded audio versions.")
     val transcodeStats: List<TranscodeStats>,
     @FieldDoc("Statistics about the MusicBrainz metadata cache.")

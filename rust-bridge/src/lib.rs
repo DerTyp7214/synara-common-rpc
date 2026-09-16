@@ -1086,6 +1086,70 @@ pub struct IClientRequestServiceCompleteArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IPodcastServiceBrowseShowsArgs {
+    pub query: String,
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IPodcastServiceGetEpisodesArgs {
+    #[serde(rename = "showId")]
+    pub show_id: PlatformUUID,
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+    #[serde(rename = "newestFirst")]
+    pub newest_first: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IPodcastServiceSearchEpisodesArgs {
+    pub query: String,
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IPodcastServiceGetLatestEpisodesArgs {
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IPodcastServiceGetInProgressArgs {
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IPodcastServiceSetPlayedArgs {
+    #[serde(rename = "episodeId")]
+    pub episode_id: PlatformUUID,
+    pub played: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IPodcastServiceUpdateShowSettingsArgs {
+    #[serde(rename = "showId")]
+    pub show_id: PlatformUUID,
+    pub settings: PodcastShowSettings,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IPodcastServiceStreamEpisodeArgs {
+    #[serde(rename = "episodeId")]
+    pub episode_id: PlatformUUID,
+    pub offset: i64,
+    #[serde(rename = "chunkSize")]
+    pub chunk_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IImageServiceGetImageDataArgs {
     pub id: PlatformUUID,
     pub size: i32,
@@ -1638,6 +1702,8 @@ pub enum UserCapability {
     Edit,
     #[serde(rename = "DELETE")]
     Delete,
+    #[serde(rename = "PODCAST_EDIT")]
+    PodcastEdit,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -3385,6 +3451,201 @@ pub struct ClientRequest {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PodcastShow {
+    pub id: PlatformUUID,
+    pub source: PodcastSource,
+    #[serde(rename = "feedUrl")]
+    pub feed_url: Option<String>,
+    #[serde(rename = "localPath")]
+    pub local_path: Option<String>,
+    pub title: String,
+    pub description: String,
+    pub author: Option<String>,
+    pub language: Option<String>,
+    pub link: Option<String>,
+    #[serde(rename = "imageId")]
+    pub image_id: Option<PlatformUUID>,
+    pub explicit: bool,
+    #[serde(rename = "deliveryMode")]
+    pub delivery_mode: PodcastDeliveryMode,
+    #[serde(rename = "keepEpisodes")]
+    pub keep_episodes: Option<i32>,
+    #[serde(rename = "lastFetchedAt")]
+    pub last_fetched_at: Option<i64>,
+    #[serde(rename = "lastFetchError")]
+    pub last_fetch_error: Option<String>,
+    #[serde(rename = "episodeCount")]
+    pub episode_count: i32,
+    #[serde(rename = "subscriberCount")]
+    pub subscriber_count: i32,
+    pub subscribed: bool,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum PodcastSource {
+    #[serde(rename = "FEED")]
+    Feed,
+    #[serde(rename = "LOCAL")]
+    Local,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum PodcastDeliveryMode {
+    #[serde(rename = "STREAM")]
+    Stream,
+    #[serde(rename = "IMPORT")]
+    Import,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PodcastEpisode {
+    pub id: PlatformUUID,
+    #[serde(rename = "showId")]
+    pub show_id: PlatformUUID,
+    #[serde(rename = "showTitle")]
+    pub show_title: String,
+    pub guid: String,
+    pub title: String,
+    pub description: String,
+    pub link: Option<String>,
+    #[serde(rename = "publishedAt")]
+    pub published_at: i64,
+    #[serde(rename = "durationMs")]
+    pub duration_ms: Option<i64>,
+    #[serde(rename = "enclosureUrl")]
+    pub enclosure_url: Option<String>,
+    #[serde(rename = "enclosureType")]
+    pub enclosure_type: Option<String>,
+    #[serde(rename = "enclosureLength")]
+    pub enclosure_length: Option<i64>,
+    #[serde(rename = "imageId")]
+    pub image_id: Option<PlatformUUID>,
+    #[serde(rename = "showImageId")]
+    pub show_image_id: Option<PlatformUUID>,
+    #[serde(rename = "seasonNumber")]
+    pub season_number: Option<i32>,
+    #[serde(rename = "episodeNumber")]
+    pub episode_number: Option<i32>,
+    #[serde(rename = "episodeType")]
+    pub episode_type: PodcastEpisodeType,
+    pub explicit: bool,
+    #[serde(rename = "importState")]
+    pub import_state: PodcastImportState,
+    pub imported: bool,
+    #[serde(rename = "importedAt")]
+    pub imported_at: Option<i64>,
+    #[serde(rename = "fileSize")]
+    pub file_size: Option<i64>,
+    pub format: Option<String>,
+    #[serde(rename = "hasTranscript")]
+    pub has_transcript: bool,
+    pub progress: Option<PodcastEpisodeProgress>,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum PodcastEpisodeType {
+    #[serde(rename = "FULL")]
+    Full,
+    #[serde(rename = "TRAILER")]
+    Trailer,
+    #[serde(rename = "BONUS")]
+    Bonus,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum PodcastImportState {
+    #[serde(rename = "NONE")]
+    None,
+    #[serde(rename = "QUEUED")]
+    Queued,
+    #[serde(rename = "IMPORTING")]
+    Importing,
+    #[serde(rename = "IMPORTED")]
+    Imported,
+    #[serde(rename = "FAILED")]
+    Failed,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PodcastEpisodeProgress {
+    #[serde(rename = "episodeId")]
+    pub episode_id: PlatformUUID,
+    #[serde(rename = "showId")]
+    pub show_id: PlatformUUID,
+    #[serde(rename = "positionMs")]
+    pub position_ms: i64,
+    #[serde(rename = "durationMs")]
+    pub duration_ms: Option<i64>,
+    pub completed: bool,
+    #[serde(rename = "lastPlayedAt")]
+    pub last_played_at: i64,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: i64,
+    #[serde(rename = "deviceId")]
+    pub device_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct EpisodePlaybackReport {
+    #[serde(rename = "episodeId")]
+    pub episode_id: PlatformUUID,
+    #[serde(rename = "positionMs")]
+    pub position_ms: i64,
+    #[serde(rename = "durationMs")]
+    pub duration_ms: Option<i64>,
+    pub completed: bool,
+    #[serde(rename = "deviceId")]
+    pub device_id: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PodcastShowSettings {
+    #[serde(rename = "deliveryMode")]
+    pub delivery_mode: PodcastDeliveryMode,
+    #[serde(rename = "keepEpisodes")]
+    pub keep_episodes: Option<i32>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PodcastScanResult {
+    pub shows: i32,
+    #[serde(rename = "episodesAdded")]
+    pub episodes_added: i32,
+    #[serde(rename = "episodesUpdated")]
+    pub episodes_updated: i32,
+    #[serde(rename = "episodesRemoved")]
+    pub episodes_removed: i32,
+    #[serde(rename = "showsRemoved")]
+    pub shows_removed: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PodcastTranscript {
+    pub id: PlatformUUID,
+    #[serde(rename = "episodeId")]
+    pub episode_id: PlatformUUID,
+    #[serde(rename = "type")]
+    pub r#type: String,
+    pub language: Option<String>,
+    pub rel: Option<String>,
+    pub available: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PodcastTranscriptContent {
+    pub transcript: PodcastTranscript,
+    pub content: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct InsertableImage {
     pub data: serde_bytes::ByteBuf,
     #[serde(rename = "imageHash")]
@@ -3673,6 +3934,14 @@ pub struct ServerStats {
     pub average_size_per_song: i64,
     #[serde(rename = "totalDuration")]
     pub total_duration: i64,
+    #[serde(rename = "podcastShowCount")]
+    pub podcast_show_count: i32,
+    #[serde(rename = "podcastEpisodeCount")]
+    pub podcast_episode_count: i32,
+    #[serde(rename = "podcastImportedEpisodeCount")]
+    pub podcast_imported_episode_count: i32,
+    #[serde(rename = "podcastFileSize")]
+    pub podcast_file_size: i64,
     #[serde(rename = "transcodeStats")]
     pub transcode_stats: Vec<TranscodeStats>,
     #[serde(rename = "musicBrainzCache")]
@@ -4256,6 +4525,32 @@ pub trait IDbManagementService {
 pub trait IClientRequestService {
     fn observe_requests(&self, ) -> RpcStream<ClientRequest>;
     fn complete<'life0, 'async_trait>(&'life0 self, request_id: PlatformUUID, status: ClientRequestStatus) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IPodcastService {
+    fn subscribe<'life0, 'async_trait>(&'life0 self, feed_url: String) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastShow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn subscribe_to_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastShow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn unsubscribe<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_subscriptions<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn browse_shows<'life0, 'async_trait>(&'life0 self, query: String, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_episodes<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID, page: i32, page_size: i32, newest_first: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_episode<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn search_episodes<'life0, 'async_trait>(&'life0 self, query: String, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_latest_episodes<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_in_progress<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn report_playback<'life0, 'async_trait>(&'life0 self, report: EpisodePlaybackReport) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisodeProgress, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_played<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID, played: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisodeProgress, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn observe_progress(&self, ) -> RpcStream<PodcastEpisodeProgress>;
+    fn refresh_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastShow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn update_show_settings<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID, settings: PodcastShowSettings) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastShow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn import_episode<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisode, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn remove_import<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisode, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn scan_local<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastScanResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn stream_episode(&self, episode_id: PlatformUUID, offset: i64, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf>;
+    fn get_stream_size<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_transcripts<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastTranscript>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_transcript<'life0, 'async_trait>(&'life0 self, transcript_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastTranscriptContent>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IImageService {
@@ -6089,6 +6384,127 @@ impl IClientRequestService for RpcClient {
         Box::pin(async move {
             let args = IClientRequestServiceCompleteArgs { request_id, status };
             self.call("IClientRequestService", "complete", &args).await
+        })
+    }
+}
+impl IPodcastService for RpcClient {
+    fn subscribe<'life0, 'async_trait>(&'life0 self, feed_url: String) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastShow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "subscribe", &feed_url).await
+        })
+    }
+    fn subscribe_to_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastShow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "subscribeToShow", &show_id).await
+        })
+    }
+    fn unsubscribe<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "unsubscribe", &show_id).await
+        })
+    }
+    fn get_subscriptions<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "getSubscriptions", &()).await
+        })
+    }
+    fn browse_shows<'life0, 'async_trait>(&'life0 self, query: String, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IPodcastServiceBrowseShowsArgs { query, page, page_size };
+            self.call("IPodcastService", "browseShows", &args).await
+        })
+    }
+    fn get_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "getShow", &show_id).await
+        })
+    }
+    fn get_episodes<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID, page: i32, page_size: i32, newest_first: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IPodcastServiceGetEpisodesArgs { show_id, page, page_size, newest_first };
+            self.call("IPodcastService", "getEpisodes", &args).await
+        })
+    }
+    fn get_episode<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "getEpisode", &episode_id).await
+        })
+    }
+    fn search_episodes<'life0, 'async_trait>(&'life0 self, query: String, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IPodcastServiceSearchEpisodesArgs { query, page, page_size };
+            self.call("IPodcastService", "searchEpisodes", &args).await
+        })
+    }
+    fn get_latest_episodes<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IPodcastServiceGetLatestEpisodesArgs { page, page_size };
+            self.call("IPodcastService", "getLatestEpisodes", &args).await
+        })
+    }
+    fn get_in_progress<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IPodcastServiceGetInProgressArgs { page, page_size };
+            self.call("IPodcastService", "getInProgress", &args).await
+        })
+    }
+    fn report_playback<'life0, 'async_trait>(&'life0 self, report: EpisodePlaybackReport) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisodeProgress, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "reportPlayback", &report).await
+        })
+    }
+    fn set_played<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID, played: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisodeProgress, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IPodcastServiceSetPlayedArgs { episode_id, played };
+            self.call("IPodcastService", "setPlayed", &args).await
+        })
+    }
+    fn observe_progress(&self, ) -> RpcStream<PodcastEpisodeProgress> {
+        self.subscribe("IPodcastService", "observeProgress", &())
+    }
+    fn refresh_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastShow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "refreshShow", &show_id).await
+        })
+    }
+    fn update_show_settings<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID, settings: PodcastShowSettings) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastShow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IPodcastServiceUpdateShowSettingsArgs { show_id, settings };
+            self.call("IPodcastService", "updateShowSettings", &args).await
+        })
+    }
+    fn import_episode<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisode, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "importEpisode", &episode_id).await
+        })
+    }
+    fn remove_import<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisode, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "removeImport", &episode_id).await
+        })
+    }
+    fn scan_local<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastScanResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "scanLocal", &()).await
+        })
+    }
+    fn stream_episode(&self, episode_id: PlatformUUID, offset: i64, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf> {
+        let args = IPodcastServiceStreamEpisodeArgs { episode_id, offset, chunk_size };
+        self.subscribe("IPodcastService", "streamEpisode", &args)
+    }
+    fn get_stream_size<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "getStreamSize", &episode_id).await
+        })
+    }
+    fn get_transcripts<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastTranscript>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "getTranscripts", &episode_id).await
+        })
+    }
+    fn get_transcript<'life0, 'async_trait>(&'life0 self, transcript_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastTranscriptContent>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "getTranscript", &transcript_id).await
         })
     }
 }
