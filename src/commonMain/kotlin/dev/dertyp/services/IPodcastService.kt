@@ -89,6 +89,16 @@ interface IPodcastService {
     ): PodcastEpisode?
 
     @RestGet
+    @RpcDoc(
+        "Read several episodes at once, in the order of the given identifiers, each with the listening position of the user. Unknown identifiers " +
+            "are skipped. At most 500 identifiers.",
+        errors = ["IllegalArgumentException"]
+    )
+    suspend fun getEpisodesByIds(
+        @RpcParamDoc("The episodes to read, at most 500.") episodeIds: List<PlatformUUID>
+    ): List<PodcastEpisode>
+
+    @RestGet
     @RpcDoc("Search episodes of every show on the server by their title, their description and the title of their show.", errors = ["IllegalArgumentException"])
     suspend fun searchEpisodes(
         @RpcParamDoc("The search term. Must not be blank.") query: String,
@@ -109,6 +119,18 @@ interface IPodcastService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of episodes per page, at most 500.") pageSize: Int = 50
     ): PaginatedResponse<PodcastEpisode>
+
+    @RestGet
+    @RpcDoc(
+        "Read the episode the user played most recently, with the listening position, so a client can offer to continue it. Returns null if the " +
+            "user never played an episode."
+    )
+    suspend fun getLastPlayed(
+        @RpcParamDoc(
+            "Whether an episode the user already completed may be returned. When false only an unfinished episode with a position after the start " +
+                "counts."
+        ) includeCompleted: Boolean = true
+    ): PodcastEpisode?
 
     @RestPost
     @RpcDoc(

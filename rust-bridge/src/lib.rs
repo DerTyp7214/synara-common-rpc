@@ -4546,9 +4546,11 @@ pub trait IPodcastService {
     fn get_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_episodes<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID, page: i32, page_size: i32, newest_first: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_episode<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_episodes_by_ids<'life0, 'async_trait>(&'life0 self, episode_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn search_episodes<'life0, 'async_trait>(&'life0 self, query: String, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_latest_episodes<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_in_progress<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_last_played<'life0, 'async_trait>(&'life0 self, include_completed: bool) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn report_playback<'life0, 'async_trait>(&'life0 self, report: EpisodePlaybackReport) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisodeProgress, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_played<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID, played: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisodeProgress, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn observe_progress(&self, ) -> RpcStream<PodcastEpisodeProgress>;
@@ -6440,6 +6442,11 @@ impl IPodcastService for RpcClient {
             self.call("IPodcastService", "getEpisode", &episode_id).await
         })
     }
+    fn get_episodes_by_ids<'life0, 'async_trait>(&'life0 self, episode_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "getEpisodesByIds", &episode_ids).await
+        })
+    }
     fn search_episodes<'life0, 'async_trait>(&'life0 self, query: String, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             let args = IPodcastServiceSearchEpisodesArgs { query, page, page_size };
@@ -6456,6 +6463,11 @@ impl IPodcastService for RpcClient {
         Box::pin(async move {
             let args = IPodcastServiceGetInProgressArgs { page, page_size };
             self.call("IPodcastService", "getInProgress", &args).await
+        })
+    }
+    fn get_last_played<'life0, 'async_trait>(&'life0 self, include_completed: bool) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "getLastPlayed", &include_completed).await
         })
     }
     fn report_playback<'life0, 'async_trait>(&'life0 self, report: EpisodePlaybackReport) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisodeProgress, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
