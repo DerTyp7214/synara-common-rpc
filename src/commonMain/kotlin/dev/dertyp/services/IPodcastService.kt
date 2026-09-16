@@ -99,6 +99,18 @@ interface IPodcastService {
     ): List<PodcastEpisode>
 
     @RestGet
+    @RpcDoc(
+        "Read the episodes around one episode of its show: up to `older` episodes published before it and up to `newer` published after it, in " +
+            "chronological order with the episode itself included and the listening position of the user on each. Returns an empty list if the " +
+            "episode does not exist."
+    )
+    suspend fun getEpisodeWindow(
+        @RpcParamDoc("The episode the window is built around.") episodeId: PlatformUUID,
+        @RpcParamDoc("How many episodes published before it to read, at most 500. Values below 0 count as none.") older: Int = 5,
+        @RpcParamDoc("How many episodes published after it to read, at most 500. Values below 0 count as none.") newer: Int = 5
+    ): List<PodcastEpisode>
+
+    @RestGet
     @RpcDoc("Search episodes of every show on the server by their title, their description and the title of their show.", errors = ["IllegalArgumentException"])
     suspend fun searchEpisodes(
         @RpcParamDoc("The search term. Must not be blank.") query: String,
