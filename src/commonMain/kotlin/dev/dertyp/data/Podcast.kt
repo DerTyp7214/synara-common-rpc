@@ -263,3 +263,48 @@ data class PodcastScanResult(
     @FieldDoc("Number of shows removed because their folder is gone.")
     val showsRemoved: Int
 )
+
+@Serializable
+@ModelDoc(
+    "A show found in an external podcast directory. The server does not know the show yet; subscribing to it is done with subscribe and the " +
+        "feed address of the result, which fetches the feed and stores the show."
+)
+data class PodcastIndexResult(
+    @FieldDoc("The identifier of the directory the result came from, see getIndexes.")
+    val indexId: String,
+    @FieldDoc("The display name of the directory the result came from.")
+    val indexName: String,
+    @FieldDoc("The address of the RSS feed of the show. Pass it to subscribe.")
+    val feedUrl: String,
+    @FieldDoc("The title of the show.")
+    val title: String,
+    @FieldDoc("The description of the show. May be blank.")
+    val description: String = "",
+    @FieldDoc("The author, publisher or owner of the show as the directory names it.")
+    val author: String? = null,
+    @FieldDoc("The address of the artwork of the show, if the directory has one.")
+    val imageUrl: String? = null,
+    @FieldDoc("The website of the show, if the directory names one.")
+    val link: String? = null,
+    @FieldDoc("The language of the show as reported by the directory, for example en or de-DE.")
+    val language: String? = null,
+    @FieldDoc("Number of episodes the directory knows of, or null if it does not say.")
+    val episodeCount: Int? = null,
+    @FieldDoc("Unix timestamp in milliseconds of the newest episode the directory knows of, or null if it does not say.")
+    val lastPublishedAt: Long? = null,
+    @FieldDoc("Whether the directory marks the show as explicit.")
+    val explicit: Boolean = false,
+    @FieldDoc("The categories the directory files the show under.")
+    val categories: List<String> = emptyList()
+)
+
+@Serializable
+@ModelDoc("A podcast directory the server can search for shows.")
+data class PodcastIndexInfo(
+    @FieldDoc("The identifier to pass to searchIndex to restrict a search to this directory.")
+    val id: String,
+    @FieldDoc("The display name of the directory.")
+    val name: String,
+    @FieldDoc("Whether the directory is ready to be searched. An unconfigured directory is skipped by searchIndex.")
+    val configured: Boolean
+)

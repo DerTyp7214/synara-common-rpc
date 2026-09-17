@@ -1094,6 +1094,13 @@ pub struct IPodcastServiceBrowseShowsArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IPodcastServiceSearchIndexArgs {
+    pub query: String,
+    pub limit: i32,
+    pub indexes: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IPodcastServiceGetEpisodesArgs {
     #[serde(rename = "showId")]
     pub show_id: PlatformUUID,
@@ -3519,6 +3526,36 @@ pub enum PodcastRetention {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PodcastIndexResult {
+    #[serde(rename = "indexId")]
+    pub index_id: String,
+    #[serde(rename = "indexName")]
+    pub index_name: String,
+    #[serde(rename = "feedUrl")]
+    pub feed_url: String,
+    pub title: String,
+    pub description: String,
+    pub author: Option<String>,
+    #[serde(rename = "imageUrl")]
+    pub image_url: Option<String>,
+    pub link: Option<String>,
+    pub language: Option<String>,
+    #[serde(rename = "episodeCount")]
+    pub episode_count: Option<i32>,
+    #[serde(rename = "lastPublishedAt")]
+    pub last_published_at: Option<i64>,
+    pub explicit: bool,
+    pub categories: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PodcastIndexInfo {
+    pub id: String,
+    pub name: String,
+    pub configured: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PodcastEpisode {
     pub id: PlatformUUID,
     #[serde(rename = "showId")]
@@ -4551,6 +4588,8 @@ pub trait IPodcastService {
     fn unsubscribe<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_subscriptions<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn browse_shows<'life0, 'async_trait>(&'life0 self, query: String, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn search_index<'life0, 'async_trait>(&'life0 self, query: String, limit: i32, indexes: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastIndexResult>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_indexes<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastIndexInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_episodes<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID, page: i32, page_size: i32, newest_first: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_episode<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastEpisode>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -6433,6 +6472,17 @@ impl IPodcastService for RpcClient {
         Box::pin(async move {
             let args = IPodcastServiceBrowseShowsArgs { query, page, page_size };
             self.call("IPodcastService", "browseShows", &args).await
+        })
+    }
+    fn search_index<'life0, 'async_trait>(&'life0 self, query: String, limit: i32, indexes: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastIndexResult>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IPodcastServiceSearchIndexArgs { query, limit, indexes };
+            self.call("IPodcastService", "searchIndex", &args).await
+        })
+    }
+    fn get_indexes<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<PodcastIndexInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "getIndexes", &()).await
         })
     }
     fn get_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<PodcastShow>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {

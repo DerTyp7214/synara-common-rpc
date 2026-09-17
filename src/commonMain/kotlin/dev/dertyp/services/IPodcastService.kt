@@ -5,6 +5,8 @@ import dev.dertyp.data.EpisodePlaybackReport
 import dev.dertyp.data.PaginatedResponse
 import dev.dertyp.data.PodcastEpisode
 import dev.dertyp.data.PodcastEpisodeProgress
+import dev.dertyp.data.PodcastIndexInfo
+import dev.dertyp.data.PodcastIndexResult
 import dev.dertyp.data.PodcastScanResult
 import dev.dertyp.data.PodcastShow
 import dev.dertyp.data.PodcastShowSettings
@@ -66,6 +68,23 @@ interface IPodcastService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of shows per page, at most 500.") pageSize: Int = 50
     ): PaginatedResponse<PodcastShow>
+
+    @RestGet
+    @RpcDoc(
+        "Search the podcast directories the server is connected to, for example Podcast Index, for shows by name or topic. Every result " +
+            "carries the address of its feed, so subscribing to it is done with subscribe. Directories that are not configured are skipped, " +
+            "a directory that fails answers with no results, and feeds the server already follows are left out because browseShows lists them.",
+        errors = ["IllegalArgumentException"]
+    )
+    suspend fun searchIndex(
+        @RpcParamDoc("The search term. Must not be blank.") query: String,
+        @RpcParamDoc("Maximum number of results, clamped to 1 to 100.") limit: Int = 25,
+        @RpcParamDoc("Identifiers of the directories to search, see getIndexes. Empty searches every configured directory.") indexes: List<String> = emptyList()
+    ): List<PodcastIndexResult>
+
+    @RestGet
+    @RpcDoc("Read the podcast directories the server can search and whether each of them is configured.")
+    suspend fun getIndexes(): List<PodcastIndexInfo>
 
     @RestGet
     @RpcDoc("Read a single show. Returns null if the show does not exist.")
