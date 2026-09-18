@@ -12,6 +12,7 @@ import dev.dertyp.data.PodcastShow
 import dev.dertyp.data.PodcastShowSettings
 import dev.dertyp.data.PodcastTranscript
 import dev.dertyp.data.PodcastTranscriptContent
+import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.data.RequiresCapability
 import dev.dertyp.data.UserCapability
 import dev.dertyp.rpc.annotations.RestDelete
@@ -235,6 +236,18 @@ interface IPodcastService {
     suspend fun removeImport(
         @RpcParamDoc("The episode whose stored audio is deleted.") episodeId: PlatformUUID
     ): PodcastEpisode
+
+    @RestDelete
+    @RequiresAdmin
+    @RpcDoc(
+        "Remove a feed show from the server for everyone: its episodes, their transcripts, the listening positions of every user and every " +
+            "subscription to it are deleted, and the audio the server stored for it is deleted from disk. Returns false if the show does not " +
+            "exist. Shows of the local podcast library cannot be removed this way, as the server picks them up again on the next scan.",
+        errors = ["IllegalArgumentException"]
+    )
+    suspend fun deleteShow(
+        @RpcParamDoc("The show to remove.") showId: PlatformUUID
+    ): Boolean
 
     @RestPost
     @RequiresCapability(UserCapability.PODCAST_EDIT)

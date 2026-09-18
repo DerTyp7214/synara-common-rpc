@@ -4606,6 +4606,7 @@ pub trait IPodcastService {
     fn update_show_settings<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID, settings: PodcastShowSettings) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastShow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn import_episode<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisode, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn remove_import<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisode, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn delete_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn scan_local<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastScanResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn stream_episode(&self, episode_id: PlatformUUID, offset: i64, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf>;
     fn get_stream_size<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -6568,6 +6569,11 @@ impl IPodcastService for RpcClient {
     fn remove_import<'life0, 'async_trait>(&'life0 self, episode_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastEpisode, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IPodcastService", "removeImport", &episode_id).await
+        })
+    }
+    fn delete_show<'life0, 'async_trait>(&'life0 self, show_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IPodcastService", "deleteShow", &show_id).await
         })
     }
     fn scan_local<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<PodcastScanResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
