@@ -4,6 +4,7 @@ package dev.dertyp.services.models
 
 import dev.dertyp.PlatformDate
 import dev.dertyp.PlatformUUID
+import dev.dertyp.data.ReleaseSource
 import dev.dertyp.data.ReleaseType
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
@@ -14,7 +15,7 @@ import kotlinx.serialization.UseContextualSerialization
 @Serializable
 @ModelDoc("Metadata for a recently released album or single from a followed artist.")
 data class RecentRelease(
-    @FieldDoc("The unique identifier of the release-group.")
+    @FieldDoc("The MusicBrainz release-group UUID, or the provider release id for non-MusicBrainz sources.")
     val releaseId: PlatformUUID,
     @FieldDoc("The internal artist unique identifier.")
     val artistId: PlatformUUID,
@@ -36,5 +37,9 @@ data class RecentRelease(
     @FieldDoc("The internal album ID if it has been indexed.")
     val albumId: PlatformUUID? = null,
     @FieldDoc("The internal song ID if a single track has been indexed.")
-    val songId: PlatformUUID? = null
+    val songId: PlatformUUID? = null,
+    @FieldDoc("The catalog this entry originates from.")
+    val source: ReleaseSource = ReleaseSource.MusicBrainz,
+    @FieldDoc("Whether the release date still lies in the future.")
+    val upcoming: Boolean = false
 )

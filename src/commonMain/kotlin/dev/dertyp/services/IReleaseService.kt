@@ -26,7 +26,7 @@ interface IReleaseService {
     suspend fun unfollowArtist(@RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID): Boolean
     @RpcDoc("Get a list of all artists the current user is following.")
     suspend fun getFollowedArtists(): List<FollowedArtist>
-    @RpcDoc("Retrieve a feed of recent music releases from followed artists.")
+    @RpcDoc("Retrieve a feed of recent and upcoming music releases from followed artists, merged from MusicBrainz and the Apple Music catalog.")
     suspend fun getRecentReleases(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 150
@@ -49,7 +49,7 @@ interface IReleaseService {
     @RestPublic
     @RpcDoc("Retrieve the cover image for a recent release, served from local storage when persisted or proxied from the Cover Art Archive on demand.")
     suspend fun getReleaseImage(
-        @RpcParamDoc("The MusicBrainz release-group UUID of the recent release.") releaseId: PlatformUUID,
+        @RpcParamDoc("The MusicBrainz release-group UUID of the recent release, or the provider release id for non-MusicBrainz sources.") releaseId: PlatformUUID,
         @RpcParamDoc("Requested image size (width/height). 0 for original size.") size: Int = 0
     ): ByteArray?
 
@@ -57,6 +57,6 @@ interface IReleaseService {
     @RestPost
     @RpcDoc("Kick off a background refresh of the cached metadata, provider links and cover image for a single recent release, returning immediately.")
     suspend fun refreshRecentRelease(
-        @RpcParamDoc("The MusicBrainz release-group UUID of the recent release to refresh.") releaseId: PlatformUUID
+        @RpcParamDoc("The MusicBrainz release-group UUID of the recent release to refresh, or the provider release id for non-MusicBrainz sources.") releaseId: PlatformUUID
     )
 }

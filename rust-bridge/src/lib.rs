@@ -3132,6 +3132,8 @@ pub struct RecentRelease {
     pub album_id: Option<PlatformUUID>,
     #[serde(rename = "songId")]
     pub song_id: Option<PlatformUUID>,
+    pub source: ReleaseSource,
+    pub upcoming: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -3143,6 +3145,12 @@ pub enum ReleaseType {
     Broadcast,
     Other,
     Unknown,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum ReleaseSource {
+    MusicBrainz,
+    Apple,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

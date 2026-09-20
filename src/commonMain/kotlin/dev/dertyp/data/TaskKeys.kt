@@ -21,6 +21,7 @@ object TaskKeys {
     const val LYRICS_SYNC_WORKER = "lyrics-sync-worker"
     const val LRCLIB_WORKER = "lrclib-worker"
     const val RECENT_RELEASE_WORKER = "recent-release-worker"
+    const val APPLE_MUSIC_RELEASE_WORKER = "apple-music-release-worker"
     const val PROVIDER_ENRICHMENT_WORKER = "provider-enrichment-worker"
     const val ISRC_PROVIDER_ENRICHMENT_WORKER = "isrc-provider-enrichment-worker"
     const val DELETE_EMPTY_ALBUMS = "delete-empty-albums"
