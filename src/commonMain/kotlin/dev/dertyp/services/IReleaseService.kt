@@ -36,7 +36,8 @@ interface IReleaseService {
     suspend fun getArtistRecentReleases(
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
         @RpcParamDoc("Page index.") page: Int = 0,
-        @RpcParamDoc("Number of items per page.") pageSize: Int = 150
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 150,
+        @RpcParamDoc("Include entries that have been hidden from the feed; they carry hidden = true.") includeHidden: Boolean = false
     ): PaginatedResponse<RecentRelease>
 
     @RpcDoc("Retrieve recent music releases for an artist by their MusicBrainz ID.")
@@ -59,4 +60,25 @@ interface IReleaseService {
     suspend fun refreshRecentRelease(
         @RpcParamDoc("The MusicBrainz release-group UUID of the recent release to refresh, or the provider release id for non-MusicBrainz sources.") releaseId: PlatformUUID
     )
+
+    @RequiresCapability(UserCapability.EDIT)
+    @RpcDoc(
+        "Hide an entry of the release feed for every user, or show it again. With includeRelated the other Apple Music entries of the same artist sharing the entry's copyright holder (or record label when no holder is known) are hidden or shown as well, and the holder or label is recorded as blocked (or unblocked) for the artist so future catalog runs hide matching entries automatically. Returns the number of entries whose visibility changed.",
+        errors = ["IllegalArgumentException"]
+    )
+    suspend fun setReleaseHidden(
+        @RpcParamDoc("The MusicBrainz release-group UUID of the recent release, or the provider release id for non-MusicBrainz sources.") releaseId: PlatformUUID,
+        @RpcParamDoc("true to hide the entry, false to show it again.") hidden: Boolean,
+        @RpcParamDoc("Also apply the change to the artist's Apple Music entries sharing the copyright holder or record label and record or clear the block. Ignored for MusicBrainz entries.") includeRelated: Boolean = false
+    ): Int
+
+    @RequiresCapability(UserCapability.EDIT)
+    @RestPost
+    @RpcDoc(
+        "Confirm that a provider entry flagged as possibly belonging to another artist is correct: clears the flag and records the entry's copyright holder, record label and ISRC registrants as known sources of the artist so future catalog runs do not flag matching entries again. Returns the updated entry.",
+        errors = ["IllegalArgumentException"]
+    )
+    suspend fun confirmRelease(
+        @RpcParamDoc("The provider release id of the flagged entry.") releaseId: PlatformUUID
+    ): RecentRelease
 }

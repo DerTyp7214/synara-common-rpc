@@ -12,11 +12,14 @@ class RpcProcessor(
 ) : SymbolProcessor {
 
     private val simpleToQualifiedName = mutableMapOf<String, String>()
+    private val uniqueNames = mutableMapOf<String, String>()
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         simpleToQualifiedName.clear()
+        uniqueNames.clear()
         val symbols = resolver.getSymbolsWithAnnotation("kotlinx.rpc.annotations.Rpc")
             .filterIsInstance<KSClassDeclaration>()
+            .sortedBy { it.qualifiedName?.asString() ?: it.simpleName.asString() }
             .toList()
 
         if (symbols.isEmpty()) return emptyList()
@@ -369,14 +372,20 @@ class RpcProcessor(
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone)] pub struct RpcEnvelope { pub data: Option<serde_bytes::ByteBuf>, pub error: Option<String> }")
             out.writeLine("")
 
-            // Collect and generate models
             symbols.forEach { symbol ->
-                symbol.getAllFunctions().filter { 
+                symbol.getAllFunctions().filter {
                     it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
                 }.forEach { func ->
                     func.parameters.forEach { collectModels(it.type.resolve(), modelsToGenerate) }
                     func.returnType?.resolve()?.let { collectModels(it, modelsToGenerate) }
-                    
+                }
+            }
+            assignUniqueNames(modelsToGenerate)
+
+            symbols.forEach { symbol ->
+                symbol.getAllFunctions().filter {
+                    it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
+                }.forEach { func ->
                     if (func.parameters.size > 1) {
                         val argsClassName = "${symbol.simpleName.asString()}${func.simpleName.asString().replaceFirstChar { it.uppercase() }}Args"
                         out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone)]")
@@ -560,16 +569,35 @@ class RpcProcessor(
         }
     }
 
+    private fun assignUniqueNames(models: Collection<KSClassDeclaration>) {
+        models.groupBy { it.simpleName.asString() }.forEach { (simpleName, group) ->
+            val plain = group.singleOrNull()
+                ?: group.filter { it.parentDeclaration !is KSClassDeclaration }.singleOrNull()
+            group.sortedBy { it.qualifiedName?.asString() ?: "" }.forEach { decl ->
+                val qName = decl.qualifiedName?.asString() ?: return@forEach
+                uniqueNames[qName] = if (decl == plain) simpleName else prefixedName(decl)
+            }
+            plain?.qualifiedName?.asString()?.let { simpleToQualifiedName[simpleName] = it }
+        }
+    }
+
+    private fun prefixedName(decl: KSDeclaration): String {
+        val simpleName = decl.simpleName.asString()
+        val qName = decl.qualifiedName?.asString() ?: ""
+        val pkg = qName.substringBeforeLast(".", "").substringAfterLast(".")
+        return if (pkg.isNotEmpty()) "${pkg.replaceFirstChar { it.uppercase() }}$simpleName" else qName.replace(".", "")
+    }
+
     private fun getUniqueName(decl: KSDeclaration): String {
         val simpleName = decl.simpleName.asString()
         val qName = decl.qualifiedName?.asString() ?: ""
+        uniqueNames[qName]?.let { return it }
         val existingQName = simpleToQualifiedName[simpleName]
         if (existingQName == null || existingQName == qName) {
             simpleToQualifiedName[simpleName] = qName
             return simpleName
         }
-        val pkg = qName.substringBeforeLast(".", "").substringAfterLast(".")
-        return if (pkg.isNotEmpty()) "${pkg.replaceFirstChar { it.uppercase() }}$simpleName" else qName.replace(".", "")
+        return prefixedName(decl)
     }
 
     private fun collectModels(type: KSType, set: MutableSet<KSClassDeclaration>) {

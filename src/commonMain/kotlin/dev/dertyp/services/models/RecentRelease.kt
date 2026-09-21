@@ -41,5 +41,15 @@ data class RecentRelease(
     @FieldDoc("The catalog this entry originates from.")
     val source: ReleaseSource = ReleaseSource.MusicBrainz,
     @FieldDoc("Whether the release date still lies in the future.")
-    val upcoming: Boolean = false
+    val upcoming: Boolean = false,
+    @FieldDoc("Whether the entry has been hidden from the release feed.")
+    val hidden: Boolean = false,
+    @FieldDoc("Whether the catalog evidence suggests the entry belongs to a different artist with the same name. Only set for provider entries.")
+    val suspect: Boolean = false,
+    @FieldDoc("Human-readable explanation of why the entry is suspect.")
+    val suspectReason: String? = null,
+    @FieldDoc("The record label reported by the provider, when known.")
+    val recordLabel: String? = null,
+    @FieldDoc("The copyright line reported by the provider, when known.")
+    val copyright: String? = null
 )
