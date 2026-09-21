@@ -36,6 +36,10 @@ class TitleTagsTest {
         Triple("Song (Take 2)", "Song", listOf(TitleTag(TitleTagKind.VERSION, "Take 2"))),
         Triple("Song (Sped Up)", "Song", listOf(TitleTag(TitleTagKind.VERSION, "Sped Up"))),
         Triple("Song (Bonus Track)", "Song", listOf(TitleTag(TitleTagKind.VERSION, "Bonus Track"))),
+        Triple("Song (Level Space Edition)", "Song", listOf(TitleTag(TitleTagKind.VERSION, "Level Space Edition"))),
+        Triple("Song [Level Space Edition]", "Song", listOf(TitleTag(TitleTagKind.VERSION, "Level Space Edition"))),
+        Triple("Song (LEVEL Space Edition)", "Song", listOf(TitleTag(TitleTagKind.VERSION, "LEVEL Space Edition"))),
+        Triple("Song (Special Edition)", "Song", listOf(TitleTag(TitleTagKind.VERSION, "Special Edition"))),
         Triple("Song [Explicit]", "Song", emptyList()),
         Triple("Song (Clean)", "Song", emptyList()),
         Triple("Song (Remastered (Explicit))", "Song", listOf(TitleTag(TitleTagKind.REMASTER, "Remastered"))),
@@ -72,6 +76,8 @@ class TitleTagsTest {
         "Song (Radio Ga Ga)",
         "Song (Mixed Feelings)",
         "Song (Remixed Emotions)",
+        "Song (Edition of One)",
+        "Song (Editions)",
         "(Live)",
     )
 
@@ -124,6 +130,7 @@ class TitleTagsTest {
         assertEquals(TitleTagKind.MIX, classifyTitleTag("Club Mix"))
         assertEquals(null, classifyTitleTag("Lofty Mix"))
         assertEquals(null, classifyTitleTag(""))
+        assertEquals(TitleTagKind.VERSION, classifyTitleTag("Anniversary Edition"))
     }
 
     @Test

@@ -46,6 +46,7 @@ private val tagRules = listOf(
         """^slowed( down| \+ reverb)?$""",
         """^bonus track$""",
         """^deluxe( edition)?$""",
+        """\bedition$""",
     ),
 )
 
