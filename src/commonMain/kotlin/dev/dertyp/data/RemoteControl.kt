@@ -29,6 +29,10 @@ data class RemotePlaybackStatus(
     val repeatMode: RepeatMode,
     @FieldDoc("Playback volume between 0 and 1, or null on a device that does not expose its volume.")
     val volume: Float? = null,
+    @FieldDoc("Queue id of the shared queue entry the device is playing, or null when the device is not playing its shared queue.")
+    val currentQueueId: Long? = null,
+    @FieldDoc("The version of the shared queue the device has applied, or null when it does not take part in queue sync.")
+    val queueVersion: Long? = null,
     @FieldDoc("Unix timestamp in milliseconds at which the server received the report. Ignored on report and filled in by the server.")
     val reportedAt: Long = 0
 )
@@ -91,5 +95,19 @@ sealed class PlaybackCommand {
     data class SetVolume(
         @FieldDoc("The volume to apply, between 0 and 1.")
         val volume: Float
+    ) : PlaybackCommand()
+
+    @Serializable
+    @SerialName("PlayQueueItem")
+    @ModelDoc(
+        "Select and play the entry with this queue id of the shared queue of the user. The device first applies at least the given queue version of the " +
+            "shared queue, pulling it when it has not seen it yet, and rejects the command when the entry is not in its queue afterwards, which is how a " +
+            "controller loads a new queue and then plays a song in it without a race."
+    )
+    data class PlayQueueItem(
+        @FieldDoc("The queue id of the entry within the shared queue.")
+        val queueId: Long,
+        @FieldDoc("The shared queue version that contains the entry, as returned to the controller by its queue write.")
+        val queueVersion: Long
     ) : PlaybackCommand()
 }

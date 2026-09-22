@@ -3355,6 +3355,10 @@ pub struct RemotePlaybackStatus {
     #[serde(rename = "repeatMode")]
     pub repeat_mode: RepeatMode,
     pub volume: Option<Float>,
+    #[serde(rename = "currentQueueId")]
+    pub current_queue_id: Option<i64>,
+    #[serde(rename = "queueVersion")]
+    pub queue_version: Option<i64>,
     #[serde(rename = "reportedAt")]
     pub reported_at: i64,
 }
