@@ -823,6 +823,13 @@ pub struct IReleaseServiceSetReleaseHiddenArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IRemoteControlServiceSendCommandArgs {
+    #[serde(rename = "sessionId")]
+    pub session_id: PlatformUUID,
+    pub command: PlaybackCommand,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IRemoteMirrorServiceGetRemoteImageDataArgs {
     pub config: RemoteServerConfig,
     #[serde(rename = "imageId")]
@@ -1837,6 +1844,26 @@ pub struct ClientRequest {
     pub requested_at: i64,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ClientDescription {
+    #[serde(rename = "deviceName")]
+    pub device_name: String,
+    pub platform: String,
+    #[serde(rename = "deviceId")]
+    pub device_id: Option<String>,
+    pub capabilities: Vec<ClientCapability>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum ClientCapability {
+    #[serde(rename = "QUEUE_SYNC")]
+    QueueSync,
+    #[serde(rename = "REMOTE_CONTROL")]
+    RemoteControl,
+    #[serde(rename = "REMOTE_VOLUME")]
+    RemoteVolume,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum ClientRequestStatus {
     #[serde(rename = "COMPLETED")]
@@ -1847,6 +1874,22 @@ pub enum ClientRequestStatus {
     TimedOut,
     #[serde(rename = "UNREACHABLE")]
     Unreachable,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct OnlineDevice {
+    #[serde(rename = "sessionId")]
+    pub session_id: PlatformUUID,
+    #[serde(rename = "deviceName")]
+    pub device_name: String,
+    pub platform: String,
+    #[serde(rename = "deviceId")]
+    pub device_id: Option<String>,
+    pub capabilities: Vec<ClientCapability>,
+    #[serde(rename = "isCurrent")]
+    pub is_current: bool,
+    #[serde(rename = "connectedAt")]
+    pub connected_at: i64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -3298,6 +3341,29 @@ pub enum ReleaseSource {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RemotePlaybackStatus {
+    #[serde(rename = "songId")]
+    pub song_id: Option<PlatformUUID>,
+    #[serde(rename = "isPlaying")]
+    pub is_playing: bool,
+    #[serde(rename = "positionMs")]
+    pub position_ms: i64,
+    #[serde(rename = "durationMs")]
+    pub duration_ms: Option<i64>,
+    #[serde(rename = "shuffleMode")]
+    pub shuffle_mode: bool,
+    #[serde(rename = "repeatMode")]
+    pub repeat_mode: RepeatMode,
+    pub volume: Option<Float>,
+    #[serde(rename = "reportedAt")]
+    pub reported_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PlaybackCommand {
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct RemoteServerConfig {
     pub host: String,
     pub port: i32,
@@ -4269,7 +4335,9 @@ pub trait IBackupService {
 
 pub trait IClientRequestService {
     fn observe_requests(&self, ) -> RpcStream<ClientRequest>;
+    fn connect(&self, description: ClientDescription) -> RpcStream<ClientRequest>;
     fn complete<'life0, 'async_trait>(&'life0 self, request_id: PlatformUUID, status: ClientRequestStatus) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_online_devices<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<OnlineDevice>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IClientSettingsService {
@@ -4519,6 +4587,13 @@ pub trait IReleaseService {
     fn refresh_recent_release<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_release_hidden<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID, hidden: bool, include_related: bool) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn confirm_release<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<RecentRelease, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait IRemoteControlService {
+    fn report_status<'life0, 'async_trait>(&'life0 self, status: RemotePlaybackStatus) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_status<'life0, 'async_trait>(&'life0 self, session_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<RemotePlaybackStatus>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn observe_status(&self, session_id: PlatformUUID) -> RpcStream<RemotePlaybackStatus>;
+    fn send_command<'life0, 'async_trait>(&'life0 self, session_id: PlatformUUID, command: PlaybackCommand) -> Pin<Box<dyn std::future::Future<Output = Result<ClientRequestStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IRemoteMirrorService {
@@ -5165,10 +5240,18 @@ impl IClientRequestService for RpcClient {
     fn observe_requests(&self, ) -> RpcStream<ClientRequest> {
         self.subscribe("IClientRequestService", "observeRequests", &())
     }
+    fn connect(&self, description: ClientDescription) -> RpcStream<ClientRequest> {
+        self.subscribe("IClientRequestService", "connect", &description)
+    }
     fn complete<'life0, 'async_trait>(&'life0 self, request_id: PlatformUUID, status: ClientRequestStatus) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             let args = IClientRequestServiceCompleteArgs { request_id, status };
             self.call("IClientRequestService", "complete", &args).await
+        })
+    }
+    fn get_online_devices<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<OnlineDevice>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IClientRequestService", "getOnlineDevices", &()).await
         })
     }
 }
@@ -6120,6 +6203,27 @@ impl IReleaseService for RpcClient {
     fn confirm_release<'life0, 'async_trait>(&'life0 self, release_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<RecentRelease, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IReleaseService", "confirmRelease", &release_id).await
+        })
+    }
+}
+impl IRemoteControlService for RpcClient {
+    fn report_status<'life0, 'async_trait>(&'life0 self, status: RemotePlaybackStatus) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IRemoteControlService", "reportStatus", &status).await
+        })
+    }
+    fn get_status<'life0, 'async_trait>(&'life0 self, session_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<RemotePlaybackStatus>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IRemoteControlService", "getStatus", &session_id).await
+        })
+    }
+    fn observe_status(&self, session_id: PlatformUUID) -> RpcStream<RemotePlaybackStatus> {
+        self.subscribe("IRemoteControlService", "observeStatus", &session_id)
+    }
+    fn send_command<'life0, 'async_trait>(&'life0 self, session_id: PlatformUUID, command: PlaybackCommand) -> Pin<Box<dyn std::future::Future<Output = Result<ClientRequestStatus, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IRemoteControlServiceSendCommandArgs { session_id, command };
+            self.call("IRemoteControlService", "sendCommand", &args).await
         })
     }
 }
