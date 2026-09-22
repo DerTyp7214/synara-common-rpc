@@ -3253,6 +3253,8 @@ pub struct RecentRelease {
     pub artist_id: PlatformUUID,
     #[serde(rename = "artistName")]
     pub artist_name: String,
+    #[serde(rename = "artistIds")]
+    pub artist_ids: Vec<PlatformUUID>,
     pub title: String,
     #[serde(rename = "releaseDate")]
     pub release_date: Option<PlatformDate>,

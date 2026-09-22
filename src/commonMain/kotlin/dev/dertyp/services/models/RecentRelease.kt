@@ -21,6 +21,8 @@ data class RecentRelease(
     val artistId: PlatformUUID,
     @FieldDoc("The name of the artist.")
     val artistName: String,
+    @FieldDoc("Every internal artist the release is linked to, the primary artist first.")
+    val artistIds: List<PlatformUUID> = emptyList(),
     @FieldDoc("The title of the release.")
     val title: String,
     @Serializable(with = DateSerializer::class)
