@@ -52,6 +52,7 @@ class RestProcessor(
         val emitter = KotlinEmitter(restPackage)
         services.forEach { emitter.emit(it).writeTo(codeGenerator, Dependencies(aggregating = true)) }
         ManifestEmitter(restPackage).emit(services).writeTo(codeGenerator, Dependencies(aggregating = true))
+        RestDocEmitter(logger, options).emit(services, resolver.getAllFiles().firstOrNull()?.filePath)
 
         return emptyList()
     }

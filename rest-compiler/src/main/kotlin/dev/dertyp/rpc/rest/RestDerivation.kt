@@ -231,31 +231,13 @@ class RestDerivation(
     }
 
     private fun methodAndNameFromPrefix(name: String): Pair<String, String> {
-        return when {
-            name.startsWithWord("by") -> "GET" to name
-            name.startsWithWord("all") -> "GET" to name
-            name.startsWithWord("liked") -> "GET" to name
-            name.startsWithWord("stream") -> "GET" to name
-            name.startsWithWord("import") -> "GET" to name
-            name.startsWithWord("download") -> "GET" to name
-            name.startsWithWord("get") -> "GET" to name.removePrefix("get")
-            name.startsWithWord("list") -> "GET" to name.removePrefix("list")
-            name.startsWithWord("find") -> "GET" to name.removePrefix("find")
-            name.startsWithWord("fetch") -> "GET" to name.removePrefix("fetch")
-            name.startsWithWord("search") -> "GET" to name.removePrefix("search")
-            name.startsWithWord("ranked") -> "GET" to name.removePrefix("ranked")
-            name.startsWithWord("exists") -> "GET" to name
-            name.contains("Exists") -> "GET" to name
-            name.startsWithWord("add") -> "POST" to name
-            name.startsWithWord("post") -> "POST" to name.removePrefix("post")
-            name.startsWithWord("create") -> "POST" to name.removePrefix("create")
-            name.startsWithWord("put") -> "PUT" to name.removePrefix("put")
-            name.startsWithWord("set") -> "PUT" to name.removePrefix("set")
-            name.startsWithWord("update") -> "PUT" to name.removePrefix("update")
-            name.startsWithWord("delete") -> "DELETE" to name.removePrefix("delete")
-            name.startsWithWord("remove") -> "DELETE" to name.removePrefix("remove")
-            else -> "POST" to name
-        }
+        val rule = RestRules.nameRules.firstOrNull {
+            when (it.match) {
+                RuleMatch.PREFIX_WORD -> name.startsWithWord(it.token)
+                RuleMatch.INFIX -> name.contains(it.token)
+            }
+        } ?: return RestRules.DEFAULT_METHOD to name
+        return rule.method to if (rule.stripPrefix) name.removePrefix(rule.token) else name
     }
 
     private fun isPathCandidate(parameter: KSValueParameter): Boolean =
