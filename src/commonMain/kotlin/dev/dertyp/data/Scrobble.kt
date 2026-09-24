@@ -49,3 +49,30 @@ data class RecentListens(
     @FieldDoc("Recently listened songs, newest first.")
     val recent: List<ListenedSong>,
 )
+
+@Serializable
+@ModelDoc("A song from the user's listen history, with when it was played.")
+data class ListenedSong(
+    @FieldDoc("The listened song with full metadata.")
+    val song: UserSong,
+    @FieldDoc("When the song was played (epoch milliseconds).")
+    val listenedAt: Long,
+)
+
+@Serializable
+@ModelDoc("An artist from the user's listen history, with when one of their songs was last played.")
+data class ListenedArtist(
+    @FieldDoc("The listened artist.")
+    val artist: Artist,
+    @FieldDoc("When a song of the artist was last played (epoch milliseconds).")
+    val lastListenedAt: Long,
+)
+
+@Serializable
+@ModelDoc("An album from the user's listen history, with when one of its songs was last played.")
+data class ListenedAlbum(
+    @FieldDoc("The listened album.")
+    val album: Album,
+    @FieldDoc("When a song of the album was last played (epoch milliseconds).")
+    val lastListenedAt: Long,
+)

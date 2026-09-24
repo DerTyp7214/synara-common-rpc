@@ -3692,6 +3692,20 @@ pub struct NowPlaying {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListenedArtist {
+    pub artist: Artist,
+    #[serde(rename = "lastListenedAt")]
+    pub last_listened_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ListenedAlbum {
+    pub album: Album,
+    #[serde(rename = "lastListenedAt")]
+    pub last_listened_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ProxyInfo {
     pub host: String,
     #[serde(rename = "controlPort")]
@@ -4661,7 +4675,12 @@ pub trait IScrobbleService {
     fn report_playback<'life0, 'async_trait>(&'life0 self, report: PlaybackReport) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn clear_now_playing<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn listened<'life0, 'async_trait>(&'life0 self, request: ScrobbleRequest) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn recent_listens<'life0, 'async_trait>(&'life0 self, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<RecentListens, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn recent_listens_flow(&self, limit: i32) -> RpcStream<RecentListens>;
+    fn recent_artists<'life0, 'async_trait>(&'life0 self, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ListenedArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn recent_artists_flow(&self, limit: i32) -> RpcStream<Vec<ListenedArtist>>;
+    fn recent_albums<'life0, 'async_trait>(&'life0 self, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ListenedAlbum>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn recent_albums_flow(&self, limit: i32) -> RpcStream<Vec<ListenedAlbum>>;
 }
 
 pub trait IServerStatsService {
@@ -6377,8 +6396,29 @@ impl IScrobbleService for RpcClient {
             self.call("IScrobbleService", "listened", &request).await
         })
     }
+    fn recent_listens<'life0, 'async_trait>(&'life0 self, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<RecentListens, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IScrobbleService", "recentListens", &limit).await
+        })
+    }
     fn recent_listens_flow(&self, limit: i32) -> RpcStream<RecentListens> {
         self.subscribe("IScrobbleService", "recentListensFlow", &limit)
+    }
+    fn recent_artists<'life0, 'async_trait>(&'life0 self, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ListenedArtist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IScrobbleService", "recentArtists", &limit).await
+        })
+    }
+    fn recent_artists_flow(&self, limit: i32) -> RpcStream<Vec<ListenedArtist>> {
+        self.subscribe("IScrobbleService", "recentArtistsFlow", &limit)
+    }
+    fn recent_albums<'life0, 'async_trait>(&'life0 self, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ListenedAlbum>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IScrobbleService", "recentAlbums", &limit).await
+        })
+    }
+    fn recent_albums_flow(&self, limit: i32) -> RpcStream<Vec<ListenedAlbum>> {
+        self.subscribe("IScrobbleService", "recentAlbumsFlow", &limit)
     }
 }
 impl IServerStatsService for RpcClient {
