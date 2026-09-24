@@ -1045,6 +1045,8 @@ pub struct ITimecodeTagServiceCreateTagArgs {
     pub timestamp_ms: i64,
     #[serde(rename = "endMs")]
     pub end_ms: Option<i64>,
+    pub action: TimecodeTagAction,
+    pub fade: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1058,6 +1060,8 @@ pub struct ITimecodeTagServiceUpdateTagArgs {
     pub timestamp_ms: i64,
     #[serde(rename = "endMs")]
     pub end_ms: Option<i64>,
+    pub action: Option<TimecodeTagAction>,
+    pub fade: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2100,6 +2104,8 @@ pub struct UserSong {
     pub user_song_created_at: Option<PlatformDate>,
     #[serde(rename = "userSongUpdatedAt")]
     pub user_song_updated_at: Option<PlatformDate>,
+    #[serde(rename = "playbackTags")]
+    pub playback_tags: Vec<TimecodeTag>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2148,6 +2154,52 @@ pub enum TitleTagKind {
     Remaster,
     #[serde(rename = "DEMO")]
     Demo,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TimecodeTag {
+    pub id: PlatformUUID,
+    #[serde(rename = "userId")]
+    pub user_id: PlatformUUID,
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    #[serde(rename = "type")]
+    pub r#type: TimecodeTagType,
+    pub text: String,
+    #[serde(rename = "timestampMs")]
+    pub timestamp_ms: i64,
+    #[serde(rename = "endMs")]
+    pub end_ms: Option<i64>,
+    #[serde(rename = "createdAt")]
+    pub created_at: i64,
+    #[serde(rename = "updatedAt")]
+    pub updated_at: i64,
+    pub action: TimecodeTagAction,
+    pub fade: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum TimecodeTagType {
+    #[serde(rename = "CHAPTER")]
+    Chapter,
+    #[serde(rename = "MARKER")]
+    Marker,
+    #[serde(rename = "NOTE")]
+    Note,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum TimecodeTagAction {
+    #[serde(rename = "NONE")]
+    None,
+    #[serde(rename = "PLAY_ONLY")]
+    PlayOnly,
+    #[serde(rename = "SKIP")]
+    Skip,
+    #[serde(rename = "SKIP_TO")]
+    SkipTo,
+    #[serde(rename = "PLAY_UNTIL")]
+    PlayUntil,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -3721,36 +3773,6 @@ pub struct SubsonicCredentialInfo {
     pub created_at: i64,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum TimecodeTagType {
-    #[serde(rename = "CHAPTER")]
-    Chapter,
-    #[serde(rename = "MARKER")]
-    Marker,
-    #[serde(rename = "NOTE")]
-    Note,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TimecodeTag {
-    pub id: PlatformUUID,
-    #[serde(rename = "userId")]
-    pub user_id: PlatformUUID,
-    #[serde(rename = "songId")]
-    pub song_id: PlatformUUID,
-    #[serde(rename = "type")]
-    pub r#type: TimecodeTagType,
-    pub text: String,
-    #[serde(rename = "timestampMs")]
-    pub timestamp_ms: i64,
-    #[serde(rename = "endMs")]
-    pub end_ms: Option<i64>,
-    #[serde(rename = "createdAt")]
-    pub created_at: i64,
-    #[serde(rename = "updatedAt")]
-    pub updated_at: i64,
-}
-
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TimecodeTagInput {
     #[serde(rename = "type")]
@@ -3760,6 +3782,8 @@ pub struct TimecodeTagInput {
     pub timestamp_ms: i64,
     #[serde(rename = "endMs")]
     pub end_ms: Option<i64>,
+    pub action: TimecodeTagAction,
+    pub fade: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -4707,9 +4731,9 @@ pub trait ISyncService {
 }
 
 pub trait ITimecodeTagService {
-    fn create_tag<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn create_tag<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>, action: TimecodeTagAction, fade: bool) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_tags<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TimecodeTag>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn update_tag<'life0, 'async_trait>(&'life0 self, tag_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn update_tag<'life0, 'async_trait>(&'life0 self, tag_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>, action: Option<TimecodeTagAction>, fade: Option<bool>) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn delete_tag<'life0, 'async_trait>(&'life0 self, tag_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn replace_tags<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, tags: Vec<TimecodeTagInput>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<TimecodeTag>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn list_tags<'life0, 'async_trait>(&'life0 self, tag_type: Option<TimecodeTagType>, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<TimecodeTag>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -6613,9 +6637,9 @@ impl ISubsonicCredentialService for RpcClient {
 impl ISyncService for RpcClient {
 }
 impl ITimecodeTagService for RpcClient {
-    fn create_tag<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn create_tag<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>, action: TimecodeTagAction, fade: bool) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
-            let args = ITimecodeTagServiceCreateTagArgs { song_id, tag_type, text, timestamp_ms, end_ms };
+            let args = ITimecodeTagServiceCreateTagArgs { song_id, tag_type, text, timestamp_ms, end_ms, action, fade };
             self.call("ITimecodeTagService", "createTag", &args).await
         })
     }
@@ -6624,9 +6648,9 @@ impl ITimecodeTagService for RpcClient {
             self.call("ITimecodeTagService", "getTags", &song_id).await
         })
     }
-    fn update_tag<'life0, 'async_trait>(&'life0 self, tag_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn update_tag<'life0, 'async_trait>(&'life0 self, tag_id: PlatformUUID, tag_type: TimecodeTagType, text: String, timestamp_ms: i64, end_ms: Option<i64>, action: Option<TimecodeTagAction>, fade: Option<bool>) -> Pin<Box<dyn std::future::Future<Output = Result<TimecodeTag, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
-            let args = ITimecodeTagServiceUpdateTagArgs { tag_id, tag_type, text, timestamp_ms, end_ms };
+            let args = ITimecodeTagServiceUpdateTagArgs { tag_id, tag_type, text, timestamp_ms, end_ms, action, fade };
             self.call("ITimecodeTagService", "updateTag", &args).await
         })
     }

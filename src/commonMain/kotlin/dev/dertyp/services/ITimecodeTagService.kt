@@ -3,6 +3,7 @@ package dev.dertyp.services
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.PaginatedResponse
 import dev.dertyp.data.TimecodeTag
+import dev.dertyp.data.TimecodeTagAction
 import dev.dertyp.data.TimecodeTagInput
 import dev.dertyp.data.TimecodeTagType
 import dev.dertyp.rpc.annotations.RestGet
@@ -23,7 +24,8 @@ interface ITimecodeTagService {
     @RestPath("tags")
     @RpcDoc(
         "Create a single tag on a song. The position must not be negative and an end position, if one is given, must not lie before the position " +
-            "the tag starts at.",
+            "the tag starts at. The action must fit the type: PLAY_ONLY and SKIP need a chapter with an end position, SKIP_TO and PLAY_UNTIL " +
+            "need a marker without one, and a note only takes NONE.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun createTag(
@@ -31,7 +33,9 @@ interface ITimecodeTagService {
         @RpcParamDoc("How the tag is meant to be read by a client.") tagType: TimecodeTagType,
         @RpcParamDoc("The text of the tag. May be blank.") text: String = "",
         @RpcParamDoc("Position in the song in milliseconds at which the tag starts.") timestampMs: Long,
-        @RpcParamDoc("Position in the song in milliseconds at which the tag ends, or null for a tag that marks a single point.") endMs: Long? = null
+        @RpcParamDoc("Position in the song in milliseconds at which the tag ends, or null for a tag that marks a single point.") endMs: Long? = null,
+        @RpcParamDoc("What the playing client does when playback reaches the tag.") action: TimecodeTagAction = TimecodeTagAction.NONE,
+        @RpcParamDoc("Whether the client fades in from the tag and fades out towards the tag around the action.") fade: Boolean = false
     ): TimecodeTag
 
     @RestGet
@@ -41,7 +45,9 @@ interface ITimecodeTagService {
     ): List<TimecodeTag>
 
     @RpcDoc(
-        "Overwrite a single tag of the user with new values. The call fails if the tag does not exist or belongs to another user.",
+        "Overwrite a single tag of the user with new values. The call fails if the tag does not exist or belongs to another user. An action or fade " +
+            "flag left out keeps the stored value, and the resulting action must fit the type: PLAY_ONLY and SKIP need a chapter with an end " +
+            "position, SKIP_TO and PLAY_UNTIL need a marker without one, and a note only takes NONE.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun updateTag(
@@ -49,7 +55,9 @@ interface ITimecodeTagService {
         @RpcParamDoc("How the tag is meant to be read by a client.") tagType: TimecodeTagType,
         @RpcParamDoc("The text of the tag. May be blank.") text: String = "",
         @RpcParamDoc("Position in the song in milliseconds at which the tag starts.") timestampMs: Long,
-        @RpcParamDoc("Position in the song in milliseconds at which the tag ends, or null for a tag that marks a single point.") endMs: Long? = null
+        @RpcParamDoc("Position in the song in milliseconds at which the tag ends, or null for a tag that marks a single point.") endMs: Long? = null,
+        @RpcParamDoc("What the playing client does when playback reaches the tag, or null to keep the stored action.") action: TimecodeTagAction? = null,
+        @RpcParamDoc("Whether the client fades in from the tag and fades out towards the tag around the action, or null to keep the stored value.") fade: Boolean? = null
     ): TimecodeTag
 
     @RpcDoc("Delete a single tag of the user. Returns false if the tag does not exist or belongs to another user.")
@@ -61,7 +69,8 @@ interface ITimecodeTagService {
     @RestPath("tags")
     @RpcDoc(
         "Replace every tag the user has on a song with the supplied ones. The write is all-or-nothing, so either all tags are stored or none of " +
-            "them are, and an empty list clears the tags of the song.",
+            "them are, and an empty list clears the tags of the song. Each tag carries its action and fade flag, which follow the same rules as in " +
+            "createTag.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun replaceTags(

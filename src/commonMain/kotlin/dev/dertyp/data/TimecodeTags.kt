@@ -20,6 +20,26 @@ enum class TimecodeTagType {
 
 @Serializable
 @ModelDoc(
+    "What the client that plays the song does when playback reaches a timecode tag. The playing client executes the action itself, a client " +
+        "that only controls another device does nothing. Chapter actions need a tag with an end position, marker actions a tag without one, " +
+        "and a note always uses NONE."
+)
+enum class TimecodeTagAction {
+    @FieldDoc("The tag is passive and does not change playback.") NONE,
+
+    @FieldDoc(
+        "Chapters only. Playback covers only the PLAY_ONLY chapters of the song and moves on to the next track after the last one."
+    ) PLAY_ONLY,
+
+    @FieldDoc("Chapters only. Playback jumps over the chapter.") SKIP,
+
+    @FieldDoc("Markers only. The song starts at the marker.") SKIP_TO,
+
+    @FieldDoc("Markers only. Playback moves on to the next track when it reaches the marker.") PLAY_UNTIL
+}
+
+@Serializable
+@ModelDoc(
     "A tag a user attached to a song at a position in milliseconds. Tags are private to the user who created them and are removed together " +
         "with the song they belong to."
 )
@@ -41,7 +61,11 @@ data class TimecodeTag(
     @FieldDoc("Unix timestamp in milliseconds at which the tag was created.")
     val createdAt: Long,
     @FieldDoc("Unix timestamp in milliseconds of the last change to the tag.")
-    val updatedAt: Long
+    val updatedAt: Long,
+    @FieldDoc("What the playing client does when playback reaches the tag.")
+    val action: TimecodeTagAction = TimecodeTagAction.NONE,
+    @FieldDoc("When set, the client fades in from the tag and fades out towards the tag around the action.")
+    val fade: Boolean = false
 )
 
 @Serializable
@@ -54,5 +78,9 @@ data class TimecodeTagInput(
     @FieldDoc("Position in the song in milliseconds at which the tag starts.")
     val timestampMs: Long,
     @FieldDoc("Position in the song in milliseconds at which the tag ends, or null for a tag that marks a single point.")
-    val endMs: Long? = null
+    val endMs: Long? = null,
+    @FieldDoc("What the playing client does when playback reaches the tag.")
+    val action: TimecodeTagAction = TimecodeTagAction.NONE,
+    @FieldDoc("When set, the client fades in from the tag and fades out towards the tag around the action.")
+    val fade: Boolean = false
 )
