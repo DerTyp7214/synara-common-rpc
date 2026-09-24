@@ -3321,6 +3321,7 @@ pub struct RecentRelease {
     #[serde(rename = "recordLabel")]
     pub record_label: Option<String>,
     pub copyright: Option<String>,
+    pub versions: Vec<RecentRelease>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

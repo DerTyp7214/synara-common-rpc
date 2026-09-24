@@ -26,13 +26,13 @@ interface IReleaseService {
     suspend fun unfollowArtist(@RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID): Boolean
     @RpcDoc("Get a list of all artists the current user is following.")
     suspend fun getFollowedArtists(): List<FollowedArtist>
-    @RpcDoc("Retrieve a feed of recent and upcoming music releases from followed artists, merged from MusicBrainz and the Apple Music catalog.")
+    @RpcDoc("Retrieve a feed of recent and upcoming music releases from followed artists, merged from MusicBrainz and the Apple Music catalog. Editions of one release are folded into a single entry carrying the others in versions.")
     suspend fun getRecentReleases(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 150
     ): PaginatedResponse<RecentRelease>
 
-    @RpcDoc("Retrieve recent music releases for a specific artist.")
+    @RpcDoc("Retrieve recent music releases for a specific artist. Editions of one release are folded into a single entry carrying the others in versions.")
     suspend fun getArtistRecentReleases(
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
         @RpcParamDoc("Page index.") page: Int = 0,
@@ -63,7 +63,7 @@ interface IReleaseService {
 
     @RequiresCapability(UserCapability.EDIT)
     @RpcDoc(
-        "Hide an entry of the release feed for every user, or show it again. With includeRelated the other Apple Music entries of the same artist sharing the entry's copyright holder (or record label when no holder is known) are hidden or shown as well, and the holder or label is recorded as blocked (or unblocked) for the artist so future catalog runs hide matching entries automatically. Returns the number of entries whose visibility changed.",
+        "Hide an entry of the release feed for every user, or show it again. With includeRelated the other Apple Music entries of the same artist sharing the entry's copyright holder (or record label when no holder is known) are hidden or shown as well, and the holder or label is recorded as blocked (or unblocked) for the artist so future catalog runs hide matching entries automatically. Returns the number of entries whose visibility changed. The change applies to the whole display group, i.e. every edition the feed folds under one entry.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun setReleaseHidden(
