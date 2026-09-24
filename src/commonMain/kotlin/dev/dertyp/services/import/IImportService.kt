@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package dev.dertyp.services.import
 
 import dev.dertyp.PlatformUUID
@@ -12,9 +14,11 @@ import dev.dertyp.services.metadata.IMetadataService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.rpc.annotations.Rpc
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.json.JsonClassDiscriminator
 
 @Rpc
 @RpcDoc("Management of the integrated media importer.")
@@ -167,6 +171,7 @@ data class IdsGroup(
 }
 
 @Serializable
+@JsonClassDiscriminator("entryType")
 @ModelDoc("Base class for entries in the import queue.")
 sealed class ImportQueueEntry {
     @FieldDoc("The type of content being imported.")

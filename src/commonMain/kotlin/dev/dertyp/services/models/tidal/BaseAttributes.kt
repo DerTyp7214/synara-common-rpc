@@ -1,11 +1,15 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package dev.dertyp.services.models.tidal
 
 import kotlin.native.ObjCName
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonClassDiscriminator
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonEncoder
@@ -22,7 +26,8 @@ enum class Type(val value: String) {
 }
 
 @Serializable
-sealed class BaseAttributes: AttributeType{
+@JsonClassDiscriminator("entryType")
+sealed class BaseAttributes: AttributeType {
 }
 
 @JvmInline
