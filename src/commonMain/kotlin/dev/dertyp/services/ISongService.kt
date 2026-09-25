@@ -25,6 +25,11 @@ interface ISongService {
         @RpcParamDoc("Whether to mark as liked.") liked: Boolean,
         @RpcParamDoc("Optional timestamp of when it was added.") addedAt: PlatformInstant? = null
     ): UserSong?
+    @RpcDoc("Set the like level of a song. A super like also counts as a like. Changing between LIKE and SUPER keeps the song's position among the liked songs.")
+    suspend fun setLikeLevel(
+        @RpcParamDoc("The unique UUID of the song.") id: PlatformUUID,
+        @RpcParamDoc("The new like level. NONE removes the like and the super like.") level: LikeLevel
+    ): UserSong?
     @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Manually set song lyrics.")
     suspend fun setLyrics(
@@ -103,6 +108,13 @@ interface ISongService {
     suspend fun byOriginalTracks(@RpcParamDoc("Collection of track metadata.") tracks: Collection<IMetadataService.Track>): List<UserSong>
     @RpcDoc("Get all songs liked by the current user.")
     suspend fun likedSongs(
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
+        @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
+    ): PaginatedResponse<UserSong>
+    @RestGet
+    @RpcDoc("Get all songs super liked by the current user, most recently super liked first.")
+    suspend fun superLikedSongs(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
@@ -193,6 +205,9 @@ interface ISongService {
     ): Flow<PlatformUUID>
     @RpcDoc("Stream all IDs of songs liked by the current user.")
     fun likedSongIds(@RpcParamDoc("Whether to include explicit content.") explicit: Boolean): Flow<PlatformUUID>
+    @RestGet
+    @RpcDoc("Stream all IDs of songs super liked by the current user, most recently super liked first.")
+    fun superLikedSongIds(@RpcParamDoc("Whether to include explicit content.") explicit: Boolean): Flow<PlatformUUID>
     @RestGet
     @RpcDoc("Stream song IDs belonging to an artist.")
     fun songIdsByArtist(@RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID): Flow<PlatformUUID>

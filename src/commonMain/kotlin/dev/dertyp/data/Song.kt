@@ -50,6 +50,14 @@ enum class TitleTagKind {
 }
 
 @Serializable
+@ModelDoc("How strongly a user likes a song. A super like also counts as a like everywhere likes are used.")
+enum class LikeLevel {
+    @FieldDoc("The song is not liked.") NONE,
+    @FieldDoc("The song is liked.") LIKE,
+    @FieldDoc("The song is super liked. It is also a liked song.") SUPER
+}
+
+@Serializable
 @ModelDoc("A version marker that was split off the song title, shown by clients separately from the title.")
 data class TitleTag(
     @FieldDoc("The kind of marker.")
@@ -309,6 +317,11 @@ data class UserSong(
     @Serializable(with = DateSerializer::class)
     @FieldDoc("Timestamp of the last update to the song metadata.")
     val userSongUpdatedAt: PlatformDate? = nowAsPlatformDate(),
+    @FieldDoc("The current user's like level of this song. isFavourite is true for both LIKE and SUPER.")
+    val likeLevel: LikeLevel? = LikeLevel.NONE,
+    @Serializable(with = DateSerializer::class)
+    @FieldDoc("Timestamp of when the current user super liked this song, or null if it is not super liked.")
+    val superLikedAt: PlatformDate? = null,
     @FieldDoc(
         "The requesting user's timecode tags on this song whose action is not NONE, ordered by position. Read-only. Tags are changed through " +
             "ITimecodeTagService, and the full list including passive tags comes from ITimecodeTagService.getTags."

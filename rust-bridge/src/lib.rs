@@ -860,6 +860,12 @@ pub struct ISongServiceSetLikedArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ISongServiceSetLikeLevelArgs {
+    pub id: PlatformUUID,
+    pub level: LikeLevel,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ISongServiceSetLyricsArgs {
     pub id: PlatformUUID,
     pub lyrics: Vec<String>,
@@ -935,6 +941,14 @@ pub struct ISongServiceByUserPlaylistArgs {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ISongServiceLikedSongsArgs {
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+    pub explicit: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ISongServiceSuperLikedSongsArgs {
     pub page: i32,
     #[serde(rename = "pageSize")]
     pub page_size: i32,
@@ -2104,6 +2118,10 @@ pub struct UserSong {
     pub user_song_created_at: Option<PlatformDate>,
     #[serde(rename = "userSongUpdatedAt")]
     pub user_song_updated_at: Option<PlatformDate>,
+    #[serde(rename = "likeLevel")]
+    pub like_level: Option<LikeLevel>,
+    #[serde(rename = "superLikedAt")]
+    pub super_liked_at: Option<PlatformDate>,
     #[serde(rename = "playbackTags")]
     pub playback_tags: Vec<TimecodeTag>,
 }
@@ -2154,6 +2172,16 @@ pub enum TitleTagKind {
     Remaster,
     #[serde(rename = "DEMO")]
     Demo,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum LikeLevel {
+    #[serde(rename = "NONE")]
+    None,
+    #[serde(rename = "LIKE")]
+    Like,
+    #[serde(rename = "SUPER")]
+    Super,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -4696,6 +4724,7 @@ pub trait ISessionService {
 
 pub trait ISongService {
     fn set_liked<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, liked: bool, added_at: Option<PlatformDateTime>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_like_level<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, level: LikeLevel) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_lyrics<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, lyrics: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_artists<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, artist_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn update_song<'life0, 'async_trait>(&'life0 self, song: Song) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -4714,6 +4743,7 @@ pub trait ISongService {
     fn by_original_urls<'life0, 'async_trait>(&'life0 self, urls: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, Option<UserSong>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_original_tracks<'life0, 'async_trait>(&'life0 self, tracks: Vec<Track>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn liked_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn super_liked_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn export_favourites_as_csv<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn all_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool, tags: Vec<SongTag>, invert_tags: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_color<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, color: i32, range: i32, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -4728,6 +4758,7 @@ pub trait ISongService {
     fn get_download_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, quality: i32, force: bool, format: AudioFormat) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn all_song_ids(&self, explicit: bool, tags: Vec<SongTag>, invert_tags: bool) -> RpcStream<PlatformUUID>;
     fn liked_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID>;
+    fn super_liked_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID>;
     fn song_ids_by_artist(&self, artist_id: PlatformUUID) -> RpcStream<PlatformUUID>;
     fn song_ids_by_album(&self, album_id: PlatformUUID) -> RpcStream<PlatformUUID>;
     fn song_ids_by_playlist(&self, playlist_id: PlatformUUID) -> RpcStream<PlatformUUID>;
@@ -6457,6 +6488,12 @@ impl ISongService for RpcClient {
             self.call("ISongService", "setLiked", &args).await
         })
     }
+    fn set_like_level<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, level: LikeLevel) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ISongServiceSetLikeLevelArgs { id, level };
+            self.call("ISongService", "setLikeLevel", &args).await
+        })
+    }
     fn set_lyrics<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, lyrics: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             let args = ISongServiceSetLyricsArgs { id, lyrics };
@@ -6557,6 +6594,12 @@ impl ISongService for RpcClient {
             self.call("ISongService", "likedSongs", &args).await
         })
     }
+    fn super_liked_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ISongServiceSuperLikedSongsArgs { page, page_size, explicit };
+            self.call("ISongService", "superLikedSongs", &args).await
+        })
+    }
     fn export_favourites_as_csv<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("ISongService", "exportFavouritesAsCsv", &()).await
@@ -6625,6 +6668,9 @@ impl ISongService for RpcClient {
     }
     fn liked_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID> {
         self.subscribe("ISongService", "likedSongIds", &explicit)
+    }
+    fn super_liked_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID> {
+        self.subscribe("ISongService", "superLikedSongIds", &explicit)
     }
     fn song_ids_by_artist(&self, artist_id: PlatformUUID) -> RpcStream<PlatformUUID> {
         self.subscribe("ISongService", "songIdsByArtist", &artist_id)
