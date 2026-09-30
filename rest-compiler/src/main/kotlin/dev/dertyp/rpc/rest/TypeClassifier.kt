@@ -134,7 +134,7 @@ class TypeClassifier(private val restPackage: String) {
                 CodeBlock.of(
                     "%T.enum(%T.entries.toTypedArray())",
                     restConvert,
-                    (declaration as KSClassDeclaration).toClassName()
+                    declaration.toClassName()
                 )
             else -> CodeBlock.of("%T.string", restConvert)
         }

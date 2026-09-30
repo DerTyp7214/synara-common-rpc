@@ -113,7 +113,7 @@ class RestDerivation(
         val returnType = function.returnType?.resolve()
         val isUnit = returnType == null || types.isUnit(returnType)
         val isFlow = returnType != null && types.isFlow(returnType)
-        val flowItem = if (isFlow) types.firstArgument(returnType!!) else null
+        val flowItem = if (isFlow) types.firstArgument(returnType) else null
         val itemIsByteArray = flowItem != null && types.isByteArray(flowItem)
 
         val responseKind = when {
