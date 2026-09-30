@@ -46,6 +46,8 @@ data class Artist(
     val isFollowed: Boolean = false,
     @FieldDoc("The name this artist was credited as in the current song/album context, if different from the canonical name.")
     val creditedName: String? = null,
+    @FieldDoc("The phrase that follows this artist in the credit of the current song/album context, such as \" & \" or \" feat. \". Null when the credit source has none.")
+    val joinPhrase: String? = null,
 )
 
 @Serializable

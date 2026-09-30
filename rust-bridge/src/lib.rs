@@ -1522,6 +1522,8 @@ pub struct Artist {
     pub is_followed: bool,
     #[serde(rename = "creditedName")]
     pub credited_name: Option<String>,
+    #[serde(rename = "joinPhrase")]
+    pub join_phrase: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
