@@ -45,7 +45,7 @@ interface IScrobbleService {
     ): RecentListens
 
     @RestGet
-    @RpcDoc("Stream the current user's recently listened songs and current now-playing, re-emitting on changes (debounced 100ms).")
+    @RpcDoc("Stream the current user's recently listened songs and current now-playing, re-emitting on changes (debounced 100ms). @IChangeService.observeChanges reports the LISTENS topic of @ChangeTopic instead, after which @IScrobbleService.recentListens reads them once.")
     fun recentListensFlow(
         @RpcParamDoc("Maximum number of recent songs to return. Clamped to 1..1000.") limit: Int
     ): Flow<RecentListens>
@@ -57,7 +57,7 @@ interface IScrobbleService {
     ): List<ListenedArtist>
 
     @RestGet
-    @RpcDoc("Stream the current user's recently listened artists, most recently played first, re-emitting on changes (debounced 100ms).")
+    @RpcDoc("Stream the current user's recently listened artists, most recently played first, re-emitting on changes (debounced 100ms). @IChangeService.observeChanges reports the LISTENS topic of @ChangeTopic instead, after which @IScrobbleService.recentArtists reads them once.")
     fun recentArtistsFlow(
         @RpcParamDoc("Maximum number of artists to return. Clamped to 1..1000.") limit: Int
     ): Flow<List<ListenedArtist>>
@@ -69,7 +69,7 @@ interface IScrobbleService {
     ): List<ListenedAlbum>
 
     @RestGet
-    @RpcDoc("Stream the current user's recently listened albums, most recently played first, re-emitting on changes (debounced 100ms).")
+    @RpcDoc("Stream the current user's recently listened albums, most recently played first, re-emitting on changes (debounced 100ms). @IChangeService.observeChanges reports the LISTENS topic of @ChangeTopic instead, after which @IScrobbleService.recentAlbums reads them once.")
     fun recentAlbumsFlow(
         @RpcParamDoc("Maximum number of albums to return. Clamped to 1..1000.") limit: Int
     ): Flow<List<ListenedAlbum>>

@@ -27,7 +27,7 @@ interface IListenBrainzService {
     @RpcDoc("Get the current user's ListenBrainz connection status, or null if not linked.")
     suspend fun getStatus(): ListenBrainzStatus?
 
-    @RpcDoc("Stream the current user's ListenBrainz status, re-emitting whenever it changes (e.g. during a sync).")
+    @RpcDoc("Stream the current user's ListenBrainz status, re-emitting whenever it changes (e.g. during a sync). @IChangeService.observeChanges reports the LISTENBRAINZ_STATUS topic of @ChangeTopic instead, after which @IListenBrainzService.getStatus reads the status once.")
     fun getStatusFlow(): Flow<ListenBrainzStatus?>
 
     @RpcDoc("Trigger an incremental sync of the current user's ListenBrainz listens now.")

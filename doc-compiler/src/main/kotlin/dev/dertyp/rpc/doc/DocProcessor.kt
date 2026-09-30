@@ -1,6 +1,6 @@
 package dev.dertyp.rpc.doc
 
-import com.google.devtools.ksp.isPublic
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -26,7 +26,8 @@ private data class PermissionEntry(
 )
 
 class DocProcessor(
-    private val options: Map<String, String>
+    private val options: Map<String, String>,
+    private val logger: KSPLogger
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -58,6 +59,7 @@ class DocProcessor(
 
         val documentedModels = modelSymbols.mapNotNull { it.qualifiedName?.asString() }.toSet()
         val duplicateNames = (modelSymbols + serviceSymbols).groupBy { it.simpleName.asString() }.filter { it.value.size > 1 }.keys
+        val references = DocReferences(serviceSymbols, modelSymbols, logger)
 
         modelsFile.outputStream().use { out ->
             out.writeLine("# Synara Data Models")
@@ -74,7 +76,7 @@ class DocProcessor(
             modelSymbols.sortedBy { it.qualifiedName?.asString() }.forEach { model ->
                 val name = model.simpleName.asString()
                 val qName = model.qualifiedName?.asString() ?: name
-                val anchor = qName.lowercase().replace(".", "")
+                val anchor = anchorOf(qName)
                 val displayName = if (name in duplicateNames) qName else name
                 out.writeLine("- [$displayName](#$anchor)")
             }
@@ -84,7 +86,7 @@ class DocProcessor(
             out.writeLine("")
 
             modelSymbols.sortedBy { it.qualifiedName?.asString() }.forEach { model ->
-                generateModelDoc(out, model, documentedModels, duplicateNames, "")
+                generateModelDoc(out, model, documentedModels, duplicateNames, "", docName, references)
             }
         }
 
@@ -103,7 +105,7 @@ class DocProcessor(
             serviceSymbols.sortedBy { it.qualifiedName?.asString() }.forEach { symbol ->
                 val name = symbol.simpleName.asString()
                 val qName = symbol.qualifiedName?.asString() ?: name
-                val anchor = qName.lowercase().replace(".", "")
+                val anchor = anchorOf(qName)
                 val displayName = if (name in duplicateNames) qName else name
                 out.writeLine("- [$displayName](#$anchor)")
             }
@@ -113,11 +115,11 @@ class DocProcessor(
             out.writeLine("")
 
             serviceSymbols.sortedBy { it.qualifiedName?.asString() }.forEach { symbol ->
-                generateServiceDoc(out, symbol, documentedModels, duplicateNames, modelsName)
+                generateServiceDoc(out, symbol, documentedModels, duplicateNames, modelsName, references)
             }
         }
 
-        generatePermissionsDoc(permissionsFile, serviceSymbols, docName, restName)
+        generatePermissionsDoc(permissionsFile, serviceSymbols, docName, restName, modelsName, references)
 
         return (serviceSymbols + modelSymbols).filterNot { it.validate() }
     }
@@ -126,7 +128,9 @@ class DocProcessor(
         permissionsFile: File,
         serviceSymbols: List<KSClassDeclaration>,
         docName: String,
-        restName: String
+        restName: String,
+        modelsName: String,
+        references: DocReferences
     ) {
         val adminEntries = mutableListOf<PermissionEntry>()
         val capabilityEntries = sortedMapOf<String, MutableList<PermissionEntry>>()
@@ -134,13 +138,12 @@ class DocProcessor(
         serviceSymbols.forEach { symbol ->
             val name = symbol.simpleName.asString()
             val qName = symbol.qualifiedName?.asString() ?: name
-            val anchor = qName.lowercase().replace(".", "")
+            val anchor = anchorOf(qName)
 
-            symbol.getAllFunctions().filter {
-                it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
-            }.forEach { func ->
+            symbol.documentedFunctions().forEach { func ->
                 val fDoc = func.annotations.find { it.shortName.asString() == "RpcDoc" }
-                val description = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+                val rawDescription = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+                val description = references.link(rawDescription, func, "$name.${func.simpleName.asString()}", docName, modelsName)
                 val entry = PermissionEntry(
                     serviceQualifiedName = qName,
                     serviceName = name,
@@ -220,13 +223,16 @@ class DocProcessor(
         model: KSClassDeclaration,
         documentedModels: Set<String>,
         duplicateNames: Set<String>,
-        linkPrefix: String
+        linkPrefix: String,
+        serviceDoc: String,
+        references: DocReferences
     ) {
         val name = model.simpleName.asString()
         val qName = model.qualifiedName?.asString() ?: name
-        val anchor = qName.lowercase().replace(".", "")
+        val anchor = anchorOf(qName)
         val docAnnotation = model.annotations.find { it.shortName.asString() == "ModelDoc" }
-        val description = docAnnotation?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+        val rawDescription = docAnnotation?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+        val description = references.link(rawDescription, model, name, serviceDoc, linkPrefix)
 
         out.writeLine("### $name <a name=\"$anchor\"></a>")
         if (name in duplicateNames) {
@@ -243,8 +249,10 @@ class DocProcessor(
                 .filter { it.classKind == ClassKind.ENUM_ENTRY }
                 .forEach { entry ->
                     val fDoc = entry.annotations.find { it.shortName.asString() == "FieldDoc" }
-                    val fDesc = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
-                    out.writeLine("| `${entry.simpleName.asString()}` | $fDesc |")
+                    val rawDesc = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+                    val entryName = entry.simpleName.asString()
+                    val fDesc = references.link(rawDesc, entry, "$name.$entryName", serviceDoc, linkPrefix)
+                    out.writeLine("| `$entryName` | $fDesc |")
                 }
         } else {
             out.writeLine("| Field | Type | Description |")
@@ -253,7 +261,8 @@ class DocProcessor(
                 val pName = prop.simpleName.asString()
                 val pType = prop.type.resolve().toTypeString(documentedModels, linkPrefix)
                 val fDoc = prop.annotations.find { it.shortName.asString() == "FieldDoc" }
-                val fDesc = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+                val rawDesc = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+                val fDesc = references.link(rawDesc, prop, "$name.$pName", serviceDoc, linkPrefix)
                 out.writeLine("| `$pName` | $pType | $fDesc |")
             }
         }
@@ -265,13 +274,15 @@ class DocProcessor(
         symbol: KSClassDeclaration,
         documentedModels: Set<String>,
         duplicateNames: Set<String>,
-        linkPrefix: String
+        linkPrefix: String,
+        references: DocReferences
     ) {
         val name = symbol.simpleName.asString()
         val qName = symbol.qualifiedName?.asString() ?: name
-        val anchor = qName.lowercase().replace(".", "")
+        val anchor = anchorOf(qName)
         val rpcDoc = symbol.annotations.find { it.shortName.asString() == "RpcDoc" }
-        val serviceDesc = rpcDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+        val rawServiceDesc = rpcDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+        val serviceDesc = references.link(rawServiceDesc, symbol, name, "", linkPrefix)
 
         out.writeLine("### $name <a name=\"$anchor\"></a>")
         if (name in duplicateNames) {
@@ -284,12 +295,12 @@ class DocProcessor(
         out.writeLine("| Function | Parameters | Returns | Permissions | Errors | Description |")
         out.writeLine("| :--- | :--- | :--- | :--- | :--- | :--- |")
 
-        symbol.getAllFunctions().filter {
-            it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
-        }.forEach { func ->
+        val anchoredFunctions = mutableSetOf<String>()
+        symbol.documentedFunctions().forEach { func ->
             val fName = func.simpleName.asString()
             val fDoc = func.annotations.find { it.shortName.asString() == "RpcDoc" }
-            val desc = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+            val rawDesc = fDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String ?: ""
+            val desc = references.link(rawDesc, func, "$name.$fName", "", linkPrefix)
             
             val permissions = mutableListOf<String>()
             if (func.annotations.any { it.shortName.asString() == "RequiresAdmin" }) {
@@ -307,13 +318,15 @@ class DocProcessor(
                 val pName = param.name?.asString() ?: "arg"
                 val pType = param.type.resolve().toTypeString(documentedModels, linkPrefix)
                 val pDoc = param.annotations.find { it.shortName.asString() == "RpcParamDoc" }
-                val pDesc = pDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String
+                val pDesc = (pDoc?.arguments?.find { it.name?.asString() == "description" }?.value as? String)
+                    ?.let { references.link(it, param, "$name.$fName($pName)", "", linkPrefix) }
                 if (pDesc != null) "`$pName` ($pType): $pDesc" else "`$pName` ($pType)"
             }.ifEmpty { "-" }
 
             val retType = func.returnType?.resolve()?.toTypeString(documentedModels, linkPrefix) ?: "Unit"
 
-            out.writeLine("| `$fName` | $params | $retType | $permissionStr | $errors | $desc |")
+            val fAnchor = if (anchoredFunctions.add(fName)) " <a name=\"${methodAnchorOf(qName, fName)}\"></a>" else ""
+            out.writeLine("| `$fName`$fAnchor | $params | $retType | $permissionStr | $errors | $desc |")
         }
         out.writeLine("")
     }
@@ -342,7 +355,7 @@ class DocProcessor(
         val qName = declaration.qualifiedName?.asString() ?: name
         val nullability = if (isMarkedNullable) "?" else ""
 
-        val anchor = qName.lowercase().replace(".", "")
+        val anchor = anchorOf(qName)
 
         val formattedName = if (qName in documentedModels) {
             "[$name]($linkPrefix#$anchor)"
@@ -358,5 +371,5 @@ class DocProcessor(
 
 class DocProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment) = 
-        DocProcessor(environment.options)
+        DocProcessor(environment.options, environment.logger)
 }

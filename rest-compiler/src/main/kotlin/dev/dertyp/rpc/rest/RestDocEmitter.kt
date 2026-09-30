@@ -1,6 +1,7 @@
 package dev.dertyp.rpc.rest
 
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import java.io.File
@@ -25,7 +26,7 @@ class RestDocEmitter(
         .filter { it.isNotEmpty() }
         .toSet()
 
-    fun emit(services: List<RestService>, fallbackSource: String?) {
+    fun emit(services: List<RestService>, fallbackSource: String?, resolver: Resolver) {
         if (options["rest.doc"] == "false") return
 
         val sourceFile = services.firstNotNullOfOrNull { it.declaration.containingFile?.filePath } ?: fallbackSource
@@ -41,7 +42,8 @@ class RestDocEmitter(
         if (!docsDir.exists()) docsDir.mkdirs()
         val docFile = File(docsDir, docName)
 
-        val content = render(services.filter { it.routes.isNotEmpty() }.sortedBy { it.qualifiedName })
+        val references = RestDocReferences(services, resolver, MODEL_DOC, logger, rpcDoc, modelsDoc)
+        val content = render(references, services.filter { it.routes.isNotEmpty() }.sortedBy { it.qualifiedName })
         if (docFile.exists() && docFile.readText() == content) return
         docFile.writeText(content)
     }
@@ -57,7 +59,7 @@ class RestDocEmitter(
         return file.parentFile ?: file
     }
 
-    private fun render(services: List<RestService>): String {
+    private fun render(references: RestDocReferences, services: List<RestService>): String {
         val out = StringBuilder()
 
         out.line("# Synara REST API")
@@ -113,7 +115,7 @@ class RestDocEmitter(
         }
         out.line("")
 
-        services.forEach { service -> renderService(out, service) }
+        services.forEach { service -> renderService(out, service, references) }
 
         return out.toString()
     }
@@ -188,13 +190,13 @@ class RestDocEmitter(
         out.line("")
     }
 
-    private fun renderService(out: StringBuilder, service: RestService) {
+    private fun renderService(out: StringBuilder, service: RestService, references: RestDocReferences) {
         val anchor = anchorOf(service.qualifiedName)
         out.line("### /${service.prefix} — ${service.simpleName} <a name=\"$anchor\"></a>")
         val description = service.declaration.annotation(RPC_DOC_ANNOTATION)?.argument("description") as? String
         if (!description.isNullOrEmpty()) {
             out.line("")
-            out.line(description)
+            out.line(references.link(description, service.declaration, service.simpleName))
         }
         out.line("")
         out.line("RPC reference: [${service.simpleName}]($rpcDoc#$anchor)")
@@ -202,26 +204,37 @@ class RestDocEmitter(
         out.line("| Method | Path | Parameters | Response | Auth | Description |")
         out.line("| :--- | :--- | :--- | :--- | :--- | :--- |")
 
+        val anchoredFunctions = mutableSetOf<String>()
         service.routes.sortedWith(compareBy({ it.localPath }, { it.method })).forEach { route ->
             val method = if (route.isFileResponse) "GET, HEAD" else route.method
             val path = "/${service.prefix}/${route.localPath}"
-            val summary = route.summary?.takeIf { it.isNotEmpty() }?.let { cell(it) } ?: "-"
+            val source = "${service.simpleName}.${route.functionName}"
+            val summary = route.summary?.takeIf { it.isNotEmpty() }
+                ?.let { cell(references.link(it, route.function, source)) } ?: "-"
             val description = "$summary ([${route.functionName}]($rpcDoc#$anchor))"
+            val routeAnchor = if (anchoredFunctions.add(route.functionName)) {
+                " <a name=\"${methodAnchorOf(service.qualifiedName, route.functionName)}\"></a>"
+            } else {
+                ""
+            }
             out.line(
-                "| $method | `$path` | ${parameters(route)} | ${response(route)} | ${auth(service, route)} | " +
-                    "$description |"
+                "| $method | `$path`$routeAnchor | ${parameters(route, references, source)} | ${response(route)} | " +
+                    "${auth(service, route)} | $description |"
             )
         }
         out.line("")
     }
 
-    private fun parameters(route: RestRoute): String = route.params.joinToString("<br>") { param ->
-        val type = route.function.parameters.getOrNull(param.index)?.type?.resolve()
-        val rendered = type?.let { typeString(it) } ?: simpleNames(param.declaredType.toString())
-        val optional = if (param.hasDefault || param.nullable) ", optional" else ""
-        val text = "`${param.name}` (${binding(param.source)}, $rendered$optional)"
-        param.description?.takeIf { it.isNotEmpty() }?.let { "$text: ${cell(it)}" } ?: text
-    }.ifEmpty { "-" }
+    private fun parameters(route: RestRoute, references: RestDocReferences, source: String): String =
+        route.params.joinToString("<br>") { param ->
+            val parameter = route.function.parameters.getOrNull(param.index)
+            val rendered = parameter?.type?.resolve()?.let { typeString(it) } ?: simpleNames(param.declaredType.toString())
+            val optional = if (param.hasDefault || param.nullable) ", optional" else ""
+            val text = "`${param.name}` (${binding(param.source)}, $rendered$optional)"
+            param.description?.takeIf { it.isNotEmpty() }
+                ?.let { "$text: ${cell(references.link(it, parameter ?: route.function, "$source(${param.name})"))}" }
+                ?: text
+        }.ifEmpty { "-" }
 
     private fun binding(source: ParamSource): String = when (source) {
         ParamSource.PATH -> "path"
@@ -287,8 +300,6 @@ class RestDocEmitter(
             .replace(">", "&gt;")
 
     private fun cell(text: String): String = text.replace("|", "\\|").replace("\n", " ")
-
-    private fun anchorOf(qualifiedName: String): String = qualifiedName.lowercase().replace(".", "")
 
     private fun StringBuilder.line(text: String) {
         append(text).append("\n")

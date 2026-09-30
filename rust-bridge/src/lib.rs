@@ -1858,6 +1858,25 @@ pub struct BackupResult {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Change {
+    pub topic: ChangeTopic,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum ChangeTopic {
+    #[serde(rename = "UNKNOWN")]
+    Unknown,
+    #[serde(rename = "ONLINE_DEVICES")]
+    OnlineDevices,
+    #[serde(rename = "HOME_CARDS")]
+    HomeCards,
+    #[serde(rename = "LISTENS")]
+    Listens,
+    #[serde(rename = "LISTENBRAINZ_STATUS")]
+    ListenbrainzStatus,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ClientRequest {
     pub id: PlatformUUID,
     #[serde(rename = "requestedAt")]
@@ -4406,6 +4425,10 @@ pub trait IBackupService {
     fn create_backup<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<BackupResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
+pub trait IChangeService {
+    fn observe_changes(&self, ) -> RpcStream<Change>;
+}
+
 pub trait IClientRequestService {
     fn observe_requests(&self, ) -> RpcStream<ClientRequest>;
     fn connect(&self, description: ClientDescription) -> RpcStream<ClientRequest>;
@@ -5315,6 +5338,11 @@ impl IBackupService for RpcClient {
         Box::pin(async move {
             self.call("IBackupService", "createBackup", &()).await
         })
+    }
+}
+impl IChangeService for RpcClient {
+    fn observe_changes(&self, ) -> RpcStream<Change> {
+        self.subscribe("IChangeService", "observeChanges", &())
     }
 }
 impl IClientRequestService for RpcClient {

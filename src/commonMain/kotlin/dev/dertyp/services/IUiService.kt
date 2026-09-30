@@ -107,6 +107,6 @@ interface IUiService {
         @RpcParamDoc("Pinned contribution ids in display order.") contributionIds: List<String>,
     ): UiHomeLayout
 
-    @RpcDoc("Stream the current user's home-card layout.")
+    @RpcDoc("Stream the current user's home-card layout. @IChangeService.observeChanges reports the HOME_CARDS topic of @ChangeTopic instead, after which @IUiService.getHomeCards reads the layout once.")
     fun getHomeCardsFlow(): Flow<UiHomeLayout>
 }
