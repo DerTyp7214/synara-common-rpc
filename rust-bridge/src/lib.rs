@@ -962,8 +962,12 @@ pub struct ISongServiceAllSongsArgs {
     pub page_size: i32,
     pub explicit: bool,
     pub tags: Vec<SongTag>,
-    #[serde(rename = "invertTags")]
-    pub invert_tags: bool,
+    #[serde(rename = "excludeTags")]
+    pub exclude_tags: Vec<SongTag>,
+    #[serde(rename = "titleTags")]
+    pub title_tags: Vec<TitleTagKind>,
+    #[serde(rename = "excludeTitleTags")]
+    pub exclude_title_tags: Vec<TitleTagKind>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1034,8 +1038,12 @@ pub struct ISongServiceGetDownloadSizeArgs {
 pub struct ISongServiceAllSongIdsArgs {
     pub explicit: bool,
     pub tags: Vec<SongTag>,
-    #[serde(rename = "invertTags")]
-    pub invert_tags: bool,
+    #[serde(rename = "excludeTags")]
+    pub exclude_tags: Vec<SongTag>,
+    #[serde(rename = "titleTags")]
+    pub title_tags: Vec<TitleTagKind>,
+    #[serde(rename = "excludeTitleTags")]
+    pub exclude_title_tags: Vec<TitleTagKind>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -4770,7 +4778,7 @@ pub trait ISongService {
     fn liked_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn super_liked_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn export_favourites_as_csv<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn all_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool, tags: Vec<SongTag>, invert_tags: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn all_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool, tags: Vec<SongTag>, exclude_tags: Vec<SongTag>, title_tags: Vec<TitleTagKind>, exclude_title_tags: Vec<TitleTagKind>) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_color<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, color: i32, range: i32, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn delete_songs<'life0, 'async_trait>(&'life0 self, ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn ranked_search<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, query: String, explicit: bool, liked: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -4781,7 +4789,7 @@ pub trait ISongService {
     fn stream_song_atmos(&self, id: PlatformUUID, offset: i64, chunk_size: i32) -> RpcStream<serde_bytes::ByteBuf>;
     fn get_atmos_stream_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_download_size<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, quality: i32, force: bool, format: AudioFormat) -> Pin<Box<dyn std::future::Future<Output = Result<i64, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
-    fn all_song_ids(&self, explicit: bool, tags: Vec<SongTag>, invert_tags: bool) -> RpcStream<PlatformUUID>;
+    fn all_song_ids(&self, explicit: bool, tags: Vec<SongTag>, exclude_tags: Vec<SongTag>, title_tags: Vec<TitleTagKind>, exclude_title_tags: Vec<TitleTagKind>) -> RpcStream<PlatformUUID>;
     fn liked_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID>;
     fn super_liked_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID>;
     fn song_ids_by_artist(&self, artist_id: PlatformUUID) -> RpcStream<PlatformUUID>;
@@ -6635,9 +6643,9 @@ impl ISongService for RpcClient {
             self.call("ISongService", "exportFavouritesAsCsv", &()).await
         })
     }
-    fn all_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool, tags: Vec<SongTag>, invert_tags: bool) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+    fn all_songs<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: bool, tags: Vec<SongTag>, exclude_tags: Vec<SongTag>, title_tags: Vec<TitleTagKind>, exclude_title_tags: Vec<TitleTagKind>) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
-            let args = ISongServiceAllSongsArgs { page, page_size, explicit, tags, invert_tags };
+            let args = ISongServiceAllSongsArgs { page, page_size, explicit, tags, exclude_tags, title_tags, exclude_title_tags };
             self.call("ISongService", "allSongs", &args).await
         })
     }
@@ -6692,8 +6700,8 @@ impl ISongService for RpcClient {
             self.call("ISongService", "getDownloadSize", &args).await
         })
     }
-    fn all_song_ids(&self, explicit: bool, tags: Vec<SongTag>, invert_tags: bool) -> RpcStream<PlatformUUID> {
-        let args = ISongServiceAllSongIdsArgs { explicit, tags, invert_tags };
+    fn all_song_ids(&self, explicit: bool, tags: Vec<SongTag>, exclude_tags: Vec<SongTag>, title_tags: Vec<TitleTagKind>, exclude_title_tags: Vec<TitleTagKind>) -> RpcStream<PlatformUUID> {
+        let args = ISongServiceAllSongIdsArgs { explicit, tags, exclude_tags, title_tags, exclude_title_tags };
         self.subscribe("ISongService", "allSongIds", &args)
     }
     fn liked_song_ids(&self, explicit: bool) -> RpcStream<PlatformUUID> {

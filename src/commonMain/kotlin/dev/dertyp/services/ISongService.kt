@@ -127,8 +127,10 @@ interface ISongService {
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean,
-        @RpcParamDoc("Filter by specific tags.") tags: List<SongTag> = emptyList(),
-        @RpcParamDoc("Invert the tag filter.") invertTags: Boolean = false,
+        @RpcParamDoc("Only include songs that match any of these tags.") tags: List<SongTag> = emptyList(),
+        @RpcParamDoc("Exclude songs that match any of these tags. All filters combine with AND.") excludeTags: List<SongTag> = emptyList(),
+        @RpcParamDoc("Only include songs whose title carries any of these title tag kinds.") titleTags: List<TitleTagKind> = emptyList(),
+        @RpcParamDoc("Exclude songs whose title carries any of these title tag kinds. Songs without title tags are kept.") excludeTitleTags: List<TitleTagKind> = emptyList(),
     ): PaginatedResponse<UserSong>
 
     @RpcDoc("Search for songs by color.")
@@ -200,8 +202,10 @@ interface ISongService {
     @RpcDoc("Stream all song IDs with optional filtering.")
     fun allSongIds(
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean,
-        @RpcParamDoc("Filter by specific tags.") tags: List<SongTag> = emptyList(),
-        @RpcParamDoc("Invert the tag filter.") invertTags: Boolean = false
+        @RpcParamDoc("Only include songs that match any of these tags.") tags: List<SongTag> = emptyList(),
+        @RpcParamDoc("Exclude songs that match any of these tags. All filters combine with AND.") excludeTags: List<SongTag> = emptyList(),
+        @RpcParamDoc("Only include songs whose title carries any of these title tag kinds.") titleTags: List<TitleTagKind> = emptyList(),
+        @RpcParamDoc("Exclude songs whose title carries any of these title tag kinds. Songs without title tags are kept.") excludeTitleTags: List<TitleTagKind> = emptyList()
     ): Flow<PlatformUUID>
     @RpcDoc("Stream all IDs of songs liked by the current user.")
     fun likedSongIds(@RpcParamDoc("Whether to include explicit content.") explicit: Boolean): Flow<PlatformUUID>
