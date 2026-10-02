@@ -16,6 +16,9 @@ class TitleTagsTest {
     private val positives = listOf(
         Triple("Song (Skrillex Remix)", "Song", listOf(TitleTag(TitleTagKind.REMIX, "Skrillex Remix"))),
         Triple("Song [Extended Mix]", "Song", listOf(TitleTag(TitleTagKind.MIX, "Extended Mix"))),
+        Triple("Song [Mix Cut]", "Song", listOf(TitleTag(TitleTagKind.MIX, "Mix Cut"))),
+        Triple("Song (Mixed)", "Song", listOf(TitleTag(TitleTagKind.MIX, "Mixed"))),
+        Triple("Song - Mix Cut", "Song", listOf(TitleTag(TitleTagKind.MIX, "Mix Cut"))),
         Triple("Song (Live at Wembley)", "Song", listOf(TitleTag(TitleTagKind.LIVE, "Live at Wembley"))),
         Triple("Song (feat. Drake)", "Song", listOf(TitleTag(TitleTagKind.FEAT, "feat. Drake"))),
         Triple("Song (with Artist)", "Song", listOf(TitleTag(TitleTagKind.FEAT, "with Artist"))),
@@ -76,6 +79,8 @@ class TitleTagsTest {
         "Song (Radio Ga Ga)",
         "Song (Mixed Feelings)",
         "Song (Remixed Emotions)",
+        "Song (Mixed Up)",
+        "Song (Cut)",
         "Song (Edition of One)",
         "Song (Editions)",
         "(Live)",

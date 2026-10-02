@@ -38,7 +38,7 @@ enum class TitleTagKind {
     @FieldDoc("Featured artists, e.g. feat. Drake or with Artist.") FEAT,
     @FieldDoc("Producer credit, e.g. prod. Metro Boomin.") PROD,
     @FieldDoc("A remix, rework, bootleg, flip or VIP.") REMIX,
-    @FieldDoc("A named mix, e.g. Extended Mix, Club Mix, Radio Mix.") MIX,
+    @FieldDoc("A named mix, e.g. Extended Mix, Club Mix, Radio Mix or a Mix Cut from a DJ mix.") MIX,
     @FieldDoc("A live recording, optionally with venue or date.") LIVE,
     @FieldDoc("A cover version.") COVER,
     @FieldDoc("An acoustic or unplugged version.") ACOUSTIC,
