@@ -347,7 +347,7 @@ sealed class UiComponent {
         val enabled: Boolean = true,
         @FieldDoc("Input kind.")
         val kind: UiTextKind = UiTextKind.TEXT,
-        @FieldDoc("Keyboard accessory toolbar shown above the on-screen keyboard while the field is focused; items are trailing-aligned. Buttons, Icons and Native portals.")
+        @FieldDoc("Keyboard accessory toolbar shown above the on-screen keyboard while the field is focused. Items are trailing-aligned. Buttons, Icons and Native portals.")
         val toolbar: List<UiComponent> = emptyList(),
     ) : UiComponent()
 
@@ -377,6 +377,8 @@ sealed class UiComponent {
         val required: Boolean = false,
         @FieldDoc("Whether the field is editable.")
         val enabled: Boolean = true,
+        @FieldDoc("Keyboard accessory toolbar shown above the on-screen keyboard while the field is focused. Items are trailing-aligned. Buttons, Icons and Native portals.")
+        val toolbar: List<UiComponent> = emptyList(),
     ) : UiComponent()
 
     @Serializable
@@ -403,6 +405,8 @@ sealed class UiComponent {
         val required: Boolean = false,
         @FieldDoc("Whether the field is editable.")
         val enabled: Boolean = true,
+        @FieldDoc("Keyboard accessory toolbar shown above the on-screen keyboard while the field is focused. Items are trailing-aligned. Buttons, Icons and Native portals.")
+        val toolbar: List<UiComponent> = emptyList(),
     ) : UiComponent()
 
     @Serializable
