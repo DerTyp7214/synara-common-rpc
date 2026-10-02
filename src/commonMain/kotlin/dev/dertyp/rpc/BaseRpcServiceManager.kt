@@ -18,6 +18,7 @@ import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.websocket.WebSocketException
 import io.ktor.client.request.get
+import dev.dertyp.ui.ClientTimeZone
 import dev.dertyp.ui.UiSchemaVersion
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMessageBuilder
@@ -45,9 +46,10 @@ fun HttpMessageBuilder.apiVersionHeader() {
     headers.append(ApiVersion.HEADER, ApiVersion.CURRENT.toString())
 }
 
-fun HttpMessageBuilder.uiHeaders(locale: String? = null) {
+fun HttpMessageBuilder.uiHeaders(locale: String? = null, timeZone: String? = null) {
     headers.append(UiSchemaVersion.HEADER, UiSchemaVersion.CURRENT.toString())
     locale?.let { headers.append(HttpHeaders.AcceptLanguage, it) }
+    timeZone?.let { headers.append(ClientTimeZone.HEADER, it) }
 }
 
 abstract class BaseRpcServiceManager(
@@ -88,9 +90,11 @@ abstract class BaseRpcServiceManager(
 
     protected open fun uiLocale(): String? = null
 
+    protected open fun uiTimeZone(): String? = null
+
     protected fun HttpMessageBuilder.connectionHeaders() {
         apiVersionHeader()
-        uiHeaders(uiLocale())
+        uiHeaders(uiLocale(), uiTimeZone())
     }
 
     protected fun storeHandshake(response: HandshakeResponse) {
