@@ -352,6 +352,34 @@ sealed class UiComponent {
     ) : UiComponent()
 
     @Serializable
+    @SerialName("fileField")
+    @ModelDoc("File input. Clients pick a file with a native file picker and submit its content under key. Clients without file field support receive a multi-line TextField with the same key.")
+    data class FileField(
+        @FieldDoc("Payload key.")
+        val key: String,
+        @FieldDoc("Label.")
+        val label: String,
+        @FieldDoc("Allowed file extensions including the dot, e.g. .p8. Empty allows any file.")
+        val accept: List<String> = emptyList(),
+        @FieldDoc("Whether the file is binary. The submitted value is the UTF-8 text of the file when false and the base64 of its bytes when true.")
+        val binary: Boolean = false,
+        @FieldDoc("Whether the client also offers pasting the content, as text or as base64 for binary files.")
+        val allowPaste: Boolean = true,
+        @FieldDoc("Whether the content is secret. The value is never populated and an empty submitted value means unchanged.")
+        val secret: Boolean = false,
+        @FieldDoc("Current content. Never populated for secret fields.")
+        val value: String? = null,
+        @FieldDoc("Helper text.")
+        val helper: String? = null,
+        @FieldDoc("Validation error to display.")
+        val error: String? = null,
+        @FieldDoc("Whether a value is required.")
+        val required: Boolean = false,
+        @FieldDoc("Whether the field is editable.")
+        val enabled: Boolean = true,
+    ) : UiComponent()
+
+    @Serializable
     @SerialName("numberField")
     @ModelDoc("Numeric input.")
     data class NumberField(

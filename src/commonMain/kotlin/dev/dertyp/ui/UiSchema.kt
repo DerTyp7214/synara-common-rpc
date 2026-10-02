@@ -31,6 +31,7 @@ object UiSchema {
         UiComponent.NumberField::class to 1,
         UiComponent.Switch::class to 1,
         UiComponent.Select::class to 1,
+        UiComponent.FileField::class to 2,
     )
 
     fun versionOf(component: UiComponent): Int = introducedIn[component::class] ?: UiSchemaVersion.CURRENT

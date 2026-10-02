@@ -1139,6 +1139,21 @@ pub struct IUiServiceSubscribeLiveArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceSubscribeWithContextArgs {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    pub context: UiContext,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceSubscribeLiveWithContextArgs {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    pub key: String,
+    pub context: UiContext,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IUiServiceInvokeArgs {
     #[serde(rename = "contributionId")]
     pub contribution_id: String,
@@ -4828,6 +4843,8 @@ pub trait IUiService {
     fn render<'life0, 'async_trait>(&'life0 self, contribution_id: String, context: UiContext) -> Pin<Box<dyn std::future::Future<Output = Result<UiRender, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn subscribe(&self, contribution_id: String, entity_id: Option<PlatformUUID>) -> RpcStream<UiRender>;
     fn subscribe_live(&self, contribution_id: String, key: String, entity_id: Option<PlatformUUID>) -> RpcStream<UiLiveUpdate>;
+    fn subscribe_with_context(&self, contribution_id: String, context: UiContext) -> RpcStream<UiRender>;
+    fn subscribe_live_with_context(&self, contribution_id: String, key: String, context: UiContext) -> RpcStream<UiLiveUpdate>;
     fn invoke<'life0, 'async_trait>(&'life0 self, contribution_id: String, action_id: String, payload: UiInvokePayload) -> Pin<Box<dyn std::future::Future<Output = Result<UiInvokeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn dispatch_hook<'life0, 'async_trait>(&'life0 self, event: UiHookEvent) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn list_hook_handlers<'life0, 'async_trait>(&'life0 self, kind: Option<UiHookKind>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandlerInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -6822,6 +6839,14 @@ impl IUiService for RpcClient {
     fn subscribe_live(&self, contribution_id: String, key: String, entity_id: Option<PlatformUUID>) -> RpcStream<UiLiveUpdate> {
         let args = IUiServiceSubscribeLiveArgs { contribution_id, key, entity_id };
         self.subscribe("IUiService", "subscribeLive", &args)
+    }
+    fn subscribe_with_context(&self, contribution_id: String, context: UiContext) -> RpcStream<UiRender> {
+        let args = IUiServiceSubscribeWithContextArgs { contribution_id, context };
+        self.subscribe("IUiService", "subscribeWithContext", &args)
+    }
+    fn subscribe_live_with_context(&self, contribution_id: String, key: String, context: UiContext) -> RpcStream<UiLiveUpdate> {
+        let args = IUiServiceSubscribeLiveWithContextArgs { contribution_id, key, context };
+        self.subscribe("IUiService", "subscribeLiveWithContext", &args)
     }
     fn invoke<'life0, 'async_trait>(&'life0 self, contribution_id: String, action_id: String, payload: UiInvokePayload) -> Pin<Box<dyn std::future::Future<Output = Result<UiInvokeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
