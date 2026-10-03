@@ -2,6 +2,7 @@ package dev.dertyp.services
 
 import dev.dertyp.data.ListenBrainzStatus
 import dev.dertyp.data.ListenedSong
+import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import dev.dertyp.rpc.annotations.RestDelete
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPath
@@ -27,6 +28,7 @@ interface IListenBrainzService {
     @RpcDoc("Get the current user's ListenBrainz connection status, or null if not linked.")
     suspend fun getStatus(): ListenBrainzStatus?
 
+    @Deprecated(REMOVED_IN_API_9 + " Use IChangeService.observeChanges and getStatus.")
     @RpcDoc("Stream the current user's ListenBrainz status, re-emitting whenever it changes (e.g. during a sync). @IChangeService.observeChanges reports the LISTENBRAINZ_STATUS topic of @ChangeTopic instead, after which @IListenBrainzService.getStatus reads the status once.")
     fun getStatusFlow(): Flow<ListenBrainzStatus?>
 
@@ -36,6 +38,6 @@ interface IListenBrainzService {
     @RestGet
     @RpcDoc("Return the current user's most recent listened songs (newest first), capped at 1000.")
     suspend fun recentListens(
-        @RpcParamDoc("Maximum number of listens to return; clamped to 1..1000.") limit: Int
+        @RpcParamDoc("Maximum number of listens to return. Clamped to 1..1000.") limit: Int
     ): List<ListenedSong>
 }

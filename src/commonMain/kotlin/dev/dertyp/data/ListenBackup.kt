@@ -15,7 +15,7 @@ data class ListenBackupConfig(
     val enabled: Boolean = false,
     @FieldDoc("Base URL of the listen-backup receiver, e.g. https://backup.example.com:8082.")
     val url: String = "",
-    @FieldDoc("API key sent to the receiver. Null on update keeps the stored key; the server never returns it.")
+    @FieldDoc("API key sent to the receiver. Null on update keeps the stored key. The server never returns it.")
     val key: String? = null,
     @FieldDoc("Maximum number of listens sent per request (1..10000).")
     val batchSize: Int = 1000,

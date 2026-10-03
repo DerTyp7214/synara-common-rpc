@@ -6,6 +6,8 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.ioDispatcher
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
+import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
+import dev.dertyp.rpc.annotations.RestExclude
 import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -92,10 +94,18 @@ interface IMetadataService {
     ): Set<Feature>
 
     @RpcDoc("Get all registered metadata providers, optionally filtered by supported features.")
-    suspend fun getAllMetadataTypes(
+    suspend fun allMetadataTypes(
         @RpcParamDoc("Optional set of features that must be supported by the provider.")
         features: Set<Feature> = emptySet()
     ): List<MetadataType>
+
+    @Deprecated(REMOVED_IN_API_9 + " Use allMetadataTypes.", ReplaceWith("allMetadataTypes(features)"))
+    @RestExclude
+    @RpcDoc("Get all registered metadata providers, optionally filtered by supported features.")
+    suspend fun getAllMetadataTypes(
+        @RpcParamDoc("Optional set of features that must be supported by the provider.")
+        features: Set<Feature> = emptySet()
+    ): List<MetadataType> = allMetadataTypes(features)
 
     @ProvidesFeature(Feature.SEARCH_ARTISTS)
     @RpcDoc("Search for artists on the specified metadata provider.")

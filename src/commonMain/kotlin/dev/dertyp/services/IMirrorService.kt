@@ -6,6 +6,7 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.data.*
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
+import dev.dertyp.rpc.annotations.RestExclude
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.coroutines.flow.Flow
@@ -87,6 +88,11 @@ interface IMirrorService {
     @RequiresAdmin
     @RpcDoc("Stream all local user accounts (profiles) for mirroring.", errors = ["IllegalStateException"])
     fun getUsers(): Flow<User>
+
+    @RequiresAdmin
+    @RestExclude
+    @RpcDoc("Stream the password hashes of all local user accounts for mirroring.", errors = ["IllegalStateException"])
+    fun getUserPasswordHashes(): Flow<UserPasswordHash>
 
     @RequiresAdmin
     @RpcDoc(

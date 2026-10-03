@@ -6,6 +6,7 @@ import dev.dertyp.PlatformInstant
 import dev.dertyp.PlatformUUID
 import dev.dertyp.PrefixedId
 import dev.dertyp.data.*
+import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import dev.dertyp.rpc.annotations.RestFileResponse
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPost
@@ -19,6 +20,10 @@ import kotlinx.serialization.UseContextualSerialization
 @Rpc
 @RpcDoc("The primary interface for song discovery, streaming, and metadata.")
 interface ISongService {
+    @Deprecated(
+        REMOVED_IN_API_9 + " Use setLikeLevel.",
+        ReplaceWith("setLikeLevel(id, if (liked) LikeLevel.LIKE else LikeLevel.NONE)")
+    )
     @RpcDoc("Toggle favorite status.")
     suspend fun setLiked(
         @RpcParamDoc("The unique UUID of the song.") id: PlatformUUID,

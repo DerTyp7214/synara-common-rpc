@@ -14,7 +14,7 @@ import kotlinx.serialization.UseContextualSerialization
 data class UiMenuItem(
     @FieldDoc("Localized label.")
     val label: String,
-    @FieldDoc("Action performed when chosen; may itself be OpenMenu for a sub-menu.")
+    @FieldDoc("Action performed when chosen. May itself be OpenMenu for a sub-menu.")
     val action: UiAction,
     @FieldDoc("Icon.")
     val icon: UiIcon? = null,
@@ -22,7 +22,7 @@ data class UiMenuItem(
     val tone: UiTone = UiTone.DEFAULT,
     @FieldDoc("Whether the entry can be chosen.")
     val enabled: Boolean = true,
-    @FieldDoc("Stable id, e.g. the handler id (UiHookHandler.id) when the menu lists hook handlers; null for plain entries.")
+    @FieldDoc("Stable id, e.g. the handler id (UiHookHandler.id) when the menu lists hook handlers. Null for plain entries.")
     val id: String? = null,
 )
 
@@ -83,7 +83,7 @@ sealed class UiAction {
     data class Intake(
         @FieldDoc("Items to submit.")
         val items: List<IntakeItem>,
-        @FieldDoc("Preselected handler (resolver id); null lets the server decide.")
+        @FieldDoc("Preselected handler (resolver id). Null lets the server decide.")
         val resolverId: String? = null,
         @FieldDoc("If set, ask the user to confirm with this text first.")
         val confirmText: String? = null,
@@ -91,7 +91,7 @@ sealed class UiAction {
 
     @Serializable
     @SerialName("dismissKeyboard")
-    @ModelDoc("Unfocus the current input and close the on-screen keyboard; no-op where there is none.")
+    @ModelDoc("Unfocus the current input and close the on-screen keyboard. No-op where there is none.")
     data object DismissKeyboard : UiAction()
 
     @Serializable

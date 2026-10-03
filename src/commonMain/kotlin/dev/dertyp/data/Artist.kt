@@ -1,9 +1,10 @@
-@file:UseContextualSerialization(Artist::class, Genre::class, PlatformUUID::class)
+@file:UseContextualSerialization(Artist::class, ArtistCredit::class, Genre::class, PlatformUUID::class)
 
 package dev.dertyp.data
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
+import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -14,16 +15,22 @@ import kotlinx.serialization.UseContextualSerialization
 enum class ArtistType {
     @SerialName("Person")
     PERSON,
+
     @SerialName("Group")
     GROUP,
+
     @SerialName("Orchestra")
     ORCHESTRA,
+
     @SerialName("Choir")
     CHOIR,
+
     @SerialName("Character")
     CHARACTER,
+
     @SerialName("Other")
     OTHER,
+
     @SerialName("Unknown")
     UNKNOWN
 }
@@ -48,7 +55,36 @@ data class Artist(
     @FieldDoc("The blur hash of the artist image.")
     val blurHash: String? = null,
     @FieldDoc("The MusicBrainz Artist unique identifier.")
-    val musicbrainzId: PlatformUUID? = null,
+    @LegacyWireName("musicbrainzId")
+    val musicBrainzId: PlatformUUID? = null,
+    @FieldDoc("Whether the current user is following this artist.")
+    val isFollowed: Boolean = false,
+    @FieldDoc("The name this artist was credited as in the current song/album context, if different from the canonical name.")
+    val creditedName: String? = null,
+    @FieldDoc("The phrase that follows this artist in the credit of the current song/album context, such as \" & \" or \" feat. \". Null when the credit source has none.")
+    val joinPhrase: String? = null,
+)
+
+@Serializable
+@ModelDoc("An artist as credited on a song or album. Carries the same fields as a full artist without the biography.")
+data class ArtistCredit(
+    @FieldDoc("The artist unique identifier.")
+    val id: PlatformUUID,
+    @FieldDoc("The name of the artist.")
+    val name: String,
+    @FieldDoc("Whether the artist record represents a group of individuals.")
+    val isGroup: Boolean,
+    @FieldDoc("Collection of sub-artists if this is a group.")
+    val artists: List<ArtistCredit> = listOf(),
+    @FieldDoc("Collection of genres associated with this artist.")
+    val genres: List<Genre> = listOf(),
+    @FieldDoc("The artist image unique identifier.")
+    val imageId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the artist image.")
+    val blurHash: String? = null,
+    @FieldDoc("The MusicBrainz Artist unique identifier.")
+    @LegacyWireName("musicbrainzId")
+    val musicBrainzId: PlatformUUID? = null,
     @FieldDoc("Whether the current user is following this artist.")
     val isFollowed: Boolean = false,
     @FieldDoc("The name this artist was credited as in the current song/album context, if different from the canonical name.")

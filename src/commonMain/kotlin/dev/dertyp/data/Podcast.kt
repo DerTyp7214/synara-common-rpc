@@ -68,7 +68,7 @@ enum class PodcastImportState {
     @FieldDoc("The audio of the episode is stored on the server.")
     IMPORTED,
 
-    @FieldDoc("The last import attempt failed; the server retries a few times before giving up.")
+    @FieldDoc("The last import attempt failed. The server retries a few times before giving up.")
     FAILED
 }
 
@@ -200,7 +200,7 @@ data class PodcastTranscript(
     val language: String? = null,
     @FieldDoc("The relation the transcript has to the episode, for example captions.")
     val rel: String? = null,
-    @FieldDoc("Whether the content of the transcript can be read; a transcript that only exists as a remote address becomes available on first read.")
+    @FieldDoc("Whether the content of the transcript can be read. A transcript that only exists as a remote address becomes available on first read.")
     val available: Boolean
 )
 
@@ -280,7 +280,7 @@ data class PodcastScanResult(
 
 @Serializable
 @ModelDoc(
-    "A show found in an external podcast directory. The server does not know the show yet; subscribing to it is done with subscribe and the " +
+    "A show found in an external podcast directory. The server does not know the show yet. Subscribing to it is done with subscribe and the " +
             "feed address of the result, which fetches the feed and stores the show."
 )
 data class PodcastIndexResult(

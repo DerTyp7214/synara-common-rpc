@@ -5,6 +5,7 @@ package dev.dertyp.serializers
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.Album
 import dev.dertyp.data.Artist
+import dev.dertyp.data.ArtistCredit
 import dev.dertyp.data.Genre
 import dev.dertyp.data.Image
 import kotlinx.rpc.krpc.serialization.KrpcSerialFormat
@@ -31,6 +32,7 @@ import kotlin.reflect.KClass
 
 val SynaraDeduplicatedTypes = listOf(
     Artist::class to Artist.serializer(),
+    ArtistCredit::class to ArtistCredit.serializer(),
     Album::class to Album.serializer(),
     Genre::class to Genre.serializer(),
     Image::class to Image.serializer(),

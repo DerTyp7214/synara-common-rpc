@@ -43,7 +43,7 @@ class RpcProcessor(
         file.use { out ->
             out.writeLine("@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)")
             out.writeLine("@file:kotlinx.serialization.UseContextualSerialization(dev.dertyp.PlatformUUID::class)")
-            out.writeLine("@file:Suppress(\"USELESS_CAST\", \"KotlinUnreachableCode\", \"unused\", \"UNCHECKED_CAST\")")
+            out.writeLine("@file:Suppress(\"USELESS_CAST\", \"KotlinUnreachableCode\", \"unused\", \"UNCHECKED_CAST\", \"DEPRECATION\")")
             out.writeLine("")
             out.writeLine("package dev.dertyp.rpc")
             out.writeLine("")

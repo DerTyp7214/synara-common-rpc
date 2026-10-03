@@ -4,6 +4,7 @@ package dev.dertyp.data
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
+import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlin.native.ObjCName
 import kotlinx.serialization.Serializable
@@ -52,7 +53,7 @@ data class MediaCollection(
     val artistCount: Int = 0,
     @FieldDoc("Number of playlists explicitly added as items.")
     val playlistCount: Int = 0,
-    @FieldDoc("Where the cover image came from; null when there is no cover.")
+    @FieldDoc("Where the cover image came from. Null when there is no cover.")
     val imageSource: ImageSource? = null,
 )
 
@@ -61,8 +62,9 @@ data class MediaCollection(
 data class CollectionSongMatch(
     @FieldDoc("The matched song.")
     val song: UserSong,
-    @FieldDoc("True when the song is added directly to the collection; false when it is reached via an album, artist or playlist that is in the collection.")
-    val explicitMember: Boolean,
+    @FieldDoc("True when the song is added directly to the collection. False when it is reached via an album, artist or playlist that is in the collection.")
+    @LegacyWireName("explicitMember")
+    val directMember: Boolean,
 )
 
 @Serializable

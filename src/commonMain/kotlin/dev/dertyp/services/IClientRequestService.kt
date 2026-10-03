@@ -33,7 +33,7 @@ interface IClientRequestService {
         @RpcParamDoc("How this client is listed on the other devices of the user and what it can do.") description: ClientDescription
     ): Flow<ClientRequest>
 
-    @RpcDoc("Report the outcome of a request to the waiting requester. Only COMPLETED and REJECTED are accepted; the timed out and unreachable outcomes are determined by the server.")
+    @RpcDoc("Report the outcome of a request to the waiting requester. Only COMPLETED and REJECTED are accepted. The timed out and unreachable outcomes are determined by the server.")
     suspend fun complete(
         @RpcParamDoc("The identifier of the request that was handled.") requestId: PlatformUUID,
         @RpcParamDoc("Whether the request was performed or declined.") status: ClientRequestStatus

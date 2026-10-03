@@ -19,7 +19,7 @@ interface IListeningStatsService {
     suspend fun getStats(
         @RpcParamDoc("The time range to aggregate.") range: StatsRange,
         @RpcParamDoc("IANA timezone for range boundaries, e.g. Europe/Berlin. Invalid or blank falls back to UTC.") timezone: String,
-        @RpcParamDoc("Maximum entries per top list; clamped to 1..100.") topLimit: Int,
+        @RpcParamDoc("Maximum entries per top list. Clamped to 1..100.") topLimit: Int,
         @RpcParamDoc("Metric used to rank the top and discovery lists.") topOrder: TopOrder = TopOrder.LISTEN_COUNT,
     ): ListeningStats
 

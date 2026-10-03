@@ -29,7 +29,7 @@ class ModelConsistencyTest {
 
     @Test
     fun testSongWithDeduplication() = runTest {
-        val artist = Artist(
+        val artist = ArtistCredit(
             id = platformUUIDFromString("11111111-1111-1111-1111-111111111111"),
             name = "Artist",
             isGroup = false

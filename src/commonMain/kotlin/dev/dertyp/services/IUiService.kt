@@ -1,6 +1,7 @@
 package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
+import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -24,7 +25,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.rpc.annotations.Rpc
 
 @Rpc
-@RpcDoc("Server-driven UI: lists, renders and drives slot, page and home-card contributions from the server and plugins. Text is localized using the Accept-Language header; component trees are shaped to the X-Ui-Schema-Version header. Authorization is enforced per contribution.")
+@RpcDoc("Server-driven UI: lists, renders and drives slot, page and home-card contributions from the server and plugins. Text is localized using the Accept-Language header. Component trees are shaped to the X-Ui-Schema-Version header. Authorization is enforced per contribution.")
 interface IUiService {
     @RpcDoc("List UI contributions visible to the current user.")
     suspend fun listContributions(
@@ -100,21 +101,21 @@ interface IUiService {
     ): UiInvokeResult
 
     @RestPost
-    @RpcDoc("Forward an app-level event (e.g. a shared URL). Returns every contribution offering to handle it; perform the single action directly or let the user choose. An empty list means no server-side handler; fall back to native behaviour.")
+    @RpcDoc("Forward an app-level event (e.g. a shared URL). Returns every contribution offering to handle it. Perform the single action directly or let the user choose. An empty list means no server-side handler. Fall back to native behaviour then.")
     suspend fun dispatchHook(
         @RpcParamDoc("The event.") event: UiHookEvent,
     ): List<UiHookHandler>
 
-    @RpcDoc("List every handler that may offer to take hook events for the current user, without an input. Intake resolvers serve every kind; contributions list the kinds they declare. Whether a handler accepts a specific event is only known from dispatchHook.")
+    @RpcDoc("List every handler that may offer to take hook events for the current user, without an input. Intake resolvers serve every kind. Contributions list the kinds they declare. Whether a handler accepts a specific event is only known from dispatchHook.")
     suspend fun listHookHandlers(
-        @RpcParamDoc("Only handlers serving this kind; null lists all.") kind: UiHookKind? = null,
+        @RpcParamDoc("Only handlers serving this kind. Null lists all.") kind: UiHookKind? = null,
     ): List<UiHookHandlerInfo>
 
     @RestPost
-    @RpcDoc("Hand items (links, codes, ids, text) to the server. Unambiguous items are submitted immediately; when several handlers offer, NEEDS_CHOICE returns them and the client calls intake again with the chosen handler's action. Items nobody accepts are returned as rejected.")
+    @RpcDoc("Hand items (links, codes, ids, text) to the server. Unambiguous items are submitted immediately. When several handlers offer, NEEDS_CHOICE returns them and the client calls intake again with the chosen handler's action. Items nobody accepts are returned as rejected.")
     suspend fun intake(
         @RpcParamDoc("Items to submit.") items: List<IntakeItem>,
-        @RpcParamDoc("Handler to use, from a previous NEEDS_CHOICE result; null lets the server decide.") resolverId: String? = null,
+        @RpcParamDoc("Handler to use, from a previous NEEDS_CHOICE result. Null lets the server decide.") resolverId: String? = null,
     ): UiIntakeResult
 
     @RestPost
@@ -137,6 +138,7 @@ interface IUiService {
         @RpcParamDoc("Pinned contribution ids in display order.") contributionIds: List<String>,
     ): UiHomeLayout
 
+    @Deprecated(REMOVED_IN_API_9 + " Use IChangeService.observeChanges and getHomeCards.")
     @RpcDoc("Stream the current user's home-card layout. @IChangeService.observeChanges reports the HOME_CARDS topic of @ChangeTopic instead, after which @IUiService.getHomeCards reads the layout once.")
     fun getHomeCardsFlow(): Flow<UiHomeLayout>
 }

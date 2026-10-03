@@ -9,11 +9,11 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
 @Serializable
-@ModelDoc("A time range for listening statistics. DAY, WEEK, MONTH and YEAR run from the period start to now; LAST_WEEK, LAST_MONTH and LAST_YEAR cover the previous completed period.")
+@ModelDoc("A time range for listening statistics. DAY, WEEK, MONTH and YEAR run from the period start to now. LAST_WEEK, LAST_MONTH and LAST_YEAR cover the previous completed period.")
 enum class StatsRange { DAY, WEEK, LAST_WEEK, MONTH, LAST_MONTH, YEAR, LAST_YEAR, ALL_TIME }
 
 @Serializable
-@ModelDoc("How top lists are ranked. LISTEN_COUNT ranks by deduplicated listen count; LISTENED_MS ranks by total milliseconds listened, which also surfaces entries whose plays were too short to count as listens.")
+@ModelDoc("How top lists are ranked. LISTEN_COUNT ranks by deduplicated listen count. LISTENED_MS ranks by total milliseconds listened, which also surfaces entries whose plays were too short to count as listens.")
 enum class TopOrder { LISTEN_COUNT, LISTENED_MS }
 
 @Serializable
@@ -87,9 +87,9 @@ data class TopAlbumEntry(
 @Serializable
 @ModelDoc("Distribution of listens over the hours of the day and days of the week, in the requested timezone.")
 data class ListenClock(
-    @FieldDoc("Listen counts per hour of day; 24 entries, index 0 = 00:00-00:59.")
+    @FieldDoc("Listen counts per hour of day. 24 entries, index 0 = 00:00-00:59.")
     val hourOfDay: List<Long>,
-    @FieldDoc("Listen counts per day of week; 7 entries, index 0 = Monday.")
+    @FieldDoc("Listen counts per day of week. 7 entries, index 0 = Monday.")
     val dayOfWeek: List<Long>,
 )
 
@@ -116,7 +116,7 @@ data class Discoveries(
 data class LinkUnmatchedTrackRequest(
     @FieldDoc("The library song to link the listens to.")
     val songId: PlatformUUID,
-    @FieldDoc("A ListenBrainz recording MSID of the unmatched track; the server expands it to the whole group.")
+    @FieldDoc("A ListenBrainz recording MSID of the unmatched track. The server expands it to the whole group.")
     val recordingMsid: PlatformUUID? = null,
     @FieldDoc("The MusicBrainz recording MBID of the unmatched track.")
     val recordingMbid: PlatformUUID? = null,
@@ -127,7 +127,7 @@ data class LinkUnmatchedTrackRequest(
 data class LinkUnmatchedTrackResult(
     @FieldDoc("Number of listens that were linked to the song.")
     val linkedListens: Int,
-    @FieldDoc("Number of manual mappings accepted by the ListenBrainz API; 0 when the song has no recording MBID, no account token is stored, or no listens carry an MSID.")
+    @FieldDoc("Number of manual mappings accepted by the ListenBrainz API. 0 when the song has no recording MBID, no account token is stored, or no listens carry an MSID.")
     val submittedToListenBrainz: Int,
 )
 
@@ -138,11 +138,11 @@ data class ListeningStats(
     val range: StatsRange,
     @FieldDoc("The timezone used for range boundaries.")
     val timezone: String,
-    @FieldDoc("Start of the range (epoch milliseconds, inclusive); 0 for ALL_TIME.")
+    @FieldDoc("Start of the range (epoch milliseconds, inclusive). 0 for ALL_TIME.")
     val rangeStart: Long,
-    @FieldDoc("End of the range (epoch milliseconds, exclusive); now for open-ended ranges, the period end for LAST_WEEK, LAST_MONTH and LAST_YEAR.")
+    @FieldDoc("End of the range (epoch milliseconds, exclusive). Now for open-ended ranges, the period end for LAST_WEEK, LAST_MONTH and LAST_YEAR.")
     val rangeEnd: Long,
-    @FieldDoc("Deduplicated listen count in the range. A play only counts when at least half of the song or at least 3 minutes were played; plays without a known played duration always count.")
+    @FieldDoc("Deduplicated listen count in the range. A play only counts when at least half of the song or at least 3 minutes were played. Plays without a known played duration always count.")
     val listenCount: Long,
     @FieldDoc("Total milliseconds listened in the range, including plays too short to count as a listen. Plays without a known played duration count the whole song duration.")
     val listenedMs: Long = 0,

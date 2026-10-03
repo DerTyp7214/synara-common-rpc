@@ -1,4 +1,11 @@
-@file:UseContextualSerialization(Artist::class, Album::class, Genre::class, Image::class, PlatformUUID::class)
+@file:UseContextualSerialization(
+    Artist::class,
+    ArtistCredit::class,
+    Album::class,
+    Genre::class,
+    Image::class,
+    PlatformUUID::class
+)
 
 package dev.dertyp.data
 
@@ -6,6 +13,7 @@ import dev.dertyp.PlatformLocalDate
 import dev.dertyp.PlatformUUID
 import dev.dertyp.core.contentEquals
 import dev.dertyp.rpc.annotations.FieldDoc
+import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import dev.dertyp.serializers.LocalDateSerializer
 import kotlinx.serialization.Serializable
@@ -19,7 +27,7 @@ data class Album(
     @FieldDoc("The name of the album.")
     val name: String,
     @FieldDoc("Collection of artists credited for this album.")
-    val artists: List<Artist>,
+    val artists: List<ArtistCredit>,
     @FieldDoc("Total number of songs in the album.")
     val songCount: Int = 0,
     @Serializable(with = LocalDateSerializer::class)
@@ -40,7 +48,8 @@ data class Album(
     @FieldDoc("The barcode or UPC of the album.")
     val barcode: String? = null,
     @FieldDoc("The MusicBrainz Release unique identifier.")
-    val musicbrainzId: PlatformUUID? = null,
+    @LegacyWireName("musicbrainzId")
+    val musicBrainzId: PlatformUUID? = null,
     @FieldDoc("The animated cover unique identifier.")
     val animatedCoverId: PlatformUUID? = null,
     @FieldDoc("Identifier of the still Image from the animated cover's first frame.")

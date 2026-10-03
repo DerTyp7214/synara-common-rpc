@@ -27,7 +27,7 @@ interface ICoverGenerationService {
 
     @RpcDoc(
         "Render a 1024x1024 JPEG preview without persisting it. Only the owner or an admin may call this.",
-        errors = ["IllegalArgumentException", "IllegalAccessException"]
+        errors = ["IllegalArgumentException", "UnauthorizedException"]
     )
     suspend fun previewCoverImage(
         @RpcParamDoc("The playlist or collection.") target: CoverTarget,
@@ -37,7 +37,7 @@ interface ICoverGenerationService {
     @RestPost
     @RpcDoc(
         "Render, persist and set the cover, marking it as generated. Returns the new image id. Only the owner or an admin may call this.",
-        errors = ["IllegalArgumentException", "IllegalAccessException"]
+        errors = ["IllegalArgumentException", "UnauthorizedException"]
     )
     suspend fun applyCover(
         @RpcParamDoc("The playlist or collection.") target: CoverTarget,
@@ -47,7 +47,7 @@ interface ICoverGenerationService {
     @RestPost
     @RpcDoc(
         "Clear a user-set cover so automatic generation may replace it. Returns false when there was nothing to reset.",
-        errors = ["IllegalAccessException"]
+        errors = ["UnauthorizedException"]
     )
     suspend fun resetCover(@RpcParamDoc("The playlist or collection.") target: CoverTarget): Boolean
 

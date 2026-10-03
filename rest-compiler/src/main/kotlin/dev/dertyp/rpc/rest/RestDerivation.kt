@@ -19,10 +19,13 @@ private const val REST_POST = "$ANNOTATIONS.RestPost"
 private const val REST_PUT = "$ANNOTATIONS.RestPut"
 private const val REST_DELETE = "$ANNOTATIONS.RestDelete"
 private const val REST_PATH = "$ANNOTATIONS.RestPath"
+private const val REST_EXCLUDE = "$ANNOTATIONS.RestExclude"
 private const val REST_PUBLIC = "$ANNOTATIONS.RestPublic"
 private const val REST_FILE_RESPONSE = "$ANNOTATIONS.RestFileResponse"
 private const val RPC_DOC = "$ANNOTATIONS.RpcDoc"
 private const val RPC_PARAM_DOC = "$ANNOTATIONS.RpcParamDoc"
+
+private const val DEPRECATED = "kotlin.Deprecated"
 
 private val IGNORED_FUNCTIONS = setOf("<init>", "equals", "hashCode", "toString")
 
@@ -55,7 +58,8 @@ class RestDerivation(
                     name = function.simpleName.asString(),
                     isSuspend = function.modifiers.contains(Modifier.SUSPEND),
                     parameters = function.parameters.map { parameterName(it) to it.type.toTypeName() },
-                    returnType = function.returnType?.toTypeName() ?: UNIT
+                    returnType = function.returnType?.toTypeName() ?: UNIT,
+                    deprecationMessage = function.annotation(DEPRECATED)?.argument("message") as? String
                 )
             }
             .toList()
@@ -76,6 +80,7 @@ class RestDerivation(
     }
 
     private fun isRestFunction(function: KSFunctionDeclaration): Boolean {
+        if (function.hasAnnotation(REST_EXCLUDE)) return false
         if (function.modifiers.contains(Modifier.SUSPEND)) return true
         val returnType = function.returnType?.resolve() ?: return false
         return types.isFlow(returnType)

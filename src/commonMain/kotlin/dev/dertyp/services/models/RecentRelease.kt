@@ -54,6 +54,6 @@ data class RecentRelease(
     val recordLabel: String? = null,
     @FieldDoc("The copyright line reported by the provider, when known.")
     val copyright: String? = null,
-    @FieldDoc("Other editions of the same release folded under this entry: explicit, clean, deluxe or remastered variants, or the same release listed by another catalog. Each keeps its own identifiers, links and cover; their own versions lists are always empty.")
+    @FieldDoc("Other editions of the same release folded under this entry: explicit, clean, deluxe or remastered variants, or the same release listed by another catalog. Each keeps its own identifiers, links and cover. Their own versions lists are always empty.")
     val versions: List<RecentRelease> = emptyList()
 )

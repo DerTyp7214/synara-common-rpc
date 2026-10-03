@@ -4,6 +4,7 @@ import dev.dertyp.data.ListenBackupConfig
 import dev.dertyp.data.ListenBackupConnectionTest
 import dev.dertyp.data.ListenBackupState
 import dev.dertyp.data.RequiresAdmin
+import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -20,11 +21,20 @@ interface IListenBackupService {
     suspend fun getState(): ListenBackupState
 
     @RequiresAdmin
+    @RestGet
     @RpcDoc(
         "Stream the backup state, re-emitting whenever the configuration or sync progress changes.",
         errors = ["SecurityException"]
     )
-    fun getStateFlow(): Flow<ListenBackupState>
+    fun observeState(): Flow<ListenBackupState>
+
+    @Deprecated(REMOVED_IN_API_9 + " Use observeState.", ReplaceWith("observeState()"))
+    @RequiresAdmin
+    @RpcDoc(
+        "Stream the backup state, re-emitting whenever the configuration or sync progress changes.",
+        errors = ["SecurityException"]
+    )
+    fun getStateFlow(): Flow<ListenBackupState> = observeState()
 
     @RequiresAdmin
     @RpcDoc("Update the backup configuration.", errors = ["SecurityException", "IllegalArgumentException"])
@@ -36,7 +46,7 @@ interface IListenBackupService {
     @RestPost
     @RpcDoc("Probe a receiver. Uses the stored configuration when no config is given.", errors = ["SecurityException"])
     suspend fun testConnection(
-        @RpcParamDoc("Configuration to probe; null uses the stored configuration.") config: ListenBackupConfig? = null
+        @RpcParamDoc("Configuration to probe. Null uses the stored configuration.") config: ListenBackupConfig? = null
     ): ListenBackupConnectionTest
 
     @RequiresAdmin

@@ -40,6 +40,7 @@ class DocReferencesTest {
     private fun service(qualifiedName: String, vararg functions: String): KSClassDeclaration = mockk {
         every { simpleName.asString() } returns qualifiedName.substringAfterLast(".")
         every { this@mockk.qualifiedName?.asString() } returns qualifiedName
+        every { parentDeclaration } returns null
         every { getAllFunctions() } returns functions.map { function(it) }.asSequence()
     }
 
@@ -55,11 +56,13 @@ class DocReferencesTest {
     private fun model(
         qualifiedName: String,
         entries: List<String> = emptyList(),
-        properties: List<String> = emptyList()
+        properties: List<String> = emptyList(),
+        parent: KSClassDeclaration? = null
     ) =
         mockk<KSClassDeclaration> {
             every { simpleName.asString() } returns qualifiedName.substringAfterLast(".")
             every { this@mockk.qualifiedName?.asString() } returns qualifiedName
+            every { parentDeclaration } returns parent
             every { declarations } returns entries.map { entry(it) }.asSequence()
             every { getAllProperties() } returns properties.map { property(it) }.asSequence()
         }
@@ -110,7 +113,7 @@ class DocReferencesTest {
         verify(exactly = 1) {
             logger.error(
                 "[doc-compiler] IScrobbleService.recentListens: unresolved doc reference @IChangeService.observeChange: " +
-                        "IChangeService has no method observeChange",
+                        "IChangeService has no method or nested model observeChange",
                 source
             )
         }
@@ -130,7 +133,85 @@ class DocReferencesTest {
         verify(exactly = 1) {
             logger.error(
                 "[doc-compiler] Change.topic: unresolved doc reference @ChangeTopic.LIKES: " +
-                        "ChangeTopic has no field or entry LIKES",
+                        "ChangeTopic has no nested model, field or entry LIKES",
+                source
+            )
+        }
+    }
+
+    private fun nestedReferences(): DocReferences {
+        val metadataService = service("dev.dertyp.services.metadata.IMetadataService", "searchAlbum")
+        val queueWriteResult = model("dev.dertyp.data.QueueWriteResult")
+        val settingsWriteResult = model("dev.dertyp.data.ClientSettingsWriteResult")
+        return DocReferences(
+            listOf(metadataService),
+            listOf(
+                model("dev.dertyp.data.Album", properties = listOf("musicBrainzId")),
+                model("dev.dertyp.services.metadata.IMetadataService.Album", parent = metadataService),
+                queueWriteResult,
+                settingsWriteResult,
+                model("dev.dertyp.data.QueueWriteResult.Conflict", parent = queueWriteResult),
+                model("dev.dertyp.data.ClientSettingsWriteResult.Conflict", parent = settingsWriteResult),
+                model("dev.dertyp.data.Image"),
+                model("dev.dertyp.ui.Image")
+            ),
+            logger
+        )
+    }
+
+    @Test
+    fun `prefers the single top-level model over nested models of the same name`() {
+        val linked = nestedReferences().link("See @Album and @Album.musicBrainzId.", source, "X", "RPC.md", "")
+
+        assertEquals("See [Album](#devdertypdataalbum) and [Album.musicBrainzId](#devdertypdataalbum).", linked)
+        verify(exactly = 0) { logger.error(any(), any()) }
+    }
+
+    @Test
+    fun `links nested models through their outer service or model`() {
+        val linked = nestedReferences().link(
+            "Read @IMetadataService.Album and @QueueWriteResult.Conflict.",
+            source,
+            "X",
+            "RPC.md",
+            ""
+        )
+
+        assertEquals(
+            "Read [IMetadataService.Album](#devdertypservicesmetadataimetadataservicealbum) and " +
+                    "[QueueWriteResult.Conflict](#devdertypdataqueuewriteresultconflict).",
+            linked
+        )
+        verify(exactly = 0) { logger.error(any(), any()) }
+    }
+
+    @Test
+    fun `keeps service method references before nested models`() {
+        val linked = nestedReferences().link("Call @IMetadataService.searchAlbum.", source, "X", "RPC.md", "")
+
+        assertEquals(
+            "Call [IMetadataService.searchAlbum](RPC.md#devdertypservicesmetadataimetadataservice-searchalbum).",
+            linked
+        )
+        verify(exactly = 0) { logger.error(any(), any()) }
+    }
+
+    @Test
+    fun `reports names that stay ambiguous`() {
+        val text = "See @Conflict or @Image."
+
+        assertEquals(text, nestedReferences().link(text, source, "X", "RPC.md", ""))
+        verify(exactly = 1) {
+            logger.error(
+                "[doc-compiler] X: unresolved doc reference @Conflict: " +
+                        "Conflict names more than one documented service or model",
+                source
+            )
+        }
+        verify(exactly = 1) {
+            logger.error(
+                "[doc-compiler] X: unresolved doc reference @Image: " +
+                        "Image names more than one documented service or model",
                 source
             )
         }

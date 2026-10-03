@@ -15,6 +15,7 @@ import kotlinx.serialization.UseContextualSerialization
 enum class UiIntakeCodeKind {
     @FieldDoc("International Standard Recording Code (a track).")
     ISRC,
+
     @FieldDoc("UPC/EAN/GTIN barcode (a release).")
     UPC
 }
@@ -44,7 +45,7 @@ sealed class IntakeItem {
     @SerialName("id")
     @ModelDoc("An id in a provider's namespace, e.g. provider \"tidal\", id \"123\".")
     data class Id(
-        @FieldDoc("Provider / importer id; empty means the server default.")
+        @FieldDoc("Provider / importer id. Empty means the server default.")
         val provider: String,
         @FieldDoc("The id.")
         val id: String,
@@ -100,13 +101,17 @@ sealed class IntakeItem {
 enum class UiIntakeStatus {
     @FieldDoc("Everything acceptable was submitted.")
     OK,
-    @FieldDoc("Several handlers offer; let the user pick one of handlers and call intake again with its action.")
+
+    @FieldDoc("Several handlers offer. Let the user pick one of handlers and call intake again with its action.")
     NEEDS_CHOICE,
-    @FieldDoc("No handler accepted any item; fall back to native behaviour.")
+
+    @FieldDoc("No handler accepted any item. Fall back to native behaviour.")
     UNHANDLED,
+
     @FieldDoc("The user may not use the offering handlers.")
     UNAUTHORIZED,
-    @FieldDoc("Submission failed; see message.")
+
+    @FieldDoc("Submission failed. See message.")
     ERROR
 }
 

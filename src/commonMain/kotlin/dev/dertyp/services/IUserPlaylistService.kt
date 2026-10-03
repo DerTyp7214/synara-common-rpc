@@ -48,61 +48,64 @@ interface IUserPlaylistService {
     ): PaginatedResponse<UserPlaylist>
 
     @RestPath("playlist")
-    @RpcDoc("Delete a user playlist.")
+    @RpcDoc("Delete a user playlist.", errors = ["UnauthorizedException"])
     suspend fun delete(@RpcParamDoc("The playlist unique identifier.") id: PlatformUUID): Boolean
 
     @RestPost
-    @RpcDoc("Create a new user playlist or retrieve an existing one by a custom identifier.")
+    @RpcDoc(
+        "Create a new user playlist or retrieve an existing one by a custom identifier.",
+        errors = ["UnauthorizedException"]
+    )
     suspend fun getOrAddPlaylist(
         @RpcParamDoc("The user ID who owns the playlist.") userId: PlatformUUID,
         @RpcParamDoc("Optional unique string identifier from an external source.") customIdentifier: String?,
         @RpcParamDoc("The initial playlist data.") playlist: InsertablePlaylist
     ): PlatformUUID
 
-    @RpcDoc("Add songs to a user playlist.")
+    @RpcDoc("Add songs to a user playlist.", errors = ["UnauthorizedException"])
     suspend fun addToPlaylist(
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Collection of song IDs and their added timestamps.") songIds: List<Pair<Long, PlatformUUID>>
     )
 
-    @RpcDoc("Add songs to a user playlist.")
+    @RpcDoc("Add songs to a user playlist.", errors = ["UnauthorizedException"])
     suspend fun addSongsToPlaylist(
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Collection of song IDs to add.") songIds: List<PlatformUUID>
     )
 
-    @RpcDoc("Add all songs of an album to a user playlist.")
+    @RpcDoc("Add all songs of an album to a user playlist.", errors = ["UnauthorizedException"])
     suspend fun addAlbumToPlaylist(
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The album unique identifier.") albumId: PlatformUUID
     )
 
-    @RpcDoc("Add all songs of a playlist to a user playlist.")
+    @RpcDoc("Add all songs of a playlist to a user playlist.", errors = ["UnauthorizedException"])
     suspend fun addPlaylistToPlaylist(
         @RpcParamDoc("The target playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The source playlist unique identifier.") sourcePlaylistId: PlatformUUID
     )
 
-    @RpcDoc("Add all songs of a user playlist to a user playlist.")
+    @RpcDoc("Add all songs of a user playlist to a user playlist.", errors = ["UnauthorizedException"])
     suspend fun addUserPlaylistToPlaylist(
         @RpcParamDoc("The target playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The source user playlist unique identifier.") sourcePlaylistId: PlatformUUID
     )
 
     @RestPath("songs")
-    @RpcDoc("Remove songs from a user playlist.")
+    @RpcDoc("Remove songs from a user playlist.", errors = ["UnauthorizedException"])
     suspend fun removeFromPlaylist(
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Collection of song IDs to remove.") songIds: List<PlatformUUID>
     ): Int
 
-    @RpcDoc("Set the cover image for a user playlist.")
+    @RpcDoc("Set the cover image for a user playlist.", errors = ["UnauthorizedException"])
     suspend fun setPlaylistImage(
         @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The image unique identifier.") imageId: PlatformUUID?
     ): Boolean
 
-    @RpcDoc("Create a smart playlist based on artists.")
+    @RpcDoc("Create a smart playlist based on artists.", errors = ["UnauthorizedException"])
     suspend fun createPlaylistFromArtists(
         @RpcParamDoc("The user ID who owns the playlist.") userId: PlatformUUID,
         @RpcParamDoc("The name of the playlist.") name: String,

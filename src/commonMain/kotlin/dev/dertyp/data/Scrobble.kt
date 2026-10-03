@@ -4,6 +4,7 @@ package dev.dertyp.data
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
+import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
@@ -26,9 +27,10 @@ data class PlaybackReport(
     val songId: PlatformUUID,
     @FieldDoc("Playback position in milliseconds at the time the report was sampled.")
     val positionMs: Long = 0,
-    @FieldDoc("Whether playback is running; false while paused.")
-    val playing: Boolean = true,
-    @FieldDoc("Client epoch milliseconds when the position was sampled; lets the server compensate transport delay.")
+    @FieldDoc("Whether playback is running. False while paused.")
+    @LegacyWireName("playing")
+    val isPlaying: Boolean = true,
+    @FieldDoc("Client epoch milliseconds when the position was sampled. Lets the server compensate transport delay.")
     val sentAt: Long? = null,
 )
 

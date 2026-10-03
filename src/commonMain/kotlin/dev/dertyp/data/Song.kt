@@ -1,4 +1,11 @@
-@file:UseContextualSerialization(Artist::class, Album::class, Genre::class, Image::class, PlatformUUID::class)
+@file:UseContextualSerialization(
+    Artist::class,
+    ArtistCredit::class,
+    Album::class,
+    Genre::class,
+    Image::class,
+    PlatformUUID::class
+)
 @file:OptIn(ExperimentalSerializationApi::class)
 
 package dev.dertyp.data
@@ -10,32 +17,44 @@ import dev.dertyp.core.contentEquals
 import dev.dertyp.nowAsPlatformDate
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
+import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import dev.dertyp.serializers.DateSerializer
 import dev.dertyp.serializers.LocalDateSerializer
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.UseContextualSerialization
 import kotlinx.serialization.cbor.CborLabel
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 @Serializable
 @ModelDoc("Flags and metadata attributes for a song.")
 enum class SongTag {
     @FieldDoc("Audio sample rate is 44.1kHz or 48kHz.")
     Q_44_48,
+
     @FieldDoc("Audio sample rate is 96kHz.")
     Q_96,
+
     @FieldDoc("Audio sample rate is 192kHz.")
     Q_192,
+
     @FieldDoc("Bit depth is 16-bit.")
     B_16,
+
     @FieldDoc("Bit depth is 24-bit.")
     B_24,
+
     @FieldDoc("The song has associated lyrics.")
     HAS_LYRICS,
+
     @FieldDoc("The song was manually uploaded by a user.")
     CUSTOM_UPLOAD,
+
     @FieldDoc("The song has a linked MusicBrainz Recording ID.")
     HAS_MUSICBRAINZ_ID
 }
@@ -45,28 +64,55 @@ enum class SongTag {
 enum class TitleTagKind {
     @FieldDoc("Featured artists, e.g. feat. Drake or with Artist.")
     FEAT,
+
     @FieldDoc("Producer credit, e.g. prod. Metro Boomin.")
     PROD,
+
     @FieldDoc("A remix, rework, bootleg, flip or VIP.")
     REMIX,
+
     @FieldDoc("A named mix, e.g. Extended Mix, Club Mix, Radio Mix or a Mix Cut from a DJ mix.")
     MIX,
+
     @FieldDoc("A live recording, optionally with venue or date.")
     LIVE,
+
     @FieldDoc("A cover version.")
     COVER,
+
     @FieldDoc("An acoustic or unplugged version.")
     ACOUSTIC,
+
     @FieldDoc("An instrumental version.")
     INSTRUMENTAL,
+
     @FieldDoc("An edit, e.g. Radio Edit or Extended Edit.")
     EDIT,
+
     @FieldDoc("A generic alternate version, e.g. Album Version, Take 2, Sped Up, Bonus Track or Deluxe.")
     VERSION,
+
     @FieldDoc("A remaster, optionally with year.")
     REMASTER,
+
     @FieldDoc("A demo recording.")
     DEMO,
+
+    @FieldDoc("A kind this client does not know yet. Clients treat it as a generic marker.")
+    UNKNOWN,
+}
+
+object TitleTagKindSerializer : KSerializer<TitleTagKind> {
+    override val descriptor: SerialDescriptor = TitleTagKind.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: TitleTagKind) {
+        TitleTagKind.serializer().serialize(encoder, value)
+    }
+
+    override fun deserialize(decoder: Decoder): TitleTagKind {
+        val name = decoder.decodeString()
+        return TitleTagKind.entries.firstOrNull { it.name == name } ?: TitleTagKind.UNKNOWN
+    }
 }
 
 @Serializable
@@ -74,8 +120,10 @@ enum class TitleTagKind {
 enum class LikeLevel {
     @FieldDoc("The song is not liked.")
     NONE,
+
     @FieldDoc("The song is liked.")
     LIKE,
+
     @FieldDoc("The song is super liked. It is also a liked song.")
     SUPER
 }
@@ -83,7 +131,8 @@ enum class LikeLevel {
 @Serializable
 @ModelDoc("A version marker that was split off the song title, shown by clients separately from the title.")
 data class TitleTag(
-    @FieldDoc("The kind of marker.")
+    @FieldDoc("The kind of marker. Kinds a client does not know are decoded as UNKNOWN.")
+    @Serializable(with = TitleTagKindSerializer::class)
     val kind: TitleTagKind,
     @FieldDoc("The original text without brackets, e.g. Skrillex Remix, Live at Wembley, feat. Drake or Radio Edit.")
     val label: String,
@@ -99,7 +148,7 @@ data class AudioInfo(
     @FieldDoc("Audio sample rate in Hz.")
     val sampleRate: Int,
     @CborLabel(3)
-    @FieldDoc("Number of bits per audio sample; 0 for lossy codecs.")
+    @FieldDoc("Number of bits per audio sample. 0 for lossy codecs.")
     val bitsPerSample: Int,
     @CborLabel(4)
     @FieldDoc("Audio bit rate in kilobits per second.")
@@ -116,8 +165,7 @@ data class AudioInfo(
     }
 }
 
-const val LEGACY_AUDIO_FIELDS =
-    "API version 3 wire compatibility only; populated by the server's response shaping, never by services. Use audio/atmos."
+const val LEGACY_AUDIO_FIELDS = REMOVED_IN_API_9 + " Use audio and atmos."
 
 val BaseSong.effectiveAudio: AudioInfo?
     get() = audio ?: run {
@@ -136,7 +184,7 @@ val BaseSong.effectiveAudio: AudioInfo?
 abstract class BaseSong() {
     abstract val id: PlatformUUID
     abstract val title: String
-    abstract val artists: List<Artist>
+    abstract val artists: List<ArtistCredit>
     abstract val album: Album?
     abstract val duration: Long
     abstract val explicit: Boolean
@@ -186,7 +234,7 @@ data class Song(
     @FieldDoc("The title of the song.")
     override val title: String,
     @FieldDoc("Collection of performing artists.")
-    override val artists: List<Artist>,
+    override val artists: List<ArtistCredit>,
     @FieldDoc("The album this song belongs to.")
     override val album: Album?,
     @FieldDoc("Duration of the song in milliseconds.")
@@ -215,19 +263,19 @@ data class Song(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val atmos: AudioInfo? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Audio sample rate in Hz. API version 3 and below only; see audio.")
+    @FieldDoc("Audio sample rate in Hz. Only sent to clients that predate the audio field. See audio.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val sampleRate: Int? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Number of bits per audio sample. API version 3 and below only; see audio.")
+    @FieldDoc("Number of bits per audio sample. Only sent to clients that predate the audio field. See audio.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val bitsPerSample: Int? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Audio bit rate in kilobits per second. API version 3 and below only; see audio.")
+    @FieldDoc("Audio bit rate in kilobits per second. Only sent to clients that predate the audio field. See audio.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val bitRate: Long? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Size of the audio file in bytes. API version 3 and below only; see audio.")
+    @FieldDoc("Size of the audio file in bytes. Only sent to clients that predate the audio field. See audio.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val fileSize: Long? = null,
     @FieldDoc("The song cover image unique identifier.")
@@ -249,7 +297,7 @@ data class Song(
     @FieldDoc("Offset in milliseconds of the first audible sound, or null if not yet analyzed.")
     override val audioStartMs: Long? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Internal server path to the Dolby Atmos variant. API version 3 only; use atmos and streamSongAtmos.")
+    @FieldDoc("Internal server path to the Dolby Atmos variant. Only sent to clients that predate the atmos field. Use atmos and streamSongAtmos.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val atmosPath: String? = null,
     @FieldDoc("Version markers split off the title, e.g. remix, live or featuring, in order of extraction. The title never contains them.")
@@ -267,7 +315,7 @@ data class UserSong(
     @FieldDoc("The title of the song.")
     override val title: String,
     @FieldDoc("Collection of performing artists.")
-    override val artists: List<Artist>,
+    override val artists: List<ArtistCredit>,
     @FieldDoc("The album this song belongs to.")
     override val album: Album?,
     @FieldDoc("Duration of the song in milliseconds.")
@@ -296,19 +344,19 @@ data class UserSong(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val atmos: AudioInfo? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Audio sample rate in Hz. API version 3 and below only; see audio.")
+    @FieldDoc("Audio sample rate in Hz. Only sent to clients that predate the audio field. See audio.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val sampleRate: Int? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Number of bits per audio sample. API version 3 and below only; see audio.")
+    @FieldDoc("Number of bits per audio sample. Only sent to clients that predate the audio field. See audio.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val bitsPerSample: Int? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Audio bit rate in kilobits per second. API version 3 and below only; see audio.")
+    @FieldDoc("Audio bit rate in kilobits per second. Only sent to clients that predate the audio field. See audio.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val bitRate: Long? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Size of the audio file in bytes. API version 3 and below only; see audio.")
+    @FieldDoc("Size of the audio file in bytes. Only sent to clients that predate the audio field. See audio.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val fileSize: Long? = null,
     @FieldDoc("The song cover image unique identifier.")
@@ -330,7 +378,7 @@ data class UserSong(
     @FieldDoc("Offset in milliseconds of the first audible sound, or null if not yet analyzed.")
     override val audioStartMs: Long? = null,
     @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Internal server path to the Dolby Atmos variant. API version 3 only; use atmos and streamSongAtmos.")
+    @FieldDoc("Internal server path to the Dolby Atmos variant. Only sent to clients that predate the atmos field. Use atmos and streamSongAtmos.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val atmosPath: String? = null,
     @FieldDoc("Version markers split off the title, e.g. remix, live or featuring, in order of extraction. The title never contains them.")
@@ -417,11 +465,11 @@ data class SongAudioTimeline(
     val envelopeHz: Int = 10,
     @FieldDoc("Loudness envelope in dBFS, one value per 1/envelopeHz seconds.")
     val envelopeDb: List<Float> = emptyList(),
-    @FieldDoc("Bass band (20-130 Hz) envelope in dBFS derived from the sub and kick bands, one value per 1/envelopeHz seconds; empty when not extracted yet.")
+    @FieldDoc("Bass band (20-130 Hz) envelope in dBFS derived from the sub and kick bands, one value per 1/envelopeHz seconds. Empty when not extracted yet.")
     val bassEnvelopeDb: List<Float> = emptyList(),
-    @FieldDoc("Sample rate of the band level tracks in samples per second; 0 when no bands are stored.")
+    @FieldDoc("Sample rate of the band level tracks in samples per second. 0 when no bands are stored.")
     val bandHz: Int = 0,
-    @FieldDoc("Per-band level tracks (sub, kick, low mid, mid, high) for visualisations and light sync; empty when not extracted yet.")
+    @FieldDoc("Per-band level tracks (sub, kick, low mid, mid, high) for visualisations and light sync. Empty when not extracted yet.")
     val bands: List<SongAudioBand> = emptyList(),
     @FieldDoc("Loudness range in LU.")
     val loudnessRange: Double? = null,
@@ -544,9 +592,9 @@ data class InsertableSong(
     val audioData: SongAudioData? = null,
     @FieldDoc("Internal server path to the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
     val atmosPath: String? = null,
-    @FieldDoc("Properties of the Dolby Atmos variant; probed by the server when null and atmosPath is set.")
+    @FieldDoc("Properties of the Dolby Atmos variant. Probed by the server when null and atmosPath is set.")
     val atmos: AudioInfo? = null,
-    @FieldDoc("Version markers; when empty the server splits them off the title.")
+    @FieldDoc("Version markers. When empty the server splits them off the title.")
     val tags: List<TitleTag> = emptyList(),
 ) {
     override fun equals(other: Any?): Boolean {

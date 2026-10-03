@@ -4,6 +4,7 @@ package dev.dertyp.data
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
+import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlin.native.ObjCName
 import kotlinx.serialization.Serializable
@@ -37,9 +38,9 @@ data class RadioChannel(
     val blurHash: String? = null,
     @FieldDoc("Whether the channel is published and visible to non-admin users.")
     val enabled: Boolean = false,
-    @FieldDoc("Display ordering; lower values appear first.")
+    @FieldDoc("Display ordering. Lower values appear first.")
     val position: Int = 0,
-    @FieldDoc("When true the channel expands its configured content into recommended similar songs; when false it plays only the configured content.")
+    @FieldDoc("When true the channel expands its configured content into recommended similar songs. When false it plays only the configured content.")
     val discovery: Boolean = false,
     @FieldDoc("Number of songs explicitly configured on the channel.")
     val songCount: Int = 0,
@@ -54,8 +55,9 @@ data class RadioChannel(
 data class RadioChannelSongMatch(
     @FieldDoc("The matched song.")
     val song: UserSong,
-    @FieldDoc("True when the song is added directly to the channel; false when it is reached via an album or artist that is configured on the channel.")
-    val explicitMember: Boolean,
+    @FieldDoc("True when the song is added directly to the channel. False when it is reached via an album or artist that is configured on the channel.")
+    @LegacyWireName("explicitMember")
+    val directMember: Boolean,
 )
 
 @Serializable
@@ -78,7 +80,7 @@ data class InsertableRadioChannel(
     @property:ObjCName("channelDescription") val description: String? = null,
     @FieldDoc("Whether the channel is published and visible to non-admin users.")
     val enabled: Boolean = false,
-    @FieldDoc("Display ordering; lower values appear first.")
+    @FieldDoc("Display ordering. Lower values appear first.")
     val position: Int = 0,
     @FieldDoc("When true the channel expands its configured content into recommended similar songs.")
     val discovery: Boolean = false,

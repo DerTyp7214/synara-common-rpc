@@ -75,7 +75,7 @@ data class UserPlaylist(
     @Serializable(with = DateSerializer::class)
     @FieldDoc("Timestamp of the last modification to the playlist.")
     val modifiedAt: PlatformDate? = null,
-    @FieldDoc("Where the cover image came from; null when there is no cover.")
+    @FieldDoc("Where the cover image came from. Null when there is no cover.")
     val imageSource: ImageSource? = null,
 ) : BasePlaylist()
 

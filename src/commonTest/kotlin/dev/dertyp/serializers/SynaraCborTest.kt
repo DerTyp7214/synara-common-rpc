@@ -3,7 +3,7 @@
 package dev.dertyp.serializers
 
 import dev.dertyp.data.Album
-import dev.dertyp.data.Artist
+import dev.dertyp.data.ArtistCredit
 import dev.dertyp.data.Genre
 import dev.dertyp.data.Song
 import dev.dertyp.platformUUIDFromString
@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 class SynaraCborTest {
     private val synaraCbor = SynaraCbor(AppCbor)
 
-    private fun createSong(id: String, album: Album?, artists: List<Artist>): Song {
+    private fun createSong(id: String, album: Album?, artists: List<ArtistCredit>): Song {
         return Song(
             id = platformUUIDFromString(id),
             title = "Song Title",
@@ -32,7 +32,7 @@ class SynaraCborTest {
 
     @Test
     fun testDeduplication() = withSynaraPack {
-        val artist = Artist(
+        val artist = ArtistCredit(
             id = platformUUIDFromString("11111111-1111-1111-1111-111111111111"),
             name = "Artist Name",
             isGroup = false
@@ -71,7 +71,7 @@ class SynaraCborTest {
 
     @Test
     fun testNegotiationSwitch() {
-        val artist = Artist(
+        val artist = ArtistCredit(
             id = platformUUIDFromString("11111111-1111-1111-1111-111111111111"),
             name = "Artist Name",
             isGroup = false

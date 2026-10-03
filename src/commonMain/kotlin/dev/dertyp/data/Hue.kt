@@ -78,13 +78,13 @@ enum class HueTargetType {
     @FieldDoc("A single light.")
     LIGHT,
 
-    @FieldDoc("A room; controlled through its grouped light.")
+    @FieldDoc("A room. Controlled through its grouped light.")
     ROOM,
 
-    @FieldDoc("A zone; controlled through its grouped light.")
+    @FieldDoc("A zone. Controlled through its grouped light.")
     ZONE,
 
-    @FieldDoc("An entertainment area; streamed over the Entertainment API at up to 25 frames per second, at most one per bridge link.")
+    @FieldDoc("An entertainment area. Streamed over the Entertainment API at up to 25 frames per second, at most one per bridge link.")
     ENTERTAINMENT
 }
 
@@ -160,7 +160,7 @@ data class HueScene(
     val id: String,
     @FieldDoc("Display name.")
     val name: String,
-    @FieldDoc("Kind of group the scene belongs to; ROOM or ZONE.")
+    @FieldDoc("Kind of group the scene belongs to. ROOM or ZONE.")
     val groupType: HueTargetType,
     @FieldDoc("Bridge resource id of the room or zone.")
     val groupId: String,
@@ -175,7 +175,7 @@ data class HueUserLink(
     val bridgeId: PlatformUUID,
     @FieldDoc("Whether the link is active.")
     val enabled: Boolean = false,
-    @FieldDoc("Lights, rooms and zones that follow playback; at most one entertainment area.")
+    @FieldDoc("Lights, rooms and zones that follow playback. At most one entertainment area.")
     val targets: List<HueTarget> = emptyList(),
     @FieldDoc("Reaction strength.")
     val intensity: HueIntensity = HueIntensity.MEDIUM,
@@ -189,9 +189,9 @@ data class HueUserLink(
     val updatedAt: Long = 0L,
     @FieldDoc("Ambient movement while a song plays.")
     val motion: HueMotionMode = HueMotionMode.OFF,
-    @FieldDoc("Milliseconds by which light changes are sent early to compensate bridge and lamp latency; 0..1000.")
+    @FieldDoc("Milliseconds by which light changes are sent early to compensate bridge and lamp latency. Between 0 and 1000.")
     val latencyMs: Int = 150,
-    @FieldDoc("Scenes recalled when playback stops in SCENE mode; at most one per room or zone.")
+    @FieldDoc("Scenes recalled when playback stops in SCENE mode. At most one per room or zone.")
     val stopScenes: List<HueScene> = emptyList(),
 )
 

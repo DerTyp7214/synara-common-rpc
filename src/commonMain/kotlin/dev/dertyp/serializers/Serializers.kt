@@ -4,6 +4,7 @@ package dev.dertyp.serializers
 
 import dev.dertyp.data.Album
 import dev.dertyp.data.Artist
+import dev.dertyp.data.ArtistCredit
 import dev.dertyp.data.Genre
 import dev.dertyp.data.Image
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -20,6 +21,7 @@ val BaseSerializersModule = SerializersModule {
     contextual(DurationSerializer)
     contextual(InstantSerializer)
     contextual(Artist.serializer())
+    contextual(ArtistCredit.serializer())
     contextual(Album.serializer())
     contextual(Genre.serializer())
     contextual(Image.serializer())

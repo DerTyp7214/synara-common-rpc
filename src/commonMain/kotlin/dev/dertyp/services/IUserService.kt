@@ -7,6 +7,8 @@ import dev.dertyp.data.AuthenticationRequest
 import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.data.User
 import dev.dertyp.data.UserCapability
+import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
+import dev.dertyp.rpc.annotations.RestExclude
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -18,14 +20,26 @@ import kotlinx.serialization.UseContextualSerialization
 @RpcDoc("Manages user profiles and identities.")
 interface IUserService {
     @RpcDoc("Look up a user by their unique ID.")
-    suspend fun findUserById(
+    suspend fun byId(
         @RpcParamDoc("The unique UUID of the user.") id: PlatformUUID
     ): User?
 
     @RpcDoc("Look up a user by their username.")
-    suspend fun findUserByUsername(
+    suspend fun byUsername(
         @RpcParamDoc("The username of the user.") username: String
     ): User?
+
+    @Deprecated(REMOVED_IN_API_9 + " Use byId.", ReplaceWith("byId(id)"))
+    @RpcDoc("Look up a user by their unique ID.")
+    suspend fun findUserById(
+        @RpcParamDoc("The unique UUID of the user.") id: PlatformUUID
+    ): User? = byId(id)
+
+    @Deprecated(REMOVED_IN_API_9 + " Use byUsername.", ReplaceWith("byUsername(username)"))
+    @RpcDoc("Look up a user by their username.")
+    suspend fun findUserByUsername(
+        @RpcParamDoc("The username of the user.") username: String
+    ): User? = byUsername(username)
 
     @RestGet
     @RpcDoc("Get the profile of the current authenticated user.")
@@ -33,7 +47,13 @@ interface IUserService {
 
     @RequiresAdmin
     @RpcDoc("List all users on the server.", errors = ["IllegalStateException"])
-    suspend fun getAllUsers(): List<User>
+    suspend fun allUsers(): List<User>
+
+    @Deprecated(REMOVED_IN_API_9 + " Use allUsers.", ReplaceWith("allUsers()"))
+    @RequiresAdmin
+    @RestExclude
+    @RpcDoc("List all users on the server.", errors = ["IllegalStateException"])
+    suspend fun getAllUsers(): List<User> = allUsers()
 
     @RpcDoc("Update the current user's avatar.")
     suspend fun setProfileImage(

@@ -26,6 +26,12 @@ interface IReleaseService {
     @RpcDoc("Unfollow an artist and stop tracking their releases.")
     suspend fun unfollowArtist(@RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID): Boolean
 
+    @RestDelete
+    @RpcDoc("Unfollow an artist by their MusicBrainz ID and stop tracking their releases.")
+    suspend fun unfollowArtistByMusicBrainzId(
+        @RpcParamDoc("The MusicBrainz Artist UUID.") musicBrainzId: PlatformUUID
+    ): Boolean
+
     @RpcDoc("Get a list of all artists the current user is following.")
     suspend fun getFollowedArtists(): List<FollowedArtist>
 
@@ -40,7 +46,7 @@ interface IReleaseService {
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 150,
-        @RpcParamDoc("Include entries that have been hidden from the feed; they carry hidden = true.") includeHidden: Boolean = false
+        @RpcParamDoc("Include entries that have been hidden from the feed. They carry hidden = true.") includeHidden: Boolean = false
     ): PaginatedResponse<RecentRelease>
 
     @RpcDoc("Retrieve recent music releases for an artist by their MusicBrainz ID.")

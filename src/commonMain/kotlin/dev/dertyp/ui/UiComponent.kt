@@ -30,7 +30,7 @@ data class UiTableRow(
 )
 
 @Serializable
-@ModelDoc("A node of a server-driven UI tree. Clients render each node with their native design system; unknown nodes are replaced by the server with Fallback according to the client's X-Ui-Schema-Version.")
+@ModelDoc("A node of a server-driven UI tree. Clients render each node with their native design system. Unknown nodes are replaced by the server with Fallback according to the client's X-Ui-Schema-Version.")
 sealed class UiComponent {
     @Serializable
     @SerialName("column")
@@ -66,7 +66,7 @@ sealed class UiComponent {
     data class Grid(
         @FieldDoc("Children, row-major.")
         val children: List<UiComponent>,
-        @FieldDoc("Preferred number of columns; clients may reduce it on narrow screens.")
+        @FieldDoc("Preferred number of columns. Clients may reduce it on narrow screens.")
         val columns: Int = 2,
         @FieldDoc("Spacing between cells.")
         val spacing: UiSpacing = UiSpacing.MEDIUM,
@@ -106,13 +106,13 @@ sealed class UiComponent {
 
     @Serializable
     @SerialName("form")
-    @ModelDoc("Groups form fields; their values are submitted together with the submit action.")
+    @ModelDoc("Groups form fields. Their values are submitted together with the submit action.")
     data class Form(
         @FieldDoc("Form id referenced by UiAction.Invoke.formId.")
         val id: String,
         @FieldDoc("Content including form fields.")
         val children: List<UiComponent>,
-        @FieldDoc("Action dispatched on submit; its formId should equal this form's id.")
+        @FieldDoc("Action dispatched on submit. Its formId should equal this form's id.")
         val submit: UiAction.Invoke,
         @FieldDoc("Label of the submit button.")
         val submitLabel: String,
@@ -271,7 +271,7 @@ sealed class UiComponent {
     @SerialName("fallback")
     @ModelDoc("Placeholder the server substitutes for components the client's schema version does not support.")
     data class Fallback(
-        @FieldDoc("Optional text to show; clients show a generic message when null.")
+        @FieldDoc("Optional text to show. Clients show a generic message when null.")
         val text: String? = null,
     ) : UiComponent()
 
@@ -295,7 +295,7 @@ sealed class UiComponent {
     data class Log(
         @FieldDoc("Current lines, oldest first.")
         val lines: List<String>,
-        @FieldDoc("Maximum number of lines to keep; older lines are dropped when appending.")
+        @FieldDoc("Maximum number of lines to keep. Older lines are dropped when appending.")
         val maxLines: Int = 500,
     ) : UiComponent()
 
@@ -333,7 +333,7 @@ sealed class UiComponent {
         val value: String? = null,
         @FieldDoc("Placeholder.")
         val placeholder: String? = null,
-        @FieldDoc("Whether input is masked; an empty submitted value means unchanged.")
+        @FieldDoc("Whether input is masked. An empty submitted value means unchanged.")
         val secret: Boolean = false,
         @FieldDoc("Whether the field is multi-line.")
         val multiline: Boolean = false,
@@ -395,7 +395,7 @@ sealed class UiComponent {
         val min: Double? = null,
         @FieldDoc("Maximum value.")
         val max: Double? = null,
-        @FieldDoc("Step; 1.0 for integers.")
+        @FieldDoc("Step. 1.0 for integers.")
         val step: Double? = null,
         @FieldDoc("Helper text.")
         val helper: String? = null,

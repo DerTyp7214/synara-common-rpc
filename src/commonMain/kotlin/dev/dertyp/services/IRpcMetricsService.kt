@@ -15,7 +15,7 @@ interface IRpcMetricsService {
     @RpcDoc("Lifetime invocation totals per call, ordered by count descending. These counters are never pruned.")
     suspend fun lifetimeTotals(
         @RpcParamDoc("Maximum number of rows to return.") limit: Int = 100,
-        @RpcParamDoc("Optional username filter; null returns totals across all users.") username: String? = null,
+        @RpcParamDoc("Optional username filter. Null returns totals across all users.") username: String? = null,
     ): List<RpcCallTotal>
 
     @RequiresAdmin

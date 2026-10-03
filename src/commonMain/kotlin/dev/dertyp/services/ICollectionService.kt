@@ -29,35 +29,35 @@ interface ICollectionService {
         @RpcParamDoc("The initial collection data.") collection: InsertableCollection
     ): PlatformUUID
 
-    @RpcDoc("Update a collection's metadata (name, description, image).")
+    @RpcDoc("Update a collection's metadata (name, description, image).", errors = ["UnauthorizedException"])
     suspend fun updateCollection(
         @RpcParamDoc("The collection unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The new metadata.") collection: InsertableCollection
     ): Boolean
 
     @RestPath("item")
-    @RpcDoc("Add an item (song, album, artist or playlist) to a collection.")
+    @RpcDoc("Add an item (song, album, artist or playlist) to a collection.", errors = ["UnauthorizedException"])
     suspend fun addItem(
         @RpcParamDoc("The collection unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The kind of referenced entity.") itemType: CollectionItemType,
         @RpcParamDoc("The referenced entity unique identifier.") itemId: PlatformUUID
     ): Boolean
 
-    @RpcDoc("Remove an item from a collection.")
+    @RpcDoc("Remove an item from a collection.", errors = ["UnauthorizedException"])
     suspend fun removeItem(
         @RpcParamDoc("The collection unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The kind of referenced entity.") itemType: CollectionItemType,
         @RpcParamDoc("The referenced entity unique identifier.") itemId: PlatformUUID
     ): Boolean
 
-    @RpcDoc("Set the cover image of a collection.")
+    @RpcDoc("Set the cover image of a collection.", errors = ["UnauthorizedException"])
     suspend fun setCollectionImage(
         @RpcParamDoc("The collection unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The image unique identifier.") imageId: PlatformUUID?
     ): Boolean
 
     @RestPath("collection")
-    @RpcDoc("Delete a collection.")
+    @RpcDoc("Delete a collection.", errors = ["UnauthorizedException"])
     suspend fun delete(@RpcParamDoc("The collection unique identifier.") id: PlatformUUID): Boolean
 
     @RpcDoc("Ranked search within a single collection across songs, artists, albums and playlists.")

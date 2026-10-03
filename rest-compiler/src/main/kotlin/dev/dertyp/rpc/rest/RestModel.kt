@@ -61,7 +61,8 @@ class ProbeFunction(
     val name: String,
     val isSuspend: Boolean,
     val parameters: List<Pair<String, TypeName>>,
-    val returnType: TypeName
+    val returnType: TypeName,
+    val deprecationMessage: String?
 )
 
 class RestService(

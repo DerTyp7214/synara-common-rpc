@@ -45,7 +45,7 @@ data class UiContributionInfo(
     val description: String? = null,
     @FieldDoc("Icon.")
     val icon: UiIcon? = null,
-    @FieldDoc("Sort order within a slot; lower first.")
+    @FieldDoc("Sort order within a slot. Lower first.")
     val order: Int = 0,
     @FieldDoc("Whether subscribe() emits updates after the initial render.")
     val live: Boolean = false,

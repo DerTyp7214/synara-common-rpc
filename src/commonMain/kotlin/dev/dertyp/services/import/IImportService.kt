@@ -58,7 +58,7 @@ interface IImportService {
 
     @RestPost
     @RequiresCapability(UserCapability.IMPORT)
-    @RpcDoc("Queue content for import. Each entry may be a URL, an ISRC (track), or a UPC (album barcode); codes are resolved to a supported importer (preferring the default).")
+    @RpcDoc("Queue content for import. Each entry may be a URL, an ISRC (track), or a UPC (album barcode). Codes are resolved to a supported importer (preferring the default).")
     suspend fun importUrls(
         @RpcParamDoc("Collection of URLs, ISRCs, or UPCs.") urls: List<String>
     )
@@ -86,7 +86,13 @@ interface IImportService {
 
     @RestGet
     @RpcDoc("Get all available importer backends.")
-    suspend fun getAllImportServices(): List<ImportBackend>
+    suspend fun allImportServices(): List<ImportBackend>
+
+    @Deprecated(REMOVED_IN_API_9 + " Use allImportServices.", ReplaceWith("allImportServices()"))
+    @RestGet
+    @RestExclude
+    @RpcDoc("Get all available importer backends.")
+    suspend fun getAllImportServices(): List<ImportBackend> = allImportServices()
 
     @RestGet
     @RpcDoc("Get the capabilities supported by each importer backend, keyed by backend id.")
@@ -107,6 +113,7 @@ interface IImportService {
     suspend fun importAuthorized(): Boolean
 
     @RestPost
+    @RequiresCapability(UserCapability.IMPORT)
     @RpcDoc("Trigger the OAuth login flow and stream the login URL.")
     fun importLogin(): Flow<String>
 

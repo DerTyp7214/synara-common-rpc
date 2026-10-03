@@ -19,8 +19,8 @@ import kotlinx.rpc.annotations.Rpc
 
 @Rpc
 @RpcDoc(
-    "Manages the server-stored play queue shared between the devices of a user. Every write carries the version the client based its change on; " +
-            "if the server has moved on since then the write is rejected with a conflict carrying the current state, unless the client forces it."
+    "Manages the server-stored play queue shared between the devices of a user. Every write carries the version the client based its change on. " +
+            "If the server has moved on since then the write is rejected with a conflict carrying the current state, unless the client forces it."
 )
 interface IQueueService {
     @RestGet
@@ -35,7 +35,7 @@ interface IQueueService {
     suspend fun getQueue(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 200,
-        @RpcParamDoc("Resolve each entry's song; leave false for large queues and fetch songs separately.") includeSongs: Boolean = false
+        @RpcParamDoc("Resolve each entry's song. Leave false for large queues and fetch songs separately.") includeSongs: Boolean = false
     ): PaginatedResponse<QueueItem>
 
     @RestGet
@@ -108,7 +108,7 @@ interface IQueueService {
 
     @RpcDoc(
         "Set shuffle and repeat mode. Enabling shuffle makes the server generate a shuffled order that starts with the entry that is currently playing, " +
-                "so the current index becomes 0; disabling it drops the shuffled order and puts the current index back on the original position of that entry. " +
+                "so the current index becomes 0. Disabling it drops the shuffled order and puts the current index back on the original position of that entry. " +
                 "A player that shuffled on its own uploads its order instead."
     )
     suspend fun setModes(
@@ -134,8 +134,8 @@ interface IQueueService {
     suspend fun getSyncDevices(): List<QueueSyncDevice>
 
     @RpcDoc(
-        "Ask another device of the same user to upload its current queue and wait for the outcome. The request is delivered over the client request channel; " +
-                "sessions that are not listening are reported as unreachable and sessions that stay silent as timed out."
+        "Ask another device of the same user to upload its current queue and wait for the outcome. The request is delivered over the client request channel. " +
+                "Sessions that are not listening are reported as unreachable and sessions that stay silent as timed out."
     )
     suspend fun requestUploadFrom(
         @RpcParamDoc("The session unique identifier of the device to ask.") sessionId: PlatformUUID

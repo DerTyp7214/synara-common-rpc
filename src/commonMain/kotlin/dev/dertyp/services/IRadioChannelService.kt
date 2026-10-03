@@ -25,13 +25,13 @@ interface IRadioChannelService {
     @RpcDoc("Ranked search across the songs, artists and albums configured on a channel. An empty query lists all configured content.")
     suspend fun rankedSearch(
         @RpcParamDoc("The channel unique identifier.") channelId: PlatformUUID,
-        @RpcParamDoc("The search query; empty to list all configured content.") query: String = "",
+        @RpcParamDoc("The search query. Empty to list all configured content.") query: String = "",
         @RpcParamDoc("Whether to include explicit-content songs.") explicit: Boolean = false,
         @RpcParamDoc("The page index (starting from 0).") page: Int = 0,
         @RpcParamDoc("Items per page, applied per result type.") pageSize: Int = 50,
     ): RadioChannelSearchResults
 
-    @RpcDoc("Start playing a channel. Returns a radio session id to feed into IRadioService.radioFlow.")
+    @RpcDoc("Start playing a channel. Returns a radio session id to feed into IRadioService.observeRadio.")
     suspend fun startChannel(
         @RpcParamDoc("The channel unique identifier.") id: PlatformUUID
     ): PlatformUUID

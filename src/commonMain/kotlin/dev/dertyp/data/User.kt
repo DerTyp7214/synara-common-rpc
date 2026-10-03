@@ -5,6 +5,7 @@ package dev.dertyp.data
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
+import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
@@ -17,8 +18,9 @@ data class User(
     val username: String,
     @FieldDoc("Optional display name shown to other users.")
     val displayName: String? = null,
-    @FieldDoc("Hashed password for authentication.")
-    val passwordHash: String,
+    @FieldDoc("Always empty. Password hashes are never sent to clients.")
+    @Deprecated(REMOVED_IN_API_9)
+    val passwordHash: String = "",
     @FieldDoc("Whether the user has administrative privileges.")
     val isAdmin: Boolean = false,
     @FieldDoc("List of specific capabilities granted to the user.")
@@ -30,6 +32,15 @@ data class User(
 ) {
     fun hasCapability(capability: UserCapability): Boolean = isAdmin || capabilities.contains(capability)
 }
+
+@Serializable
+@ModelDoc("The stored password hash of a user, used only for server-to-server mirroring.")
+data class UserPasswordHash(
+    @FieldDoc("The user unique identifier.")
+    val id: PlatformUUID,
+    @FieldDoc("The bcrypt hash of the user password.")
+    val passwordHash: String,
+)
 
 @Serializable
 @ModelDoc("Publicly safe profile information about a user.")

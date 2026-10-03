@@ -24,7 +24,7 @@ import kotlinx.serialization.UseContextualSerialization
 @RpcDoc("Philips Hue bridges paired by the current user and their light links, driven by now-playing changes.")
 interface IHueService {
     @RestGet
-    @RpcDoc("Discover Hue bridges on the local network via mDNS and the Hue cloud discovery endpoint; paired is relative to the current user.")
+    @RpcDoc("Discover Hue bridges on the local network via mDNS and the Hue cloud discovery endpoint. Paired is relative to the current user.")
     suspend fun discoverBridges(): List<HueBridgeCandidate>
 
     @RestGet
@@ -32,7 +32,7 @@ interface IHueService {
     suspend fun listBridges(): List<HueBridgeInfo>
 
     @RestPost
-    @RpcDoc("Pair with a bridge. Press the link button on the bridge while this flow polls for up to 30 seconds. The bridge is stored for the current user; other users pair it separately.")
+    @RpcDoc("Pair with a bridge. Press the link button on the bridge while this flow polls for up to 30 seconds. The bridge is stored for the current user. Other users pair it separately.")
     fun startPairing(@RpcParamDoc("IP address of the bridge.") ip: String): Flow<HuePairingStatus>
 
     @RestDelete
@@ -56,7 +56,7 @@ interface IHueService {
 
     @RestPut
     @RpcDoc("Create or update the current user's link to a bridge.", errors = ["IllegalArgumentException"])
-    suspend fun setLink(@RpcParamDoc("Link settings; bridgeId selects the bridge.") link: HueUserLink): HueUserLink
+    suspend fun setLink(@RpcParamDoc("Link settings. bridgeId selects the bridge.") link: HueUserLink): HueUserLink
 
     @RestDelete
     @RpcDoc("Remove the current user's link to a bridge.")

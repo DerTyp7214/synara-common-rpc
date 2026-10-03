@@ -3,6 +3,7 @@ package dev.dertyp.services
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.RadioSeed
 import dev.dertyp.data.RadioType
+import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -15,12 +16,19 @@ interface IRadioService {
     @RpcDoc("Create a radio session and return its identifier. The same identifier can be reused to resume the station where it left off.")
     suspend fun createRadioSession(
         @RpcParamDoc("The strategy used to seed the station. Ignored when a seed is provided.") type: RadioType = RadioType.RANDOM,
-        @RpcParamDoc("Optional seed material; when set, the station plays songs similar to the seed.") seed: RadioSeed? = null,
+        @RpcParamDoc("Optional seed material. When set, the station plays songs similar to the seed.") seed: RadioSeed? = null,
     ): PlatformUUID
 
     @RestGet
     @RpcDoc("Infinite stream of song identifiers for a radio session. Re-collecting the same session continues without repeating songs.")
-    fun radioFlow(
+    fun observeRadio(
         @RpcParamDoc("The radio session identifier, as returned by createRadioSession.") sessionId: PlatformUUID
     ): Flow<PlatformUUID>
+
+    @Deprecated(REMOVED_IN_API_9 + " Use observeRadio.", ReplaceWith("observeRadio(sessionId)"))
+    @RestGet
+    @RpcDoc("Infinite stream of song identifiers for a radio session. Re-collecting the same session continues without repeating songs.")
+    fun radioFlow(
+        @RpcParamDoc("The radio session identifier, as returned by createRadioSession.") sessionId: PlatformUUID
+    ): Flow<PlatformUUID> = observeRadio(sessionId)
 }
