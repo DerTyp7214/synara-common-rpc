@@ -12,9 +12,12 @@ import kotlinx.serialization.UseContextualSerialization
 @Serializable
 @ModelDoc("Modes for track repetition in the playback queue.")
 enum class RepeatMode {
-    @FieldDoc("Repeat disabled.") OFF,
-    @FieldDoc("Repeat the entire queue.") ALL,
-    @FieldDoc("Repeat the current track.") ONE
+    @FieldDoc("Repeat disabled.")
+    OFF,
+    @FieldDoc("Repeat the entire queue.")
+    ALL,
+    @FieldDoc("Repeat the current track.")
+    ONE
 }
 
 @Serializable

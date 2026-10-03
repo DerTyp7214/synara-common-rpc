@@ -13,10 +13,12 @@ interface IAuthService {
         @RpcParamDoc("The username of the user.") username: String,
         @RpcParamDoc("The password of the user.") password: String
     ): AuthenticationResponse
+
     @RpcDoc("Refreshes an expired access token.", errors = ["IllegalArgumentException", "IllegalStateException"])
     suspend fun refreshToken(
         @RpcParamDoc("The refresh token.") refreshToken: String
     ): AuthenticationResponse
+
     @RpcDoc(
         "Creates a new session for another device (e.g. Apple TV) on behalf of the authenticated user.",
         errors = ["IllegalStateException"]

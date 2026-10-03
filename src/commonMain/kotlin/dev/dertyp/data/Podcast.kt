@@ -11,57 +11,71 @@ import kotlinx.serialization.UseContextualSerialization
 @Serializable
 @ModelDoc("Where the episodes of a podcast show come from.")
 enum class PodcastSource {
-    @FieldDoc("The show is an RSS feed the server fetches and keeps up to date.") FEED,
+    @FieldDoc("The show is an RSS feed the server fetches and keeps up to date.")
+    FEED,
 
-    @FieldDoc("The show is a folder of audio files in the local podcast library of the server.") LOCAL
+    @FieldDoc("The show is a folder of audio files in the local podcast library of the server.")
+    LOCAL
 }
 
 @Serializable
 @ModelDoc("Decides whether the server only relays the audio of a feed show or stores its episodes on disk.")
 enum class PodcastDeliveryMode {
-    @FieldDoc("Episodes stay at their origin and the server relays their audio while a client plays them.") STREAM,
+    @FieldDoc("Episodes stay at their origin and the server relays their audio while a client plays them.")
+    STREAM,
 
-    @FieldDoc("New episodes are imported to the storage of the server so clients play them from the server itself.") IMPORT
+    @FieldDoc("New episodes are imported to the storage of the server so clients play them from the server itself.")
+    IMPORT
 }
 
 @Serializable
 @ModelDoc("Decides which episodes of an imported show the server keeps on disk.")
 enum class PodcastRetention {
-    @FieldDoc("The server keeps the newest episodes of the show and deletes everything older than that.") NEWEST,
+    @FieldDoc("The server keeps the newest episodes of the show and deletes everything older than that.")
+    NEWEST,
 
     @FieldDoc(
         "The server keeps the episodes nobody has finished yet and deletes an episode once every subscriber of the show listened to it to the end."
-    ) UNLISTENED
+    )
+    UNLISTENED
 }
 
 @Serializable
 @ModelDoc("The role an episode plays within its show.")
 enum class PodcastEpisodeType {
-    @FieldDoc("A regular episode of the show.") FULL,
+    @FieldDoc("A regular episode of the show.")
+    FULL,
 
-    @FieldDoc("A short preview of the show or of a season.") TRAILER,
+    @FieldDoc("A short preview of the show or of a season.")
+    TRAILER,
 
-    @FieldDoc("Extra material that is not part of the regular run of the show.") BONUS
+    @FieldDoc("Extra material that is not part of the regular run of the show.")
+    BONUS
 }
 
 @Serializable
 @ModelDoc("How far the server has got with storing the audio of an episode on disk.")
 enum class PodcastImportState {
-    @FieldDoc("The audio of the episode is not stored on the server.") NONE,
+    @FieldDoc("The audio of the episode is not stored on the server.")
+    NONE,
 
-    @FieldDoc("The episode is waiting to be imported.") QUEUED,
+    @FieldDoc("The episode is waiting to be imported.")
+    QUEUED,
 
-    @FieldDoc("The audio of the episode is being transferred to the server right now.") IMPORTING,
+    @FieldDoc("The audio of the episode is being transferred to the server right now.")
+    IMPORTING,
 
-    @FieldDoc("The audio of the episode is stored on the server.") IMPORTED,
+    @FieldDoc("The audio of the episode is stored on the server.")
+    IMPORTED,
 
-    @FieldDoc("The last import attempt failed; the server retries a few times before giving up.") FAILED
+    @FieldDoc("The last import attempt failed; the server retries a few times before giving up.")
+    FAILED
 }
 
 @Serializable
 @ModelDoc(
     "A podcast show, either an RSS feed the server follows or a folder of the local podcast library. A feed show is stored once and shared by " +
-        "everyone who subscribes to it, while subscriptions themselves are private to each user."
+            "everyone who subscribes to it, while subscriptions themselves are private to each user."
 )
 data class PodcastShow(
     @FieldDoc("The unique identifier of the show.")
@@ -111,7 +125,7 @@ data class PodcastShow(
 @Serializable
 @ModelDoc(
     "A single episode of a podcast show. An episode is never a song: it is not scrobbled, does not appear in the music library and carries its " +
-        "own listening position per user."
+            "own listening position per user."
 )
 data class PodcastEpisode(
     @FieldDoc("The unique identifier of the episode.")
@@ -134,7 +148,7 @@ data class PodcastEpisode(
     val durationMs: Long? = null,
     @FieldDoc(
         "The address of the audio at its origin, purely informational. Clients never fetch it themselves and always play an episode through " +
-            "streamEpisode, which serves the stored file or relays the origin as needed."
+                "streamEpisode, which serves the stored file or relays the origin as needed."
     )
     val enclosureUrl: String? = null,
     @FieldDoc("The media type of the audio as announced by the source, for example audio/mpeg.")
@@ -242,7 +256,7 @@ data class PodcastShowSettings(
     val deliveryMode: PodcastDeliveryMode,
     @FieldDoc(
         "How many episodes to keep on disk while the show is imported, at least 1, or null for no limit. With unlistened retention this caps how " +
-            "many episodes of the show are stored or queued at once."
+                "many episodes of the show are stored or queued at once."
     )
     val keepEpisodes: Int? = null,
     @FieldDoc("Which episodes of the show the server keeps on disk while the show is imported. Only import delivery accepts unlistened retention.")
@@ -267,7 +281,7 @@ data class PodcastScanResult(
 @Serializable
 @ModelDoc(
     "A show found in an external podcast directory. The server does not know the show yet; subscribing to it is done with subscribe and the " +
-        "feed address of the result, which fetches the feed and stores the show."
+            "feed address of the result, which fetches the feed and stores the show."
 )
 data class PodcastIndexResult(
     @FieldDoc("The identifier of the directory the result came from, see getIndexes.")

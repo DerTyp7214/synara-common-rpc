@@ -40,13 +40,15 @@ actual fun ByteArray.toPlatformUUID(): PlatformUUID {
 }
 
 actual fun PlatformOffsetDateTime.formatISO(): String = format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-actual fun String.toPlatformOffsetDateTimeISO(): PlatformOffsetDateTime = OffsetDateTime.parse(this, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+actual fun String.toPlatformOffsetDateTimeISO(): PlatformOffsetDateTime =
+    OffsetDateTime.parse(this, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 
 actual fun PlatformLocalDate.formatISO(): String = format(DateTimeFormatter.ISO_LOCAL_DATE)
 actual fun String.toPlatformLocalDateISO(): PlatformLocalDate = LocalDate.parse(this, DateTimeFormatter.ISO_LOCAL_DATE)
 
 actual fun PlatformLocalDateTime.formatISO(): String = format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-actual fun String.toPlatformLocalDateTimeISO(): PlatformLocalDateTime = LocalDateTime.parse(this, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+actual fun String.toPlatformLocalDateTimeISO(): PlatformLocalDateTime =
+    LocalDateTime.parse(this, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 
 actual fun PlatformDate.toEpochMilliseconds(): Long = this.time
 actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate = Date(ms)

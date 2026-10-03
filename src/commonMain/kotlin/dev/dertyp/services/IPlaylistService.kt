@@ -15,23 +15,29 @@ import kotlinx.serialization.UseContextualSerialization
 interface IPlaylistService {
     @RpcDoc("Get system playlist by ID.")
     suspend fun byId(@RpcParamDoc("The playlist unique identifier.") id: PlatformUUID): Playlist?
+
     @RpcDoc("Get multiple system playlists by their IDs.")
     suspend fun byIds(@RpcParamDoc("Collection of playlist IDs.") ids: List<PlatformUUID>): List<Playlist>
+
     @RpcDoc("Get system playlist with all track entries.")
     suspend fun byIdFull(@RpcParamDoc("The playlist unique identifier.") id: PlatformUUID): Pair<String, List<PlaylistEntry>>?
+
     @RpcDoc("Get system playlist by name.")
     suspend fun byName(@RpcParamDoc("The name of the playlist.") name: String): Playlist?
+
     @RpcDoc("Search system playlists.")
     suspend fun rankedSearch(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The search query.") query: String
     ): PaginatedResponse<Playlist>
+
     @RpcDoc("Get all system playlists.")
     suspend fun allPlaylists(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50
     ): PaginatedResponse<Playlist>
+
     @RequiresCapability(UserCapability.DELETE)
     @RestPath("playlist")
     @RpcDoc("Delete a system playlist.")

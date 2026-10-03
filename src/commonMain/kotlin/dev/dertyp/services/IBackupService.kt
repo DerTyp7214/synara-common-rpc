@@ -37,13 +37,19 @@ interface IBackupService {
     @RequiresAdmin
     @RpcDoc("List all available system backup files.", errors = ["SecurityException"])
     suspend fun listBackups(): List<BackupInfo>
+
     @RequiresAdmin
     @RestPath("restoreBackup")
-    @RpcDoc("Restore the entire server state from a backup file.", errors = ["SecurityException", "IllegalArgumentException"])
+    @RpcDoc(
+        "Restore the entire server state from a backup file.",
+        errors = ["SecurityException", "IllegalArgumentException"]
+    )
     suspend fun loadBackup(@RpcParamDoc("The name of the backup file.") fileName: String)
+
     @RequiresAdmin
     @RpcDoc("Delete a system backup file from the server.", errors = ["SecurityException"])
     suspend fun deleteBackup(@RpcParamDoc("The name of the backup file.") fileName: String)
+
     @RequiresAdmin
     @RpcDoc("Trigger the creation of a full system backup.", errors = ["SecurityException"])
     suspend fun createBackup(): BackupResult

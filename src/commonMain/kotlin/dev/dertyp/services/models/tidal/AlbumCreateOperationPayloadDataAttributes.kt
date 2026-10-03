@@ -13,4 +13,4 @@ data class AlbumCreateOperationPayloadDataAttributes(
     val releaseDate: PlatformLocalDate? = null,
     val upc: String? = null,
     val version: String? = null
-): BaseAttributes()
+) : BaseAttributes()

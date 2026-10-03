@@ -29,10 +29,12 @@ class SoundcloudParser : UrlParser() {
                 if (pathParts[1] == "reposts") pathParts[0] to Type.ARTIST
                 else path to Type.SONG
             }
+
             3 -> {
                 if (pathParts[1] == "sets") path to Type.PLAYLIST
                 else path to Type.SONG
             }
+
             else -> path to Type.SONG
         }
     }

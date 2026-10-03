@@ -10,7 +10,9 @@ actual class ConcurrentMutableMap<K : Any, V : Any> : MutableMap<K, V> {
 
     actual override val size: Int get() = runBlocking { mutex.withLock { delegate.size } }
     actual override fun containsKey(key: K): Boolean = runBlocking { mutex.withLock { delegate.containsKey(key) } }
-    actual override fun containsValue(value: V): Boolean = runBlocking { mutex.withLock { delegate.containsValue(value) } }
+    actual override fun containsValue(value: V): Boolean =
+        runBlocking { mutex.withLock { delegate.containsValue(value) } }
+
     actual override fun get(key: K): V? = runBlocking { mutex.withLock { delegate[key] } }
     actual override fun isEmpty(): Boolean = runBlocking { mutex.withLock { delegate.isEmpty() } }
     actual override val entries: MutableSet<MutableMap.MutableEntry<K, V>> get() = runBlocking { mutex.withLock { delegate.entries.toMutableSet() } }
@@ -38,10 +40,16 @@ private class ConcurrentMutableSet<T : Any> : MutableSet<T> {
     override fun clear() = runBlocking { mutex.withLock { delegate.clear() } }
     override fun iterator(): MutableIterator<T> = runBlocking { mutex.withLock { delegate.toMutableList().iterator() } }
     override fun remove(element: T): Boolean = runBlocking { mutex.withLock { delegate.remove(element) } }
-    override fun removeAll(elements: Collection<T>): Boolean = runBlocking { mutex.withLock { delegate.removeAll(elements.toSet()) } }
-    override fun retainAll(elements: Collection<T>): Boolean = runBlocking { mutex.withLock { delegate.retainAll(elements.toSet()) } }
+    override fun removeAll(elements: Collection<T>): Boolean =
+        runBlocking { mutex.withLock { delegate.removeAll(elements.toSet()) } }
+
+    override fun retainAll(elements: Collection<T>): Boolean =
+        runBlocking { mutex.withLock { delegate.retainAll(elements.toSet()) } }
+
     override fun contains(element: T): Boolean = runBlocking { mutex.withLock { delegate.contains(element) } }
-    override fun containsAll(elements: Collection<T>): Boolean = runBlocking { mutex.withLock { delegate.containsAll(elements) } }
+    override fun containsAll(elements: Collection<T>): Boolean =
+        runBlocking { mutex.withLock { delegate.containsAll(elements) } }
+
     override fun isEmpty(): Boolean = runBlocking { mutex.withLock { delegate.isEmpty() } }
 }
 

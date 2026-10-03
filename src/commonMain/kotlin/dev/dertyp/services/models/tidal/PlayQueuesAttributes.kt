@@ -13,7 +13,7 @@ data class PlayQueuesAttributes(
     val lastModifiedAt: PlatformOffsetDateTime,
     val repeat: Repeat,
     val shuffled: Boolean
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class Repeat {
         NONE,

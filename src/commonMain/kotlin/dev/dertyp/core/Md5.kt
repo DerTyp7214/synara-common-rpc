@@ -44,14 +44,17 @@ internal object Md5 {
                         f = (b and c) or (b.inv() and d)
                         g = j
                     }
+
                     1 -> {
                         f = (d and b) or (d.inv() and c)
                         g = (5 * j + 1) % 16
                     }
+
                     2 -> {
                         f = b xor c xor d
                         g = (3 * j + 5) % 16
                     }
+
                     3 -> {
                         f = c xor (b or d.inv())
                         g = (7 * j) % 16

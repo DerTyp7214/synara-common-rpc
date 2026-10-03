@@ -33,5 +33,6 @@ fun Int.zeroPad(length: Int): String {
 }
 
 val Number.date get() = platformDateFromEpochMilliseconds(toLong())
+
 @get:JvmName("dateNullable")
 val Number?.date get() = this?.let { platformDateFromEpochMilliseconds(toLong()) }

@@ -24,9 +24,11 @@ class OffizielleChartsParser : UrlParser() {
             lastSegment.startsWith("album-details-") -> {
                 lastSegment.removePrefix("album-details-") to Type.ALBUM
             }
+
             lastSegment.startsWith("titel-details-") -> {
                 lastSegment.removePrefix("titel-details-") to Type.SONG
             }
+
             else -> null
         }
     }

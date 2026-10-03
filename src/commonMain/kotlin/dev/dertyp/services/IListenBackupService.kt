@@ -20,7 +20,10 @@ interface IListenBackupService {
     suspend fun getState(): ListenBackupState
 
     @RequiresAdmin
-    @RpcDoc("Stream the backup state, re-emitting whenever the configuration or sync progress changes.", errors = ["SecurityException"])
+    @RpcDoc(
+        "Stream the backup state, re-emitting whenever the configuration or sync progress changes.",
+        errors = ["SecurityException"]
+    )
     fun getStateFlow(): Flow<ListenBackupState>
 
     @RequiresAdmin
@@ -38,7 +41,10 @@ interface IListenBackupService {
 
     @RequiresAdmin
     @RestPost
-    @RpcDoc("Run a backup sync now and return the resulting state.", errors = ["SecurityException", "IllegalStateException"])
+    @RpcDoc(
+        "Run a backup sync now and return the resulting state.",
+        errors = ["SecurityException", "IllegalStateException"]
+    )
     suspend fun syncNow(): ListenBackupState
 
     @RequiresAdmin

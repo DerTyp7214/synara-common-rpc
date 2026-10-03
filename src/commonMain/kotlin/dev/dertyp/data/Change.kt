@@ -11,15 +11,20 @@ import kotlinx.serialization.encoding.Encoder
 @Serializable
 @ModelDoc("The kind of state a change notification is about. Each topic names the getter a client calls again to read the new state.")
 enum class ChangeTopic {
-    @FieldDoc("A topic this client does not know yet. Clients ignore it.") UNKNOWN,
+    @FieldDoc("A topic this client does not know yet. Clients ignore it.")
+    UNKNOWN,
 
-    @FieldDoc("The connected devices of the user changed. Read them again with @IClientRequestService.getOnlineDevices.") ONLINE_DEVICES,
+    @FieldDoc("The connected devices of the user changed. Read them again with @IClientRequestService.getOnlineDevices.")
+    ONLINE_DEVICES,
 
-    @FieldDoc("The pinned home cards or their layout changed. Read them again with @IUiService.getHomeCards.") HOME_CARDS,
+    @FieldDoc("The pinned home cards or their layout changed. Read them again with @IUiService.getHomeCards.")
+    HOME_CARDS,
 
-    @FieldDoc("The listen history or the song playing right now changed. Read it again with @IScrobbleService.recentListens, @IScrobbleService.recentArtists or @IScrobbleService.recentAlbums.") LISTENS,
+    @FieldDoc("The listen history or the song playing right now changed. Read it again with @IScrobbleService.recentListens, @IScrobbleService.recentArtists or @IScrobbleService.recentAlbums.")
+    LISTENS,
 
-    @FieldDoc("The ListenBrainz link or its sync status changed. Read it again with @IListenBrainzService.getStatus.") LISTENBRAINZ_STATUS
+    @FieldDoc("The ListenBrainz link or its sync status changed. Read it again with @IListenBrainzService.getStatus.")
+    LISTENBRAINZ_STATUS
 }
 
 object ChangeTopicSerializer : KSerializer<ChangeTopic> {

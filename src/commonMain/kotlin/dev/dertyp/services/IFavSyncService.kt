@@ -13,6 +13,7 @@ interface IFavSyncService {
     suspend fun getLatestFavSync(
         @RpcParamDoc("The service type (e.g., TIDAL).") service: ISyncService.SyncServiceType
     ): FavSync?
+
     @RpcDoc("Record a new successful synchronization timestamp.")
     suspend fun insertFavSync(
         @RpcParamDoc("The service type.") service: ISyncService.SyncServiceType,

@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class ArtworkCreateOperationPayloadDataAttributes(
     val mediaType: MediaType,
     val sourceFile: ArtworkCreateOperationPayloadDataAttributesSourceFile
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class MediaType {
         IMAGE,

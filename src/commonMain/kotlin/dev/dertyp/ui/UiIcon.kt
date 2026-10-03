@@ -12,37 +12,68 @@ import kotlinx.serialization.UseContextualSerialization
 @Serializable
 @ModelDoc("Semantic icons clients map to their own icon set. Adding an entry requires a UI schema version bump.")
 enum class UiIconName {
-    @FieldDoc("Settings / gear.") SETTINGS,
-    @FieldDoc("Music note.") MUSIC,
-    @FieldDoc("Album.") ALBUM,
-    @FieldDoc("Artist.") ARTIST,
-    @FieldDoc("Playlist.") PLAYLIST,
-    @FieldDoc("Picture.") IMAGE,
-    @FieldDoc("Storage / disk.") STORAGE,
-    @FieldDoc("Statistics / chart.") STATS,
-    @FieldDoc("Scheduled task.") TASK,
-    @FieldDoc("Play.") PLAY,
-    @FieldDoc("Pause.") PAUSE,
-    @FieldDoc("Download.") DOWNLOAD,
-    @FieldDoc("Import.") IMPORT,
-    @FieldDoc("Queue / list.") QUEUE,
-    @FieldDoc("Connected service / plug.") PLUG,
-    @FieldDoc("Login.") LOGIN,
-    @FieldDoc("Heart / favorites.") HEART,
-    @FieldDoc("Sync / refresh arrows.") SYNC,
-    @FieldDoc("Search.") SEARCH,
-    @FieldDoc("Key / credentials.") KEY,
-    @FieldDoc("Database.") DATABASE,
-    @FieldDoc("Warning.") WARNING,
-    @FieldDoc("Error.") ERROR,
-    @FieldDoc("Info.") INFO,
-    @FieldDoc("User / person.") USER,
-    @FieldDoc("Checkmark / done.") CHECK,
-    @FieldDoc("Close / dismiss.") CLOSE,
-    @FieldDoc("Link.") LINK,
-    @FieldDoc("Generic file / document.") FILE,
-    @FieldDoc("More / overflow menu.") MORE,
-    @FieldDoc("Barcode scanner.") BARCODE,
+    @FieldDoc("Settings / gear.")
+    SETTINGS,
+    @FieldDoc("Music note.")
+    MUSIC,
+    @FieldDoc("Album.")
+    ALBUM,
+    @FieldDoc("Artist.")
+    ARTIST,
+    @FieldDoc("Playlist.")
+    PLAYLIST,
+    @FieldDoc("Picture.")
+    IMAGE,
+    @FieldDoc("Storage / disk.")
+    STORAGE,
+    @FieldDoc("Statistics / chart.")
+    STATS,
+    @FieldDoc("Scheduled task.")
+    TASK,
+    @FieldDoc("Play.")
+    PLAY,
+    @FieldDoc("Pause.")
+    PAUSE,
+    @FieldDoc("Download.")
+    DOWNLOAD,
+    @FieldDoc("Import.")
+    IMPORT,
+    @FieldDoc("Queue / list.")
+    QUEUE,
+    @FieldDoc("Connected service / plug.")
+    PLUG,
+    @FieldDoc("Login.")
+    LOGIN,
+    @FieldDoc("Heart / favorites.")
+    HEART,
+    @FieldDoc("Sync / refresh arrows.")
+    SYNC,
+    @FieldDoc("Search.")
+    SEARCH,
+    @FieldDoc("Key / credentials.")
+    KEY,
+    @FieldDoc("Database.")
+    DATABASE,
+    @FieldDoc("Warning.")
+    WARNING,
+    @FieldDoc("Error.")
+    ERROR,
+    @FieldDoc("Info.")
+    INFO,
+    @FieldDoc("User / person.")
+    USER,
+    @FieldDoc("Checkmark / done.")
+    CHECK,
+    @FieldDoc("Close / dismiss.")
+    CLOSE,
+    @FieldDoc("Link.")
+    LINK,
+    @FieldDoc("Generic file / document.")
+    FILE,
+    @FieldDoc("More / overflow menu.")
+    MORE,
+    @FieldDoc("Barcode scanner.")
+    BARCODE,
 }
 
 @Serializable

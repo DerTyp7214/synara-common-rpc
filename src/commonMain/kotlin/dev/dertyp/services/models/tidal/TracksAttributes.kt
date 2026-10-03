@@ -27,7 +27,7 @@ data class TracksAttributes(
     val spotlighted: Boolean? = null,
     val toneTags: List<String>? = null,
     val version: String? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class Key {
         UNKNOWN,

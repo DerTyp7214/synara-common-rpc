@@ -13,7 +13,7 @@ class DateTest {
         val initial = platformDateFromEpochMilliseconds(1000000)
         val duration = 1.hours
         val expected = platformDateFromEpochMilliseconds(1000000 + duration.inWholeMilliseconds)
-        
+
         val result = initial + duration
         assertEquals(expected.toEpochMilliseconds(), result.toEpochMilliseconds())
     }

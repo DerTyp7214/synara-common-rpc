@@ -28,7 +28,7 @@ class CustomSerializersTest {
 
         val cborBytes = Cbor.encodeToByteArray(UUIDByteSerializer, uuid)
         val decoded = Cbor.decodeFromByteArray(UUIDByteSerializer, cborBytes)
-        
+
         assertEquals(uuid, decoded)
         assertContentEquals(uuid.toByteArray(), decoded.toByteArray())
     }

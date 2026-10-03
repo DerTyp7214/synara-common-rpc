@@ -13,7 +13,7 @@ class InstantTest {
         val initial = platformInstantFromEpochMilliseconds(1000)
         val duration = 5.minutes
         val expected = platformInstantFromEpochMilliseconds(1000 + duration.inWholeMilliseconds)
-        
+
         val result = initial + duration
         assertEquals(expected.toEpochMilliseconds(), result.toEpochMilliseconds())
     }

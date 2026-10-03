@@ -9,4 +9,4 @@ import kotlinx.serialization.Serializable
 data class AppreciationsAttributes(
     @Serializable(with = OffsetDateTimeSerializer::class)
     val createdAt: PlatformOffsetDateTime
-): BaseAttributes()
+) : BaseAttributes()

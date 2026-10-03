@@ -19,7 +19,7 @@ class AmazonParser : UrlParser() {
         uri.parameters["trackAsin"]?.let { return it to Type.SONG }
 
         val pathParts = uri.encodedPath.trim('/').split("/")
-        
+
         val dpIndex = pathParts.indexOf("dp")
         if (dpIndex != -1 && dpIndex + 1 < pathParts.size) {
             return pathParts[dpIndex + 1] to Type.ALBUM

@@ -62,7 +62,7 @@ class ReconnectingRpcClient(
             cachedDelegate = null
         }
     }
-    
+
     override suspend fun <T> call(call: RpcCall): T {
         var attempts = 0
         while (true) {
@@ -113,6 +113,7 @@ fun Throwable.isTransportFailure(): Boolean = when (this) {
     is HttpRequestTimeoutException,
     is UnresolvedAddressException,
     is IOException -> true
+
     is WebSocketException -> message?.contains("401") != true
     is IllegalStateException -> message?.contains("RpcClient was cancelled") == true
     else -> false

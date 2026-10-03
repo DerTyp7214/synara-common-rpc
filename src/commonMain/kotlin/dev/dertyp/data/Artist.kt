@@ -12,13 +12,20 @@ import kotlinx.serialization.UseContextualSerialization
 @Serializable
 @ModelDoc("The category of a MusicBrainz artist.")
 enum class ArtistType {
-    @SerialName("Person") PERSON,
-    @SerialName("Group") GROUP,
-    @SerialName("Orchestra") ORCHESTRA,
-    @SerialName("Choir") CHOIR,
-    @SerialName("Character") CHARACTER,
-    @SerialName("Other") OTHER,
-    @SerialName("Unknown") UNKNOWN
+    @SerialName("Person")
+    PERSON,
+    @SerialName("Group")
+    GROUP,
+    @SerialName("Orchestra")
+    ORCHESTRA,
+    @SerialName("Choir")
+    CHOIR,
+    @SerialName("Character")
+    CHARACTER,
+    @SerialName("Other")
+    OTHER,
+    @SerialName("Unknown")
+    UNKNOWN
 }
 
 @Serializable

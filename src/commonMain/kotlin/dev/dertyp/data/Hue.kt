@@ -47,12 +47,16 @@ data class HueBridgeInfo(
 enum class HuePairingState {
     @FieldDoc("Contacting the bridge.")
     CONNECTING,
+
     @FieldDoc("Waiting for the link button on the bridge to be pressed.")
     WAITING_FOR_BUTTON,
+
     @FieldDoc("Pairing succeeded.")
     PAIRED,
+
     @FieldDoc("The link button was not pressed in time.")
     TIMEOUT,
+
     @FieldDoc("Pairing failed.")
     ERROR
 }
@@ -73,10 +77,13 @@ data class HuePairingStatus(
 enum class HueTargetType {
     @FieldDoc("A single light.")
     LIGHT,
+
     @FieldDoc("A room; controlled through its grouped light.")
     ROOM,
+
     @FieldDoc("A zone; controlled through its grouped light.")
     ZONE,
+
     @FieldDoc("An entertainment area; streamed over the Entertainment API at up to 25 frames per second, at most one per bridge link.")
     ENTERTAINMENT
 }
@@ -99,8 +106,10 @@ data class HueTarget(
 enum class HueIntensity {
     @FieldDoc("Dim, subtle colors.")
     LOW,
+
     @FieldDoc("Balanced.")
     MEDIUM,
+
     @FieldDoc("Bright, saturated.")
     HIGH
 }
@@ -110,6 +119,7 @@ enum class HueIntensity {
 enum class HueTransitionMode {
     @FieldDoc("Use the configured duration.")
     FIXED,
+
     @FieldDoc("Derive the duration from the song tempo.")
     BPM
 }
@@ -119,8 +129,10 @@ enum class HueTransitionMode {
 enum class HueStopMode {
     @FieldDoc("Leave the lights as they are.")
     KEEP,
+
     @FieldDoc("Turn the linked lights off.")
     OFF,
+
     @FieldDoc("Recall the configured Hue scenes.")
     SCENE
 }
@@ -130,10 +142,13 @@ enum class HueStopMode {
 enum class HueMotionMode {
     @FieldDoc("Set the colors once per track.")
     OFF,
+
     @FieldDoc("Slowly rotate the palette across the lights with long crossfades.")
     SLOW,
+
     @FieldDoc("Rotate the palette once per bar of the song's tempo and let brightness follow the loudness envelope.")
     TEMPO,
+
     @FieldDoc("Rotate the palette once per bar of the song's tempo and let brightness follow the bass energy (kick and sub) with a wide swing.")
     BASS
 }

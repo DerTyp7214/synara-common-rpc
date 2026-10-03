@@ -12,4 +12,4 @@ data class AlbumUpdateOperationPayloadDataAttributes(
     val releaseDate: PlatformLocalDate? = null,
     val title: String? = null,
     val version: String? = null
-): BaseAttributes()
+) : BaseAttributes()

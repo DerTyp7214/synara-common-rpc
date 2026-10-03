@@ -26,21 +26,27 @@ interface IImportService {
     @RestGet
     @RpcDoc("Stream real-time import logs from active processes.")
     fun logs(): Flow<LogLine>
+
     @RestGet
     @RpcDoc("Get the currently active import task.")
     suspend fun currentImport(): ImportQueueEntry?
+
     @RestGet
     @RpcDoc("Get the list of pending import tasks in the queue.")
     suspend fun importQueue(): List<ImportQueueEntry>
+
     @RestGet
     @RpcDoc("Get a list of recently completed or failed import tasks.")
     suspend fun finishedImports(): List<FinishedImportQueueEntry>
+
     @RestGet
     @RpcDoc("Check if favorite synchronization is available.")
     suspend fun syncFavouritesAvailable(): Boolean
+
     @RequiresCapability(UserCapability.IMPORT)
     @RpcDoc("Synchronize favorites with the local library.", errors = ["IllegalStateException"])
     suspend fun syncFavourites()
+
     @RestPost
     @RequiresCapability(UserCapability.IMPORT)
     @RpcDoc("Queue content for import by its IDs.")
@@ -49,6 +55,7 @@ interface IImportService {
         @RpcParamDoc("The type of content (SONG, ALBUM, etc.).") type: Type = Type.SONG,
         @RpcParamDoc("The importer to use.") importer: ImportBackend? = null
     )
+
     @RestPost
     @RequiresCapability(UserCapability.IMPORT)
     @RpcDoc("Queue content for import. Each entry may be a URL, an ISRC (track), or a UPC (album barcode); codes are resolved to a supported importer (preferring the default).")
@@ -68,9 +75,11 @@ interface IImportService {
         @RpcParamDoc("The original ID to check.") id: PrefixedId,
         @RpcParamDoc("The type of content.") type: Type = Type.SONG
     ): Boolean
+
     @RequiresAdmin
     @RpcDoc("Set the preferred importer backend.")
     suspend fun setImportService(@RpcParamDoc("The importer service to use.") service: ImportBackend)
+
     @RestGet
     @RpcDoc("Get the currently active importer backend.")
     suspend fun getImportService(): ImportBackend
@@ -84,7 +93,10 @@ interface IImportService {
     suspend fun getImporterCapabilities(): Map<String, Set<ImporterCapability>>
 
     @RequiresAdmin
-    @RpcDoc("Provide credentials to an importer backend that supports credential injection.", errors = ["IllegalArgumentException"])
+    @RpcDoc(
+        "Provide credentials to an importer backend that supports credential injection.",
+        errors = ["IllegalArgumentException"]
+    )
     suspend fun setImportCredentials(
         @RpcParamDoc("The importer backend to configure.") backend: ImportBackend,
         @RpcParamDoc("The credentials to supply.") credentials: ImporterCredentials
@@ -93,6 +105,7 @@ interface IImportService {
     @RestGet
     @RpcDoc("Check if the importer is authorized.")
     suspend fun importAuthorized(): Boolean
+
     @RestPost
     @RpcDoc("Trigger the OAuth login flow and stream the login URL.")
     fun importLogin(): Flow<String>
@@ -100,6 +113,7 @@ interface IImportService {
     @RestGet
     @RpcDoc("Check if Tidal favorite synchronization is authorized.")
     suspend fun tidalSyncAuthorized(): Boolean
+
     @RequiresAdmin
     @RestGet
     @RpcDoc("Get the Tidal OAuth authorization URL.", errors = ["IllegalArgumentException"])
@@ -176,10 +190,13 @@ data class IdsGroup(
 sealed class ImportQueueEntry {
     @FieldDoc("The type of content being imported.")
     abstract val type: Type?
+
     @FieldDoc("Maximum number of retry attempts on failure.")
     abstract val maxRetries: Int
+
     @FieldDoc("The ID of the user who initiated the import.")
     abstract val byUser: PlatformUUID?
+
     @FieldDoc("The importer backend to use for this entry.")
     abstract val importer: ImportBackend?
     abstract val callback: suspend () -> Unit

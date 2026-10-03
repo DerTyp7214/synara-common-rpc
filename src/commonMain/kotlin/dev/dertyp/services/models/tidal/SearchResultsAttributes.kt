@@ -7,4 +7,4 @@ import kotlinx.serialization.Serializable
 data class SearchResultsAttributes(
     val trackingId: String,
     val didYouMean: String? = null
-): BaseAttributes()
+) : BaseAttributes()

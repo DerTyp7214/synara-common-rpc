@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class ArtistClaimsCreateOperationPayloadDataAttributes(
     val artistId: String,
     val provider: Provider
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class Provider {
         DISTROKID,

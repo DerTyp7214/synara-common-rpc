@@ -117,7 +117,8 @@ internal class RestDocReferences(
         if (!declaration.hasAnnotation(modelDocAnnotation)) return
         models[qName] = declaration
         declaration.getAllProperties().forEach { visitType(it.type.resolve(), visited, models) }
-        declaration.declarations.filterIsInstance<KSClassDeclaration>().forEach { visitDeclaration(it, visited, models) }
+        declaration.declarations.filterIsInstance<KSClassDeclaration>()
+            .forEach { visitDeclaration(it, visited, models) }
     }
 
     @OptIn(KspExperimental::class)

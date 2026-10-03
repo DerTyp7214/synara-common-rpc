@@ -7,4 +7,4 @@ import kotlinx.serialization.Serializable
 data class LyricsUpdateOperationPayloadDataAttributes(
     val lrcText: String? = null,
     val text: String? = null
-): BaseAttributes()
+) : BaseAttributes()

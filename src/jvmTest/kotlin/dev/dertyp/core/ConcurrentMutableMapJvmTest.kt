@@ -23,9 +23,9 @@ class ConcurrentMutableMapJvmTest {
 
         jobs.joinAll()
         assertEquals(count, map.size)
-        
+
         map.clear()
-        
+
         val jobs2 = mutableListOf<Job>()
         repeat(count) { i ->
             jobs2 += launch(Dispatchers.Default) {
@@ -34,7 +34,7 @@ class ConcurrentMutableMapJvmTest {
                 }
             }
         }
-        
+
         jobs2.joinAll()
         assertEquals(count, map.size)
     }

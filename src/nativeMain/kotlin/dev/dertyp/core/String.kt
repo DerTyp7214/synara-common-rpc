@@ -9,5 +9,6 @@ actual fun String.stripAccents(): String {
         'ù' to 'u', 'ú' to 'u', 'û' to 'u', 'ü' to 'u',
         'ñ' to 'n', 'ç' to 'c'
     )
-    return this.map { map[it.lowercaseChar()]?.let { m -> if (it.isUpperCase()) m.uppercaseChar() else m } ?: it }.joinToString("")
+    return this.map { map[it.lowercaseChar()]?.let { m -> if (it.isUpperCase()) m.uppercaseChar() else m } ?: it }
+        .joinToString("")
 }

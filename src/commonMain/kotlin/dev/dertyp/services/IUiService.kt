@@ -47,14 +47,20 @@ interface IUiService {
     ): UiRender
 
     @RestGet
-    @RpcDoc("Stream re-renders of a contribution. Emits the current render immediately, then on every change.", errors = ["IllegalArgumentException", "UnauthorizedException"])
+    @RpcDoc(
+        "Stream re-renders of a contribution. Emits the current render immediately, then on every change.",
+        errors = ["IllegalArgumentException", "UnauthorizedException"]
+    )
     fun subscribe(
         @RpcParamDoc("Contribution id.") contributionId: String,
         @RpcParamDoc("Host entity id, if the contribution is rendered on an entity screen.") entityId: PlatformUUID? = null,
     ): Flow<UiRender>
 
     @RestGet
-    @RpcDoc("Stream updates for a Live node of a contribution. Subscribe once per Live node while it is on screen.", errors = ["IllegalArgumentException", "UnauthorizedException"])
+    @RpcDoc(
+        "Stream updates for a Live node of a contribution. Subscribe once per Live node while it is on screen.",
+        errors = ["IllegalArgumentException", "UnauthorizedException"]
+    )
     fun subscribeLive(
         @RpcParamDoc("Contribution id.") contributionId: String,
         @RpcParamDoc("Key of the Live node.") key: String,
@@ -62,14 +68,20 @@ interface IUiService {
     ): Flow<UiLiveUpdate>
 
     @RestPost
-    @RpcDoc("Stream re-renders of a contribution rendered with a full host context, including the params a page was opened with. Emits the current render immediately, then on every change. Prefer it over @IUiService.subscribe, which only carries the entity id.", errors = ["IllegalArgumentException", "UnauthorizedException"])
+    @RpcDoc(
+        "Stream re-renders of a contribution rendered with a full host context, including the params a page was opened with. Emits the current render immediately, then on every change. Prefer it over @IUiService.subscribe, which only carries the entity id.",
+        errors = ["IllegalArgumentException", "UnauthorizedException"]
+    )
     fun subscribeWithContext(
         @RpcParamDoc("Contribution id.") contributionId: String,
         @RpcParamDoc("Host context, the same one passed to render.") context: UiContext,
     ): Flow<UiRender>
 
     @RestPost
-    @RpcDoc("Stream updates for a Live node of a contribution rendered with a full host context, including the params a page was opened with. Subscribe once per Live node while it is on screen. Prefer it over @IUiService.subscribeLive, which only carries the entity id.", errors = ["IllegalArgumentException", "UnauthorizedException"])
+    @RpcDoc(
+        "Stream updates for a Live node of a contribution rendered with a full host context, including the params a page was opened with. Subscribe once per Live node while it is on screen. Prefer it over @IUiService.subscribeLive, which only carries the entity id.",
+        errors = ["IllegalArgumentException", "UnauthorizedException"]
+    )
     fun subscribeLiveWithContext(
         @RpcParamDoc("Contribution id.") contributionId: String,
         @RpcParamDoc("Key of the Live node.") key: String,
@@ -77,7 +89,10 @@ interface IUiService {
     ): Flow<UiLiveUpdate>
 
     @RestPost
-    @RpcDoc("Dispatch an action declared by a contribution, with form values and/or action parameters.", errors = ["IllegalArgumentException", "UnauthorizedException"])
+    @RpcDoc(
+        "Dispatch an action declared by a contribution, with form values and/or action parameters.",
+        errors = ["IllegalArgumentException", "UnauthorizedException"]
+    )
     suspend fun invoke(
         @RpcParamDoc("Contribution id.") contributionId: String,
         @RpcParamDoc("Action id from UiAction.Invoke.") actionId: String,

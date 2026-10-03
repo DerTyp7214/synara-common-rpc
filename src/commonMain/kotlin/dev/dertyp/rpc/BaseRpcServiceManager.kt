@@ -62,6 +62,7 @@ abstract class BaseRpcServiceManager(
                 is IOException,
                 is ConnectTimeoutException,
                 is UnresolvedAddressException -> onServerUnreachable()
+
                 else -> Unit
             }
         }
@@ -131,11 +132,11 @@ abstract class BaseRpcServiceManager(
     protected abstract fun isAuthenticated(): Boolean
     protected abstract suspend fun updateAuth(response: AuthenticationResponse)
     protected abstract suspend fun handleAuthFailure(reason: Throwable?)
-    
+
     protected open fun onServerUnreachable() {
         _isServerReachable.value = false
     }
-    
+
     protected open fun onServerReachable() {
         _isServerReachable.value = true
     }
@@ -285,8 +286,8 @@ abstract class BaseRpcServiceManager(
             updateAuth(result)
         } else if (result is Throwable) {
             val genuineRejection = result is SessionExpiredException ||
-                isAuthException(result) ||
-                isRefreshRejected(result)
+                    isAuthException(result) ||
+                    isRefreshRejected(result)
             if (genuineRejection) {
                 onAuthFailure(result)
             } else {
@@ -398,6 +399,7 @@ abstract class BaseRpcServiceManager(
                         delay((1000L * attempt).milliseconds)
                         continue
                     }
+
                     else -> throw e
                 }
             }
@@ -441,10 +443,10 @@ abstract class BaseRpcServiceManager(
 
     protected open fun isSslException(e: Throwable): Boolean {
         val message = e.message?.lowercase() ?: ""
-        return message.contains("ssl") || 
-               message.contains("tls") || 
-               message.contains("certificate") || 
-               message.contains("handshake failed")
+        return message.contains("ssl") ||
+                message.contains("tls") ||
+                message.contains("certificate") ||
+                message.contains("handshake failed")
     }
 
     @Suppress("UNCHECKED_CAST")

@@ -8,15 +8,17 @@ import kotlinx.serialization.Serializable
 @Serializable
 @ModelDoc("Determines whether a settings entry is shared by all devices of the user or belongs to a single device. The client picks the scope per key.")
 enum class ClientSettingScope {
-    @FieldDoc("The entry is shared by every device of the user and follows the user to new installations.") SYNCED,
+    @FieldDoc("The entry is shared by every device of the user and follows the user to new installations.")
+    SYNCED,
 
-    @FieldDoc("The entry belongs to one device only and is addressed together with its device identifier.") DEVICE
+    @FieldDoc("The entry belongs to one device only and is addressed together with its device identifier.")
+    DEVICE
 }
 
 @Serializable
 @ModelDoc(
     "A single stored settings entry. The server is agnostic to what a setting means: the key is an opaque identifier chosen by the client and " +
-        "the value is an arbitrary JSON document stored as text."
+            "the value is an arbitrary JSON document stored as text."
 )
 data class ClientSetting(
     @FieldDoc("The opaque key of the entry, unique within its scope.")
@@ -46,7 +48,7 @@ data class ClientSettingWrite(
     val value: String? = null,
     @FieldDoc(
         "The version of the entry the client last saw, or 0 if it believes the key does not exist. The write is rejected with a conflict " +
-            "when the stored entry moved past this version, unless the write is forced."
+                "when the stored entry moved past this version, unless the write is forced."
     )
     val baseVersion: Long = 0
 )
@@ -82,7 +84,7 @@ sealed class ClientSettingsWriteResult {
     @SerialName("Conflict")
     @ModelDoc(
         "Nothing was written because the listed keys moved past the base version the client supplied. The client pulls those keys and retries " +
-            "with the version it now knows, or repeats the write with force enabled to overwrite the server state."
+                "with the version it now knows, or repeats the write with force enabled to overwrite the server state."
     )
     data class Conflict(
         @FieldDoc("The unchanged current version of the scope.")
@@ -95,7 +97,7 @@ sealed class ClientSettingsWriteResult {
 @Serializable
 @ModelDoc(
     "The complete settings of one device: the live entries of the synced and the device scope with the current version of each. " +
-        "Reading a snapshot registers the device or refreshes its last seen time."
+            "Reading a snapshot registers the device or refreshes its last seen time."
 )
 data class ClientSettingsSnapshot(
     @FieldDoc("The device the snapshot was taken for.")
@@ -106,7 +108,7 @@ data class ClientSettingsSnapshot(
     val deviceVersion: Long,
     @FieldDoc(
         "The live entries of both scopes, each tagged with the scope it belongs to and without tombstones. A device entry overrides a synced " +
-            "entry of the same key on the client."
+                "entry of the same key on the client."
     )
     val entries: List<ClientSetting>
 )
@@ -126,7 +128,7 @@ data class ClientSettingsChanges(
     val hasMore: Boolean = false,
     @FieldDoc(
         "Whether tombstones the client never saw were already purged, so the changes are incomplete. The client has to read the whole scope " +
-            "again instead of applying them."
+                "again instead of applying them."
     )
     val fullResync: Boolean = false
 )

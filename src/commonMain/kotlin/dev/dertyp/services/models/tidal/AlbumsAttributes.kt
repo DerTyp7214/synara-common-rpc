@@ -24,7 +24,7 @@ data class AlbumsAttributes(
     @Serializable(with = LocalDateSerializer::class)
     val releaseDate: PlatformLocalDate? = null,
     val version: String? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     enum class Type {
         ALBUM,
         EP,

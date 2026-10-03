@@ -23,24 +23,31 @@ class AudiomackParser : UrlParser() {
             pathParts.size >= 3 && pathParts[0] == "album" -> {
                 "${pathParts[1]}/${pathParts[2]}" to Type.ALBUM
             }
+
             pathParts.size >= 3 && pathParts[1] == "album" -> {
                 "${pathParts[0]}/${pathParts[2]}" to Type.ALBUM
             }
+
             pathParts.size >= 3 && pathParts[0] == "song" -> {
                 "${pathParts[1]}/${pathParts[2]}" to Type.SONG
             }
+
             pathParts.size >= 3 && pathParts[1] == "song" -> {
                 "${pathParts[0]}/${pathParts[2]}" to Type.SONG
             }
+
             pathParts.size >= 3 && pathParts[0] == "playlist" -> {
                 "${pathParts[1]}/${pathParts[2]}" to Type.PLAYLIST
             }
+
             pathParts.size >= 3 && pathParts[1] == "playlist" -> {
                 "${pathParts[0]}/${pathParts[2]}" to Type.PLAYLIST
             }
+
             pathParts.size == 1 -> {
                 pathParts[0] to Type.ARTIST
             }
+
             else -> null
         }
     }

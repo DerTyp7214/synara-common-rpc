@@ -14,8 +14,10 @@ import kotlinx.serialization.UseContextualSerialization
 enum class RadioChannelItemType {
     @FieldDoc("A single song.")
     SONG,
+
     @FieldDoc("A whole album.")
     ALBUM,
+
     @FieldDoc("A whole artist.")
     ARTIST
 }

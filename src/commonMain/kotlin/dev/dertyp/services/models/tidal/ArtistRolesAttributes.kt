@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ArtistRolesAttributes(
     val name: String? = null
-): BaseAttributes()
+) : BaseAttributes()

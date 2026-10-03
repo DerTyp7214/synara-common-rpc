@@ -42,30 +42,39 @@ interface IMirrorService {
     @RequiresAdmin
     @RpcDoc("Expose the local file system paths where media files are stored.", errors = ["IllegalStateException"])
     suspend fun getServerPaths(): RemoteServerPaths
+
     @RequiresAdmin
     @RpcDoc("Stream all local songs with metadata for mirroring.", errors = ["IllegalStateException"])
     fun getSongs(): Flow<Song>
+
     @RequiresAdmin
     @RpcDoc("Stream all local artists for mirroring.", errors = ["IllegalStateException"])
     fun getArtists(): Flow<Artist>
+
     @RequiresAdmin
     @RpcDoc("Stream all artist name aliases for mirroring.", errors = ["IllegalStateException"])
     fun getArtistAliases(): Flow<ArtistAlias>
+
     @RequiresAdmin
     @RpcDoc("Stream all artist split-name mappings for mirroring.", errors = ["IllegalStateException"])
     fun getArtistSplitAliases(): Flow<ArtistSplitAlias>
+
     @RequiresAdmin
     @RpcDoc("Stream all local albums for mirroring.", errors = ["IllegalStateException"])
     fun getAlbums(): Flow<Album>
+
     @RequiresAdmin
     @RpcDoc("Stream all local system playlists for mirroring.", errors = ["IllegalStateException"])
     fun getPlaylists(): Flow<Playlist>
+
     @RequiresAdmin
     @RpcDoc("Stream all local user playlists for mirroring.", errors = ["IllegalStateException"])
     fun getUserPlaylists(): Flow<UserPlaylist>
+
     @RequiresAdmin
     @RpcDoc("Stream all image metadata for mirroring.", errors = ["IllegalStateException"])
     fun getImageMetadata(): Flow<Image>
+
     @RequiresAdmin
     @RpcDoc("Stream raw audio data for a song.", errors = ["IllegalStateException"])
     fun getSongData(
@@ -74,15 +83,22 @@ interface IMirrorService {
         @RpcParamDoc("Number of bytes per chunk in the stream.") chunkSize: Int = 4096,
         @RpcParamDoc("Whether to force re-transcoding and duration check.") force: Boolean = true
     ): Flow<ByteArray>
+
     @RequiresAdmin
     @RpcDoc("Stream all local user accounts (profiles) for mirroring.", errors = ["IllegalStateException"])
     fun getUsers(): Flow<User>
+
     @RequiresAdmin
-    @RpcDoc("Stream all songs belonging to a specific system playlist for mirroring.", errors = ["IllegalStateException"])
+    @RpcDoc(
+        "Stream all songs belonging to a specific system playlist for mirroring.",
+        errors = ["IllegalStateException"]
+    )
     fun getSongsByPlaylist(@RpcParamDoc("The playlist unique identifier.") playlistId: PlatformUUID): Flow<Song>
+
     @RequiresAdmin
     @RpcDoc("Stream all songs belonging to a specific user playlist for mirroring.", errors = ["IllegalStateException"])
     fun getSongsByUserPlaylist(@RpcParamDoc("The playlist unique identifier.") playlistId: PlatformUUID): Flow<Song>
+
     @RequiresAdmin
     @RpcDoc("Stream all songs liked by a specific user for mirroring.", errors = ["IllegalStateException"])
     fun getLikedSongs(@RpcParamDoc("The user unique identifier.") userId: PlatformUUID): Flow<Song>

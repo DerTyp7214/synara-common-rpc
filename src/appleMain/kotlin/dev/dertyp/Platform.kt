@@ -1,4 +1,9 @@
-@file:OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class, ExperimentalUuidApi::class, DelicateCoroutinesApi::class)
+@file:OptIn(
+    ExperimentalForeignApi::class,
+    ExperimentalNativeApi::class,
+    ExperimentalUuidApi::class,
+    DelicateCoroutinesApi::class
+)
 @file:Suppress("unused")
 
 package dev.dertyp
@@ -55,20 +60,29 @@ private val dateFormatter = NSDateFormatter().apply {
 }
 
 actual class PlatformDate(val value: NSDate)
+
 actual fun PlatformDate.toEpochMilliseconds(): Long = (value.timeIntervalSince1970 * 1000).toLong()
-actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate = PlatformDate(NSDate.dateWithTimeIntervalSince1970(ms / 1000.0))
+actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate =
+    PlatformDate(NSDate.dateWithTimeIntervalSince1970(ms / 1000.0))
+
 actual fun PlatformDate.formatISO(): String = isoDateFormatter.stringFromDate(value)
 actual fun String.toPlatformDateISO(): PlatformDate = PlatformDate(isoDateFormatter.dateFromString(this) ?: NSDate())
 actual fun PlatformDate.formatDate(): String = dateFormatter.stringFromDate(value)
 
 actual class PlatformInstant(val value: NSDate)
+
 actual fun PlatformInstant.toEpochMilliseconds(): Long = (value.timeIntervalSince1970 * 1000).toLong()
-actual fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant = PlatformInstant(NSDate.dateWithTimeIntervalSince1970(ms / 1000.0))
+actual fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant =
+    PlatformInstant(NSDate.dateWithTimeIntervalSince1970(ms / 1000.0))
+
 actual fun PlatformInstant.formatISO(): String = isoDateFormatter.stringFromDate(value)
-actual fun String.toPlatformInstantISO(): PlatformInstant = PlatformInstant(isoDateFormatter.dateFromString(this) ?: NSDate())
+actual fun String.toPlatformInstantISO(): PlatformInstant =
+    PlatformInstant(isoDateFormatter.dateFromString(this) ?: NSDate())
+
 actual fun PlatformInstant.formatDateTime(): String = dateTimeFormatter.stringFromDate(value)
 
 actual class PlatformLocalDate(val value: NSDate)
+
 actual fun PlatformLocalDate.formatISO(): String = localDateFormatter.stringFromDate(value)
 actual fun String.toPlatformLocalDateISO(): PlatformLocalDate {
     val date = localDateFormatter.dateFromString(this)
@@ -79,12 +93,16 @@ actual fun String.toPlatformLocalDateISO(): PlatformLocalDate {
 }
 
 actual class PlatformLocalDateTime(val value: NSDate)
+
 actual fun PlatformLocalDateTime.formatISO(): String = isoDateFormatter.stringFromDate(value)
-actual fun String.toPlatformLocalDateTimeISO(): PlatformLocalDateTime = PlatformLocalDateTime(isoDateFormatter.dateFromString(this) ?: NSDate())
+actual fun String.toPlatformLocalDateTimeISO(): PlatformLocalDateTime =
+    PlatformLocalDateTime(isoDateFormatter.dateFromString(this) ?: NSDate())
 
 actual class PlatformOffsetDateTime(val value: NSDate)
+
 actual fun PlatformOffsetDateTime.formatISO(): String = isoDateFormatter.stringFromDate(value)
-actual fun String.toPlatformOffsetDateTimeISO(): PlatformOffsetDateTime = PlatformOffsetDateTime(isoDateFormatter.dateFromString(this) ?: NSDate())
+actual fun String.toPlatformOffsetDateTimeISO(): PlatformOffsetDateTime =
+    PlatformOffsetDateTime(isoDateFormatter.dateFromString(this) ?: NSDate())
 
 actual fun currentTimeMillis(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
 actual fun nowAsPlatformDate(): PlatformDate = PlatformDate(NSDate())

@@ -168,6 +168,7 @@ class KotlinEmitter(private val restPackage: String) {
                 body.addStatement("mediaTypes(%T.Application.OctetStream)", CONTENT_TYPE)
                 body.endControlFlow()
             }
+
             route.isUnit -> Unit
             route.safeItemType != null -> {
                 body.beginControlFlow("body<%T>", route.safeItemType)
@@ -178,6 +179,7 @@ class KotlinEmitter(private val restPackage: String) {
                 }
                 body.endControlFlow()
             }
+
             else -> body.addStatement("body<%T>()", route.safeReturnType)
         }
         body.endControlFlow()
@@ -315,6 +317,7 @@ class KotlinEmitter(private val restPackage: String) {
         is ClassName -> plain.simpleName
         is ParameterizedTypeName ->
             plain.rawType.simpleName + plain.typeArguments.joinToString(", ", "<", ">") { simpleTypeName(it) }
+
         else -> plain.toString()
     }
 
@@ -327,17 +330,20 @@ class KotlinEmitter(private val restPackage: String) {
             } else {
                 CodeBlock.of("queryList(%S, %L)", param.name, param.elementConverter!!)
             }
+
         ParamSource.QUERY_SET ->
             if (param.resolvedAtDeclaration && !param.nullable) {
                 CodeBlock.of("querySet(%S, %L) ?: emptySet()", param.name, param.elementConverter!!)
             } else {
                 CodeBlock.of("querySet(%S, %L)", param.name, param.elementConverter!!)
             }
+
         ParamSource.QUERY_JSON -> CodeBlock.of(
             "queryJson<%T>(%S)",
             param.declaredType.copy(nullable = false),
             param.name
         )
+
         ParamSource.BODY -> {
             val required = param.required && !param.nullable
             val function = when {

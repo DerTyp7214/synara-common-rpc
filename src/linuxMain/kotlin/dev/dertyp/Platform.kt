@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalForeignApi::class)
+
 package dev.dertyp
 
 import kotlinx.cinterop.*
@@ -21,6 +22,7 @@ actual fun ByteArray.toPlatformUUID(): PlatformUUID = Uuid.fromByteArray(this)
 
 // For Linux/Native, we use Instant and simple wrappers
 actual class PlatformDate(val epochMillis: Long)
+
 actual fun PlatformDate.toEpochMilliseconds(): Long = epochMillis
 actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate = PlatformDate(ms)
 actual fun PlatformDate.formatISO(): String = Instant.fromEpochMilliseconds(epochMillis).toString()
@@ -37,6 +39,7 @@ actual fun PlatformDate.formatDate(): String = memScoped {
 }
 
 actual class PlatformInstant(val epochMillis: Long)
+
 actual fun PlatformInstant.toEpochMilliseconds(): Long = epochMillis
 actual fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant = PlatformInstant(ms)
 actual fun PlatformInstant.formatISO(): String = Instant.fromEpochMilliseconds(epochMillis).toString()
@@ -53,14 +56,17 @@ actual fun PlatformInstant.formatDateTime(): String = memScoped {
 }
 
 actual class PlatformLocalDate(val isoString: String)
+
 actual fun PlatformLocalDate.formatISO(): String = isoString
 actual fun String.toPlatformLocalDateISO(): PlatformLocalDate = PlatformLocalDate(this)
 
 actual class PlatformLocalDateTime(val isoString: String)
+
 actual fun PlatformLocalDateTime.formatISO(): String = isoString
 actual fun String.toPlatformLocalDateTimeISO(): PlatformLocalDateTime = PlatformLocalDateTime(this)
 
 actual class PlatformOffsetDateTime(val isoString: String)
+
 actual fun PlatformOffsetDateTime.formatISO(): String = isoString
 actual fun String.toPlatformOffsetDateTimeISO(): PlatformOffsetDateTime = PlatformOffsetDateTime(this)
 

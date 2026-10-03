@@ -13,11 +13,13 @@ import kotlinx.rpc.annotations.Rpc
 interface IPlaybackService {
     @RpcDoc("Retrieve the current playback state for a specific session.")
     suspend fun getPlaybackState(@RpcParamDoc("The session unique identifier.") sessionId: PlatformUUID): PlaybackState?
+
     @RpcDoc("Update the playback state for a specific session.")
     suspend fun setPlaybackState(
         @RpcParamDoc("The session unique identifier.") sessionId: PlatformUUID,
         @RpcParamDoc("The new playback state data.") state: PlaybackState
     ): Boolean
+
     @RestGet
     @RpcDoc("Watch real-time playback state changes for a session.")
     fun observePlaybackState(@RpcParamDoc("The session unique identifier.") sessionId: PlatformUUID): Flow<PlaybackState>

@@ -14,9 +14,9 @@ import kotlinx.rpc.annotations.Rpc
 @Rpc
 @RpcDoc(
     "The connection a client keeps open to the server for the lifetime of the app. It carries the tasks the server asks the calling client to perform, " +
-        "which the client performs through the regular RPC services and reports back so the device that asked for it is unblocked, and it doubles as " +
-        "the presence of the client: a session that connects with a description is listed as an online device of the user, with the cross-device " +
-        "features it offers, for exactly as long as it keeps the stream open."
+            "which the client performs through the regular RPC services and reports back so the device that asked for it is unblocked, and it doubles as " +
+            "the presence of the client: a session that connects with a description is listed as an online device of the user, with the cross-device " +
+            "features it offers, for exactly as long as it keeps the stream open."
 )
 interface IClientRequestService {
     @RestGet
@@ -26,8 +26,8 @@ interface IClientRequestService {
     @RestGet
     @RpcDoc(
         "Watch for requests addressed to the calling session and be listed as an online device of the user while the stream is open. The description " +
-            "is kept only for the duration of the stream, so a client that changes its name or its capabilities subscribes again. Requests that need " +
-            "a capability are only delivered to sessions that connected offering it."
+                "is kept only for the duration of the stream, so a client that changes its name or its capabilities subscribes again. Requests that need " +
+                "a capability are only delivered to sessions that connected offering it."
     )
     fun connect(
         @RpcParamDoc("How this client is listed on the other devices of the user and what it can do.") description: ClientDescription

@@ -10,7 +10,7 @@ data class ArtistClaimsAttributes(
     val recommendation: Recommendation? = null,
     val redirectUrl: String? = null,
     val retrievedUpcs: List<BarcodeId>? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class Provider {
         DISTROKID,

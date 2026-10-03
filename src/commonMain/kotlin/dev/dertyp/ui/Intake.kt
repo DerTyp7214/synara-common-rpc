@@ -13,8 +13,10 @@ import kotlinx.serialization.UseContextualSerialization
 @Serializable
 @ModelDoc("Kind of a catalog code handed to the intake.")
 enum class UiIntakeCodeKind {
-    @FieldDoc("International Standard Recording Code (a track).") ISRC,
-    @FieldDoc("UPC/EAN/GTIN barcode (a release).") UPC
+    @FieldDoc("International Standard Recording Code (a track).")
+    ISRC,
+    @FieldDoc("UPC/EAN/GTIN barcode (a release).")
+    UPC
 }
 
 @Serializable
@@ -80,7 +82,10 @@ sealed class IntakeItem {
             if (trimmed.contains("://")) return Url(trimmed)
             val compact = trimmed.replace("-", "").replace(" ", "")
             if (ISRC.matches(compact.uppercase())) return Code(UiIntakeCodeKind.ISRC, compact.uppercase())
-            if (compact.length in UPC_LENGTHS && compact.all { it.isDigit() }) return Code(UiIntakeCodeKind.UPC, compact)
+            if (compact.length in UPC_LENGTHS && compact.all { it.isDigit() }) return Code(
+                UiIntakeCodeKind.UPC,
+                compact
+            )
             PREFIXED_ID.matchEntire(trimmed)?.let { return Id(it.groupValues[1], it.groupValues[2]) }
             return Text(trimmed)
         }
@@ -93,11 +98,16 @@ sealed class IntakeItem {
 @Serializable
 @ModelDoc("Outcome of IUiService.intake.")
 enum class UiIntakeStatus {
-    @FieldDoc("Everything acceptable was submitted.") OK,
-    @FieldDoc("Several handlers offer; let the user pick one of handlers and call intake again with its action.") NEEDS_CHOICE,
-    @FieldDoc("No handler accepted any item; fall back to native behaviour.") UNHANDLED,
-    @FieldDoc("The user may not use the offering handlers.") UNAUTHORIZED,
-    @FieldDoc("Submission failed; see message.") ERROR
+    @FieldDoc("Everything acceptable was submitted.")
+    OK,
+    @FieldDoc("Several handlers offer; let the user pick one of handlers and call intake again with its action.")
+    NEEDS_CHOICE,
+    @FieldDoc("No handler accepted any item; fall back to native behaviour.")
+    UNHANDLED,
+    @FieldDoc("The user may not use the offering handlers.")
+    UNAUTHORIZED,
+    @FieldDoc("Submission failed; see message.")
+    ERROR
 }
 
 @Serializable

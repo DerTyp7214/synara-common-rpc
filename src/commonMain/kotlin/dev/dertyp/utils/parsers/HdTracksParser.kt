@@ -23,7 +23,7 @@ class HdTracksParser : UrlParser() {
         }
 
         if (path.isEmpty()) return null
-        
+
         val id = path.trim('/').split("/")[0]
         if (id.length == 24 && id.all { it.isDigit() || it.lowercaseChar() in 'a'..'f' }) {
             return id to Type.ALBUM

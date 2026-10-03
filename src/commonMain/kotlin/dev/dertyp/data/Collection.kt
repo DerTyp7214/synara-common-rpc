@@ -14,10 +14,13 @@ import kotlinx.serialization.UseContextualSerialization
 enum class CollectionItemType {
     @FieldDoc("A single song.")
     SONG,
+
     @FieldDoc("A whole album.")
     ALBUM,
+
     @FieldDoc("A whole artist.")
     ARTIST,
+
     @FieldDoc("A user-created playlist.")
     PLAYLIST
 }

@@ -9,4 +9,4 @@ data class ArtistUpdateBodyDataAttributes(
     val externalLinks: List<ExternalLinkPayload>? = null,
     val handle: String? = null,
     val name: String? = null
-): BaseAttributes()
+) : BaseAttributes()

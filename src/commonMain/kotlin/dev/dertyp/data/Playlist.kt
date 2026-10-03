@@ -36,7 +36,7 @@ data class Playlist(
     override val imageId: PlatformUUID? = null,
     @FieldDoc("The blur hash of the playlist cover image.")
     override val blurHash: String? = null,
-): BasePlaylist()
+) : BasePlaylist()
 
 @Serializable
 @ModelDoc("Metadata for a single song entry within a user playlist.")
@@ -77,7 +77,7 @@ data class UserPlaylist(
     val modifiedAt: PlatformDate? = null,
     @FieldDoc("Where the cover image came from; null when there is no cover.")
     val imageSource: ImageSource? = null,
-): BasePlaylist()
+) : BasePlaylist()
 
 @Serializable
 @ModelDoc("Contains raw binary data for a cover image in a backup.")
@@ -148,12 +148,16 @@ data class InsertablePlaylist(
 enum class ArtistPlaylistSortStrategy {
     @FieldDoc("Sort by MusicBrainz release date (newest first).")
     MB_RELEASE_DATE,
+
     @FieldDoc("Sort by MusicBrainz release date (oldest first).")
     MB_RELEASE_DATE_ASC,
+
     @FieldDoc("Randomly shuffle the songs.")
     SHUFFLED,
+
     @FieldDoc("Group by artist and album, following track order.")
     ALBUM_ORDER,
+
     @FieldDoc("Group by genre.")
     BY_GENRE
 }

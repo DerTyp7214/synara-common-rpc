@@ -465,8 +465,10 @@ interface IMetadataService {
     ) : BaseMetadata() {
         @Transient
         private val cache = mutableListOf<Track>()
+
         @Transient
         private var collectionJob: Deferred<List<Track>>? = null
+
         @Transient
         private val mutex = Mutex()
 
@@ -524,11 +526,13 @@ interface IMetadataService {
         val id: String,
         @Transient
         val tracks: Flow<Track> = emptyFlow(),
-    ): BaseMetadata() {
+    ) : BaseMetadata() {
         @Transient
         private val cache = mutableListOf<Track>()
+
         @Transient
         private var collectionJob: Deferred<List<Track>>? = null
+
         @Transient
         private val mutex = Mutex()
 

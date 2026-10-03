@@ -13,7 +13,7 @@ data class UserCollectionFoldersAttributes(
     @Serializable(with = OffsetDateTimeSerializer::class)
     val lastModifiedAt: PlatformOffsetDateTime,
     val name: String
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class CollectionType {
         PLAYLISTS;

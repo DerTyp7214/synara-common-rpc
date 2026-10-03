@@ -7,8 +7,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @ModelDoc("Supported audio formats for transcoding.")
 enum class AudioFormat {
-    @FieldDoc("Opus audio codec in Ogg container.") OPUS,
-    @FieldDoc("Advanced Audio Coding in MP4 container.") AAC
+    @FieldDoc("Opus audio codec in Ogg container.")
+    OPUS,
+    @FieldDoc("Advanced Audio Coding in MP4 container.")
+    AAC
 }
 
 @Serializable

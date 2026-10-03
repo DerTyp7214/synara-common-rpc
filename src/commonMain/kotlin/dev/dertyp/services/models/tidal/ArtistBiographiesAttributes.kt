@@ -7,4 +7,4 @@ import kotlinx.serialization.Serializable
 data class ArtistBiographiesAttributes(
     val editable: Boolean,
     val text: String
-): BaseAttributes()
+) : BaseAttributes()

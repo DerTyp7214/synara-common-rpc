@@ -15,6 +15,7 @@ interface ISessionService {
     suspend fun deactivateSession(
         @RpcParamDoc("The session unique identifier.") sessionId: PlatformUUID
     )
+
     @RpcDoc("List all sessions for the current user.")
     suspend fun getSessions(): List<Session>
 }

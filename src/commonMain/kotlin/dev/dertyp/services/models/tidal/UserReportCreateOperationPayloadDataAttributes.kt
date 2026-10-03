@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class UserReportCreateOperationPayloadDataAttributes(
     @property:ObjCName("reportDescription") val description: String,
     val reason: Reason
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class Reason {
         SEXUAL_CONTENT_OR_NUDITY,

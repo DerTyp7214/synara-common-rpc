@@ -32,7 +32,10 @@ class YoutubeParser : UrlParser() {
                 return uri.encodedPath.removePrefix("/shorts/").trim('/') to Type.SONG
             }
 
-            if (uri.encodedPath.startsWith("/channel/") || uri.encodedPath.startsWith("/user/") || uri.encodedPath.startsWith("/@")) {
+            if (uri.encodedPath.startsWith("/channel/") || uri.encodedPath.startsWith("/user/") || uri.encodedPath.startsWith(
+                    "/@"
+                )
+            ) {
                 return uri.encodedPath.trim('/') to Type.ARTIST
             }
         }
@@ -48,6 +51,7 @@ class YoutubeParser : UrlParser() {
                 if (id.startsWith("@") || id.startsWith("channel/") || id.startsWith("user/")) "https://www.youtube.com/$id"
                 else "https://www.youtube.com/@$id"
             }
+
             else -> null
         }
     }

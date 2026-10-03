@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
 
 fun createRpcHttpClient(appVersion: String): HttpClient {
     initializeServiceRegistry()
-    
+
     return HttpClient {
         install(UserAgent) {
             agent = "Synara/$appVersion (${getPlatformName()})"

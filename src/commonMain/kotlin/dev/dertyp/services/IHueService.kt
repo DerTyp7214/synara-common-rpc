@@ -44,7 +44,10 @@ interface IHueService {
     suspend fun listTargets(@RpcParamDoc("Server-side bridge unique identifier.") bridgeId: PlatformUUID): List<HueTarget>
 
     @RestGet
-    @RpcDoc("Scenes exposed by a bridge, each scoped to a room or zone that the bridge reports.", errors = ["IllegalArgumentException"])
+    @RpcDoc(
+        "Scenes exposed by a bridge, each scoped to a room or zone that the bridge reports.",
+        errors = ["IllegalArgumentException"]
+    )
     suspend fun listScenes(@RpcParamDoc("Server-side bridge unique identifier.") bridgeId: PlatformUUID): List<HueScene>
 
     @RestGet

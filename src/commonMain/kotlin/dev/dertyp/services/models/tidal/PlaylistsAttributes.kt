@@ -22,7 +22,7 @@ data class PlaylistsAttributes(
     @Serializable(with = DurationSerializer::class)
     val duration: Duration,
     val numberOfItems: Int? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class AccessType {
         PUBLIC,

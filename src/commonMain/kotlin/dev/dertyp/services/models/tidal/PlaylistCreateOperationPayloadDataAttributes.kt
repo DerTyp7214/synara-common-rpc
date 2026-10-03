@@ -9,7 +9,7 @@ data class PlaylistCreateOperationPayloadDataAttributes(
     val name: String,
     val accessType: AccessType? = null,
     @property:ObjCName("playlistDescription") val description: String? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class AccessType {
         PUBLIC,

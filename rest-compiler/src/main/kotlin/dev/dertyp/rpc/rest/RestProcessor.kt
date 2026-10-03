@@ -120,7 +120,7 @@ class RestProcessor(
             val functions = iface.getDeclaredFunctions().toList()
             logger.warn(
                 "[rest-spike] ${iface.qualifiedName?.asString()} fromClasspath=${iface.containingFile == null} " +
-                    "functions=${functions.size}"
+                        "functions=${functions.size}"
             )
             functions.forEach { func ->
                 functionCount++
@@ -135,7 +135,7 @@ class RestProcessor(
                 if (annotations.any { it == REST_FILE_RESPONSE_ANNOTATION }) fileResponses++
                 logger.warn(
                     "[rest-spike]   fn=$name suspend=$suspend declaredRet=$declared resolvedRetDecl=$resolved " +
-                        "typeParams=${func.typeParameters.size} ann=$annotations"
+                            "typeParams=${func.typeParameters.size} ann=$annotations"
                 )
                 if (func.parameters.any { it.hasDefault }) functionsWithDefaults++
                 func.parameters.forEach { param ->
@@ -148,7 +148,7 @@ class RestProcessor(
                     }.toList()
                     logger.warn(
                         "[rest-spike]     p=$pName type=$pType hasDefault=${param.hasDefault} " +
-                            "nullable=${param.type.resolve().isMarkedNullable} ann=$pAnn"
+                                "nullable=${param.type.resolve().isMarkedNullable} ann=$pAnn"
                     )
                 }
             }
@@ -156,8 +156,8 @@ class RestProcessor(
 
         logger.warn(
             "[rest-spike] TOTALS interfaces=${interfaces.size} functions=$functionCount " +
-                "paramsWithDefault=$defaultCount functionsWithDefaults=$functionsWithDefaults " +
-                "fileResponses=$fileResponses syntheticParamNames=$syntheticNames"
+                    "paramsWithDefault=$defaultCount functionsWithDefaults=$functionsWithDefaults " +
+                    "fileResponses=$fileResponses syntheticParamNames=$syntheticNames"
         )
 
         if (interfaces.size < 52) logger.error("[rest-spike] only ${interfaces.size} @Rpc interfaces found, expected >= 52")

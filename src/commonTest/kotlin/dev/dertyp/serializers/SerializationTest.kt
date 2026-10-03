@@ -21,10 +21,10 @@ class SerializationTest {
     fun testJsonSerialization() {
         val songId = platformUUIDFromString("00000000-0000-0000-0000-000000000000")
         val song = createSong(songId)
-        
+
         val encoded = AppJson.encodeToString(Song.serializer(), song)
         val decoded = AppJson.decodeFromString(Song.serializer(), encoded)
-        
+
         assertEquals(song.id, decoded.id)
         assertEquals(song.title, decoded.title)
         assertEquals(song.musicBrainzId, decoded.musicBrainzId)
@@ -34,10 +34,10 @@ class SerializationTest {
     fun testCborSerialization() {
         val songId = platformUUIDFromString("00000000-0000-0000-0000-000000000000")
         val song = createSong(songId)
-        
+
         val encoded = AppCbor.encodeToHexString(Song.serializer(), song)
         val decoded = AppCbor.decodeFromHexString(Song.serializer(), encoded)
-        
+
         assertEquals(song.id, decoded.id)
         assertEquals(song.title, decoded.title)
         assertEquals(song.musicBrainzId, decoded.musicBrainzId)
@@ -66,7 +66,14 @@ class SerializationTest {
     @Suppress("DEPRECATION")
     fun testLegacyWireShapeOmitsAudioInfo() {
         val song = createSong(platformUUIDFromString("00000000-0000-0000-0000-000000000000"))
-            .copy(audio = null, sampleRate = 44100, bitsPerSample = 16, bitRate = 320000, fileSize = 1000000, atmosPath = "/x.atmos.m4a")
+            .copy(
+                audio = null,
+                sampleRate = 44100,
+                bitsPerSample = 16,
+                bitRate = 320000,
+                fileSize = 1000000,
+                atmosPath = "/x.atmos.m4a"
+            )
 
         val json = AppJson.encodeToString(Song.serializer(), song)
         val obj = AppJson.parseToJsonElement(json).jsonObject

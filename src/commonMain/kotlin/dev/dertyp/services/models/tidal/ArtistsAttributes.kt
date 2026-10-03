@@ -13,4 +13,4 @@ data class ArtistsAttributes(
     val externalLinks: List<ExternalLink>? = null,
     val handle: String? = null,
     val spotlighted: Boolean? = null
-): BaseAttributes()
+) : BaseAttributes()

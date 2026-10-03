@@ -29,7 +29,7 @@ class RateYourMusicParser : UrlParser() {
             }
             return pathParts.drop(1).joinToString("/") to type
         }
-        
+
         if (pathParts[0] == "artist" && pathParts.size >= 2) {
             return pathParts[1] to Type.ARTIST
         }

@@ -12,7 +12,7 @@ class UrlTest {
     fun testTidalId() {
         val url = Url("https://listen.tidal.com/album/12345")
         assertEquals("12345", url.tidalId())
-        
+
         val userUrl = Url("https://listen.tidal.com/album/12345/u")
         assertEquals("12345", userUrl.tidalId())
     }

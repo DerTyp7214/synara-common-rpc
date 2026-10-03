@@ -21,11 +21,14 @@ import kotlinx.serialization.UseContextualSerialization
 interface IReleaseService {
     @RpcDoc("Follow an artist by their MusicBrainz ID to track their releases.")
     suspend fun followArtist(@RpcParamDoc("The MusicBrainz Artist UUID.") musicBrainzId: PlatformUUID): Boolean
+
     @RestDelete
     @RpcDoc("Unfollow an artist and stop tracking their releases.")
     suspend fun unfollowArtist(@RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID): Boolean
+
     @RpcDoc("Get a list of all artists the current user is following.")
     suspend fun getFollowedArtists(): List<FollowedArtist>
+
     @RpcDoc("Retrieve a feed of recent and upcoming music releases from followed artists, merged from MusicBrainz and the Apple Music catalog. Editions of one release are folded into a single entry carrying the others in versions. Paging applies per release type: one page holds up to pageSize entries of every type, a folded group counting once, in one list sorted by date.")
     suspend fun getRecentReleases(
         @RpcParamDoc("Page index, applied to every release type separately.") page: Int = 0,

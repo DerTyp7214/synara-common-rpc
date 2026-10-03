@@ -19,26 +19,31 @@ actual fun ByteArray.toPlatformUUID(): PlatformUUID = Uuid.fromByteArray(this)
 external fun jsDateToISO(ms: Double): String
 
 actual class PlatformDate(val epochMillis: Long)
+
 actual fun PlatformDate.toEpochMilliseconds(): Long = epochMillis
 actual fun platformDateFromEpochMilliseconds(ms: Long): PlatformDate = PlatformDate(ms)
 actual fun PlatformDate.formatISO(): String = jsDateToISO(epochMillis.toDouble())
 actual fun String.toPlatformDateISO(): PlatformDate = PlatformDate(Instant.parse(this).toEpochMilliseconds())
 
 actual class PlatformInstant(val epochMillis: Long)
+
 actual fun PlatformInstant.toEpochMilliseconds(): Long = epochMillis
 actual fun platformInstantFromEpochMilliseconds(ms: Long): PlatformInstant = PlatformInstant(ms)
 actual fun PlatformInstant.formatISO(): String = jsDateToISO(epochMillis.toDouble())
 actual fun String.toPlatformInstantISO(): PlatformInstant = PlatformInstant(Instant.parse(this).toEpochMilliseconds())
 
 actual class PlatformLocalDate(val isoString: String)
+
 actual fun PlatformLocalDate.formatISO(): String = isoString
 actual fun String.toPlatformLocalDateISO(): PlatformLocalDate = PlatformLocalDate(this)
 
 actual class PlatformLocalDateTime(val isoString: String)
+
 actual fun PlatformLocalDateTime.formatISO(): String = isoString
 actual fun String.toPlatformLocalDateTimeISO(): PlatformLocalDateTime = PlatformLocalDateTime(this)
 
 actual class PlatformOffsetDateTime(val isoString: String)
+
 actual fun PlatformOffsetDateTime.formatISO(): String = isoString
 actual fun String.toPlatformOffsetDateTimeISO(): PlatformOffsetDateTime = PlatformOffsetDateTime(this)
 

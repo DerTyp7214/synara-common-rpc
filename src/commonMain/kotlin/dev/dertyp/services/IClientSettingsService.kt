@@ -17,10 +17,10 @@ import kotlinx.rpc.annotations.Rpc
 @Rpc
 @RpcDoc(
     "Stores the settings of the clients of a user as opaque key/value entries, where the value is an arbitrary JSON document in text form and " +
-        "the server never interprets what a setting means. Entries live either in the synced scope, which is shared by all devices of the user, " +
-        "or in the device scope of a single device, and the client decides per key which one it uses. Each scope carries a monotonically increasing " +
-        "version that every accepted write advances by one, and every entry remembers the version it was written at, so clients detect concurrent " +
-        "changes and can catch up incrementally instead of reading everything again."
+            "the server never interprets what a setting means. Entries live either in the synced scope, which is shared by all devices of the user, " +
+            "or in the device scope of a single device, and the client decides per key which one it uses. Each scope carries a monotonically increasing " +
+            "version that every accepted write advances by one, and every entry remembers the version it was written at, so clients detect concurrent " +
+            "changes and can catch up incrementally instead of reading everything again."
 )
 interface IClientSettingsService {
     @RestGet
@@ -34,7 +34,7 @@ interface IClientSettingsService {
     @RestGet
     @RpcDoc(
         "Read the complete settings of a device in one call: the live entries of the synced scope and of the device scope with the current version of each. " +
-            "Reading a snapshot registers the device or refreshes its last seen time, so this is what a client calls right after it starts."
+                "Reading a snapshot registers the device or refreshes its last seen time, so this is what a client calls right after it starts."
     )
     suspend fun getSnapshot(
         @RpcParamDoc("The stable identifier the client chose for this device.") deviceId: String
@@ -43,8 +43,8 @@ interface IClientSettingsService {
     @RestGet
     @RpcDoc(
         "Read the entries a scope changed after a version the client already knows, tombstones included and ordered by the version they were written at. " +
-            "When more entries are available than the page holds, the client asks again with the version of the last entry it received. " +
-            "If tombstones the client never saw were already purged, the result asks for a full resync and the client re-reads the whole scope instead."
+                "When more entries are available than the page holds, the client asks again with the version of the last entry it received. " +
+                "If tombstones the client never saw were already purged, the result asks for a full resync and the client re-reads the whole scope instead."
     )
     suspend fun getChanges(
         @RpcParamDoc("The scope to read.") scope: ClientSettingScope,
@@ -55,9 +55,9 @@ interface IClientSettingsService {
 
     @RpcDoc(
         "Write a batch of entries into a scope. The batch is all-or-nothing: an entry is accepted only if its base version matches the version the stored " +
-            "entry was last written at, or is 0 for a key that does not exist or is only a tombstone, and as soon as one key conflicts nothing is written at all. " +
-            "Forcing the write skips that check. An entry with a null value deletes its key and leaves a tombstone behind so other devices learn about the deletion. " +
-            "Writing the device scope registers the device or refreshes its last seen time, while the device of a synced write is optional and only recorded as the writer.",
+                "entry was last written at, or is 0 for a key that does not exist or is only a tombstone, and as soon as one key conflicts nothing is written at all. " +
+                "Forcing the write skips that check. An entry with a null value deletes its key and leaves a tombstone behind so other devices learn about the deletion. " +
+                "Writing the device scope registers the device or refreshes its last seen time, while the device of a synced write is optional and only recorded as the writer.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun setSettings(
@@ -78,8 +78,8 @@ interface IClientSettingsService {
 
     @RpcDoc(
         "Write a previous value of a key back as a new version. The value is taken from the history of the key and stored through the normal write path, " +
-            "so the scope advances by one and the value that was replaced moves into the history itself. The call fails if the requested version is not kept " +
-            "in the history any more.",
+                "so the scope advances by one and the value that was replaced moves into the history itself. The call fails if the requested version is not kept " +
+                "in the history any more.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun restore(
@@ -93,7 +93,7 @@ interface IClientSettingsService {
     @RestGet
     @RpcDoc(
         "Watch the settings of the user for changes. Every accepted write emits the scope it changed, the version it advanced to and the keys it touched, " +
-            "including writes made by other devices, so a client pulls only what it needs."
+                "including writes made by other devices, so a client pulls only what it needs."
     )
     fun observeSettings(): Flow<ClientSettingsChange>
 
@@ -103,7 +103,7 @@ interface IClientSettingsService {
 
     @RpcDoc(
         "Register a device or refresh the name and platform it is listed under. Calling this is optional, since reading or writing the device scope registers " +
-            "the device on its own, but it lets a client give its device a readable name before it stores anything.",
+                "the device on its own, but it lets a client give its device a readable name before it stores anything.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun registerDevice(

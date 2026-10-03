@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GenresAttributes(
     val genreName: String
-): BaseAttributes()
+) : BaseAttributes()

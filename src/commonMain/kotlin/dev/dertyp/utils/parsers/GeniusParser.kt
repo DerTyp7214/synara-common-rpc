@@ -23,12 +23,15 @@ class GeniusParser : UrlParser() {
             pathParts.size >= 3 && pathParts[0] == "albums" -> {
                 "${pathParts[1]}/${pathParts[2]}" to Type.ALBUM
             }
+
             pathParts.size >= 2 && pathParts[0] == "artists" -> {
                 pathParts[1] to Type.ARTIST
             }
+
             pathParts[0].endsWith("-lyrics") -> {
                 pathParts[0].removeSuffix("-lyrics") to Type.SONG
             }
+
             else -> pathParts[0] to Type.SONG
         }
     }

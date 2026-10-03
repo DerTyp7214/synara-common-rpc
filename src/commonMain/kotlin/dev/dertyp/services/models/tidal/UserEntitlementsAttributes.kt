@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserEntitlementsAttributes(
     val entitlements: List<Entitlements>
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class Entitlements {
         MUSIC,

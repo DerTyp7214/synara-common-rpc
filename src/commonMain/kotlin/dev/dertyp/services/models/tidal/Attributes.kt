@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class Attributes(
     val collectionType: CollectionType,
     val name: String
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class CollectionType {
         PLAYLISTS;

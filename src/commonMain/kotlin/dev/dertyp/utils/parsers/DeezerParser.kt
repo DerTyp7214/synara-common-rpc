@@ -17,7 +17,7 @@ class DeezerParser : UrlParser() {
 
         val uri = getUri(url) ?: return null
         val pathParts = uri.encodedPath.trim('/').split("/")
-        
+
         val albumIndex = pathParts.indexOf("album")
         if (albumIndex != -1 && albumIndex + 1 < pathParts.size) {
             return pathParts[albumIndex + 1] to Type.ALBUM

@@ -44,7 +44,7 @@ class RestDerivation(
         routes.groupBy { it.method to it.localPath }.filterValues { it.size > 1 }.forEach { (key, duplicates) ->
             logger.error(
                 "[rest-compiler] $simpleName: duplicate route ${key.first} /$prefix/${key.second} from " +
-                    duplicates.joinToString { it.functionName }
+                        duplicates.joinToString { it.functionName }
             )
         }
 
@@ -99,7 +99,7 @@ class RestDerivation(
         val idParameter = parameters.firstOrNull {
             val name = parameterName(it)
             name != "type" && (name == "id" || name.endsWith("Id")) &&
-                types.isPrimitive(it.type.resolve()) && isPathCandidate(it)
+                    types.isPrimitive(it.type.resolve()) && isPathCandidate(it)
         }
 
         var path = localName
@@ -190,6 +190,7 @@ class RestDerivation(
             method != "GET" && !primitive -> ParamSource.BODY
             types.isQueryCollection(type) && types.isPrimitive(type) ->
                 if (types.isSet(type)) ParamSource.QUERY_SET else ParamSource.QUERY_LIST
+
             primitive -> ParamSource.QUERY
             else -> ParamSource.QUERY_JSON
         }
@@ -202,6 +203,7 @@ class RestDerivation(
             ParamSource.PATH, ParamSource.QUERY -> types.converterFor(type)
             ParamSource.QUERY_LIST, ParamSource.QUERY_SET ->
                 types.firstArgument(type)?.let { types.converterFor(it) } ?: types.converterFor(type)
+
             else -> null
         }
 

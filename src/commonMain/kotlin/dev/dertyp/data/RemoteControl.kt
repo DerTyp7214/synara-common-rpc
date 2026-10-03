@@ -12,7 +12,7 @@ import kotlinx.serialization.UseContextualSerialization
 @Serializable
 @ModelDoc(
     "What a remote-controllable device is playing, as it last reported it. A controlling device projects the current position from the position and the " +
-        "report timestamp while the device is playing, instead of expecting a report for every second."
+            "report timestamp while the device is playing, instead of expecting a report for every second."
 )
 data class RemotePlaybackStatus(
     @FieldDoc("The song the device is playing, or null when it is not playing anything.")
@@ -101,8 +101,8 @@ sealed class PlaybackCommand {
     @SerialName("PlayQueueItem")
     @ModelDoc(
         "Select and play the entry with this queue id of the shared queue of the user. The device first applies at least the given queue version of the " +
-            "shared queue, pulling it when it has not seen it yet, and rejects the command when the entry is not in its queue afterwards, which is how a " +
-            "controller loads a new queue and then plays a song in it without a race."
+                "shared queue, pulling it when it has not seen it yet, and rejects the command when the entry is not in its queue afterwards, which is how a " +
+                "controller loads a new queue and then plays a song in it without a race."
     )
     data class PlayQueueItem(
         @FieldDoc("The queue id of the entry within the shared queue.")

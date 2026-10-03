@@ -8,7 +8,7 @@ data class TrackCreateOperationPayloadDataAttributes(
     val accessType: AccessType,
     val title: String,
     val explicit: Boolean? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class AccessType {
         PUBLIC,

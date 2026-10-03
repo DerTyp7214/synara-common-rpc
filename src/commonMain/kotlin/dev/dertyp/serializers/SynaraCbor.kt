@@ -52,6 +52,7 @@ private object SynaraCborFormat : KrpcSerialFormat<SynaraCbor, CborBuilder> {
     override fun withBuilder(from: SynaraCbor?, builderConsumer: CborBuilder.() -> Unit): SynaraCbor {
         return SynaraCbor(Cbor(from?.cbor ?: Cbor, builderConsumer))
     }
+
     override fun CborBuilder.applySerializersModule(serializersModule: SerializersModule) {
         this.serializersModule = this.serializersModule.overwriteWith(serializersModule)
     }
@@ -71,27 +72,28 @@ class SynaraCbor(val cbor: Cbor) : BinaryFormat {
         if (!SynaraNegotiation.isEnabled) {
             return cbor.encodeToByteArray(serializer, value)
         }
-        
+
         val pool = SynaraPool()
         val collector = CollectorEncoder(pool, classToSerializer, serializersModule)
         collector.encodeSerializableValue(serializer, value)
-        
+
         val packModule = SerializersModule {
             SynaraDeduplicatedTypes.forEach { (kClass, typeSer) ->
                 @Suppress("UNCHECKED_CAST")
                 contextual(kClass as KClass<Any>, ReferenceSerializer(pool, kClass, typeSer as KSerializer<Any>))
             }
         }
-        
+
         val packCbor = Cbor(cbor) { serializersModule = cbor.serializersModule.overwriteWith(packModule) }
 
         val encodedPool = pool.items.mapNotNull { (kClass, items) ->
             val ser = classToSerializer[kClass] ?: return@mapNotNull null
+
             @Suppress("UNCHECKED_CAST")
             val bytes = cbor.encodeToByteArray(ListSerializer(ser as KSerializer<Any>), items.values.toList())
             ser.descriptor.serialName to bytes
         }.toMap()
-        
+
         val envelope = SynaraEnvelope(encodedPool, packCbor.encodeToByteArray(serializer, value))
         return cbor.encodeToByteArray(SynaraEnvelope.serializer(), envelope)
     }
@@ -107,24 +109,26 @@ class SynaraCbor(val cbor: Cbor) : BinaryFormat {
         } catch (_: Exception) {
             return cbor.decodeFromByteArray(deserializer, bytes)
         }
-        
+
         envelope.pool.forEach { (name, poolBytes) ->
             val ser = nameToSerializer[name] ?: return@forEach
+
             @Suppress("UNCHECKED_CAST")
             val items = cbor.decodeFromByteArray(ListSerializer(ser as KSerializer<Any>), poolBytes)
             val kClass = nameToClass[name]!!
+
             @Suppress("UNCHECKED_CAST")
             val typePool = pool.getPool(kClass as KClass<Any>)
             items.forEach { typePool[getIdOf(it, ser)] = it }
         }
-        
+
         val packModule = SerializersModule {
             SynaraDeduplicatedTypes.forEach { (kClass, typeSer) ->
                 @Suppress("UNCHECKED_CAST")
                 contextual(kClass as KClass<Any>, ReferenceSerializer(pool, kClass, typeSer as KSerializer<Any>))
             }
         }
-        
+
         val packCbor = Cbor(cbor) { serializersModule = cbor.serializersModule.overwriteWith(packModule) }
         return packCbor.decodeFromByteArray(deserializer, envelope.data)
     }
@@ -133,7 +137,11 @@ class SynaraCbor(val cbor: Cbor) : BinaryFormat {
 @Serializable
 private class SynaraEnvelope(val pool: Map<String, ByteArray>, val data: ByteArray)
 
-private class CollectorEncoder(val pool: SynaraPool, val classToSerializer: Map<KClass<*>, KSerializer<*>>, override val serializersModule: SerializersModule) : Encoder {
+private class CollectorEncoder(
+    val pool: SynaraPool,
+    val classToSerializer: Map<KClass<*>, KSerializer<*>>,
+    override val serializersModule: SerializersModule
+) : Encoder {
     override fun beginStructure(descriptor: SerialDescriptor) = object : CompositeEncoder {
         override val serializersModule = this@CollectorEncoder.serializersModule
         override fun endStructure(descriptor: SerialDescriptor) {}
@@ -147,9 +155,25 @@ private class CollectorEncoder(val pool: SynaraPool, val classToSerializer: Map<
         override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) {}
         override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {}
         override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int): Encoder = this@CollectorEncoder
-        override fun <T> encodeSerializableElement(descriptor: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T) { if (value != null) encodeSerializableValue(serializer, value) }
-        override fun <T : Any> encodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T?) { if (value != null) encodeSerializableValue(serializer, value) }
+        override fun <T> encodeSerializableElement(
+            descriptor: SerialDescriptor,
+            index: Int,
+            serializer: SerializationStrategy<T>,
+            value: T
+        ) {
+            if (value != null) encodeSerializableValue(serializer, value)
+        }
+
+        override fun <T : Any> encodeNullableSerializableElement(
+            descriptor: SerialDescriptor,
+            index: Int,
+            serializer: SerializationStrategy<T>,
+            value: T?
+        ) {
+            if (value != null) encodeSerializableValue(serializer, value)
+        }
     }
+
     override fun encodeBoolean(value: Boolean) {}
     override fun encodeByte(value: Byte) {}
     override fun encodeChar(value: Char) {}
@@ -169,6 +193,7 @@ private class CollectorEncoder(val pool: SynaraPool, val classToSerializer: Map<
         val ser = classToSerializer[kClass]
         if (ser != null) {
             val id = getIdOf(value, ser)
+
             @Suppress("UNCHECKED_CAST")
             val p = pool.getPool(kClass as KClass<Any>)
             if (!p.containsKey(id)) {
@@ -180,12 +205,19 @@ private class CollectorEncoder(val pool: SynaraPool, val classToSerializer: Map<
     }
 }
 
-private class ReferenceSerializer<T : Any>(val pool: SynaraPool, val kClass: KClass<T>, val baseSerializer: KSerializer<T>) : KSerializer<T> {
+private class ReferenceSerializer<T : Any>(
+    val pool: SynaraPool,
+    val kClass: KClass<T>,
+    val baseSerializer: KSerializer<T>
+) : KSerializer<T> {
     override val descriptor = contextualPlatformUUIDSerializer().descriptor
-    override fun serialize(encoder: Encoder, value: T) = encoder.encodeSerializableValue(contextualPlatformUUIDSerializer(), getIdOf(value, baseSerializer))
+    override fun serialize(encoder: Encoder, value: T) =
+        encoder.encodeSerializableValue(contextualPlatformUUIDSerializer(), getIdOf(value, baseSerializer))
+
     override fun deserialize(decoder: Decoder): T {
         val id = decoder.decodeSerializableValue(contextualPlatformUUIDSerializer())
-        return pool.getPool(kClass)[id] ?: throw SerializationException("Object $id of ${kClass.simpleName} not in pool")
+        return pool.getPool(kClass)[id]
+            ?: throw SerializationException("Object $id of ${kClass.simpleName} not in pool")
     }
 }
 
@@ -195,8 +227,23 @@ private fun getIdOf(value: Any, serializer: KSerializer<*>): PlatformUUID {
     var id: PlatformUUID? = null
     val stealer = object : Encoder by DummyEncoder {
         override fun beginStructure(descriptor: SerialDescriptor) = object : CompositeEncoder by DummyComposite {
-            override fun <T> encodeSerializableElement(descriptor: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T) { if (index == idx) id = value as PlatformUUID }
-            override fun <T : Any> encodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T?) { if (index == idx) id = value as PlatformUUID }
+            override fun <T> encodeSerializableElement(
+                descriptor: SerialDescriptor,
+                index: Int,
+                serializer: SerializationStrategy<T>,
+                value: T
+            ) {
+                if (index == idx) id = value as PlatformUUID
+            }
+
+            override fun <T : Any> encodeNullableSerializableElement(
+                descriptor: SerialDescriptor,
+                index: Int,
+                serializer: SerializationStrategy<T>,
+                value: T?
+            ) {
+                if (index == idx) id = value as PlatformUUID
+            }
         }
     }
     @Suppress("UNCHECKED_CAST") (serializer as KSerializer<Any>).serialize(stealer, value)
@@ -239,6 +286,19 @@ private object DummyComposite : CompositeEncoder {
     override fun encodeShortElement(descriptor: SerialDescriptor, index: Int, value: Short) {}
     override fun encodeStringElement(descriptor: SerialDescriptor, index: Int, value: String) {}
     override fun encodeInlineElement(descriptor: SerialDescriptor, index: Int) = DummyEncoder
-    override fun <T> encodeSerializableElement(descriptor: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T) {}
-    override fun <T : Any> encodeNullableSerializableElement(descriptor: SerialDescriptor, index: Int, serializer: SerializationStrategy<T>, value: T?) {}
+    override fun <T> encodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T
+    ) {
+    }
+
+    override fun <T : Any> encodeNullableSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T?
+    ) {
+    }
 }

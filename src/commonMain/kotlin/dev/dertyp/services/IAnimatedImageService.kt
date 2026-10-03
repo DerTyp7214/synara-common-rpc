@@ -17,16 +17,20 @@ import kotlinx.serialization.UseContextualSerialization
 interface IAnimatedImageService {
     @RpcDoc("Get animated image metadata by its unique ID.")
     suspend fun byId(@RpcParamDoc("The animated image unique identifier.") id: PlatformUUID): AnimatedImage?
+
     @RpcDoc("Find animated image metadata by its content hash.")
     suspend fun byHash(@RpcParamDoc("The unique hash of the animated image.") hash: String): AnimatedImage?
+
     @RpcDoc("Map a list of animated image hashes to their existing internal UUIDs.")
     suspend fun getCoverHashes(@RpcParamDoc("Collection of animated image hashes.") hashes: List<String>): Map<String, PlatformUUID>
+
     @RestPublic
     @RestPath("imageData")
     @RpcDoc("Retrieve the raw binary data of an animated image.")
     suspend fun getAnimatedImageData(
         @RpcParamDoc("The animated image unique identifier.") id: PlatformUUID
     ): ByteArray?
+
     @RpcDoc("Store a new animated image on the server.")
     suspend fun createAnimatedImage(
         @RpcParamDoc("The raw binary data of the animated image.") bytes: ByteArray,

@@ -12,7 +12,7 @@ data class TrackUpdateOperationPayloadDataAttributes(
     val keyScale: KeyScale? = null,
     val title: String? = null,
     val toneTags: List<String>? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class AccessType {
         PUBLIC,

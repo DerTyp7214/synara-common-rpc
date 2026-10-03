@@ -9,7 +9,7 @@ class GenericTest {
     fun testIfNull() {
         val name: String? = null
         assertEquals("Default", name.ifNull { "Default" })
-        
+
         val validName = "Synara"
         assertEquals("Synara", validName.ifNull { "Default" })
     }

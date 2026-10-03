@@ -22,8 +22,8 @@ sealed class ClientRequest {
     @SerialName("UploadQueue")
     @ModelDoc(
         "Another device asks this client for its current play queue. The client fulfils the request by calling beginUpload with force set to true, " +
-            "staging its entries with uploadPage and finishing with commitUpload passing this request ID, since the requester explicitly wants the queue of this device " +
-            "and therefore expects it to win over the server state. If the client refuses, it reports the request as rejected instead."
+                "staging its entries with uploadPage and finishing with commitUpload passing this request ID, since the requester explicitly wants the queue of this device " +
+                "and therefore expects it to win over the server state. If the client refuses, it reports the request as rejected instead."
     )
     data class UploadQueue(
         @FieldDoc("Identifier of this request, passed to commitUpload or complete.")
@@ -40,8 +40,8 @@ sealed class ClientRequest {
     @SerialName("ControlPlayback")
     @ModelDoc(
         "Another device of the same user asks this client to change its playback. The client applies the command, publishes its new status through " +
-            "the remote control service and answers with complete, reporting the request as rejected when it does not apply the command. " +
-            "This request is only sent to sessions that connected with the remote control capability."
+                "the remote control service and answers with complete, reporting the request as rejected when it does not apply the command. " +
+                "This request is only sent to sessions that connected with the remote control capability."
     )
     data class ControlPlayback(
         @FieldDoc("Identifier of this request, passed to complete.")
@@ -60,18 +60,25 @@ sealed class ClientRequest {
 @Serializable
 @ModelDoc("Outcome of a server request sent to a client session.")
 enum class ClientRequestStatus {
-    @FieldDoc("The client performed the requested task.") COMPLETED,
-    @FieldDoc("The client received the request but declined it.") REJECTED,
-    @FieldDoc("The client did not answer before the server stopped waiting.") TIMED_OUT,
-    @FieldDoc("The target session is not listening for requests.") UNREACHABLE
+    @FieldDoc("The client performed the requested task.")
+    COMPLETED,
+    @FieldDoc("The client received the request but declined it.")
+    REJECTED,
+    @FieldDoc("The client did not answer before the server stopped waiting.")
+    TIMED_OUT,
+    @FieldDoc("The target session is not listening for requests.")
+    UNREACHABLE
 }
 
 @Serializable
 @ModelDoc("A cross-device feature a client offers for as long as it keeps its request subscription open.")
 enum class ClientCapability {
-    @FieldDoc("The client keeps the shared play queue in sync and can be asked to upload its own queue.") QUEUE_SYNC,
-    @FieldDoc("The client accepts transport commands from other devices of the user and reports what it is playing.") REMOTE_CONTROL,
-    @FieldDoc("The client can change its playback volume on request, which is not possible on every platform.") REMOTE_VOLUME
+    @FieldDoc("The client keeps the shared play queue in sync and can be asked to upload its own queue.")
+    QUEUE_SYNC,
+    @FieldDoc("The client accepts transport commands from other devices of the user and reports what it is playing.")
+    REMOTE_CONTROL,
+    @FieldDoc("The client can change its playback volume on request, which is not possible on every platform.")
+    REMOTE_VOLUME
 }
 
 @Serializable

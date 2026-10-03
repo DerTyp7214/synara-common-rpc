@@ -19,16 +19,20 @@ import kotlinx.serialization.UseContextualSerialization
 interface IImageService {
     @RpcDoc("Get image metadata by its unique ID.")
     suspend fun byId(@RpcParamDoc("The image unique identifier.") id: PlatformUUID): Image?
+
     @RpcDoc("Find image metadata by its content hash.")
     suspend fun byHash(@RpcParamDoc("The unique hash of the image.") hash: String): Image?
+
     @RpcDoc("Map a list of image hashes to their existing internal UUIDs.")
     suspend fun getCoverHashes(@RpcParamDoc("Collection of image hashes.") hashes: List<String>): Map<String, PlatformUUID>
+
     @RestPublic
     @RpcDoc("Retrieve the raw binary data of an image.")
     suspend fun getImageData(
         @RpcParamDoc("The image unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Requested image size (width/height). 0 for original size.") size: Int = 0
     ): ByteArray?
+
     @RpcDoc("Store a new image on the server.")
     suspend fun createImage(
         @RpcParamDoc("The raw binary data of the image.") bytes: ByteArray,
@@ -45,7 +49,10 @@ interface IImageService {
         @RpcParamDoc("New base path.") newPath: String
     ): Int
 
-    @RpcDoc("Generate a mosaic image from a source image where each pixel is replaced by a matching cover.", errors = ["IllegalArgumentException"])
+    @RpcDoc(
+        "Generate a mosaic image from a source image where each pixel is replaced by a matching cover.",
+        errors = ["IllegalArgumentException"]
+    )
     fun generateMosaicImage(
         @RpcParamDoc("The source image data.") image: ByteArray,
         @RpcParamDoc("Grid width (max width * height = 65,536).") width: Int,

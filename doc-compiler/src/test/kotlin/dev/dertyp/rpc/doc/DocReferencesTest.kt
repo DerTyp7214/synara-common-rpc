@@ -52,7 +52,11 @@ class DocReferencesTest {
         every { simpleName.asString() } returns name
     }
 
-    private fun model(qualifiedName: String, entries: List<String> = emptyList(), properties: List<String> = emptyList()) =
+    private fun model(
+        qualifiedName: String,
+        entries: List<String> = emptyList(),
+        properties: List<String> = emptyList()
+    ) =
         mockk<KSClassDeclaration> {
             every { simpleName.asString() } returns qualifiedName.substringAfterLast(".")
             every { this@mockk.qualifiedName?.asString() } returns qualifiedName
@@ -71,15 +75,16 @@ class DocReferencesTest {
 
     @Test
     fun `links service methods and models relative to the current file`() {
-        val text = "Emits a @ChangeTopic through @IChangeService.observeChanges. See @Change.topic, @ChangeTopic.LISTENS or @IChangeService."
+        val text =
+            "Emits a @ChangeTopic through @IChangeService.observeChanges. See @Change.topic, @ChangeTopic.LISTENS or @IChangeService."
 
         val linked = references().link(text, source, "X", "RPC.md", "")
 
         assertEquals(
             "Emits a [ChangeTopic](#devdertypdatachangetopic) through " +
-                "[IChangeService.observeChanges](RPC.md#devdertypservicesichangeservice-observechanges). " +
-                "See [Change.topic](#devdertypdatachange), [ChangeTopic.LISTENS](#devdertypdatachangetopic) or " +
-                "[IChangeService](RPC.md#devdertypservicesichangeservice).",
+                    "[IChangeService.observeChanges](RPC.md#devdertypservicesichangeservice-observechanges). " +
+                    "See [Change.topic](#devdertypdatachange), [ChangeTopic.LISTENS](#devdertypdatachangetopic) or " +
+                    "[IChangeService](RPC.md#devdertypservicesichangeservice).",
             linked
         )
         verify(exactly = 0) { logger.error(any(), any()) }
@@ -105,14 +110,14 @@ class DocReferencesTest {
         verify(exactly = 1) {
             logger.error(
                 "[doc-compiler] IScrobbleService.recentListens: unresolved doc reference @IChangeService.observeChange: " +
-                    "IChangeService has no method observeChange",
+                        "IChangeService has no method observeChange",
                 source
             )
         }
         verify(exactly = 1) {
             logger.error(
                 "[doc-compiler] IScrobbleService.recentListens: unresolved doc reference @ChangTopic: " +
-                    "ChangTopic is neither an @RpcDoc service nor a @ModelDoc model",
+                        "ChangTopic is neither an @RpcDoc service nor a @ModelDoc model",
                 source
             )
         }
@@ -125,7 +130,7 @@ class DocReferencesTest {
         verify(exactly = 1) {
             logger.error(
                 "[doc-compiler] Change.topic: unresolved doc reference @ChangeTopic.LIKES: " +
-                    "ChangeTopic has no field or entry LIKES",
+                        "ChangeTopic has no field or entry LIKES",
                 source
             )
         }

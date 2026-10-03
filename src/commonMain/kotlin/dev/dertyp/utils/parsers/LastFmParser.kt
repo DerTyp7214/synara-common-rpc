@@ -40,6 +40,7 @@ class LastFmParser : UrlParser() {
                     "https://www.last.fm/music/$id"
                 }
             }
+
             else -> null
         }
     }

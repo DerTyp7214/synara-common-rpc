@@ -27,11 +27,11 @@ class FlowTest {
         val f4 = flowOf(4)
         val f5 = flowOf(5)
         val f6 = flowOf(6)
-        
+
         val combined = combine(f1, f2, f3, f4, f5, f6) { v1, v2, v3, v4, v5, v6 ->
             v1 + v2 + v3 + v4 + v5 + v6
         }
-        
+
         assertEquals(21, combined.first())
     }
 }

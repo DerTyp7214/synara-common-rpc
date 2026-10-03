@@ -11,37 +11,45 @@ import kotlinx.serialization.UseContextualSerialization
 @Serializable
 @ModelDoc("Determines how a timecode tag is meant to be read by a client, so a player can render sections, cue points and remarks differently.")
 enum class TimecodeTagType {
-    @FieldDoc("A named section of a song, usually with an end position.") CHAPTER,
+    @FieldDoc("A named section of a song, usually with an end position.")
+    CHAPTER,
 
-    @FieldDoc("A single point of interest, for example a drop or a cue point.") MARKER,
+    @FieldDoc("A single point of interest, for example a drop or a cue point.")
+    MARKER,
 
-    @FieldDoc("A free-form remark the user left at a position.") NOTE
+    @FieldDoc("A free-form remark the user left at a position.")
+    NOTE
 }
 
 @Serializable
 @ModelDoc(
     "What the client that plays the song does when playback reaches a timecode tag. The playing client executes the action itself, a client " +
-        "that only controls another device does nothing. Chapter actions need a tag with an end position, marker actions a tag without one, " +
-        "and a note always uses NONE."
+            "that only controls another device does nothing. Chapter actions need a tag with an end position, marker actions a tag without one, " +
+            "and a note always uses NONE."
 )
 enum class TimecodeTagAction {
-    @FieldDoc("The tag is passive and does not change playback.") NONE,
+    @FieldDoc("The tag is passive and does not change playback.")
+    NONE,
 
     @FieldDoc(
         "Chapters only. Playback covers only the PLAY_ONLY chapters of the song and moves on to the next track after the last one."
-    ) PLAY_ONLY,
+    )
+    PLAY_ONLY,
 
-    @FieldDoc("Chapters only. Playback jumps over the chapter.") SKIP,
+    @FieldDoc("Chapters only. Playback jumps over the chapter.")
+    SKIP,
 
-    @FieldDoc("Markers only. The song starts at the marker.") SKIP_TO,
+    @FieldDoc("Markers only. The song starts at the marker.")
+    SKIP_TO,
 
-    @FieldDoc("Markers only. Playback moves on to the next track when it reaches the marker.") PLAY_UNTIL
+    @FieldDoc("Markers only. Playback moves on to the next track when it reaches the marker.")
+    PLAY_UNTIL
 }
 
 @Serializable
 @ModelDoc(
     "A tag a user attached to a song at a position in milliseconds. Tags are private to the user who created them and are removed together " +
-        "with the song they belong to."
+            "with the song they belong to."
 )
 data class TimecodeTag(
     @FieldDoc("The unique identifier of the tag.")

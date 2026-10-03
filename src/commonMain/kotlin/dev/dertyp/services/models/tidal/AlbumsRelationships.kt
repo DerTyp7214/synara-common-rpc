@@ -11,4 +11,4 @@ data class AlbumsRelationships<A : BaseAttributes, R : BaseRelationships>(
     val owners: MultiRelationshipDataDocument? = null,
     val providers: MultiRelationshipDataDocument? = null,
     val similarAlbums: MultiRelationshipDataDocument? = null
-): BaseRelationships
+) : BaseRelationships

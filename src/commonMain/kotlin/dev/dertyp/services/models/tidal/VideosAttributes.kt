@@ -20,7 +20,7 @@ data class VideosAttributes(
     @Serializable(with = LocalDateSerializer::class)
     val releaseDate: PlatformLocalDate? = null,
     val version: String? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class Availability {
         STREAM,

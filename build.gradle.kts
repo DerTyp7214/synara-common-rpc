@@ -13,9 +13,9 @@ val includeAndroid = project.findProperty("synara.includeAndroid")?.toString()?.
 
 val hasAndroidEnv = includeAndroid && (
         System.getenv("ANDROID_HOME") != null ||
-        System.getenv("ANDROID_SDK_ROOT") != null ||
-        rootProject.file("local.properties").exists()
-)
+                System.getenv("ANDROID_SDK_ROOT") != null ||
+                rootProject.file("local.properties").exists()
+        )
 
 if (hasAndroidEnv) {
     pluginManager.apply("com.android.kotlin.multiplatform.library")

@@ -8,8 +8,10 @@ import kotlinx.serialization.Serializable
 @Serializable
 @ModelDoc("Kinds of app-level events clients can forward to the server.")
 enum class UiHookKind {
-    @FieldDoc("A URL was shared with the app.") SHARE_URL,
-    @FieldDoc("Plain text was shared with the app.") SHARE_TEXT
+    @FieldDoc("A URL was shared with the app.")
+    SHARE_URL,
+    @FieldDoc("Plain text was shared with the app.")
+    SHARE_TEXT
 }
 
 @Serializable

@@ -16,4 +16,4 @@ data class ArtistsRelationships(
     val trackProviders: ArtistsTrackProvidersMultiRelationshipDataDocument<ArtistsAttributes, ArtistsRelationships>? = null,
     val tracks: MultiRelationshipDataDocument? = null,
     val videos: MultiRelationshipDataDocument? = null
-): BaseRelationships
+) : BaseRelationships

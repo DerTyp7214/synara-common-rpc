@@ -11,9 +11,12 @@ import kotlinx.serialization.UseContextualSerialization
 @Serializable
 @ModelDoc("The status of a background scheduled task.")
 enum class TaskStatus {
-    @FieldDoc("The task completed successfully.") SUCCESS,
-    @FieldDoc("The task encountered an error.") FAILURE,
-    @FieldDoc("The task is currently in progress.") RUNNING
+    @FieldDoc("The task completed successfully.")
+    SUCCESS,
+    @FieldDoc("The task encountered an error.")
+    FAILURE,
+    @FieldDoc("The task is currently in progress.")
+    RUNNING
 }
 
 @Serializable

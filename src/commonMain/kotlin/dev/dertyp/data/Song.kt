@@ -22,39 +22,62 @@ import kotlinx.serialization.cbor.CborLabel
 @Serializable
 @ModelDoc("Flags and metadata attributes for a song.")
 enum class SongTag {
-    @FieldDoc("Audio sample rate is 44.1kHz or 48kHz.") Q_44_48,
-    @FieldDoc("Audio sample rate is 96kHz.") Q_96,
-    @FieldDoc("Audio sample rate is 192kHz.") Q_192,
-    @FieldDoc("Bit depth is 16-bit.") B_16,
-    @FieldDoc("Bit depth is 24-bit.") B_24,
-    @FieldDoc("The song has associated lyrics.") HAS_LYRICS,
-    @FieldDoc("The song was manually uploaded by a user.") CUSTOM_UPLOAD,
-    @FieldDoc("The song has a linked MusicBrainz Recording ID.") HAS_MUSICBRAINZ_ID
+    @FieldDoc("Audio sample rate is 44.1kHz or 48kHz.")
+    Q_44_48,
+    @FieldDoc("Audio sample rate is 96kHz.")
+    Q_96,
+    @FieldDoc("Audio sample rate is 192kHz.")
+    Q_192,
+    @FieldDoc("Bit depth is 16-bit.")
+    B_16,
+    @FieldDoc("Bit depth is 24-bit.")
+    B_24,
+    @FieldDoc("The song has associated lyrics.")
+    HAS_LYRICS,
+    @FieldDoc("The song was manually uploaded by a user.")
+    CUSTOM_UPLOAD,
+    @FieldDoc("The song has a linked MusicBrainz Recording ID.")
+    HAS_MUSICBRAINZ_ID
 }
 
 @Serializable
 @ModelDoc("Kind of version marker split off a song title.")
 enum class TitleTagKind {
-    @FieldDoc("Featured artists, e.g. feat. Drake or with Artist.") FEAT,
-    @FieldDoc("Producer credit, e.g. prod. Metro Boomin.") PROD,
-    @FieldDoc("A remix, rework, bootleg, flip or VIP.") REMIX,
-    @FieldDoc("A named mix, e.g. Extended Mix, Club Mix, Radio Mix or a Mix Cut from a DJ mix.") MIX,
-    @FieldDoc("A live recording, optionally with venue or date.") LIVE,
-    @FieldDoc("A cover version.") COVER,
-    @FieldDoc("An acoustic or unplugged version.") ACOUSTIC,
-    @FieldDoc("An instrumental version.") INSTRUMENTAL,
-    @FieldDoc("An edit, e.g. Radio Edit or Extended Edit.") EDIT,
-    @FieldDoc("A generic alternate version, e.g. Album Version, Take 2, Sped Up, Bonus Track or Deluxe.") VERSION,
-    @FieldDoc("A remaster, optionally with year.") REMASTER,
-    @FieldDoc("A demo recording.") DEMO,
+    @FieldDoc("Featured artists, e.g. feat. Drake or with Artist.")
+    FEAT,
+    @FieldDoc("Producer credit, e.g. prod. Metro Boomin.")
+    PROD,
+    @FieldDoc("A remix, rework, bootleg, flip or VIP.")
+    REMIX,
+    @FieldDoc("A named mix, e.g. Extended Mix, Club Mix, Radio Mix or a Mix Cut from a DJ mix.")
+    MIX,
+    @FieldDoc("A live recording, optionally with venue or date.")
+    LIVE,
+    @FieldDoc("A cover version.")
+    COVER,
+    @FieldDoc("An acoustic or unplugged version.")
+    ACOUSTIC,
+    @FieldDoc("An instrumental version.")
+    INSTRUMENTAL,
+    @FieldDoc("An edit, e.g. Radio Edit or Extended Edit.")
+    EDIT,
+    @FieldDoc("A generic alternate version, e.g. Album Version, Take 2, Sped Up, Bonus Track or Deluxe.")
+    VERSION,
+    @FieldDoc("A remaster, optionally with year.")
+    REMASTER,
+    @FieldDoc("A demo recording.")
+    DEMO,
 }
 
 @Serializable
 @ModelDoc("How strongly a user likes a song. A super like also counts as a like everywhere likes are used.")
 enum class LikeLevel {
-    @FieldDoc("The song is not liked.") NONE,
-    @FieldDoc("The song is liked.") LIKE,
-    @FieldDoc("The song is super liked. It is also a liked song.") SUPER
+    @FieldDoc("The song is not liked.")
+    NONE,
+    @FieldDoc("The song is liked.")
+    LIKE,
+    @FieldDoc("The song is super liked. It is also a liked song.")
+    SUPER
 }
 
 @Serializable
@@ -93,7 +116,8 @@ data class AudioInfo(
     }
 }
 
-const val LEGACY_AUDIO_FIELDS = "API version 3 wire compatibility only; populated by the server's response shaping, never by services. Use audio/atmos."
+const val LEGACY_AUDIO_FIELDS =
+    "API version 3 wire compatibility only; populated by the server's response shaping, never by services. Use audio/atmos."
 
 val BaseSong.effectiveAudio: AudioInfo?
     get() = audio ?: run {
@@ -116,6 +140,7 @@ abstract class BaseSong() {
     abstract val album: Album?
     abstract val duration: Long
     abstract val explicit: Boolean
+
     @Serializable(with = LocalDateSerializer::class)
     abstract val releaseDate: PlatformLocalDate?
     abstract val lyrics: String
@@ -126,12 +151,16 @@ abstract class BaseSong() {
     abstract val copyright: String
     abstract val audio: AudioInfo?
     abstract val atmos: AudioInfo?
+
     @Deprecated(LEGACY_AUDIO_FIELDS)
     abstract val sampleRate: Int?
+
     @Deprecated(LEGACY_AUDIO_FIELDS)
     abstract val bitsPerSample: Int?
+
     @Deprecated(LEGACY_AUDIO_FIELDS)
     abstract val bitRate: Long?
+
     @Deprecated(LEGACY_AUDIO_FIELDS)
     abstract val fileSize: Long?
     abstract val coverId: PlatformUUID?
@@ -143,6 +172,7 @@ abstract class BaseSong() {
     abstract val animatedCoverImageId: PlatformUUID?
     abstract val animatedCoverBlurHash: String?
     abstract val audioStartMs: Long?
+
     @Deprecated(LEGACY_AUDIO_FIELDS)
     abstract val atmosPath: String?
     abstract val tags: List<TitleTag>
@@ -227,7 +257,7 @@ data class Song(
     override val tags: List<TitleTag> = emptyList(),
     @Transient
     val atmosVariantPath: String? = null,
-): BaseSong()
+) : BaseSong()
 
 @Serializable
 @ModelDoc("Extends track metadata with user-specific information like favorite status.")
@@ -324,10 +354,10 @@ data class UserSong(
     val superLikedAt: PlatformDate? = null,
     @FieldDoc(
         "The requesting user's timecode tags on this song whose action is not NONE, ordered by position. Read-only. Tags are changed through " +
-            "ITimecodeTagService, and the full list including passive tags comes from ITimecodeTagService.getTags."
+                "ITimecodeTagService, and the full list including passive tags comes from ITimecodeTagService.getTags."
     )
     val playbackTags: List<TimecodeTag> = emptyList(),
-): BaseSong()
+) : BaseSong()
 
 @Serializable
 @ModelDoc("Additional audio analysis data for a song.")
@@ -408,12 +438,16 @@ data class SongAudioTimeline(
 enum class AudioBand {
     @FieldDoc("Sub bass, 20-60 Hz.")
     SUB,
+
     @FieldDoc("Kick and bass fundamentals, 60-130 Hz.")
     KICK,
+
     @FieldDoc("Low mids, 130-400 Hz.")
     LOW_MID,
+
     @FieldDoc("Mids, 400-2000 Hz.")
     MID,
+
     @FieldDoc("Highs, 2000-8000 Hz.")
     HIGH
 }

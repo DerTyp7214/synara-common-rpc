@@ -9,7 +9,7 @@ data class LyricsAttributes(
     val lrcText: String? = null,
     val provider: LyricsAttributesProvider? = null,
     val text: String? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class TechnicalStatus {
         PENDING,

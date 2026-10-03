@@ -20,14 +20,17 @@ interface AttributeType
 @ObjCName("TidalResourceType")
 @Serializable
 enum class Type(val value: String) {
-    @SerialName("tracks") TRACKS("tracks"),
-    @SerialName("albums") ALBUMS("albums"),
-    @SerialName("artists") ARTISTS("artists"),
+    @SerialName("tracks")
+    TRACKS("tracks"),
+    @SerialName("albums")
+    ALBUMS("albums"),
+    @SerialName("artists")
+    ARTISTS("artists"),
 }
 
 @Serializable
 @JsonClassDiscriminator("entryType")
-sealed class BaseAttributes: AttributeType {
+sealed class BaseAttributes : AttributeType {
 }
 
 @JvmInline

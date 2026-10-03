@@ -48,17 +48,20 @@ class SynaraCborTest {
             createSong("33333333-3333-3333-3333-${i.toString().padStart(12, '0')}", album, listOf(artist))
         }
         val serializer = ListSerializer(Song.serializer())
-        
+
         val standardEncoded = AppCbor.encodeToByteArray(serializer, songs)
         val synaraEncoded = synaraCbor.encodeToByteArray(serializer, songs)
-        
+
         println("Standard size: ${standardEncoded.size}")
         println("Synara size: ${synaraEncoded.size}")
-        
-        assertTrue(synaraEncoded.size < standardEncoded.size, "Synara encoding should be smaller: ${synaraEncoded.size} vs ${standardEncoded.size}")
-        
+
+        assertTrue(
+            synaraEncoded.size < standardEncoded.size,
+            "Synara encoding should be smaller: ${synaraEncoded.size} vs ${standardEncoded.size}"
+        )
+
         val decoded = synaraCbor.decodeFromByteArray(serializer, synaraEncoded)
-        
+
         assertEquals(100, decoded.size)
         assertEquals(decoded[0].album?.id, decoded[1].album?.id)
         assertSame(decoded[0].album, decoded[1].album, "Albums should be the same instance")
@@ -83,16 +86,20 @@ class SynaraCborTest {
             val encoded = synaraCbor.encodeToByteArray(serializer, songs)
             val standardEncoded = AppCbor.encodeToByteArray(serializer, songs)
             assertEquals(standardEncoded.size, encoded.size, "Size should match standard CBOR when disabled")
-            
+
             val decoded = synaraCbor.decodeFromByteArray(serializer, encoded)
-            assertNotSame(decoded[0].artists[0], decoded[1].artists[0], "Artists should NOT be the same instance when disabled")
+            assertNotSame(
+                decoded[0].artists[0],
+                decoded[1].artists[0],
+                "Artists should NOT be the same instance when disabled"
+            )
         }
 
         withSynaraPack(enabled = true) {
             val encoded = synaraCbor.encodeToByteArray(serializer, songs)
             val standardEncoded = AppCbor.encodeToByteArray(serializer, songs)
             assertTrue(encoded.size < standardEncoded.size, "Size should be smaller when enabled")
-            
+
             val decoded = synaraCbor.decodeFromByteArray(serializer, encoded)
             assertSame(decoded[0].artists[0], decoded[1].artists[0], "Artists SHOULD be the same instance when enabled")
         }

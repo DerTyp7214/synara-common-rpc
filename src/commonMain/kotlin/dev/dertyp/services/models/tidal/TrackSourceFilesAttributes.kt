@@ -8,4 +8,4 @@ data class TrackSourceFilesAttributes(
     val propertySize: Long,
     val status: FileStatus,
     val uploadLink: FileUploadLink
-): BaseAttributes()
+) : BaseAttributes()

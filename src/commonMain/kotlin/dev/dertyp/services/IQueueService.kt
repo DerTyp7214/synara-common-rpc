@@ -20,7 +20,7 @@ import kotlinx.rpc.annotations.Rpc
 @Rpc
 @RpcDoc(
     "Manages the server-stored play queue shared between the devices of a user. Every write carries the version the client based its change on; " +
-        "if the server has moved on since then the write is rejected with a conflict carrying the current state, unless the client forces it."
+            "if the server has moved on since then the write is rejected with a conflict carrying the current state, unless the client forces it."
 )
 interface IQueueService {
     @RestGet
@@ -30,7 +30,7 @@ interface IQueueService {
     @RestGet
     @RpcDoc(
         "Read a page of queue entries, ordered by their position in the original order. Each entry also carries its shuffled position, " +
-            "and its song metadata only when the entries are requested with the songs resolved."
+                "and its song metadata only when the entries are requested with the songs resolved."
     )
     suspend fun getQueue(
         @RpcParamDoc("Page index.") page: Int = 0,
@@ -44,7 +44,7 @@ interface IQueueService {
 
     @RpcDoc(
         "Start a chunked upload that replaces the whole queue. Entries are staged in memory with uploadPage and become visible only on commitUpload. " +
-            "Starting an upload discards any previous staged upload of the user, and a staged upload expires after a while if it is not committed."
+                "Starting an upload discards any previous staged upload of the user, and a staged upload expires after a while if it is not committed."
     )
     suspend fun beginUpload(
         @RpcParamDoc("The queue version the upload is based on.") baseVersion: Long,
@@ -59,7 +59,7 @@ interface IQueueService {
 
     @RpcDoc(
         "Replace the queue with the staged entries and store the supplied playback metadata. Entries referring to unknown songs are dropped and both orders are renumbered. " +
-            "When the upload answers a queue request of another device, its request identifier is passed so the requester is notified."
+                "When the upload answers a queue request of another device, its request identifier is passed so the requester is notified."
     )
     suspend fun commitUpload(
         @RpcParamDoc("The upload identifier returned by beginUpload.") uploadId: PlatformUUID,
@@ -74,7 +74,7 @@ interface IQueueService {
 
     @RpcDoc(
         "Insert entries into the queue at a position of the active order (the shuffled order while shuffle is on, otherwise the original order). " +
-            "With shuffle on the entries are spliced into the shuffled order and appended to the end of the original order."
+                "With shuffle on the entries are spliced into the shuffled order and appended to the end of the original order."
     )
     suspend fun insert(
         @RpcParamDoc("The queue version the change is based on.") baseVersion: Long,
@@ -108,8 +108,8 @@ interface IQueueService {
 
     @RpcDoc(
         "Set shuffle and repeat mode. Enabling shuffle makes the server generate a shuffled order that starts with the entry that is currently playing, " +
-            "so the current index becomes 0; disabling it drops the shuffled order and puts the current index back on the original position of that entry. " +
-            "A player that shuffled on its own uploads its order instead."
+                "so the current index becomes 0; disabling it drops the shuffled order and puts the current index back on the original position of that entry. " +
+                "A player that shuffled on its own uploads its order instead."
     )
     suspend fun setModes(
         @RpcParamDoc("The queue version the change is based on.") baseVersion: Long,
@@ -135,7 +135,7 @@ interface IQueueService {
 
     @RpcDoc(
         "Ask another device of the same user to upload its current queue and wait for the outcome. The request is delivered over the client request channel; " +
-            "sessions that are not listening are reported as unreachable and sessions that stay silent as timed out."
+                "sessions that are not listening are reported as unreachable and sessions that stay silent as timed out."
     )
     suspend fun requestUploadFrom(
         @RpcParamDoc("The session unique identifier of the device to ask.") sessionId: PlatformUUID

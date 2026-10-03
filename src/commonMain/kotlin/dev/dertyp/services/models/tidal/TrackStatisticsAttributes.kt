@@ -7,4 +7,4 @@ import kotlinx.serialization.Serializable
 data class TrackStatisticsAttributes(
     val totalPlaybacks: Int,
     val uniqueListeners: Int
-): BaseAttributes()
+) : BaseAttributes()

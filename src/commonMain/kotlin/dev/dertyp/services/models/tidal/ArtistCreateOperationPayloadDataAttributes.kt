@@ -7,4 +7,4 @@ import kotlinx.serialization.Serializable
 data class ArtistCreateOperationPayloadDataAttributes(
     val name: String,
     val handle: String? = null
-): BaseAttributes()
+) : BaseAttributes()

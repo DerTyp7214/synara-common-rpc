@@ -29,9 +29,19 @@ private const val MIX_QUALIFIERS =
 private val tagRules = listOf(
     TagRule(TitleTagKind.FEAT, """^(feat|ft|featuring|with)\.?\s+\S"""),
     TagRule(TitleTagKind.PROD, """^prod\.?\s+\S"""),
-    TagRule(TitleTagKind.REMIX, """\b(remix|remixed|rework|bootleg)$""", """^remix\b""", """\b(vip|flip)( (mix|edit))?$"""),
+    TagRule(
+        TitleTagKind.REMIX,
+        """\b(remix|remixed|rework|bootleg)$""",
+        """^remix\b""",
+        """\b(vip|flip)( (mix|edit))?$"""
+    ),
     TagRule(TitleTagKind.INSTRUMENTAL, """^instrumental$""", """\binstrumental( (version|mix))?$"""),
-    TagRule(TitleTagKind.ACOUSTIC, """^(acoustic|unplugged)$""", """\b(acoustic|unplugged)( version)?$""", """^mtv unplugged\b"""),
+    TagRule(
+        TitleTagKind.ACOUSTIC,
+        """^(acoustic|unplugged)$""",
+        """\b(acoustic|unplugged)( version)?$""",
+        """^mtv unplugged\b"""
+    ),
     TagRule(TitleTagKind.MIX, """\b($MIX_QUALIFIERS)\s+mix$""", """^mix(ed)? cut$""", """^mixed$"""),
     TagRule(TitleTagKind.LIVE, """^live$""", """^live (at|from|in|on|version|\d{4})\b""", """\slive$"""),
     TagRule(TitleTagKind.COVER, """^cover$""", """\scover$""", """^cover (version|by)\b"""),

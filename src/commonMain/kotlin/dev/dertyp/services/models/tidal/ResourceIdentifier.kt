@@ -7,4 +7,4 @@ import kotlinx.serialization.Serializable
 data class ResourceIdentifier(
     val id: String,
     val type: String
-): BaseAttributes()
+) : BaseAttributes()

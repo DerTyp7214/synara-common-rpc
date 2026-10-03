@@ -12,4 +12,4 @@ data class UsersAttributes(
     val firstName: String? = null,
     val lastName: String? = null,
     val nostrPublicKey: String? = null
-): BaseAttributes()
+) : BaseAttributes()

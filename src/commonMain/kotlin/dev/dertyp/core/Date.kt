@@ -8,4 +8,5 @@ import dev.dertyp.toEpochMilliseconds
 import kotlin.jvm.JvmName
 import kotlin.time.Duration
 
-operator fun PlatformDate.plus(duration: Duration): PlatformDate = platformDateFromEpochMilliseconds(toEpochMilliseconds() + duration.inWholeMilliseconds)
+operator fun PlatformDate.plus(duration: Duration): PlatformDate =
+    platformDateFromEpochMilliseconds(toEpochMilliseconds() + duration.inWholeMilliseconds)

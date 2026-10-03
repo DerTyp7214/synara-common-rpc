@@ -29,17 +29,20 @@ class BandcampParser : UrlParser() {
         }
 
         val subdomain = host.removeSuffix(".bandcamp.com")
-        
+
         return when {
             pathParts.size >= 2 && pathParts[0] == "album" -> {
                 "$subdomain/album/${pathParts[1]}" to Type.ALBUM
             }
+
             pathParts.size >= 2 && pathParts[0] == "track" -> {
                 "$subdomain/track/${pathParts[1]}" to Type.SONG
             }
+
             pathParts.isEmpty() || pathParts[0].isEmpty() -> {
                 subdomain to Type.ARTIST
             }
+
             else -> "$subdomain/${pathParts.joinToString("/")}" to Type.ALBUM
         }
     }

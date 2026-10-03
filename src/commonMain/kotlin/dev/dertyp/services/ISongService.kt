@@ -25,56 +25,68 @@ interface ISongService {
         @RpcParamDoc("Whether to mark as liked.") liked: Boolean,
         @RpcParamDoc("Optional timestamp of when it was added.") addedAt: PlatformInstant? = null
     ): UserSong?
+
     @RpcDoc("Set the like level of a song. A super like also counts as a like. Changing between LIKE and SUPER keeps the song's position among the liked songs.")
     suspend fun setLikeLevel(
         @RpcParamDoc("The unique UUID of the song.") id: PlatformUUID,
         @RpcParamDoc("The new like level. NONE removes the like and the super like.") level: LikeLevel
     ): UserSong?
+
     @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Manually set song lyrics.")
     suspend fun setLyrics(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
         @RpcParamDoc("List of lyric lines.") lyrics: List<String>
     ): UserSong?
+
     @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Update song artists.")
     suspend fun setArtists(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
         @RpcParamDoc("Collection of artist IDs.") artistIds: List<PlatformUUID>
     ): UserSong?
+
     @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Update a song's editable metadata (title, artists and their credited names, MusicBrainz link, album, lyrics, release date, track and disc number).")
     suspend fun updateSong(
         @RpcParamDoc("The song with its updated editable fields.") song: Song
     ): UserSong?
+
     @RequiresCapability(UserCapability.EDIT)
     @RpcDoc("Link a song to its MusicBrainz Recording record.")
     suspend fun setMusicBrainzId(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
         @RpcParamDoc("The MusicBrainz Recording UUID.") musicBrainzId: PlatformUUID?
     ): UserSong?
+
     @RequiresCapability(UserCapability.EDIT)
     @RestPost
     @RpcDoc("Trigger automatic MusicBrainz ID matching for a song.")
     suspend fun fetchMusicBrainzId(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): UserSong?
+
     @RpcDoc("Get song by its unique identifier.")
     suspend fun byId(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): UserSong?
+
     @RpcDoc("Find songs by their MusicBrainz Recording ID.")
     suspend fun byMusicBrainzId(@RpcParamDoc("The MusicBrainz Recording UUID.") musicBrainzId: PlatformUUID): List<UserSong>
+
     @RpcDoc("Get multiple songs by their unique identifiers.")
     suspend fun byIds(@RpcParamDoc("Collection of song IDs.") ids: List<PlatformUUID>): List<UserSong>
+
     @RpcDoc("Search for songs by title.")
     suspend fun byTitle(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The song title to search for.") title: String
     ): PaginatedResponse<UserSong>
+
     @RpcDoc("List songs by a specific artist.")
     suspend fun byArtist(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID
     ): PaginatedResponse<UserSong>
+
     @RpcDoc("List songs liked by the user for a specific artist.")
     suspend fun likedByArtist(
         @RpcParamDoc("Page index.") page: Int = 0,
@@ -82,36 +94,44 @@ interface ISongService {
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
     ): PaginatedResponse<UserSong>
+
     @RpcDoc("List songs in an album.")
     suspend fun byAlbum(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The album unique identifier.") albumId: PlatformUUID
     ): PaginatedResponse<UserSong>
+
     @RpcDoc("List songs in a system playlist.")
     suspend fun byPlaylist(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The playlist unique identifier.") playlistId: PlatformUUID
     ): PaginatedResponse<UserSong>
+
     @RpcDoc("List songs in a user playlist.")
     suspend fun byUserPlaylist(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The user playlist unique identifier.") playlistId: PlatformUUID
     ): PaginatedResponse<UserSong>
+
     @RpcDoc("Find songs by their original platform-specific unique identifiers.")
     suspend fun byOriginalIds(@RpcParamDoc("Collection of original platform-specific track identifiers.") ids: Collection<PrefixedId>): List<UserSong>
+
     @RpcDoc("Find songs by their original platform URLs, returning a mapping.")
     suspend fun byOriginalUrls(@RpcParamDoc("Collection of original platform URLs.") urls: Collection<String>): Map<String, UserSong?>
+
     @RpcDoc("Find songs matching external metadata records.")
     suspend fun byOriginalTracks(@RpcParamDoc("Collection of track metadata.") tracks: Collection<IMetadataService.Track>): List<UserSong>
+
     @RpcDoc("Get all songs liked by the current user.")
     suspend fun likedSongs(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
     ): PaginatedResponse<UserSong>
+
     @RestGet
     @RpcDoc("Get all songs super liked by the current user, most recently super liked first.")
     suspend fun superLikedSongs(
@@ -119,9 +139,11 @@ interface ISongService {
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean
     ): PaginatedResponse<UserSong>
+
     @RestGet
     @RpcDoc("Export all favorited songs as a CSV string.")
     suspend fun exportFavouritesAsCsv(): String
+
     @RpcDoc("Get all songs with optional filtering.")
     suspend fun allSongs(
         @RpcParamDoc("Page index.") page: Int = 0,
@@ -170,6 +192,7 @@ interface ISongService {
         @RpcParamDoc("Byte offset to start streaming from.") offset: Long = 0,
         @RpcParamDoc("Size of each data chunk.") chunkSize: Int = 4096
     ): Flow<ByteArray>?
+
     @RpcDoc("Download song audio in specific quality.", errors = ["IOException", "IllegalStateException"])
     @RestFileResponse
     fun downloadSong(
@@ -180,8 +203,10 @@ interface ISongService {
         @RpcParamDoc("Whether to force re-transcoding and duration check.") force: Boolean = true,
         @RpcParamDoc("The target audio format.") format: AudioFormat = AudioFormat.OPUS
     ): Flow<ByteArray>?
+
     @RpcDoc("Get the total size of the song's audio stream.")
     suspend fun getStreamSize(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): Long
+
     @RpcDoc("Stream the Dolby Atmos (E-AC-3 JOC in MP4) variant of a song. Returns null if the song has no Atmos variant.")
     @RestFileResponse
     fun streamSongAtmos(
@@ -189,8 +214,10 @@ interface ISongService {
         @RpcParamDoc("Byte offset to start streaming from.") offset: Long = 0,
         @RpcParamDoc("Size of each data chunk.") chunkSize: Int = 4096
     ): Flow<ByteArray>?
+
     @RpcDoc("Get the size of the song's Dolby Atmos stream, or 0 if the song has no Atmos variant.")
     suspend fun getAtmosStreamSize(@RpcParamDoc("The song unique identifier.") id: PlatformUUID): Long
+
     @RpcDoc("Get the size of the song audio for a specific quality.")
     suspend fun getDownloadSize(
         @RpcParamDoc("The song unique identifier.") id: PlatformUUID,
@@ -207,20 +234,26 @@ interface ISongService {
         @RpcParamDoc("Only include songs whose title carries any of these title tag kinds.") titleTags: List<TitleTagKind> = emptyList(),
         @RpcParamDoc("Exclude songs whose title carries any of these title tag kinds. Songs without title tags are kept.") excludeTitleTags: List<TitleTagKind> = emptyList()
     ): Flow<PlatformUUID>
+
     @RpcDoc("Stream all IDs of songs liked by the current user.")
     fun likedSongIds(@RpcParamDoc("Whether to include explicit content.") explicit: Boolean): Flow<PlatformUUID>
+
     @RestGet
     @RpcDoc("Stream all IDs of songs super liked by the current user, most recently super liked first.")
     fun superLikedSongIds(@RpcParamDoc("Whether to include explicit content.") explicit: Boolean): Flow<PlatformUUID>
+
     @RestGet
     @RpcDoc("Stream song IDs belonging to an artist.")
     fun songIdsByArtist(@RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID): Flow<PlatformUUID>
+
     @RestGet
     @RpcDoc("Stream song IDs belonging to an album.")
     fun songIdsByAlbum(@RpcParamDoc("The album unique identifier.") albumId: PlatformUUID): Flow<PlatformUUID>
+
     @RestGet
     @RpcDoc("Stream song IDs belonging to a system playlist.")
     fun songIdsByPlaylist(@RpcParamDoc("The playlist unique identifier.") playlistId: PlatformUUID): Flow<PlatformUUID>
+
     @RestGet
     @RpcDoc("Stream song IDs belonging to a user playlist.")
     fun songIdsByUserPlaylist(@RpcParamDoc("The user playlist unique identifier.") playlistId: PlatformUUID): Flow<PlatformUUID>

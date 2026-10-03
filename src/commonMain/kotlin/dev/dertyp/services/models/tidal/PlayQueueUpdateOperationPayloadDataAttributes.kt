@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class PlayQueueUpdateOperationPayloadDataAttributes(
     val repeat: Repeat? = null,
     val shuffled: Boolean? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class Repeat {
         NONE,

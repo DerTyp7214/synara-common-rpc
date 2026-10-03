@@ -170,36 +170,38 @@ class RpcProcessor(
         out.writeLine("    return scope.launch {")
         out.writeLine("        val service = $serviceExpr")
         out.writeLine("        val flow = when (method) {")
-        allFunctions.filter { !it.modifiers.contains(Modifier.SUSPEND) && it.returnType?.resolve()?.declaration?.simpleName?.asString() == "Flow" }.forEach { func ->
-            val funcName = func.simpleName.asString()
-            val params = func.parameters.map { (it.name?.asString() ?: "arg") to it.type.toTypeString() }
-            if (params.isEmpty()) {
-                out.writeLine("            \"$funcName\" -> service.$funcName()")
-            } else if (params.size == 1) {
-                val (_, pType) = params[0]
-                val serializer = getSerializerForType(pType)
-                if (serializer != null) out.writeLine("            \"$funcName\" -> service.$funcName(AppCbor.decodeFromByteArray($serializer, args))")
-                else out.writeLine("            \"$funcName\" -> service.$funcName(AppCbor.decodeFromByteArray<$pType>(args))")
-            } else {
-                val argsClassName = "${name}${funcName.replaceFirstChar { it.uppercase() }}Args"
-                val callParams = params.joinToString(", ") { "a.${it.first}" }
-                out.writeLine("            \"$funcName\" -> {")
-                out.writeLine("                val a = AppCbor.decodeFromByteArray<$argsClassName>(args)")
-                out.writeLine("                service.$funcName($callParams)")
-                out.writeLine("            }")
+        allFunctions.filter { !it.modifiers.contains(Modifier.SUSPEND) && it.returnType?.resolve()?.declaration?.simpleName?.asString() == "Flow" }
+            .forEach { func ->
+                val funcName = func.simpleName.asString()
+                val params = func.parameters.map { (it.name?.asString() ?: "arg") to it.type.toTypeString() }
+                if (params.isEmpty()) {
+                    out.writeLine("            \"$funcName\" -> service.$funcName()")
+                } else if (params.size == 1) {
+                    val (_, pType) = params[0]
+                    val serializer = getSerializerForType(pType)
+                    if (serializer != null) out.writeLine("            \"$funcName\" -> service.$funcName(AppCbor.decodeFromByteArray($serializer, args))")
+                    else out.writeLine("            \"$funcName\" -> service.$funcName(AppCbor.decodeFromByteArray<$pType>(args))")
+                } else {
+                    val argsClassName = "${name}${funcName.replaceFirstChar { it.uppercase() }}Args"
+                    val callParams = params.joinToString(", ") { "a.${it.first}" }
+                    out.writeLine("            \"$funcName\" -> {")
+                    out.writeLine("                val a = AppCbor.decodeFromByteArray<$argsClassName>(args)")
+                    out.writeLine("                service.$funcName($callParams)")
+                    out.writeLine("            }")
+                }
             }
-        }
         out.writeLine($$"            else -> throw IllegalArgumentException(\"Unknown method: $method\")")
         out.writeLine("        } as Flow<Any>")
         out.writeLine("        flow.collect { item ->")
         out.writeLine("            val serializer = when (method) {")
-        allFunctions.filter { !it.modifiers.contains(Modifier.SUSPEND) && it.returnType?.resolve()?.declaration?.simpleName?.asString() == "Flow" }.forEach { func ->
-            val funcName = func.simpleName.asString()
-            val flowType = func.returnType?.resolve()?.arguments?.firstOrNull()?.type?.toTypeString() ?: "Any"
-            val serializer = getSerializerForType(flowType)
-            if (serializer != null) out.writeLine("                \"$funcName\" -> $serializer")
-            else out.writeLine("                \"$funcName\" -> AppCbor.serializersModule.serializer<$flowType>()")
-        }
+        allFunctions.filter { !it.modifiers.contains(Modifier.SUSPEND) && it.returnType?.resolve()?.declaration?.simpleName?.asString() == "Flow" }
+            .forEach { func ->
+                val funcName = func.simpleName.asString()
+                val flowType = func.returnType?.resolve()?.arguments?.firstOrNull()?.type?.toTypeString() ?: "Any"
+                val serializer = getSerializerForType(flowType)
+                if (serializer != null) out.writeLine("                \"$funcName\" -> $serializer")
+                else out.writeLine("                \"$funcName\" -> AppCbor.serializersModule.serializer<$flowType>()")
+            }
         out.writeLine("                else -> AppCbor.serializersModule.serializer<Any>()")
         out.writeLine("            } as KSerializer<Any>")
         out.writeLine("            onEach(AppCbor.encodeToByteArray(serializer, item))")
@@ -221,7 +223,7 @@ class RpcProcessor(
                     val ann = getSerializerAnnotation(pType)
                     out.writeLine("    $ann val $pName: $pType$comma")
                 }
-                
+
                 val hasArray = params.any { it.second.contains("Array") }
                 if (hasArray) {
                     out.writeLine(") {")
@@ -277,7 +279,7 @@ class RpcProcessor(
         val file = if (rustBridgePath.parentFile?.exists() == true) {
             rustBridgePath.outputStream()
         } else {
-             codeGenerator.createNewFile(
+            codeGenerator.createNewFile(
                 dependencies,
                 "dev.dertyp.rpc",
                 "RustBridge",
@@ -387,7 +389,9 @@ class RpcProcessor(
                     it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
                 }.forEach { func ->
                     if (func.parameters.size > 1) {
-                        val argsClassName = "${symbol.simpleName.asString()}${func.simpleName.asString().replaceFirstChar { it.uppercase() }}Args"
+                        val argsClassName = "${symbol.simpleName.asString()}${
+                            func.simpleName.asString().replaceFirstChar { it.uppercase() }
+                        }Args"
                         out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone)]")
                         out.writeLine("pub struct $argsClassName {")
                         func.parameters.forEach { param ->
@@ -408,15 +412,20 @@ class RpcProcessor(
             symbols.forEach { symbol ->
                 val name = symbol.simpleName.asString()
                 out.writeLine("pub trait $name {")
-                symbol.getAllFunctions().filter { 
+                symbol.getAllFunctions().filter {
                     it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
                 }.forEach { func ->
                     val fName = toSnakeCase(func.simpleName.asString())
-                    val params = func.parameters.joinToString(", ") { "${toSnakeCase(it.name?.asString() ?: "arg")}: ${toRustType(it.type.resolve())}" }
+                    val params = func.parameters.joinToString(", ") {
+                        "${toSnakeCase(it.name?.asString() ?: "arg")}: ${
+                            toRustType(it.type.resolve())
+                        }"
+                    }
                     val resolvedRet = func.returnType?.resolve()
                     val isFlow = resolvedRet?.declaration?.qualifiedName?.asString() == "kotlinx.coroutines.flow.Flow"
                     if (isFlow) {
-                        val flowType = resolvedRet.arguments.firstOrNull()?.type?.resolve()?.let { toRustType(it) } ?: "serde_json::Value"
+                        val flowType = resolvedRet.arguments.firstOrNull()?.type?.resolve()?.let { toRustType(it) }
+                            ?: "serde_json::Value"
                         out.writeLine("    fn $fName(&self, $params) -> RpcStream<$flowType>;")
                     } else {
                         val ret = toRustType(resolvedRet ?: resolver.builtIns.unitType)
@@ -512,17 +521,22 @@ class RpcProcessor(
             symbols.forEach { symbol ->
                 val name = symbol.simpleName.asString()
                 out.writeLine("impl $name for RpcClient {")
-                symbol.getAllFunctions().filter { 
+                symbol.getAllFunctions().filter {
                     it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
                 }.forEach { func ->
                     val fName = toSnakeCase(func.simpleName.asString())
-                    val params = func.parameters.joinToString(", ") { "${toSnakeCase(it.name?.asString() ?: "arg")}: ${toRustType(it.type.resolve())}" }
+                    val params = func.parameters.joinToString(", ") {
+                        "${toSnakeCase(it.name?.asString() ?: "arg")}: ${
+                            toRustType(it.type.resolve())
+                        }"
+                    }
                     val paramNames = func.parameters.joinToString(", ") { toSnakeCase(it.name?.asString() ?: "arg") }
                     val resolvedRet = func.returnType?.resolve()
                     val isFlow = resolvedRet?.declaration?.qualifiedName?.asString() == "kotlinx.coroutines.flow.Flow"
-                    
+
                     if (isFlow) {
-                        val flowType = resolvedRet.arguments.firstOrNull()?.type?.resolve()?.let { toRustType(it) } ?: "serde_json::Value"
+                        val flowType = resolvedRet.arguments.firstOrNull()?.type?.resolve()?.let { toRustType(it) }
+                            ?: "serde_json::Value"
                         out.writeLine("    fn $fName(&self, $params) -> RpcStream<$flowType> {")
                         if (func.parameters.isEmpty()) out.writeLine("        self.subscribe(\"$name\", \"${func.simpleName.asString()}\", &())")
                         else if (func.parameters.size == 1) {
@@ -533,10 +547,11 @@ class RpcProcessor(
                             } else {
                                 out.writeLine("        self.subscribe(\"$name\", \"${func.simpleName.asString()}\", &$paramNames)")
                             }
-                        }
-                        else {
-                            val argsClassName = "${name}${func.simpleName.asString().replaceFirstChar { it.uppercase() }}Args"
-                            val argsFields = func.parameters.joinToString(", ") { toSnakeCase(it.name?.asString() ?: "arg") }
+                        } else {
+                            val argsClassName =
+                                "${name}${func.simpleName.asString().replaceFirstChar { it.uppercase() }}Args"
+                            val argsFields =
+                                func.parameters.joinToString(", ") { toSnakeCase(it.name?.asString() ?: "arg") }
                             out.writeLine("        let args = $argsClassName { $argsFields };")
                             out.writeLine("        self.subscribe(\"$name\", \"${func.simpleName.asString()}\", &args)")
                         }
@@ -553,10 +568,11 @@ class RpcProcessor(
                             } else {
                                 out.writeLine("            self.call(\"$name\", \"${func.simpleName.asString()}\", &$paramNames).await")
                             }
-                        }
-                        else {
-                            val argsClassName = "${name}${func.simpleName.asString().replaceFirstChar { it.uppercase() }}Args"
-                            val argsFields = func.parameters.joinToString(", ") { toSnakeCase(it.name?.asString() ?: "arg") }
+                        } else {
+                            val argsClassName =
+                                "${name}${func.simpleName.asString().replaceFirstChar { it.uppercase() }}Args"
+                            val argsFields =
+                                func.parameters.joinToString(", ") { toSnakeCase(it.name?.asString() ?: "arg") }
                             out.writeLine("            let args = $argsClassName { $argsFields };")
                             out.writeLine("            self.call(\"$name\", \"${func.simpleName.asString()}\", &args).await")
                         }
@@ -625,9 +641,9 @@ class RpcProcessor(
         val qName = decl.qualifiedName?.asString() ?: return
         if (generated.contains(qName)) return
         generated.add(qName)
-        
+
         val name = getUniqueName(decl)
-        
+
         if (decl.classKind == ClassKind.ENUM_CLASS) {
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]")
             out.writeLine("pub enum $name {")
@@ -643,18 +659,19 @@ class RpcProcessor(
                 }
             out.writeLine("}")
         } else {
-            val typeParams = if (decl.typeParameters.isNotEmpty()) "<" + decl.typeParameters.joinToString(", ") { it.name.asString() } + ">" else ""
+            val typeParams =
+                if (decl.typeParameters.isNotEmpty()) "<" + decl.typeParameters.joinToString(", ") { it.name.asString() } + ">" else ""
             out.writeLine("#[derive(Serialize, Deserialize, Debug, Clone)]")
             out.writeLine("pub struct $name$typeParams {")
             decl.getAllProperties().forEach { prop ->
                 if (prop.annotations.any { it.shortName.asString() == "Transient" }) return@forEach
-                
+
                 val pName = toSnakeCase(prop.simpleName.asString())
                 val pType = toRustType(prop.type.resolve())
                 if (pName != prop.simpleName.asString()) out.writeLine("    #[serde(rename = \"${prop.simpleName.asString()}\")]")
-                
+
                 if (pType == "SuspendFunction0") out.writeLine("    #[serde(skip)]")
-                
+
                 out.writeLine("    pub $pName: $pType,")
             }
             out.writeLine("}")
@@ -682,21 +699,25 @@ class RpcProcessor(
                 val arg = type.arguments.firstOrNull()?.type?.resolve()
                 "Vec<${arg?.let { toRustType(it) } ?: "serde_json::Value"}>"
             }
+
             qName == "kotlin.collections.Map" -> {
                 val k = type.arguments.getOrNull(0)?.type?.resolve()
                 val v = type.arguments.getOrNull(1)?.type?.resolve()
                 "std::collections::HashMap<${k?.let { toRustType(it) } ?: "String"}, ${v?.let { toRustType(it) } ?: "serde_json::Value"}>"
             }
+
             qName == "kotlin.Pair" -> {
                 val t1 = type.arguments.getOrNull(0)?.type?.resolve()
                 val t2 = type.arguments.getOrNull(1)?.type?.resolve()
                 "(${t1?.let { toRustType(t1) } ?: "serde_json::Value"}, ${t2?.let { toRustType(t2) } ?: "serde_json::Value"})"
             }
+
             qName == "kotlinx.coroutines.flow.Flow" -> "()"
             qName == "dev.dertyp.data.PaginatedResponse" -> {
                 val arg = type.arguments.firstOrNull()?.type?.resolve()
                 "PaginatedResponse<${arg?.let { toRustType(it) } ?: "serde_json::Value"}>"
             }
+
             else -> {
                 if (decl is KSTypeParameter) decl.name.asString()
                 else getUniqueName(decl)
@@ -717,7 +738,9 @@ class RpcProcessor(
         return if (snake == "type") "r#type" else snake
     }
 
-    private fun getSerializerAnnotation(type: String) = getSerializerForType(type)?.let { "@Serializable(with = $it::class) " } ?: ""
+    private fun getSerializerAnnotation(type: String) =
+        getSerializerForType(type)?.let { "@Serializable(with = $it::class) " } ?: ""
+
     private fun getSerializerForType(type: String): String? {
         return when (val base = type.removeSuffix("?").substringAfterLast(".")) {
             "PlatformDate" -> "DateSerializer"

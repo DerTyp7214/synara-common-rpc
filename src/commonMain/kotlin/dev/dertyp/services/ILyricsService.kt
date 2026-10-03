@@ -11,11 +11,13 @@ import kotlinx.rpc.annotations.Rpc
 interface ILyricsService {
     @RpcDoc("Get time-synced lyrics for a song if they exist.")
     suspend fun getSyncedLyrics(@RpcParamDoc("The song unique identifier.") songId: PlatformUUID): SyncedLyrics?
+
     @RpcDoc("Trigger AI-based transcription or manual alignment of lyrics.", errors = ["RuntimeException"])
     suspend fun transcribeLyrics(
         @RpcParamDoc("The song unique identifier.") songId: PlatformUUID,
         @RpcParamDoc("Optional raw lyrics text to transcribe.") lyrics: String? = null
     ): SyncedLyrics?
+
     @RpcDoc("Start the background lyrics synchronization worker.")
     suspend fun startSyncWorker(): Boolean
 }

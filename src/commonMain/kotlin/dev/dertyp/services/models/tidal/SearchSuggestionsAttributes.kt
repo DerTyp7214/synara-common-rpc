@@ -7,4 +7,4 @@ data class SearchSuggestionsAttributes(
     val trackingId: String,
     val history: List<SearchSuggestionsHistory>? = null,
     val suggestions: List<SearchSuggestionsSuggestions>? = null
-): BaseAttributes()
+) : BaseAttributes()

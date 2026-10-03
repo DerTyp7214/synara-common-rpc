@@ -535,9 +535,12 @@ class UrlParserTest {
         for ((input, expectedClass) in testCases) {
             val parser = ParserFactory.getParser(input)
             assertNotNull(parser, "No parser found for $input")
-            assertTrue(expectedClass.isInstance(parser), "Expected ${expectedClass.simpleName} for $input, but got ${parser::class.simpleName}")
+            assertTrue(
+                expectedClass.isInstance(parser),
+                "Expected ${expectedClass.simpleName} for $input, but got ${parser::class.simpleName}"
+            )
         }
-        
+
         assertNull(ParserFactory.getParser("https://example.com"))
     }
 
@@ -592,7 +595,7 @@ class UrlParserTest {
             assertNotNull(parser, "No parser found for provider $name")
             assertTrue(expectedClass.isInstance(parser), "Expected ${expectedClass.simpleName} for $name")
         }
-        
+
         assertNull(ParserFactory.getParserForProvider("unknown"))
     }
 

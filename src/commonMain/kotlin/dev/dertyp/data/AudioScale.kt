@@ -9,10 +9,13 @@ import kotlinx.serialization.Serializable
 enum class AudioScale {
     @SerialName("major")
     Major,
+
     @SerialName("minor")
     Minor,
+
     @SerialName("majmin")
     MajMin,
+
     @SerialName("unknown")
     Unknown;
 

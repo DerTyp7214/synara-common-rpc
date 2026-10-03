@@ -12,7 +12,7 @@ data class TrackManifestsAttributes(
     val trackAudioNormalizationData: AudioNormalizationData? = null,
     val trackPresentation: TrackPresentation? = null,
     val uri: String? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class Formats {
         HEAACV1,

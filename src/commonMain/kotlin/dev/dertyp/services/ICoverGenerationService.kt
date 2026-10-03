@@ -25,21 +25,30 @@ interface ICoverGenerationService {
     @RpcDoc("The current cover state of a playlist or collection.", errors = ["IllegalArgumentException"])
     suspend fun coverInfo(@RpcParamDoc("The playlist or collection.") target: CoverTarget): CoverInfo
 
-    @RpcDoc("Render a 1024x1024 JPEG preview without persisting it. Only the owner or an admin may call this.", errors = ["IllegalArgumentException", "IllegalAccessException"])
+    @RpcDoc(
+        "Render a 1024x1024 JPEG preview without persisting it. Only the owner or an admin may call this.",
+        errors = ["IllegalArgumentException", "IllegalAccessException"]
+    )
     suspend fun previewCoverImage(
         @RpcParamDoc("The playlist or collection.") target: CoverTarget,
         @RpcParamDoc("Generation parameters.") params: CoverGenerationParams = CoverGenerationParams(),
     ): ByteArray
 
     @RestPost
-    @RpcDoc("Render, persist and set the cover, marking it as generated. Returns the new image id. Only the owner or an admin may call this.", errors = ["IllegalArgumentException", "IllegalAccessException"])
+    @RpcDoc(
+        "Render, persist and set the cover, marking it as generated. Returns the new image id. Only the owner or an admin may call this.",
+        errors = ["IllegalArgumentException", "IllegalAccessException"]
+    )
     suspend fun applyCover(
         @RpcParamDoc("The playlist or collection.") target: CoverTarget,
         @RpcParamDoc("Generation parameters.") params: CoverGenerationParams = CoverGenerationParams(),
     ): PlatformUUID
 
     @RestPost
-    @RpcDoc("Clear a user-set cover so automatic generation may replace it. Returns false when there was nothing to reset.", errors = ["IllegalAccessException"])
+    @RpcDoc(
+        "Clear a user-set cover so automatic generation may replace it. Returns false when there was nothing to reset.",
+        errors = ["IllegalAccessException"]
+    )
     suspend fun resetCover(@RpcParamDoc("The playlist or collection.") target: CoverTarget): Boolean
 
     @RestPost

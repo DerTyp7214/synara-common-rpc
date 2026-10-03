@@ -19,7 +19,8 @@ class LiveMixtapesParser : UrlParser() {
         val pathParts = uri.encodedPath.trim('/').split("/")
 
         if (pathParts.contains("mixtapes") || pathParts.contains("download")) {
-            val index = if (pathParts.contains("mixtapes")) pathParts.indexOf("mixtapes") else pathParts.indexOf("download")
+            val index =
+                if (pathParts.contains("mixtapes")) pathParts.indexOf("mixtapes") else pathParts.indexOf("download")
             if (index + 1 < pathParts.size) {
                 val id = pathParts[index + 1]
                 if (id.all { it.isDigit() }) return id to Type.ALBUM

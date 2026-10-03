@@ -14,6 +14,7 @@ interface IDbManagementService {
     @RestGet
     @RpcDoc("Export the entire system database as a binary blob.")
     suspend fun exportData(): ByteArray
+
     @RequiresAdmin
     @RestPost
     @RpcDoc("Import a previously exported database blob to overwrite the current state.")

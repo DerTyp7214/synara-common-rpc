@@ -18,10 +18,10 @@ class ModelConsistencyTest {
             title = "MB Title",
             artistCredit = listOf(MusicBrainzArtistCredit(name = "MB Artist"))
         )
-        
+
         val bytes = synaraCbor.encodeToByteArray(MusicBrainzRecording.serializer(), recording)
         val decoded = synaraCbor.decodeFromByteArray(MusicBrainzRecording.serializer(), bytes)
-        
+
         assertEquals(recording.id, decoded.id)
         assertEquals(recording.title, decoded.title)
         assertEquals(recording.artistCredit?.first()?.name, decoded.artistCredit?.first()?.name)

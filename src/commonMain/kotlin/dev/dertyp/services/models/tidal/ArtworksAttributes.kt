@@ -7,7 +7,7 @@ data class ArtworksAttributes(
     val files: List<ArtworkFile>,
     val mediaType: MediaType,
     val sourceFile: ArtworkSourceFile? = null
-): BaseAttributes() {
+) : BaseAttributes() {
     @Suppress("unused")
     enum class MediaType {
         IMAGE,

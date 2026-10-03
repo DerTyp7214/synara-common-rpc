@@ -7,4 +7,4 @@ import kotlinx.serialization.Serializable
 data class TrackSourceFileCreateOperationPayloadDataAttributes(
     val md5Hash: String,
     val propertySize: Long
-): BaseAttributes()
+) : BaseAttributes()

@@ -128,6 +128,7 @@ class TypeClassifier(private val restPackage: String) {
             qualified == "kotlin.Float" -> CodeBlock.of("%T.float", restConvert)
             qualified == "java.util.UUID" || simple == "UUID" || simple == "PlatformUUID" ->
                 CodeBlock.of("%T.uuid", restConvert)
+
             simple == "Instant" || simple == "PlatformInstant" -> CodeBlock.of("%T.instant", restConvert)
             simple == "MetadataType" -> CodeBlock.of("%T.metadataType", restConvert)
             (declaration as? KSClassDeclaration)?.classKind == ClassKind.ENUM_CLASS ->
@@ -136,6 +137,7 @@ class TypeClassifier(private val restPackage: String) {
                     restConvert,
                     declaration.toClassName()
                 )
+
             else -> CodeBlock.of("%T.string", restConvert)
         }
     }

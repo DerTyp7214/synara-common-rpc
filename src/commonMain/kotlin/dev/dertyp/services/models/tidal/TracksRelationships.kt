@@ -15,4 +15,4 @@ data class TracksRelationships(
     val similarTracks: MultiRelationshipDataDocument? = null,
     val sourceFile: SingleRelationshipDataDocument? = null,
     val trackStatistics: SingleRelationshipDataDocument? = null
-): BaseRelationships
+) : BaseRelationships

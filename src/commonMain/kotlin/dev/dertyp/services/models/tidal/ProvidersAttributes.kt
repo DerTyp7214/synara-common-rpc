@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ProvidersAttributes(
     val name: String
-): BaseAttributes()
+) : BaseAttributes()
