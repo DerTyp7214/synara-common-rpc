@@ -29,7 +29,7 @@ interface ISongService {
         @RpcParamDoc("The unique UUID of the song.") id: PlatformUUID,
         @RpcParamDoc("Whether to mark as liked.") liked: Boolean,
         @RpcParamDoc("Optional timestamp of when it was added.") addedAt: PlatformInstant? = null
-    ): UserSong?
+    ): UserSong? = setLikeLevel(id, if (liked) LikeLevel.LIKE else LikeLevel.NONE)
 
     @RpcDoc("Set the like level of a song. A super like also counts as a like. Changing between LIKE and SUPER keeps the song's position among the liked songs.")
     suspend fun setLikeLevel(

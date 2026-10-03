@@ -9,6 +9,7 @@ import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.rpc.annotations.Rpc
 
 @Rpc
@@ -30,7 +31,7 @@ interface IListenBrainzService {
 
     @Deprecated(REMOVED_IN_API_9 + " Use IChangeService.observeChanges and getStatus.")
     @RpcDoc("Stream the current user's ListenBrainz status, re-emitting whenever it changes (e.g. during a sync). @IChangeService.observeChanges reports the LISTENBRAINZ_STATUS topic of @ChangeTopic instead, after which @IListenBrainzService.getStatus reads the status once.")
-    fun getStatusFlow(): Flow<ListenBrainzStatus?>
+    fun getStatusFlow(): Flow<ListenBrainzStatus?> = flow { emit(getStatus()) }
 
     @RpcDoc("Trigger an incremental sync of the current user's ListenBrainz listens now.")
     suspend fun syncNow(): ListenBrainzStatus

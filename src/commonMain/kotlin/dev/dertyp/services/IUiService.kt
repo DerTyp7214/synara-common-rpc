@@ -22,6 +22,7 @@ import dev.dertyp.ui.UiLiveUpdate
 import dev.dertyp.ui.UiRender
 import dev.dertyp.ui.UiSlotRender
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.rpc.annotations.Rpc
 
 @Rpc
@@ -140,5 +141,5 @@ interface IUiService {
 
     @Deprecated(REMOVED_IN_API_9 + " Use IChangeService.observeChanges and getHomeCards.")
     @RpcDoc("Stream the current user's home-card layout. @IChangeService.observeChanges reports the HOME_CARDS topic of @ChangeTopic instead, after which @IUiService.getHomeCards reads the layout once.")
-    fun getHomeCardsFlow(): Flow<UiHomeLayout>
+    fun getHomeCardsFlow(): Flow<UiHomeLayout> = flow { emit(getHomeCards()) }
 }
