@@ -82,6 +82,13 @@ extern "C" fn flow_callback_handler<T: for<'de> Deserialize<'de> + Send + 'stati
 #[derive(Serialize, Deserialize, Debug, Clone)] pub struct RpcEnvelope { pub data: Option<serde_bytes::ByteBuf>, pub error: Option<String> }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IAlbumServiceByVersionGroupArgs {
+    #[serde(rename = "versionGroupId")]
+    pub version_group_id: PlatformUUID,
+    pub explicit: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IAlbumServiceByNameArgs {
     pub page: i32,
     #[serde(rename = "pageSize")]
@@ -1520,6 +1527,8 @@ pub struct Album {
     pub animated_cover_blur_hash: Option<String>,
     pub tags: Vec<TitleTag>,
     pub versions: Vec<Album>,
+    #[serde(rename = "versionGroupId")]
+    pub version_group_id: Option<PlatformUUID>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -4383,6 +4392,7 @@ pub trait IAlbumService {
     fn by_original_ids<'life0, 'async_trait>(&'life0 self, ids: Vec<PrefixedId>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_original_urls<'life0, 'async_trait>(&'life0 self, urls: Vec<String>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<String, Option<Album>>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn versions<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn by_version_group<'life0, 'async_trait>(&'life0 self, version_group_id: PlatformUUID, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn by_name<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, name: String) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn ranked_search<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, query: String) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn all_albums<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, explicit: Option<bool>) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -5076,6 +5086,12 @@ impl IAlbumService for RpcClient {
     fn versions<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IAlbumService", "versions", &id).await
+        })
+    }
+    fn by_version_group<'life0, 'async_trait>(&'life0 self, version_group_id: PlatformUUID, explicit: bool) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IAlbumServiceByVersionGroupArgs { version_group_id, explicit };
+            self.call("IAlbumService", "byVersionGroup", &args).await
         })
     }
     fn by_name<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32, name: String) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<Album>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {

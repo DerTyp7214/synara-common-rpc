@@ -119,6 +119,35 @@ class SerializationTest {
         assertEquals(emptyList(), AppJson.decodeFromString(Album.serializer(), json).versions)
     }
 
+    @Test
+    fun testAlbumVersionGroupIdRoundTrip() {
+        val groupId = platformUUIDFromString("00000000-0000-0000-0000-0000000000f1")
+        val album = createAlbum("00000000-0000-0000-0000-000000000001", "Album").copy(versionGroupId = groupId)
+
+        val json = AppJson.encodeToString(Album.serializer(), album)
+        val cbor = AppCbor.encodeToHexString(Album.serializer(), album)
+
+        assertTrue("versionGroupId" in AppJson.parseToJsonElement(json).jsonObject.keys)
+        assertTrue(cbor.contains(VERSION_GROUP_ID_KEY_HEX))
+        assertEquals(album, AppJson.decodeFromString(Album.serializer(), json))
+        assertEquals(album, AppCbor.decodeFromHexString(Album.serializer(), cbor))
+        assertEquals(groupId, AppJson.decodeFromString(Album.serializer(), json).versionGroupId)
+        assertEquals(groupId, AppCbor.decodeFromHexString(Album.serializer(), cbor).versionGroupId)
+    }
+
+    @Test
+    fun testAlbumWithoutVersionGroupIdOmitsKey() {
+        val album = createAlbum("00000000-0000-0000-0000-000000000001", "Album")
+
+        val json = AppJson.encodeToString(Album.serializer(), album)
+        val cbor = AppCbor.encodeToHexString(Album.serializer(), album)
+
+        assertFalse("versionGroupId" in AppJson.parseToJsonElement(json).jsonObject.keys)
+        assertFalse(cbor.contains(VERSION_GROUP_ID_KEY_HEX))
+        assertEquals(null, AppJson.decodeFromString(Album.serializer(), json).versionGroupId)
+        assertEquals(null, AppCbor.decodeFromHexString(Album.serializer(), cbor).versionGroupId)
+    }
+
     private fun createAlbumWithVersions() = createAlbum("00000000-0000-0000-0000-000000000001", "Album").copy(
         versions = listOf(
             createAlbum("00000000-0000-0000-0000-000000000002", "Album").copy(
@@ -161,5 +190,6 @@ class SerializationTest {
 
     private companion object {
         const val VERSIONS_KEY_HEX = "6876657273696f6e73"
+        const val VERSION_GROUP_ID_KEY_HEX = "6e76657273696f6e47726f75704964"
     }
 }

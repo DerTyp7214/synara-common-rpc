@@ -63,6 +63,9 @@ data class Album(
     @FieldDoc("Other editions of the same album folded under this entry, such as deluxe, anniversary, remastered, explicit or clean variants. Each keeps its own identifiers and cover. Their own versions lists are always empty. Only filled by calls that return albums grouped into editions.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val versions: List<Album> = emptyList(),
+    @FieldDoc("Identifies the group of editions this album belongs to. Albums with the same value are editions of each other. It stays the same for as long as the group exists.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val versionGroupId: PlatformUUID? = null,
 )
 
 @Serializable

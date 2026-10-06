@@ -37,6 +37,12 @@ interface IAlbumService {
     @RpcDoc("List the other editions of an album, main edition first.")
     suspend fun versions(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): List<Album>
 
+    @RpcDoc("List all albums of a version group, main edition first. The albums come back as a flat list and their versions lists are empty.")
+    suspend fun byVersionGroup(
+        @RpcParamDoc("The version group unique identifier, as carried by versionGroupId on an album.") versionGroupId: PlatformUUID,
+        @RpcParamDoc("True prefers the explicit edition as the main one when an album exists in an explicit and a clean edition. False prefers the clean one.") explicit: Boolean = true
+    ): List<Album>
+
     @RpcDoc("Search albums by name.")
     suspend fun byName(
         @RpcParamDoc("Page index (starting from 0).") page: Int = 0,
