@@ -60,6 +60,9 @@ data class Album(
     @FieldDoc("Edition markers split off the name, e.g. Deluxe Edition, 10th Anniversary or 2011 Remaster, in order of extraction. The name never contains them.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val tags: List<TitleTag> = emptyList(),
+    @FieldDoc("Other editions of the same album folded under this entry, such as deluxe, anniversary, remastered, explicit or clean variants. Each keeps its own identifiers and cover. Their own versions lists are always empty. Only filled by calls that return albums grouped into editions.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val versions: List<Album> = emptyList(),
 )
 
 @Serializable

@@ -70,6 +70,40 @@ class SynaraCborTest {
     }
 
     @Test
+    fun testAlbumVersionsSurviveDeduplication() = withSynaraPack {
+        val artist = ArtistCredit(
+            id = platformUUIDFromString("11111111-1111-1111-1111-111111111111"),
+            name = "Artist Name",
+            isGroup = false
+        )
+        val albums = (1..3).map { group ->
+            Album(
+                id = platformUUIDFromString("22222222-2222-2222-2222-00000000000$group"),
+                name = "Album $group",
+                artists = listOf(artist),
+                releaseDate = null,
+                totalDuration = 2000,
+                versions = (1..2).map { version ->
+                    Album(
+                        id = platformUUIDFromString("22222222-2222-2222-2222-0000000000$group$version"),
+                        name = "Album $group",
+                        artists = listOf(artist),
+                        releaseDate = null,
+                        totalDuration = 3000
+                    )
+                }
+            )
+        }
+        val serializer = ListSerializer(Album.serializer())
+
+        val decoded = synaraCbor.decodeFromByteArray(serializer, synaraCbor.encodeToByteArray(serializer, albums))
+
+        assertEquals(albums, decoded)
+        assertEquals(listOf(2, 2, 2), decoded.map { it.versions.size })
+        assertTrue(decoded.all { album -> album.versions.all { it.versions.isEmpty() } })
+    }
+
+    @Test
     fun testNegotiationSwitch() {
         val artist = ArtistCredit(
             id = platformUUIDFromString("11111111-1111-1111-1111-111111111111"),

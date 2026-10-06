@@ -1,13 +1,17 @@
 package dev.dertyp.serializers
 
 import dev.dertyp.PlatformUUID
+import dev.dertyp.data.Album
 import dev.dertyp.data.AudioInfo
 import dev.dertyp.data.Song
+import dev.dertyp.data.TitleTag
+import dev.dertyp.data.TitleTagKind
 import dev.dertyp.platformUUIDFromString
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromHexString
 import kotlinx.serialization.encodeToHexString
 import kotlinx.serialization.cbor.Cbor
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -75,6 +79,67 @@ class SerializationTest {
         assertTrue(named.contains("73616d706c6552617465"))
     }
 
+    @Test
+    fun testAlbumVersionsJsonRoundTrip() {
+        val album = createAlbumWithVersions()
+
+        val json = AppJson.encodeToString(Album.serializer(), album)
+        val root = AppJson.parseToJsonElement(json).jsonObject
+        val versions = root.getValue("versions").jsonArray
+
+        assertEquals(2, versions.size)
+        versions.forEach { assertFalse("versions" in it.jsonObject.keys) }
+        assertEquals(album, AppJson.decodeFromString(Album.serializer(), json))
+    }
+
+    @Test
+    fun testAlbumVersionsCborRoundTrip() {
+        val album = createAlbumWithVersions()
+
+        val encoded = AppCbor.encodeToHexString(Album.serializer(), album)
+        val decoded = AppCbor.decodeFromHexString(Album.serializer(), encoded)
+
+        assertEquals(1, VERSIONS_KEY_HEX.toRegex().findAll(encoded).count())
+        assertEquals(album, decoded)
+        assertEquals(album.versions.map { it.id }, decoded.versions.map { it.id })
+        assertTrue(decoded.versions.all { it.versions.isEmpty() })
+    }
+
+    @Test
+    fun testAlbumWithoutVersionsOmitsKey() {
+        val album = createAlbum("00000000-0000-0000-0000-000000000001", "Album")
+
+        val json = AppJson.encodeToString(Album.serializer(), album)
+        val cbor = AppCbor.encodeToHexString(Album.serializer(), album)
+
+        assertFalse("versions" in AppJson.parseToJsonElement(json).jsonObject.keys)
+        assertFalse(cbor.contains(VERSIONS_KEY_HEX))
+        assertEquals(album, AppJson.decodeFromString(Album.serializer(), json))
+        assertEquals(album, AppCbor.decodeFromHexString(Album.serializer(), cbor))
+        assertEquals(emptyList(), AppJson.decodeFromString(Album.serializer(), json).versions)
+    }
+
+    private fun createAlbumWithVersions() = createAlbum("00000000-0000-0000-0000-000000000001", "Album").copy(
+        versions = listOf(
+            createAlbum("00000000-0000-0000-0000-000000000002", "Album").copy(
+                tags = listOf(TitleTag(TitleTagKind.VERSION, "Deluxe Edition")),
+                coverId = platformUUIDFromString("00000000-0000-0000-0000-00000000000a"),
+            ),
+            createAlbum("00000000-0000-0000-0000-000000000003", "Album").copy(
+                tags = listOf(TitleTag(TitleTagKind.REMASTER, "2011 Remaster")),
+                barcode = "0602537518357",
+            ),
+        )
+    )
+
+    private fun createAlbum(id: String, name: String) = Album(
+        id = platformUUIDFromString(id),
+        name = name,
+        artists = emptyList(),
+        releaseDate = null,
+        totalDuration = 1000,
+    )
+
     private fun createSong(id: PlatformUUID) = Song(
         id = id,
         title = "Title",
@@ -93,4 +158,8 @@ class SerializationTest {
         coverId = null,
         musicBrainzId = platformUUIDFromString("550e8400-e29b-41d4-a716-446655440000")
     )
+
+    private companion object {
+        const val VERSIONS_KEY_HEX = "6876657273696f6e73"
+    }
 }

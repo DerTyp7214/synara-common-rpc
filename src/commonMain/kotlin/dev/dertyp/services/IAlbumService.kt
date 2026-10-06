@@ -34,7 +34,7 @@ interface IAlbumService {
     suspend fun byOriginalUrls(@RpcParamDoc("Collection of original platform URLs.") urls: Collection<String>): Map<String, Album?>
 
     @RestGet
-    @RpcDoc("List different versions of an album.")
+    @RpcDoc("List the other editions of an album, main edition first.")
     suspend fun versions(@RpcParamDoc("The album unique identifier.") id: PlatformUUID): List<Album>
 
     @RpcDoc("Search albums by name.")
@@ -51,10 +51,11 @@ interface IAlbumService {
         @RpcParamDoc("The search query.") query: String
     ): PaginatedResponse<Album>
 
-    @RpcDoc("Get all albums in the library.")
+    @RpcDoc("Get all albums in the library, grouped into editions. Each entry is the main edition of an album and carries the other editions in versions.")
     suspend fun allAlbums(
         @RpcParamDoc("Page index.") page: Int = 0,
-        @RpcParamDoc("Number of items per page.") pageSize: Int = 50
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
+        @RpcParamDoc("True prefers the explicit edition as the main one when an album exists in an explicit and a clean edition. False prefers the clean one. When it is not given, the explicit edition is preferred.") explicit: Boolean? = null
     ): PaginatedResponse<Album>
 
     @RpcDoc("Search for albums by color.")
@@ -85,12 +86,13 @@ interface IAlbumService {
         @RpcParamDoc("The MusicBrainz Release UUID.") musicBrainzId: PlatformUUID?
     ): Album?
 
-    @RpcDoc("List albums by artist.")
+    @RpcDoc("List albums by artist, grouped into editions. Each entry is the main edition of an album and carries the other editions in versions.")
     suspend fun byArtist(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
         @RpcParamDoc("The artist unique identifier.") artistId: PlatformUUID,
-        @RpcParamDoc("Whether to include singles.") singles: Boolean = false
+        @RpcParamDoc("Whether to include singles.") singles: Boolean = false,
+        @RpcParamDoc("True prefers the explicit edition as the main one when an album exists in an explicit and a clean edition. False prefers the clean one. When it is not given, the explicit edition is preferred.") explicit: Boolean? = null
     ): PaginatedResponse<Album>
 
     @RestGet
