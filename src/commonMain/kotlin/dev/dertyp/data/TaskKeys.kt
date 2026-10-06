@@ -30,6 +30,7 @@ object TaskKeys {
     const val DELETE_UNREFERENCED_ANIMATED_IMAGES = "delete-unreferenced-animated-images"
     const val IMAGE_ANALYSIS = "image-analysis"
     const val LOG_CLEANUP_WORKER = "log-cleanup-worker"
+    const val ENTITY_CHANGE_CLEANUP_WORKER = "entity-change-cleanup-worker"
     const val SEARCH_INDEX_REBUILD_WORKER = "search-index-rebuild-worker"
     const val LISTENBRAINZ_SYNC = "listenbrainz-sync"
     const val LISTEN_BACKUP = "listen-backup"

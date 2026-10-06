@@ -449,6 +449,34 @@ pub struct IDiscoveryServiceGetSongsBySameProducersArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IEntityChangeServiceByArtistArgs {
+    #[serde(rename = "artistId")]
+    pub artist_id: PlatformUUID,
+    pub since: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IEntityChangeServiceByAlbumArgs {
+    #[serde(rename = "albumId")]
+    pub album_id: PlatformUUID,
+    pub since: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IEntityChangeServiceByPlaylistArgs {
+    #[serde(rename = "playlistId")]
+    pub playlist_id: PlatformUUID,
+    pub since: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IEntityChangeServiceByCollectionArgs {
+    #[serde(rename = "collectionId")]
+    pub collection_id: PlatformUUID,
+    pub since: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IFavSyncServiceInsertFavSyncArgs {
     pub service: SyncServiceType,
     #[serde(rename = "syncedAt")]
@@ -2403,6 +2431,70 @@ pub struct CustomMetadata {
     pub genre: Option<String>,
     #[serde(rename = "coverData")]
     pub cover_data: Option<serde_bytes::ByteBuf>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct EntityChangeWindow {
+    #[serde(rename = "serverTime")]
+    pub server_time: i64,
+    #[serde(rename = "availableSince")]
+    pub available_since: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct EntityChange {
+    #[serde(rename = "entityType")]
+    pub entity_type: EntityType,
+    #[serde(rename = "entityId")]
+    pub entity_id: PlatformUUID,
+    pub aspect: EntityChangeAspect,
+    pub kind: EntityChangeKind,
+    #[serde(rename = "changedAt")]
+    pub changed_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum EntityType {
+    #[serde(rename = "UNKNOWN")]
+    Unknown,
+    #[serde(rename = "SONG")]
+    Song,
+    #[serde(rename = "ALBUM")]
+    Album,
+    #[serde(rename = "ARTIST")]
+    Artist,
+    #[serde(rename = "USER_PLAYLIST")]
+    UserPlaylist,
+    #[serde(rename = "PLAYLIST")]
+    Playlist,
+    #[serde(rename = "COLLECTION")]
+    Collection,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum EntityChangeAspect {
+    #[serde(rename = "UNKNOWN")]
+    Unknown,
+    #[serde(rename = "DATA")]
+    Data,
+    #[serde(rename = "MEMBERS")]
+    Members,
+    #[serde(rename = "LIKE")]
+    Like,
+    #[serde(rename = "TIMECODES")]
+    Timecodes,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum EntityChangeKind {
+    #[serde(rename = "UNKNOWN")]
+    Unknown,
+    #[serde(rename = "CREATED")]
+    Created,
+    #[serde(rename = "UPDATED")]
+    Updated,
+    #[serde(rename = "DELETED")]
+    Deleted,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -4536,6 +4628,15 @@ pub trait IDiscoveryService {
     fn get_songs_by_same_producers<'life0, 'async_trait>(&'life0 self, seed_song_ids: Vec<PlatformUUID>, limit: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
+pub trait IEntityChangeService {
+    fn get_window<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<EntityChangeWindow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn all_changes(&self, since: i64) -> RpcStream<EntityChange>;
+    fn by_artist(&self, artist_id: PlatformUUID, since: i64) -> RpcStream<EntityChange>;
+    fn by_album(&self, album_id: PlatformUUID, since: i64) -> RpcStream<EntityChange>;
+    fn by_playlist(&self, playlist_id: PlatformUUID, since: i64) -> RpcStream<EntityChange>;
+    fn by_collection(&self, collection_id: PlatformUUID, since: i64) -> RpcStream<EntityChange>;
+}
+
 pub trait IFavSyncService {
     fn get_latest_fav_sync<'life0, 'async_trait>(&'life0 self, service: SyncServiceType) -> Pin<Box<dyn std::future::Future<Output = Result<Option<FavSync>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn insert_fav_sync<'life0, 'async_trait>(&'life0 self, service: SyncServiceType, synced_at: PlatformDate) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -5642,6 +5743,32 @@ impl IDiscoveryService for RpcClient {
             let args = IDiscoveryServiceGetSongsBySameProducersArgs { seed_song_ids, limit };
             self.call("IDiscoveryService", "getSongsBySameProducers", &args).await
         })
+    }
+}
+impl IEntityChangeService for RpcClient {
+    fn get_window<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<EntityChangeWindow, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IEntityChangeService", "getWindow", &()).await
+        })
+    }
+    fn all_changes(&self, since: i64) -> RpcStream<EntityChange> {
+        self.subscribe("IEntityChangeService", "allChanges", &since)
+    }
+    fn by_artist(&self, artist_id: PlatformUUID, since: i64) -> RpcStream<EntityChange> {
+        let args = IEntityChangeServiceByArtistArgs { artist_id, since };
+        self.subscribe("IEntityChangeService", "byArtist", &args)
+    }
+    fn by_album(&self, album_id: PlatformUUID, since: i64) -> RpcStream<EntityChange> {
+        let args = IEntityChangeServiceByAlbumArgs { album_id, since };
+        self.subscribe("IEntityChangeService", "byAlbum", &args)
+    }
+    fn by_playlist(&self, playlist_id: PlatformUUID, since: i64) -> RpcStream<EntityChange> {
+        let args = IEntityChangeServiceByPlaylistArgs { playlist_id, since };
+        self.subscribe("IEntityChangeService", "byPlaylist", &args)
+    }
+    fn by_collection(&self, collection_id: PlatformUUID, since: i64) -> RpcStream<EntityChange> {
+        let args = IEntityChangeServiceByCollectionArgs { collection_id, since };
+        self.subscribe("IEntityChangeService", "byCollection", &args)
     }
 }
 impl IFavSyncService for RpcClient {
