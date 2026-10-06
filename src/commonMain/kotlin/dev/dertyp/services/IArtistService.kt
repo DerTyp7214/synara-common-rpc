@@ -4,7 +4,6 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.data.*
-import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RestPost
@@ -115,11 +114,6 @@ interface IArtistService {
     @RestGet
     @RpcDoc("Stream all artists that are missing a MusicBrainz ID.")
     fun artistsWithoutMusicBrainzId(): Flow<Artist>
-
-    @Deprecated(REMOVED_IN_API_9 + " Use artistsWithoutMusicBrainzId.", ReplaceWith("artistsWithoutMusicBrainzId()"))
-    @RestGet
-    @RpcDoc("Stream all artists that are missing a MusicBrainz ID.")
-    fun artistsWithoutMusicBrainzIdFlow(): Flow<Artist> = artistsWithoutMusicBrainzId()
 
     @RestGet
     @RpcDoc("Stream IDs of all artists that are missing a MusicBrainz ID.")

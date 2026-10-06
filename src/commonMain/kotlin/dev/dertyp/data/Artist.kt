@@ -4,7 +4,6 @@ package dev.dertyp.data
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
-import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -55,7 +54,6 @@ data class Artist(
     @FieldDoc("The blur hash of the artist image.")
     val blurHash: String? = null,
     @FieldDoc("The MusicBrainz Artist unique identifier.")
-    @LegacyWireName("musicbrainzId")
     val musicBrainzId: PlatformUUID? = null,
     @FieldDoc("Whether the current user is following this artist.")
     val isFollowed: Boolean = false,
@@ -83,7 +81,6 @@ data class ArtistCredit(
     @FieldDoc("The blur hash of the artist image.")
     val blurHash: String? = null,
     @FieldDoc("The MusicBrainz Artist unique identifier.")
-    @LegacyWireName("musicbrainzId")
     val musicBrainzId: PlatformUUID? = null,
     @FieldDoc("Whether the current user is following this artist.")
     val isFollowed: Boolean = false,

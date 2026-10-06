@@ -5,7 +5,6 @@ package dev.dertyp.data
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
-import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
@@ -18,9 +17,6 @@ data class User(
     val username: String,
     @FieldDoc("Optional display name shown to other users.")
     val displayName: String? = null,
-    @FieldDoc("Always empty. Password hashes are never sent to clients.")
-    @Deprecated(REMOVED_IN_API_9)
-    val passwordHash: String = "",
     @FieldDoc("Whether the user has administrative privileges.")
     val isAdmin: Boolean = false,
     @FieldDoc("List of specific capabilities granted to the user.")

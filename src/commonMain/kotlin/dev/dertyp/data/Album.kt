@@ -14,7 +14,6 @@ import dev.dertyp.PlatformLocalDate
 import dev.dertyp.PlatformUUID
 import dev.dertyp.core.contentEquals
 import dev.dertyp.rpc.annotations.FieldDoc
-import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import dev.dertyp.serializers.LocalDateSerializer
 import kotlinx.serialization.EncodeDefault
@@ -51,7 +50,6 @@ data class Album(
     @FieldDoc("The barcode or UPC of the album.")
     val barcode: String? = null,
     @FieldDoc("The MusicBrainz Release unique identifier.")
-    @LegacyWireName("musicbrainzId")
     val musicBrainzId: PlatformUUID? = null,
     @FieldDoc("The animated cover unique identifier.")
     val animatedCoverId: PlatformUUID? = null,

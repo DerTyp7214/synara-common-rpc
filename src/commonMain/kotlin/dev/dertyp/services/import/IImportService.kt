@@ -88,12 +88,6 @@ interface IImportService {
     @RpcDoc("Get all available importer backends.")
     suspend fun allImportServices(): List<ImportBackend>
 
-    @Deprecated(REMOVED_IN_API_9 + " Use allImportServices.", ReplaceWith("allImportServices()"))
-    @RestGet
-    @RestExclude
-    @RpcDoc("Get all available importer backends.")
-    suspend fun getAllImportServices(): List<ImportBackend> = allImportServices()
-
     @RestGet
     @RpcDoc("Get the capabilities supported by each importer backend, keyed by backend id.")
     suspend fun getImporterCapabilities(): Map<String, Set<ImporterCapability>>

@@ -4,7 +4,6 @@ import dev.dertyp.data.ListenBackupConfig
 import dev.dertyp.data.ListenBackupConnectionTest
 import dev.dertyp.data.ListenBackupState
 import dev.dertyp.data.RequiresAdmin
-import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -27,14 +26,6 @@ interface IListenBackupService {
         errors = ["SecurityException"]
     )
     fun observeState(): Flow<ListenBackupState>
-
-    @Deprecated(REMOVED_IN_API_9 + " Use observeState.", ReplaceWith("observeState()"))
-    @RequiresAdmin
-    @RpcDoc(
-        "Stream the backup state, re-emitting whenever the configuration or sync progress changes.",
-        errors = ["SecurityException"]
-    )
-    fun getStateFlow(): Flow<ListenBackupState> = observeState()
 
     @RequiresAdmin
     @RpcDoc("Update the backup configuration.", errors = ["SecurityException", "IllegalArgumentException"])

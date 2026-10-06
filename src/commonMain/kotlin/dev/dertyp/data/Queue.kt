@@ -4,7 +4,6 @@ package dev.dertyp.data
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
-import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -24,7 +23,6 @@ data class QueueInfo(
     @FieldDoc("Index of the currently playing entry in the active order (the shuffled order while shuffle is on, otherwise the original order).")
     val currentIndex: Int,
     @FieldDoc("Whether the queue is played in the stored shuffled order.")
-    @LegacyWireName("shuffleMode")
     val isShuffled: Boolean,
     @FieldDoc("The current repetition mode.")
     val repeatMode: RepeatMode,
@@ -46,7 +44,6 @@ data class QueueItem(
     @FieldDoc("Zero-based index in the shuffled order, or null while shuffle is off.")
     val shuffledPosition: Int? = null,
     @FieldDoc("Whether this entry was added explicitly by the user rather than by the source.")
-    @LegacyWireName("explicit")
     val userAdded: Boolean = false,
     @FieldDoc("The resolved song metadata. Filled in by the server only when the queue is read with includeSongs enabled, and ignored on writes.")
     val song: UserSong? = null
@@ -58,7 +55,6 @@ data class QueueMeta(
     @FieldDoc("Index of the currently playing entry in the active order.")
     val currentIndex: Int,
     @FieldDoc("Whether the queue is played in the uploaded shuffled order.")
-    @LegacyWireName("shuffleMode")
     val isShuffled: Boolean,
     @FieldDoc("The repetition mode to store.")
     val repeatMode: RepeatMode,

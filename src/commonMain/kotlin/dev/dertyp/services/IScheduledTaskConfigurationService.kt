@@ -2,7 +2,6 @@ package dev.dertyp.services
 
 import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.data.TaskConfiguration
-import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RpcDoc
 import kotlinx.coroutines.flow.Flow
@@ -23,11 +22,6 @@ interface IScheduledTaskConfigurationService {
     @RestGet
     @RpcDoc("Stream real-time updates for all background task configurations.", errors = ["SecurityException"])
     fun observeConfigurations(): Flow<List<TaskConfiguration>>
-
-    @Deprecated(REMOVED_IN_API_9 + " Use observeConfigurations.", ReplaceWith("observeConfigurations()"))
-    @RequiresAdmin
-    @RpcDoc("Stream real-time updates for all background task configurations.", errors = ["SecurityException"])
-    fun getConfigurationsFlow(): Flow<List<TaskConfiguration>> = observeConfigurations()
 
     @RequiresAdmin
     @RpcDoc("Manually trigger a background task by its unique key.", errors = ["SecurityException"])

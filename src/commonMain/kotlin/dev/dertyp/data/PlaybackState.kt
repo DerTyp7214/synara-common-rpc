@@ -4,7 +4,6 @@ package dev.dertyp.data
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
-import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -35,7 +34,6 @@ data class PlaybackState(
     @FieldDoc("Current playback position in milliseconds.")
     val positionMs: Long,
     @FieldDoc("Whether the queue is being played in random order.")
-    @LegacyWireName("shuffleMode")
     val isShuffled: Boolean,
     @FieldDoc("The current repetition mode.")
     val repeatMode: RepeatMode,
@@ -60,7 +58,6 @@ data class PlaybackState(
 
         @Serializable
         @SerialName("WithSong")
-        @LegacyWireName("Explicit")
         @ModelDoc("A queue entry containing full song metadata.")
         data class WithSong(
             @FieldDoc("The complete song metadata.")

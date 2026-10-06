@@ -4,7 +4,6 @@ package dev.dertyp.data
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
-import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -25,7 +24,6 @@ data class RemotePlaybackStatus(
     @FieldDoc("Length of the song in milliseconds, when the device knows it.")
     val durationMs: Long? = null,
     @FieldDoc("Whether the device plays its queue in shuffled order.")
-    @LegacyWireName("shuffleMode")
     val isShuffled: Boolean,
     @FieldDoc("The repetition mode of the device.")
     val repeatMode: RepeatMode,

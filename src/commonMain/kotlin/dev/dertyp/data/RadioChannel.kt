@@ -4,7 +4,6 @@ package dev.dertyp.data
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.FieldDoc
-import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import kotlin.native.ObjCName
 import kotlinx.serialization.Serializable
@@ -56,7 +55,6 @@ data class RadioChannelSongMatch(
     @FieldDoc("The matched song.")
     val song: UserSong,
     @FieldDoc("True when the song is added directly to the channel. False when it is reached via an album or artist that is configured on the channel.")
-    @LegacyWireName("explicitMember")
     val directMember: Boolean,
 )
 

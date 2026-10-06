@@ -17,7 +17,6 @@ import dev.dertyp.core.contentEquals
 import dev.dertyp.nowAsPlatformDate
 import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.ModelDoc
-import dev.dertyp.rpc.annotations.REMOVED_IN_API_9
 import dev.dertyp.serializers.DateSerializer
 import dev.dertyp.serializers.LocalDateSerializer
 import kotlinx.serialization.EncodeDefault
@@ -165,22 +164,6 @@ data class AudioInfo(
     }
 }
 
-const val LEGACY_AUDIO_FIELDS = REMOVED_IN_API_9 + " Use audio and atmos."
-
-val BaseSong.effectiveAudio: AudioInfo?
-    get() = audio ?: run {
-        @Suppress("DEPRECATION")
-        if (sampleRate == null && bitsPerSample == null && bitRate == null && fileSize == null) null
-        else AudioInfo(
-            codec = path.substringAfterLast('.', "").lowercase(),
-            sampleRate = sampleRate ?: 0,
-            bitsPerSample = bitsPerSample ?: 0,
-            bitRate = bitRate ?: 0,
-            fileSize = fileSize ?: 0,
-            channels = 0,
-        )
-    }
-
 abstract class BaseSong() {
     abstract val id: PlatformUUID
     abstract val title: String
@@ -199,18 +182,6 @@ abstract class BaseSong() {
     abstract val copyright: String
     abstract val audio: AudioInfo?
     abstract val atmos: AudioInfo?
-
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    abstract val sampleRate: Int?
-
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    abstract val bitsPerSample: Int?
-
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    abstract val bitRate: Long?
-
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    abstract val fileSize: Long?
     abstract val coverId: PlatformUUID?
     abstract val blurHash: String?
     abstract val musicBrainzId: PlatformUUID?
@@ -220,9 +191,6 @@ abstract class BaseSong() {
     abstract val animatedCoverImageId: PlatformUUID?
     abstract val animatedCoverBlurHash: String?
     abstract val audioStartMs: Long?
-
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    abstract val atmosPath: String?
     abstract val tags: List<TitleTag>
 }
 
@@ -262,22 +230,6 @@ data class Song(
     @FieldDoc("Properties of the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val atmos: AudioInfo? = null,
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Audio sample rate in Hz. Only sent to clients that predate the audio field. See audio.")
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
-    override val sampleRate: Int? = null,
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Number of bits per audio sample. Only sent to clients that predate the audio field. See audio.")
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
-    override val bitsPerSample: Int? = null,
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Audio bit rate in kilobits per second. Only sent to clients that predate the audio field. See audio.")
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
-    override val bitRate: Long? = null,
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Size of the audio file in bytes. Only sent to clients that predate the audio field. See audio.")
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
-    override val fileSize: Long? = null,
     @FieldDoc("The song cover image unique identifier.")
     override val coverId: PlatformUUID? = null,
     @FieldDoc("The blur hash of the song cover image.")
@@ -296,10 +248,6 @@ data class Song(
     override val animatedCoverBlurHash: String? = null,
     @FieldDoc("Offset in milliseconds of the first audible sound, or null if not yet analyzed.")
     override val audioStartMs: Long? = null,
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Internal server path to the Dolby Atmos variant. Only sent to clients that predate the atmos field. Use atmos and streamSongAtmos.")
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
-    override val atmosPath: String? = null,
     @FieldDoc("Version markers split off the title, e.g. remix, live or featuring, in order of extraction. The title never contains them.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val tags: List<TitleTag> = emptyList(),
@@ -343,22 +291,6 @@ data class UserSong(
     @FieldDoc("Properties of the Dolby Atmos (E-AC-3 JOC in MP4) variant, if one exists.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val atmos: AudioInfo? = null,
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Audio sample rate in Hz. Only sent to clients that predate the audio field. See audio.")
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
-    override val sampleRate: Int? = null,
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Number of bits per audio sample. Only sent to clients that predate the audio field. See audio.")
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
-    override val bitsPerSample: Int? = null,
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Audio bit rate in kilobits per second. Only sent to clients that predate the audio field. See audio.")
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
-    override val bitRate: Long? = null,
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Size of the audio file in bytes. Only sent to clients that predate the audio field. See audio.")
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
-    override val fileSize: Long? = null,
     @FieldDoc("The song cover image unique identifier.")
     override val coverId: PlatformUUID? = null,
     @FieldDoc("The blur hash of the song cover image.")
@@ -377,10 +309,6 @@ data class UserSong(
     override val animatedCoverBlurHash: String? = null,
     @FieldDoc("Offset in milliseconds of the first audible sound, or null if not yet analyzed.")
     override val audioStartMs: Long? = null,
-    @Deprecated(LEGACY_AUDIO_FIELDS)
-    @FieldDoc("Internal server path to the Dolby Atmos variant. Only sent to clients that predate the atmos field. Use atmos and streamSongAtmos.")
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
-    override val atmosPath: String? = null,
     @FieldDoc("Version markers split off the title, e.g. remix, live or featuring, in order of extraction. The title never contains them.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val tags: List<TitleTag> = emptyList(),

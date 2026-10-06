@@ -63,31 +63,6 @@ class SerializationTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun testLegacyWireShapeOmitsAudioInfo() {
-        val song = createSong(platformUUIDFromString("00000000-0000-0000-0000-000000000000"))
-            .copy(
-                audio = null,
-                sampleRate = 44100,
-                bitsPerSample = 16,
-                bitRate = 320000,
-                fileSize = 1000000,
-                atmosPath = "/x.atmos.m4a"
-            )
-
-        val json = AppJson.encodeToString(Song.serializer(), song)
-        val obj = AppJson.parseToJsonElement(json).jsonObject
-
-        assertFalse("audio" in obj.keys)
-        assertFalse("atmos" in obj.keys)
-        assertEquals("44100", obj["sampleRate"].toString())
-        assertEquals("16", obj["bitsPerSample"].toString())
-        assertEquals("320000", obj["bitRate"].toString())
-        assertEquals("1000000", obj["fileSize"].toString())
-        assertEquals("\"/x.atmos.m4a\"", obj["atmosPath"].toString())
-    }
-
-    @Test
     fun testAudioInfoCborUsesLabels() {
         val info = AudioInfo("flac", 44100, 16, 320000, 1000000, 2)
 
