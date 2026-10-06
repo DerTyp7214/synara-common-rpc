@@ -1524,6 +1524,7 @@ pub struct Album {
     pub animated_cover_image_id: Option<PlatformUUID>,
     #[serde(rename = "animatedCoverBlurHash")]
     pub animated_cover_blur_hash: Option<String>,
+    pub tags: Vec<TitleTag>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -1552,6 +1553,42 @@ pub struct ArtistCredit {
 pub struct Genre {
     pub id: PlatformUUID,
     pub name: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct TitleTag {
+    pub kind: TitleTagKind,
+    pub label: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum TitleTagKind {
+    #[serde(rename = "FEAT")]
+    Feat,
+    #[serde(rename = "PROD")]
+    Prod,
+    #[serde(rename = "REMIX")]
+    Remix,
+    #[serde(rename = "MIX")]
+    Mix,
+    #[serde(rename = "LIVE")]
+    Live,
+    #[serde(rename = "COVER")]
+    Cover,
+    #[serde(rename = "ACOUSTIC")]
+    Acoustic,
+    #[serde(rename = "INSTRUMENTAL")]
+    Instrumental,
+    #[serde(rename = "EDIT")]
+    Edit,
+    #[serde(rename = "VERSION")]
+    Version,
+    #[serde(rename = "REMASTER")]
+    Remaster,
+    #[serde(rename = "DEMO")]
+    Demo,
+    #[serde(rename = "UNKNOWN")]
+    Unknown,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2204,42 +2241,6 @@ pub struct AudioInfo {
     #[serde(rename = "fileSize")]
     pub file_size: i64,
     pub channels: i32,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct TitleTag {
-    pub kind: TitleTagKind,
-    pub label: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum TitleTagKind {
-    #[serde(rename = "FEAT")]
-    Feat,
-    #[serde(rename = "PROD")]
-    Prod,
-    #[serde(rename = "REMIX")]
-    Remix,
-    #[serde(rename = "MIX")]
-    Mix,
-    #[serde(rename = "LIVE")]
-    Live,
-    #[serde(rename = "COVER")]
-    Cover,
-    #[serde(rename = "ACOUSTIC")]
-    Acoustic,
-    #[serde(rename = "INSTRUMENTAL")]
-    Instrumental,
-    #[serde(rename = "EDIT")]
-    Edit,
-    #[serde(rename = "VERSION")]
-    Version,
-    #[serde(rename = "REMASTER")]
-    Remaster,
-    #[serde(rename = "DEMO")]
-    Demo,
-    #[serde(rename = "UNKNOWN")]
-    Unknown,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

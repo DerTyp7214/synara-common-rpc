@@ -1,6 +1,8 @@
 package dev.dertyp.core
 
 import dev.dertyp.data.AudioInfo
+import dev.dertyp.data.InsertableAlbum
+import dev.dertyp.data.InsertableSong
 import dev.dertyp.data.Song
 import dev.dertyp.data.TitleTag
 import dev.dertyp.data.TitleTagKind
@@ -138,5 +140,24 @@ class SongTest {
         val encoded = AppJson.encodeToString(song)
         assertTrue(encoded.contains("\"tags\""))
         assertEquals(tags, AppJson.decodeFromString<Song>(encoded).tags)
+    }
+
+    @Test
+    fun testInsertableSongContentEqualsComparesAlbumTags() {
+        val song = InsertableSong(
+            title = "Title",
+            album = InsertableAlbum(name = "Album", artists = listOf("Artist")),
+            duration = 1000,
+            explicit = false,
+            path = "path"
+        )
+        val sameAlbum = song.copy(album = InsertableAlbum(name = "Album", artists = listOf("Artist")))
+        val otherEdition = song.copy(
+            album = song.album.copy(tags = listOf(TitleTag(TitleTagKind.VERSION, "10th Anniversary")))
+        )
+
+        assertTrue(song.contentEquals(sameAlbum))
+        assertFalse(song.contentEquals(otherEdition))
+        assertFalse(song == otherEdition)
     }
 }

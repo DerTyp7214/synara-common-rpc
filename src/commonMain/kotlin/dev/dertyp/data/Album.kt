@@ -6,6 +6,7 @@
     Image::class,
     PlatformUUID::class
 )
+@file:OptIn(ExperimentalSerializationApi::class)
 
 package dev.dertyp.data
 
@@ -16,6 +17,8 @@ import dev.dertyp.rpc.annotations.FieldDoc
 import dev.dertyp.rpc.annotations.LegacyWireName
 import dev.dertyp.rpc.annotations.ModelDoc
 import dev.dertyp.serializers.LocalDateSerializer
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
@@ -56,6 +59,9 @@ data class Album(
     val animatedCoverImageId: PlatformUUID? = null,
     @FieldDoc("BlurHash of the animated cover's first frame.")
     val animatedCoverBlurHash: String? = null,
+    @FieldDoc("Edition markers split off the name, e.g. Deluxe Edition, 10th Anniversary or 2011 Remaster, in order of extraction. The name never contains them.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val tags: List<TitleTag> = emptyList(),
 )
 
 @Serializable
@@ -78,6 +84,8 @@ data class InsertableAlbum(
     val barcode: String? = null,
     @FieldDoc("The MusicBrainz Release unique identifier.")
     val musicBrainzId: PlatformUUID? = null,
+    @FieldDoc("Edition markers. When empty the server splits them off the name.")
+    val tags: List<TitleTag> = emptyList(),
 ) {
     override fun equals(other: Any?): Boolean {
         return if (other is InsertableAlbum) contentEquals(other) else false
@@ -89,6 +97,7 @@ data class InsertableAlbum(
         var result = name.hashCode()
         result = 31 * result + artists.sorted().hashCode()
         result = 31 * result + (releaseDate?.hashCode() ?: 0)
+        result = 31 * result + tags.hashCode()
         return result
     }
 }
