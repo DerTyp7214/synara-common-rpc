@@ -40,7 +40,7 @@ interface IArtistService {
         @RpcParamDoc("Optional collection of sub-artist IDs.") artistIds: List<PlatformUUID>?
     ): Artist?
 
-    @RpcDoc("List artists in a group.")
+    @RpcDoc("List artists in a group, ordered by name without regard to case, artists with the same name by ID.")
     suspend fun byGroup(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50,
@@ -55,7 +55,7 @@ interface IArtistService {
     @RpcDoc("Split an artist record into multiple artists.")
     suspend fun splitArtist(@RpcParamDoc("Configuration for splitting an artist.") splitArtist: SplitArtist): List<Artist>
 
-    @RpcDoc("Get all artists in the library.")
+    @RpcDoc("Get all artists in the library, ordered by name without regard to case, artists with the same name by ID.")
     suspend fun allArtists(
         @RpcParamDoc("Page index.") page: Int = 0,
         @RpcParamDoc("Number of items per page.") pageSize: Int = 50
