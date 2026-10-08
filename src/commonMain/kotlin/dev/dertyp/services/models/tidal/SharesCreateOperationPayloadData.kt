@@ -9,7 +9,6 @@ data class SharesCreateOperationPayloadData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        shares;
+        shares
     }
 }
-

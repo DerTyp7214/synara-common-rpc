@@ -23,9 +23,9 @@ internal object Sha256 {
             val w = IntArray(64)
             for (j in 0 until 16) {
                 w[j] = (message[i * 64 + j * 4].toInt() and 0xff shl 24) or
-                        (message[i * 64 + j * 4 + 1].toInt() and 0xff shl 16) or
-                        (message[i * 64 + j * 4 + 2].toInt() and 0xff shl 8) or
-                        (message[i * 64 + j * 4 + 3].toInt() and 0xff)
+                    (message[i * 64 + j * 4 + 1].toInt() and 0xff shl 16) or
+                    (message[i * 64 + j * 4 + 2].toInt() and 0xff shl 8) or
+                    (message[i * 64 + j * 4 + 3].toInt() and 0xff)
             }
 
             for (j in 16 until 64) {

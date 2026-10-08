@@ -1,6 +1,5 @@
 package dev.dertyp.services.models.tidal
 
-
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,7 +12,6 @@ data class TrackCreateOperationPayloadDataAttributes(
     enum class AccessType {
         PUBLIC,
         UNLISTED,
-        PRIVATE;
+        PRIVATE
     }
 }
-

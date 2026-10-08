@@ -10,7 +10,6 @@ data class ArtistUpdateBodyData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        artists;
+        artists
     }
 }
-

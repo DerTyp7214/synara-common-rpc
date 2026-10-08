@@ -15,13 +15,12 @@ data class LyricsAttributes(
         PENDING,
         PROCESSING,
         ERROR,
-        OK;
+        OK
     }
 
     @Suppress("unused")
     enum class Direction {
         LEFT_TO_RIGHT,
-        RIGHT_TO_LEFT;
+        RIGHT_TO_LEFT
     }
 }
-

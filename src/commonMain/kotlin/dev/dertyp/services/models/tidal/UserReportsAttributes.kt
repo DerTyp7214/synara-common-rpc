@@ -1,6 +1,5 @@
 package dev.dertyp.services.models.tidal
 
-
 import kotlin.native.ObjCName
 import kotlinx.serialization.Serializable
 
@@ -19,7 +18,6 @@ data class UserReportsAttributes(
         SCAMS_OR_FRAUD,
         SPAM,
         COPYRIGHT_INFRINGEMENT,
-        UNKNOWN;
+        UNKNOWN
     }
 }
-

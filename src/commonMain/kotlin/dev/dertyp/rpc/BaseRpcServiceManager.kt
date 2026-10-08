@@ -184,7 +184,7 @@ abstract class BaseRpcServiceManager(
         ) {
             url("${baseUrl}/rpc${endpoint.prefixIfNotBlank("/")}")
             connectionHeaders()
-            //header(SynaraPackHeader, "true")
+            // header(SynaraPackHeader, "true")
             token?.let { header("Authorization", "Bearer $it") }
         }
     }
@@ -302,8 +302,8 @@ abstract class BaseRpcServiceManager(
             updateAuth(result)
         } else if (result is Throwable) {
             val genuineRejection = result is SessionExpiredException ||
-                    isAuthException(result) ||
-                    isRefreshRejected(result)
+                isAuthException(result) ||
+                isRefreshRejected(result)
             if (genuineRejection) {
                 onAuthFailure(result)
             } else {
@@ -460,9 +460,9 @@ abstract class BaseRpcServiceManager(
     protected open fun isSslException(e: Throwable): Boolean {
         val message = e.message?.lowercase() ?: ""
         return message.contains("ssl") ||
-                message.contains("tls") ||
-                message.contains("certificate") ||
-                message.contains("handshake failed")
+            message.contains("tls") ||
+            message.contains("certificate") ||
+            message.contains("handshake failed")
     }
 
     @Suppress("UNCHECKED_CAST")

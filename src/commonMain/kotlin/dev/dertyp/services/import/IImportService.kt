@@ -245,7 +245,6 @@ data class FavouriteImportQueueEntry(
     override val callback: suspend () -> Unit = {}
 ) : ImportQueueEntry()
 
-
 @Serializable
 @ModelDoc("Contains details about a completed or failed import task.")
 data class FinishedImportQueueEntry(

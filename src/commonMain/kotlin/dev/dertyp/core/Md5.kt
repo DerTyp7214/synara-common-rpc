@@ -26,9 +26,9 @@ internal object Md5 {
             val x = IntArray(16)
             for (j in 0 until 16) {
                 x[j] = (message[i * 64 + j * 4].toInt() and 0xff) or
-                        (message[i * 64 + j * 4 + 1].toInt() and 0xff shl 8) or
-                        (message[i * 64 + j * 4 + 2].toInt() and 0xff shl 16) or
-                        (message[i * 64 + j * 4 + 3].toInt() and 0xff shl 24)
+                    (message[i * 64 + j * 4 + 1].toInt() and 0xff shl 8) or
+                    (message[i * 64 + j * 4 + 2].toInt() and 0xff shl 16) or
+                    (message[i * 64 + j * 4 + 3].toInt() and 0xff shl 24)
             }
 
             val aa = a

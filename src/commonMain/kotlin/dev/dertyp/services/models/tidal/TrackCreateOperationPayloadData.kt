@@ -10,7 +10,6 @@ data class TrackCreateOperationPayloadData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        tracks;
+        tracks
     }
 }
-

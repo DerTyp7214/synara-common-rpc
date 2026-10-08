@@ -10,7 +10,6 @@ data class ArtworkCreateOperationPayloadDataAttributes(
     @Suppress("unused")
     enum class MediaType {
         IMAGE,
-        VIDEO;
+        VIDEO
     }
 }
-

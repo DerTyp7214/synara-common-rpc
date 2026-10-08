@@ -1,6 +1,5 @@
 package dev.dertyp.services.models.tidal
 
-
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -15,7 +14,7 @@ data class FileStatus(
         FLAGGED,
         TAKEN_DOWN,
         OK,
-        ERROR;
+        ERROR
     }
 
     @Suppress("unused")
@@ -23,7 +22,6 @@ data class FileStatus(
         UPLOAD_REQUESTED,
         PROCESSING,
         OK,
-        ERROR;
+        ERROR
     }
 }
-

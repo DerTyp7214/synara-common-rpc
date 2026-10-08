@@ -28,12 +28,12 @@ data class AlbumsAttributes(
     enum class Type {
         ALBUM,
         EP,
-        SINGLE;
+        SINGLE
     }
 
     enum class Availability {
         STREAM,
         DJ,
-        STEM;
+        STEM
     }
 }

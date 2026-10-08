@@ -11,7 +11,6 @@ data class ArtworksAttributes(
     @Suppress("unused")
     enum class MediaType {
         IMAGE,
-        VIDEO;
+        VIDEO
     }
 }
-

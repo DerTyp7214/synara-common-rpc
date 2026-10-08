@@ -16,13 +16,12 @@ data class TrackFilesAttributes(
         AACLC,
         FLAC,
         FLAC_HIRES,
-        EAC3_JOC;
+        EAC3_JOC
     }
 
     @Suppress("unused")
     enum class TrackPresentation {
         FULL,
-        PREVIEW;
+        PREVIEW
     }
 }
-

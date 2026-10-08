@@ -1,6 +1,5 @@
 package dev.dertyp.services.models.tidal
 
-
 import dev.dertyp.PlatformUUID
 import dev.dertyp.serializers.UUIDSerializer
 import kotlinx.serialization.Serializable
@@ -14,7 +13,6 @@ data class PlayQueueAddFutureOperationPayloadMeta(
     enum class Mode {
         ADD_TO_FRONT,
         ADD_TO_BACK,
-        REPLACE_ALL;
+        REPLACE_ALL
     }
 }
-

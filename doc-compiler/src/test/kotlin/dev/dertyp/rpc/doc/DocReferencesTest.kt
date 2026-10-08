@@ -85,9 +85,9 @@ class DocReferencesTest {
 
         assertEquals(
             "Emits a [ChangeTopic](#devdertypdatachangetopic) through " +
-                    "[IChangeService.observeChanges](RPC.md#devdertypservicesichangeservice-observechanges). " +
-                    "See [Change.topic](#devdertypdatachange), [ChangeTopic.LISTENS](#devdertypdatachangetopic) or " +
-                    "[IChangeService](RPC.md#devdertypservicesichangeservice).",
+                "[IChangeService.observeChanges](RPC.md#devdertypservicesichangeservice-observechanges). " +
+                "See [Change.topic](#devdertypdatachange), [ChangeTopic.LISTENS](#devdertypdatachangetopic) or " +
+                "[IChangeService](RPC.md#devdertypservicesichangeservice).",
             linked
         )
         verify(exactly = 0) { logger.error(any(), any()) }
@@ -113,14 +113,14 @@ class DocReferencesTest {
         verify(exactly = 1) {
             logger.error(
                 "[doc-compiler] IScrobbleService.recentListens: unresolved doc reference @IChangeService.observeChange: " +
-                        "IChangeService has no method or nested model observeChange",
+                    "IChangeService has no method or nested model observeChange",
                 source
             )
         }
         verify(exactly = 1) {
             logger.error(
                 "[doc-compiler] IScrobbleService.recentListens: unresolved doc reference @ChangTopic: " +
-                        "ChangTopic is neither an @RpcDoc service nor a @ModelDoc model",
+                    "ChangTopic is neither an @RpcDoc service nor a @ModelDoc model",
                 source
             )
         }
@@ -133,7 +133,7 @@ class DocReferencesTest {
         verify(exactly = 1) {
             logger.error(
                 "[doc-compiler] Change.topic: unresolved doc reference @ChangeTopic.LIKES: " +
-                        "ChangeTopic has no nested model, field or entry LIKES",
+                    "ChangeTopic has no nested model, field or entry LIKES",
                 source
             )
         }
@@ -179,7 +179,7 @@ class DocReferencesTest {
 
         assertEquals(
             "Read [IMetadataService.Album](#devdertypservicesmetadataimetadataservicealbum) and " +
-                    "[QueueWriteResult.Conflict](#devdertypdataqueuewriteresultconflict).",
+                "[QueueWriteResult.Conflict](#devdertypdataqueuewriteresultconflict).",
             linked
         )
         verify(exactly = 0) { logger.error(any(), any()) }
@@ -204,14 +204,14 @@ class DocReferencesTest {
         verify(exactly = 1) {
             logger.error(
                 "[doc-compiler] X: unresolved doc reference @Conflict: " +
-                        "Conflict names more than one documented service or model",
+                    "Conflict names more than one documented service or model",
                 source
             )
         }
         verify(exactly = 1) {
             logger.error(
                 "[doc-compiler] X: unresolved doc reference @Image: " +
-                        "Image names more than one documented service or model",
+                    "Image names more than one documented service or model",
                 source
             )
         }

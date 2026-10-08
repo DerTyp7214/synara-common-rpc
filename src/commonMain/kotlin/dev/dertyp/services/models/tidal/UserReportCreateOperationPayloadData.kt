@@ -10,7 +10,6 @@ data class UserReportCreateOperationPayloadData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        userReports;
+        userReports
     }
 }
-

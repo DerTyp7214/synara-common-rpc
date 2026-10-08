@@ -10,7 +10,6 @@ data class TrackSourceFileCreateOperationPayloadData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        trackSourceFiles;
+        trackSourceFiles
     }
 }
-

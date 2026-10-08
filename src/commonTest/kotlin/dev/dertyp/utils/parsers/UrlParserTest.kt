@@ -420,7 +420,7 @@ class UrlParserTest {
                 ("123" to Type.ALBUM) to "https://music.tiktok.com/album/123",
                 ("456" to Type.SONG) to "https://music.tiktok.com/track/456"
             )
-        );
+        )
     }
 
     @Test

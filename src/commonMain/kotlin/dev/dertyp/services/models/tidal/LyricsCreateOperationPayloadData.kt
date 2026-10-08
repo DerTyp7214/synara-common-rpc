@@ -10,7 +10,6 @@ data class LyricsCreateOperationPayloadData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        lyrics;
+        lyrics
     }
 }
-

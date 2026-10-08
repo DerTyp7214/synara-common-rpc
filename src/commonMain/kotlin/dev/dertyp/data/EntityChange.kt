@@ -66,7 +66,7 @@ enum class EntityChangeAspect {
 
     @FieldDoc(
         "The like state of the calling user, meaning the like level of a song, the star of an album or following an artist. " +
-                "It belongs to one user."
+            "It belongs to one user."
     )
     LIKE,
 
@@ -95,7 +95,7 @@ enum class EntityChangeKind {
 
     @FieldDoc(
         "The entity was created. An entry keeps CREATED when the entity is updated afterwards and only its time moves, so a client that " +
-                "already has the entity can receive CREATED again and reads the entity again."
+            "already has the entity can receive CREATED again and reads the entity again."
     )
     CREATED,
 
@@ -122,8 +122,8 @@ object EntityChangeKindSerializer : KSerializer<EntityChangeKind> {
 @Serializable
 @ModelDoc(
     "A recorded change of one part of one entity. An entry carries no data, it says that this part of this entity changed and has to be read again. " +
-            "Only the latest change per entity and part is kept, so several changes of the same part arrive as one entry. " +
-            "A deleted entity appears as a single entry with the aspect DATA and the kind DELETED."
+        "Only the latest change per entity and part is kept, so several changes of the same part arrive as one entry. " +
+        "A deleted entity appears as a single entry with the aspect DATA and the kind DELETED."
 )
 data class EntityChange(
     @FieldDoc("The kind of entity that changed. Types a client does not know are decoded as UNKNOWN.")
@@ -146,12 +146,12 @@ data class EntityChange(
 data class EntityChangeWindow(
     @FieldDoc(
         "The time the client passes as since on its next pull (epoch milliseconds). It lies slightly in the past, so a change written while " +
-                "the client was pulling is not missed. Entries can therefore repeat between two pulls."
+            "the client was pulling is not missed. Entries can therefore repeat between two pulls."
     )
     val serverTime: Long,
     @FieldDoc(
         "The earliest time from which the recorded changes are complete (epoch milliseconds). A client whose since lies before it reads " +
-                "everything again instead of pulling."
+            "everything again instead of pulling."
     )
     val availableSince: Long
 )

@@ -10,7 +10,6 @@ data class AlbumCreateOperationPayloadData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        albums;
+        albums
     }
 }
-

@@ -7,4 +7,3 @@ data class Data(
     val id: String,
     val resourceType: String
 )
-

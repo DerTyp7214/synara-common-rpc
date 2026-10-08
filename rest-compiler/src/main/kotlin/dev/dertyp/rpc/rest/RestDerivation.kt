@@ -47,7 +47,7 @@ class RestDerivation(
         routes.groupBy { it.method to it.localPath }.filterValues { it.size > 1 }.forEach { (key, duplicates) ->
             logger.error(
                 "[rest-compiler] $simpleName: duplicate route ${key.first} /$prefix/${key.second} from " +
-                        duplicates.joinToString { it.functionName }
+                    duplicates.joinToString { it.functionName }
             )
         }
 
@@ -104,7 +104,7 @@ class RestDerivation(
         val idParameter = parameters.firstOrNull {
             val name = parameterName(it)
             name != "type" && (name == "id" || name.endsWith("Id")) &&
-                    types.isPrimitive(it.type.resolve()) && isPathCandidate(it)
+                types.isPrimitive(it.type.resolve()) && isPathCandidate(it)
         }
 
         var path = localName

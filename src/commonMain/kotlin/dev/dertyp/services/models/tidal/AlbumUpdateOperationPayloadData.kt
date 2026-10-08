@@ -11,7 +11,6 @@ data class AlbumUpdateOperationPayloadData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        albums;
+        albums
     }
 }
-

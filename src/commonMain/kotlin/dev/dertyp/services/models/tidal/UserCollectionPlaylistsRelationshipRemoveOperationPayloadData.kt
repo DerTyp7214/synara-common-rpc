@@ -1,6 +1,5 @@
 package dev.dertyp.services.models.tidal
 
-
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,6 +9,6 @@ data class UserCollectionPlaylistsRelationshipRemoveOperationPayloadData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        playlists;
+        playlists
     }
 }

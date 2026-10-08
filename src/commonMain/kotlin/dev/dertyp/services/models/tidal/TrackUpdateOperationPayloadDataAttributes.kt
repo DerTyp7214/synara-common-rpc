@@ -1,6 +1,5 @@
 package dev.dertyp.services.models.tidal
 
-
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -17,7 +16,7 @@ data class TrackUpdateOperationPayloadDataAttributes(
     enum class AccessType {
         PUBLIC,
         UNLISTED,
-        PRIVATE;
+        PRIVATE
     }
 
     @Suppress("unused")
@@ -34,7 +33,7 @@ data class TrackUpdateOperationPayloadDataAttributes(
         Ab,
         A,
         Bb,
-        B;
+        B
     }
 
     @Suppress("unused")
@@ -52,7 +51,6 @@ data class TrackUpdateOperationPayloadDataAttributes(
         PENTATONIC_MAJOR,
         PHRYGIAN,
         MELODIC_MINOR,
-        PENTATONIC_MINOR;
+        PENTATONIC_MINOR
     }
 }
-

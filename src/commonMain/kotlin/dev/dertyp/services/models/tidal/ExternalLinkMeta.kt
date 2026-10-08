@@ -1,6 +1,5 @@
 package dev.dertyp.services.models.tidal
 
-
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -20,7 +19,6 @@ data class ExternalLinkMeta(
         TIKTOK,
         SNAPCHAT,
         OFFICIAL_HOMEPAGE,
-        CASHAPP_CONTRIBUTIONS;
+        CASHAPP_CONTRIBUTIONS
     }
 }
-

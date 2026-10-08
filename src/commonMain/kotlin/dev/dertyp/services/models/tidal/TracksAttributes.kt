@@ -42,7 +42,7 @@ data class TracksAttributes(
         Ab,
         A,
         Bb,
-        B;
+        B
     }
 
     @Suppress("unused")
@@ -60,20 +60,20 @@ data class TracksAttributes(
         PENTATONIC_MAJOR,
         PHRYGIAN,
         MELODIC_MINOR,
-        PENTATONIC_MINOR;
+        PENTATONIC_MINOR
     }
 
     @Suppress("unused")
     enum class AccessType {
         PUBLIC,
         UNLISTED,
-        PRIVATE;
+        PRIVATE
     }
 
     @Suppress("unused")
     enum class Availability {
         STREAM,
         DJ,
-        STEM;
+        STEM
     }
 }

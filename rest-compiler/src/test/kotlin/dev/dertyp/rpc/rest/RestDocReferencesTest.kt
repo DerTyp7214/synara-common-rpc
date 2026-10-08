@@ -119,16 +119,16 @@ class RestDocReferencesTest {
     @Test
     fun `links routes locally, falls back to the rpc doc and links models found in scanned packages`() {
         val text = "Use @IChangeService.observeChanges, @IChangeService.internalOnly, @IHiddenService.ping or " +
-                "@IHiddenService and read @ChangeTopic."
+            "@IHiddenService and read @ChangeTopic."
 
         val linked = references().link(text, source, "X")
 
         assertEquals(
             "Use [IChangeService.observeChanges](#devdertypservicesichangeservice-observechanges), " +
-                    "[IChangeService.internalOnly](RPC.md#devdertypservicesichangeservice-internalonly), " +
-                    "[IHiddenService.ping](RPC.md#devdertypservicesihiddenservice-ping) or " +
-                    "[IHiddenService](RPC.md#devdertypservicesihiddenservice) and read " +
-                    "[ChangeTopic](MODELS.md#devdertypdatachangetopic).",
+                "[IChangeService.internalOnly](RPC.md#devdertypservicesichangeservice-internalonly), " +
+                "[IHiddenService.ping](RPC.md#devdertypservicesihiddenservice-ping) or " +
+                "[IHiddenService](RPC.md#devdertypservicesihiddenservice) and read " +
+                "[ChangeTopic](MODELS.md#devdertypdatachangetopic).",
             linked
         )
         verify(exactly = 0) { logger.error(any(), any()) }
@@ -143,14 +143,14 @@ class RestDocReferencesTest {
         verify(exactly = 1) {
             logger.error(
                 "[rest-compiler] IUiService.getHomeCardsFlow: unresolved doc reference @IChangeService.observe: " +
-                        "IChangeService has no method observe",
+                    "IChangeService has no method observe",
                 source
             )
         }
         verify(exactly = 1) {
             logger.error(
                 "[rest-compiler] IUiService.getHomeCardsFlow: unresolved doc reference @Nope: " +
-                        "Nope is neither an RPC service nor a @ModelDoc model",
+                    "Nope is neither an RPC service nor a @ModelDoc model",
                 source
             )
         }

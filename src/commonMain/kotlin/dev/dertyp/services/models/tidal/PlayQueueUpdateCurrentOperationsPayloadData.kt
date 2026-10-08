@@ -11,7 +11,6 @@ data class PlayQueueUpdateCurrentOperationsPayloadData(
     @Suppress("EnumEntryName")
     enum class Type {
         tracks,
-        videos;
+        videos
     }
 }
-

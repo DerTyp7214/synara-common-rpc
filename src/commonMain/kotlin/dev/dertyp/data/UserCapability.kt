@@ -29,5 +29,3 @@ annotation class RequiresCapability(val capability: UserCapability)
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
 annotation class RequiresAdmin
-
-

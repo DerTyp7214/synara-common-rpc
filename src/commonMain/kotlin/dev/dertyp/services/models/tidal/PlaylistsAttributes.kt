@@ -26,7 +26,7 @@ data class PlaylistsAttributes(
     @Suppress("unused")
     enum class AccessType {
         PUBLIC,
-        UNLISTED;
+        UNLISTED
     }
 
     @Suppress("unused")
@@ -34,6 +34,6 @@ data class PlaylistsAttributes(
         EDITORIAL,
         USER,
         MIX,
-        ARTIST;
+        ARTIST
     }
 }

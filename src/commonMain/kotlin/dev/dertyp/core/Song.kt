@@ -30,12 +30,12 @@ fun UserSong.omitLyrics(): UserSong = copy(
 
 fun InsertableSong.contentEquals(other: InsertableSong): Boolean {
     return title == other.title &&
-            explicit == other.explicit &&
-            trackNumber == other.trackNumber &&
-            discNumber == other.discNumber &&
-            duration == other.duration &&
-            album.name == other.album.name &&
-            album.tags == other.album.tags &&
-            releaseDate == other.releaseDate &&
-            tags == other.tags
+        explicit == other.explicit &&
+        trackNumber == other.trackNumber &&
+        discNumber == other.discNumber &&
+        duration == other.duration &&
+        album.name == other.album.name &&
+        album.tags == other.album.tags &&
+        releaseDate == other.releaseDate &&
+        tags == other.tags
 }

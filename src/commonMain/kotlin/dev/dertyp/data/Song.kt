@@ -330,7 +330,7 @@ data class UserSong(
     val superLikedAt: PlatformDate? = null,
     @FieldDoc(
         "The requesting user's timecode tags on this song whose action is not NONE, ordered by position. Read-only. Tags are changed through " +
-                "ITimecodeTagService, and the full list including passive tags comes from ITimecodeTagService.getTags."
+            "ITimecodeTagService, and the full list including passive tags comes from ITimecodeTagService.getTags."
     )
     val playbackTags: List<TimecodeTag> = emptyList(),
 ) : BaseSong()

@@ -25,6 +25,6 @@ data class VideosAttributes(
     enum class Availability {
         STREAM,
         DJ,
-        STEM;
+        STEM
     }
 }

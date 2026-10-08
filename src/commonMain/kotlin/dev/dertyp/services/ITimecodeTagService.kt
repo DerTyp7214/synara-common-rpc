@@ -16,16 +16,16 @@ import kotlinx.rpc.annotations.Rpc
 @Rpc
 @RpcDoc(
     "Stores the tags a user attaches to a song at a position in milliseconds, either as a chapter that names a section, as a marker that points " +
-            "at a single moment or as a free-form note. Tags are private to the user who created them, so they are never visible to anyone else, " +
-            "and a tag disappears together with the song it belongs to. The text of a tag holds at most 1000 characters and a user keeps at most " +
-            "500 tags on a single song."
+        "at a single moment or as a free-form note. Tags are private to the user who created them, so they are never visible to anyone else, " +
+        "and a tag disappears together with the song it belongs to. The text of a tag holds at most 1000 characters and a user keeps at most " +
+        "500 tags on a single song."
 )
 interface ITimecodeTagService {
     @RestPath("tags")
     @RpcDoc(
         "Create a single tag on a song. The position must not be negative and an end position, if one is given, must not lie before the position " +
-                "the tag starts at. The action must fit the type: PLAY_ONLY and SKIP need a chapter with an end position, SKIP_TO and PLAY_UNTIL " +
-                "need a marker without one, and a note only takes NONE.",
+            "the tag starts at. The action must fit the type: PLAY_ONLY and SKIP need a chapter with an end position, SKIP_TO and PLAY_UNTIL " +
+            "need a marker without one, and a note only takes NONE.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun createTag(
@@ -46,8 +46,8 @@ interface ITimecodeTagService {
 
     @RpcDoc(
         "Overwrite a single tag of the user with new values. The call fails if the tag does not exist or belongs to another user. An action or fade " +
-                "flag left out keeps the stored value, and the resulting action must fit the type: PLAY_ONLY and SKIP need a chapter with an end " +
-                "position, SKIP_TO and PLAY_UNTIL need a marker without one, and a note only takes NONE.",
+            "flag left out keeps the stored value, and the resulting action must fit the type: PLAY_ONLY and SKIP need a chapter with an end " +
+            "position, SKIP_TO and PLAY_UNTIL need a marker without one, and a note only takes NONE.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun updateTag(
@@ -69,8 +69,8 @@ interface ITimecodeTagService {
     @RestPath("tags")
     @RpcDoc(
         "Replace every tag the user has on a song with the supplied ones. The write is all-or-nothing, so either all tags are stored or none of " +
-                "them are, and an empty list clears the tags of the song. Each tag carries its action and fade flag, which follow the same rules as in " +
-                "createTag.",
+            "them are, and an empty list clears the tags of the song. Each tag carries its action and fade flag, which follow the same rules as in " +
+            "createTag.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun replaceTags(

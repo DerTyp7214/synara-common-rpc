@@ -22,8 +22,8 @@ sealed class ClientRequest {
     @SerialName("UploadQueue")
     @ModelDoc(
         "Another device asks this client for its current play queue. The client fulfils the request by calling beginUpload with force set to true, " +
-                "staging its entries with uploadPage and finishing with commitUpload passing this request ID, since the requester explicitly wants the queue of this device " +
-                "and therefore expects it to win over the server state. If the client refuses, it reports the request as rejected instead."
+            "staging its entries with uploadPage and finishing with commitUpload passing this request ID, since the requester explicitly wants the queue of this device " +
+            "and therefore expects it to win over the server state. If the client refuses, it reports the request as rejected instead."
     )
     data class UploadQueue(
         @FieldDoc("Identifier of this request, passed to commitUpload or complete.")
@@ -40,8 +40,8 @@ sealed class ClientRequest {
     @SerialName("ControlPlayback")
     @ModelDoc(
         "Another device of the same user asks this client to change its playback. The client applies the command, publishes its new status through " +
-                "the remote control service and answers with complete, reporting the request as rejected when it does not apply the command. " +
-                "This request is only sent to sessions that connected with the remote control capability."
+            "the remote control service and answers with complete, reporting the request as rejected when it does not apply the command. " +
+            "This request is only sent to sessions that connected with the remote control capability."
     )
     data class ControlPlayback(
         @FieldDoc("Identifier of this request, passed to complete.")

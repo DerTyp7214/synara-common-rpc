@@ -9,7 +9,6 @@ data class AlbumCreateOperationPayloadDataRelationshipsArtistsData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        artists;
+        artists
     }
 }
-

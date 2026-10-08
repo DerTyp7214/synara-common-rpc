@@ -55,7 +55,7 @@ object ParserFactory {
     fun getParserForProvider(provider: String): UrlParser? {
         return parsers.find {
             it.name.equals(provider, ignoreCase = true) ||
-                    it.alternativeNames.any { alt -> alt.equals(provider, ignoreCase = true) }
+                it.alternativeNames.any { alt -> alt.equals(provider, ignoreCase = true) }
         }
     }
 

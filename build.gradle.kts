@@ -6,16 +6,14 @@ plugins {
     alias(libs.plugins.kover)
 }
 
-
 val includeAndroid = project.findProperty("synara.includeAndroid")?.toString()?.toBoolean()
     ?: rootProject.file("local.properties").exists()
 
-
 val hasAndroidEnv = includeAndroid && (
-        System.getenv("ANDROID_HOME") != null ||
-                System.getenv("ANDROID_SDK_ROOT") != null ||
-                rootProject.file("local.properties").exists()
-        )
+    System.getenv("ANDROID_HOME") != null ||
+        System.getenv("ANDROID_SDK_ROOT") != null ||
+        rootProject.file("local.properties").exists()
+    )
 
 if (hasAndroidEnv) {
     pluginManager.apply("com.android.kotlin.multiplatform.library")
@@ -115,7 +113,6 @@ kotlin {
         freeCompilerArgs.add("-opt-in=kotlin.experimental.ExperimentalObjCName")
     }
 }
-
 
 dependencies {
     add("kspJvm", project(":common-rpc:compiler"))

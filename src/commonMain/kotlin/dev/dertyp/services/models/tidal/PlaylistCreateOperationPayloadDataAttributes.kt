@@ -1,6 +1,5 @@
 package dev.dertyp.services.models.tidal
 
-
 import kotlin.native.ObjCName
 import kotlinx.serialization.Serializable
 
@@ -13,7 +12,6 @@ data class PlaylistCreateOperationPayloadDataAttributes(
     @Suppress("unused")
     enum class AccessType {
         PUBLIC,
-        UNLISTED;
+        UNLISTED
     }
 }
-

@@ -1,6 +1,5 @@
 package dev.dertyp.services.models.tidal
 
-
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,7 +11,6 @@ data class UserReportsCreateOperationPayloadDataRelationshipsReportedResourcesDa
     enum class Type {
         tracks,
         artists,
-        playlists;
+        playlists
     }
 }
-

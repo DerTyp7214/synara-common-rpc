@@ -621,13 +621,13 @@ class RpcProcessor(
         if (decl is KSClassDeclaration && (decl.classKind == ClassKind.CLASS || decl.classKind == ClassKind.ENUM_CLASS)) {
             val qName = decl.qualifiedName?.asString() ?: ""
             val isBuiltIn = qName.startsWith("kotlin.") ||
-                    qName.startsWith("kotlinx.coroutines.") ||
-                    qName == "dev.dertyp.PlatformUUID" ||
-                    qName == "dev.dertyp.PlatformDate" ||
-                    qName == "dev.dertyp.PlatformInstant" ||
-                    qName == "dev.dertyp.PlatformLocalDate" ||
-                    qName == "dev.dertyp.PlatformLocalDateTime" ||
-                    qName == "dev.dertyp.PlatformOffsetDateTime"
+                qName.startsWith("kotlinx.coroutines.") ||
+                qName == "dev.dertyp.PlatformUUID" ||
+                qName == "dev.dertyp.PlatformDate" ||
+                qName == "dev.dertyp.PlatformInstant" ||
+                qName == "dev.dertyp.PlatformLocalDate" ||
+                qName == "dev.dertyp.PlatformLocalDateTime" ||
+                qName == "dev.dertyp.PlatformOffsetDateTime"
 
             if (!isBuiltIn && !set.contains(decl)) {
                 set.add(decl)

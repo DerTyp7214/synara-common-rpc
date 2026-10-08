@@ -11,7 +11,6 @@ data class PlaylistItemsRelationshipReorderOperationPayloadData(
     @Suppress("EnumEntryName")
     enum class Type {
         tracks,
-        videos;
+        videos
     }
 }
-

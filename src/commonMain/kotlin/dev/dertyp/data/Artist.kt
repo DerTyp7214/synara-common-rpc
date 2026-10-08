@@ -108,7 +108,6 @@ data class ArtistSplitAlias(
     val name: String
 )
 
-
 @Serializable
 @ModelDoc("Configuration for merging multiple artist records into one.")
 data class MergeArtists(

@@ -15,7 +15,7 @@ data class ArtistClaimsAttributes(
     enum class Provider {
         DISTROKID,
         CDBABY,
-        TUNECORE;
+        TUNECORE
     }
 
     @Suppress("unused")
@@ -28,13 +28,13 @@ data class ArtistClaimsAttributes(
         PROCESSING,
         COMPLETED,
         FAILED,
-        CANCELLED;
+        CANCELLED
     }
 
     @Suppress("unused")
     enum class Recommendation {
         DSP_PROFILE_CLAIMED,
         CONTENT_MIGRATED_TO_UPLOADS,
-        NO_CONTENT_MATCHED;
+        NO_CONTENT_MATCHED
     }
 }

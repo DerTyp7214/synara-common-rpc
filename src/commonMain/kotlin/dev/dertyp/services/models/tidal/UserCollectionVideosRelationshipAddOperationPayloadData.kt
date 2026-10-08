@@ -1,6 +1,5 @@
 package dev.dertyp.services.models.tidal
 
-
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -27,7 +26,6 @@ data class UserCollectionVideosRelationshipAddOperationPayloadData(
         userRecommendations,
         userReports,
         users,
-        videos;
+        videos
     }
 }
-

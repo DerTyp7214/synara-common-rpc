@@ -30,8 +30,7 @@ enum class Type(val value: String) {
 
 @Serializable
 @JsonClassDiscriminator("entryType")
-sealed class BaseAttributes : AttributeType {
-}
+sealed class BaseAttributes : AttributeType
 
 @JvmInline
 @Serializable(with = JsonAttributeSerializer::class)

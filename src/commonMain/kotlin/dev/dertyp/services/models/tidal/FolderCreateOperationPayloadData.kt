@@ -9,7 +9,6 @@ data class FolderCreateOperationPayloadData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        userCollectionFolders;
+        userCollectionFolders
     }
 }
-

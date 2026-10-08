@@ -12,7 +12,6 @@ data class LyricsAttributesProvider(
     @Suppress("unused")
     enum class Source {
         TIDAL,
-        THIRD_PARTY;
+        THIRD_PARTY
     }
 }
-

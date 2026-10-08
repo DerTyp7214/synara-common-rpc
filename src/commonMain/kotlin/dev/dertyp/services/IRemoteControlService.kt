@@ -13,13 +13,13 @@ import kotlinx.rpc.annotations.Rpc
 @Rpc
 @RpcDoc(
     "Controls playback on another device of the same user and watches what it is doing. Only devices that are connected to the request channel offering " +
-            "the remote control capability can be reported on or addressed, and a device is always addressed by its session. Nothing here is stored: a status " +
-            "lives as long as the device stays connected."
+        "the remote control capability can be reported on or addressed, and a device is always addressed by its session. Nothing here is stored: a status " +
+        "lives as long as the device stays connected."
 )
 interface IRemoteControlService {
     @RpcDoc(
         "Publish what the calling session is playing, which every device watching it receives. A client reports after every change and every few seconds " +
-                "while it is playing, so watchers can follow the position. The calling session must be connected offering remote control.",
+            "while it is playing, so watchers can follow the position. The calling session must be connected offering remote control.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun reportStatus(
@@ -45,8 +45,8 @@ interface IRemoteControlService {
 
     @RpcDoc(
         "Send a transport command to another device of the user and wait for it to answer. The device must be connected offering remote control, and " +
-                "a volume command additionally requires the remote volume capability and a volume between 0 and 1. A device that stays silent is reported " +
-                "as timed out after ten seconds.",
+            "a volume command additionally requires the remote volume capability and a volume between 0 and 1. A device that stays silent is reported " +
+            "as timed out after ten seconds.",
         errors = ["IllegalArgumentException", "UnauthorizedException"]
     )
     suspend fun sendCommand(

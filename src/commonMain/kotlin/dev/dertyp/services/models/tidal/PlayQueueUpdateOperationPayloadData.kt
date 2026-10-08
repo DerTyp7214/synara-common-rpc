@@ -10,7 +10,6 @@ data class PlayQueueUpdateOperationPayloadData(
 ) {
     @Suppress("EnumEntryName")
     enum class Type {
-        playQueues;
+        playQueues
     }
 }
-

@@ -28,15 +28,15 @@ import kotlinx.rpc.annotations.Rpc
 @Rpc
 @RpcDoc(
     "Manages podcasts, which are kept completely apart from the music library: an episode is never a song, is never scrobbled and never shows up " +
-            "in music search or statistics. A show is either an RSS feed the server follows or a folder of the local podcast library, and a feed show " +
-            "is stored once and shared by everyone subscribing to it. Subscriptions and listening positions are private to each user and sync across " +
-            "their devices. Episode audio is always played through streamEpisode, no matter whether the server stores the file or relays its origin."
+        "in music search or statistics. A show is either an RSS feed the server follows or a folder of the local podcast library, and a feed show " +
+        "is stored once and shared by everyone subscribing to it. Subscriptions and listening positions are private to each user and sync across " +
+        "their devices. Episode audio is always played through streamEpisode, no matter whether the server stores the file or relays its origin."
 )
 interface IPodcastService {
     @RestPost
     @RpcDoc(
         "Subscribe to an RSS feed. The feed is fetched and parsed while the call runs when the server does not know it yet, so the call fails if " +
-                "the feed cannot be reached or is not a podcast feed. Subscribing again to a known feed is cheap and does not fetch anything.",
+            "the feed cannot be reached or is not a podcast feed. Subscribing again to a known feed is cheap and does not fetch anything.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun subscribe(
@@ -55,7 +55,7 @@ interface IPodcastService {
     @RestDelete
     @RpcDoc(
         "End the subscription of the user to a show. Returns false if the user was not subscribed. The show itself and its episodes stay on the " +
-                "server for a while after the last subscriber leaves."
+            "server for a while after the last subscriber leaves."
     )
     suspend fun unsubscribe(
         @RpcParamDoc("The show to unsubscribe from.") showId: PlatformUUID
@@ -76,8 +76,8 @@ interface IPodcastService {
     @RestGet
     @RpcDoc(
         "Search the podcast directories the server is connected to, for example Podcast Index, for shows by name or topic. Every result " +
-                "carries the address of its feed, so subscribing to it is done with subscribe. Directories that are not configured are skipped, " +
-                "a directory that fails answers with no results, and feeds the server already follows are left out because browseShows lists them.",
+            "carries the address of its feed, so subscribing to it is done with subscribe. Directories that are not configured are skipped, " +
+            "a directory that fails answers with no results, and feeds the server already follows are left out because browseShows lists them.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun searchIndex(
@@ -114,7 +114,7 @@ interface IPodcastService {
     @RestGet
     @RpcDoc(
         "Read several episodes at once, in the order of the given identifiers, each with the listening position of the user. Unknown identifiers " +
-                "are skipped. At most 500 identifiers.",
+            "are skipped. At most 500 identifiers.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun getEpisodesByIds(
@@ -124,8 +124,8 @@ interface IPodcastService {
     @RestGet
     @RpcDoc(
         "Read the episodes around one episode of its show: up to `older` episodes published before it and up to `newer` published after it, in " +
-                "chronological order with the episode itself included and the listening position of the user on each. Returns an empty list if the " +
-                "episode does not exist."
+            "chronological order with the episode itself included and the listening position of the user on each. Returns an empty list if the " +
+            "episode does not exist."
     )
     suspend fun getEpisodeWindow(
         @RpcParamDoc("The episode the window is built around.") episodeId: PlatformUUID,
@@ -161,20 +161,20 @@ interface IPodcastService {
     @RestGet
     @RpcDoc(
         "Read the episode the user played most recently, with the listening position, so a client can offer to continue it. Returns null if the " +
-                "user never played an episode."
+            "user never played an episode."
     )
     suspend fun getLastPlayed(
         @RpcParamDoc(
             "Whether an episode the user already completed may be returned. When false only an unfinished episode with a position after the start " +
-                    "counts."
+                "counts."
         ) includeCompleted: Boolean = true
     ): PodcastEpisode?
 
     @RestPost
     @RpcDoc(
         "Store the listening position of the user for an episode. A client reports on play, on pause, after a seek and every 10 to 15 seconds " +
-                "while playing, the same way song playback is reported. The last report wins, and the server marks an episode as completed on its own " +
-                "once the remaining time is under 30 seconds or under 5 percent of its length.",
+            "while playing, the same way song playback is reported. The last report wins, and the server marks an episode as completed on its own " +
+            "once the remaining time is under 30 seconds or under 5 percent of its length.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun reportPlayback(
@@ -184,7 +184,7 @@ interface IPodcastService {
     @RestPut
     @RpcDoc(
         "Mark an episode as listened or as unlistened. Marking it as listened moves the position to the end of the episode, marking it as " +
-                "unlistened resets the position to the beginning.",
+            "unlistened resets the position to the beginning.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun setPlayed(
@@ -199,7 +199,7 @@ interface IPodcastService {
     @RestPost
     @RpcDoc(
         "Fetch the feed of a show right now and store what changed. The call runs to completion before it returns and is skipped when the feed " +
-                "was already fetched less than 60 seconds ago.",
+            "was already fetched less than 60 seconds ago.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun refreshShow(
@@ -210,10 +210,10 @@ interface IPodcastService {
     @RequiresCapability(UserCapability.PODCAST_EDIT)
     @RpcDoc(
         "Change how the server keeps the episodes of a show. Switching a show to import makes the server store new episodes on disk, and the " +
-                "number of episodes to keep must be at least 1 when it is given. With newest retention the server imports the newest episodes and " +
-                "deletes everything beyond that count, while unlistened retention, which needs import delivery, imports the episodes nobody has " +
-                "finished yet and only deletes an episode once every subscriber listened to it to the end, with the keep count capping how many " +
-                "episodes are stored or queued at once.",
+            "number of episodes to keep must be at least 1 when it is given. With newest retention the server imports the newest episodes and " +
+            "deletes everything beyond that count, while unlistened retention, which needs import delivery, imports the episodes nobody has " +
+            "finished yet and only deletes an episode once every subscriber listened to it to the end, with the keep count capping how many " +
+            "episodes are stored or queued at once.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun updateShowSettings(
@@ -225,7 +225,7 @@ interface IPodcastService {
     @RequiresCapability(UserCapability.PODCAST_EDIT)
     @RpcDoc(
         "Queue a single episode to be stored on the server. The transfer itself runs in the background, so the returned episode usually reports " +
-                "that its import is queued.",
+            "that its import is queued.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun importEpisode(
@@ -236,7 +236,7 @@ interface IPodcastService {
     @RequiresCapability(UserCapability.PODCAST_EDIT)
     @RpcDoc(
         "Delete the stored audio of an episode of a feed show. The episode itself stays and is played from its origin afterwards. Episodes of the " +
-                "local podcast library cannot be removed this way, as that would delete the file of the user.",
+            "local podcast library cannot be removed this way, as that would delete the file of the user.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun removeImport(
@@ -247,8 +247,8 @@ interface IPodcastService {
     @RequiresAdmin
     @RpcDoc(
         "Remove a feed show from the server for everyone: its episodes, their transcripts, the listening positions of every user and every " +
-                "subscription to it are deleted, and the audio the server stored for it is deleted from disk. Returns false if the show does not " +
-                "exist. Shows of the local podcast library cannot be removed this way, as the server picks them up again on the next scan.",
+            "subscription to it are deleted, and the audio the server stored for it is deleted from disk. Returns false if the show does not " +
+            "exist. Shows of the local podcast library cannot be removed this way, as the server picks them up again on the next scan.",
         errors = ["IllegalArgumentException"]
     )
     suspend fun deleteShow(
@@ -263,8 +263,8 @@ interface IPodcastService {
     @RestFileResponse
     @RpcDoc(
         "Stream the audio of an episode. This is the only way a client plays an episode: the server serves the file when the episode is stored " +
-                "on it or belongs to the local podcast library, and relays the audio from its origin otherwise. Returns null if the episode has no " +
-                "audio at all."
+            "on it or belongs to the local podcast library, and relays the audio from its origin otherwise. Returns null if the episode has no " +
+            "audio at all."
     )
     fun streamEpisode(
         @RpcParamDoc("The episode to play.") episodeId: PlatformUUID,
@@ -287,7 +287,7 @@ interface IPodcastService {
     @RestGet
     @RpcDoc(
         "Read a single transcript together with its text. A transcript that only exists as a remote address is fetched once on first read and " +
-                "kept afterwards. Returns null if the transcript does not exist or its text cannot be obtained."
+            "kept afterwards. Returns null if the transcript does not exist or its text cannot be obtained."
     )
     suspend fun getTranscript(
         @RpcParamDoc("The transcript to read.") transcriptId: PlatformUUID
