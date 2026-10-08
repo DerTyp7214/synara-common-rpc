@@ -147,11 +147,30 @@ abstract class BaseRpcServiceManager(
                 onServerReachable()
             }
         },
-        onCancel = {
-            scope.launch { clear() }
-        },
+        onCancel = { stale -> invalidate(stale) },
         onFailure = { onServerUnreachable() }
     )
+
+    private val pools = mutableListOf<RpcClientPool>()
+
+    protected fun pooledClient(size: Int): RpcClient {
+        val pool = RpcClientPool(size) { getDedicatedClient() }
+        pools += pool
+        return ReconnectingRpcClient(
+            delegateProvider = {
+                ensureAuthenticated()
+                pool.acquire()
+            },
+            onCancel = { stale -> pool.invalidate(stale) }
+        )
+    }
+
+    private suspend fun invalidate(stale: KtorRpcClient) {
+        mutex.withLock {
+            if (_servicesClient === stale) _servicesClient = null
+        }
+        runCatching { stale.close() }
+    }
 
     private fun createReconnectingClient(
         baseUrl: String?,
@@ -159,9 +178,6 @@ abstract class BaseRpcServiceManager(
         token: String? = null
     ): RpcClient {
         return client.reconnectingRpcClient(
-            onCancel = {
-                scope.launch { clear() }
-            },
             onFailure = {
                 onServerUnreachable()
             }
@@ -470,8 +486,8 @@ abstract class BaseRpcServiceManager(
     }
 
     suspend fun clear() {
+        pools.forEach { it.close() }
         mutex.withLock {
-            transparentClient.close()
             val oldClient = _servicesClient
             _servicesClient = null
             try {

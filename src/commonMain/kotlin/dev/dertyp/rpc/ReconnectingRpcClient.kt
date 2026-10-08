@@ -13,7 +13,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.io.IOException
@@ -24,7 +24,6 @@ import kotlinx.rpc.krpc.ktor.client.rpc
 import kotlin.time.Duration.Companion.milliseconds
 
 fun HttpClient.reconnectingRpcClient(
-    onCancel: () -> Unit = {},
     onFailure: () -> Unit = {},
     maxRetries: Int = 5,
     delayMs: Long = 1000L,
@@ -32,77 +31,120 @@ fun HttpClient.reconnectingRpcClient(
 ): RpcClient {
     return ReconnectingRpcClient(
         delegateProvider = { rpc(block) },
-        onCancel = onCancel,
         onFailure = onFailure,
         maxRetries = maxRetries,
-        delayMs = delayMs
+        delayMs = delayMs,
+        ownsDelegate = true
     )
 }
 
 class ReconnectingRpcClient(
     private val delegateProvider: suspend () -> KtorRpcClient,
-    private val onCancel: () -> Unit = {},
+    private val onCancel: suspend (KtorRpcClient) -> Unit = {},
     private val onFailure: () -> Unit = {},
     private val maxRetries: Int = 5,
-    private val delayMs: Long = 1000L
+    private val delayMs: Long = 1000L,
+    private val ownsDelegate: Boolean = false
 ) : RpcClient {
-    private val mutex = Mutex()
-    private var cachedDelegate: KtorRpcClient? = null
 
-    private suspend fun getDelegate(): KtorRpcClient {
-        return delegateProvider()
-        /*return mutex.withLock { somehow has worse performance than creating a new instance every time
-            cachedDelegate ?: delegateProvider().also { cachedDelegate = it }
-        }*/
-    }
-
-    suspend fun close() {
-        mutex.withLock {
-            cachedDelegate?.close()
-            cachedDelegate = null
-        }
+    private fun release(delegate: KtorRpcClient) {
+        if (ownsDelegate) delegate.close()
     }
 
     override suspend fun <T> call(call: RpcCall): T {
         var attempts = 0
         while (true) {
-            val delegate = getDelegate()
+            val delegate = delegateProvider()
             return try {
-                delegate.call(call)
+                delegate.call<T>(call).also { release(delegate) }
             } catch (e: Throwable) {
+                release(delegate)
                 if (e is CancellationException) throw e
                 attempts++
                 if (isRetriable(e) && attempts < maxRetries) {
-                    mutex.withLock { cachedDelegate = null }
-                    onCancel()
+                    onCancel(delegate)
                     delay((delayMs * attempts).milliseconds)
                     continue
                 }
-                onFailure()
+                if (e.isTransportFailure()) onFailure()
                 throw e
             }
         }
     }
 
-    override fun <T> callServerStreaming(call: RpcCall): Flow<T> {
-        return flow {
-            emitAll(getDelegate().callServerStreaming<T>(call))
-        }.retry(retries = maxRetries.toLong()) { e ->
-            if (isRetriable(e)) {
-                mutex.withLock { cachedDelegate = null }
-                onCancel()
+    override fun <T> callServerStreaming(call: RpcCall): Flow<T> = flow {
+        var failed: KtorRpcClient? = null
+        val attempts = flow {
+            val delegate = delegateProvider()
+            failed = delegate
+            try {
+                emitAll(delegate.callServerStreaming<T>(call))
+            } finally {
+                release(delegate)
+            }
+        }.retryWhen { e, attempt ->
+            if (isRetriable(e) && attempt < maxRetries) {
+                failed?.let { onCancel(it) }
                 delay((delayMs * 2).milliseconds)
                 true
             } else {
-                onFailure()
+                if (e.isTransportFailure()) onFailure()
                 false
             }
         }
+        emitAll(attempts)
     }
 
     private fun isRetriable(e: Throwable): Boolean {
         if (e is UnresolvedAddressException) return false
         return e.isTransportFailure()
+    }
+}
+
+class RpcClientPool(
+    private val size: Int,
+    private val connect: suspend () -> KtorRpcClient
+) {
+    private val mutex = Mutex()
+    private val slots = arrayOfNulls<KtorRpcClient>(size)
+    private var next = 0
+    private var generation = 0
+
+    suspend fun acquire(): KtorRpcClient {
+        while (true) {
+            val (index, seen) = mutex.withLock {
+                val index = next
+                next = (next + 1) % size
+                slots[index]?.let { return it }
+                index to generation
+            }
+            val fresh = connect()
+            val stored = mutex.withLock {
+                when {
+                    generation != seen -> null
+                    else -> slots[index] ?: fresh.also { slots[index] = it }
+                }
+            }
+            if (stored === fresh) return fresh
+            runCatching { fresh.close() }
+            if (stored != null) return stored
+        }
+    }
+
+    suspend fun invalidate(stale: KtorRpcClient) {
+        mutex.withLock {
+            val index = slots.indexOfFirst { it === stale }
+            if (index >= 0) slots[index] = null
+        }
+        runCatching { stale.close() }
+    }
+
+    suspend fun close() {
+        val open = mutex.withLock {
+            generation++
+            slots.filterNotNull().also { slots.fill(null) }
+        }
+        open.forEach { runCatching { it.close() } }
     }
 }
 
