@@ -39,6 +39,21 @@ data class UserPasswordHash(
 )
 
 @Serializable
+@ModelDoc("The name and avatar of a user, as shown to other users.")
+data class UserProfile(
+    @FieldDoc("The user unique identifier.")
+    val id: PlatformUUID,
+    @FieldDoc("The unique login name of the user.")
+    val username: String,
+    @FieldDoc("Optional display name shown to other users.")
+    val displayName: String? = null,
+    @FieldDoc("The user's profile avatar image unique identifier.")
+    val profileImageId: PlatformUUID? = null,
+    @FieldDoc("The blur hash of the profile avatar image.")
+    val blurHash: String? = null,
+)
+
+@Serializable
 @ModelDoc("Publicly safe profile information about a user.")
 data class UserInfo(
     @FieldDoc("The user unique identifier.")

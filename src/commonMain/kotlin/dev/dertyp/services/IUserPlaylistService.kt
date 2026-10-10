@@ -6,7 +6,9 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.data.ArtistPlaylistSortStrategy
 import dev.dertyp.data.InsertablePlaylist
 import dev.dertyp.data.PaginatedResponse
+import dev.dertyp.data.PlaylistAccess
 import dev.dertyp.data.UserPlaylist
+import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -113,4 +115,48 @@ interface IUserPlaylistService {
         @RpcParamDoc("Maximum number of songs per artist.") maxSongsPerArtist: Int = 10,
         @RpcParamDoc("Sorting strategy.") sortStrategy: ArtistPlaylistSortStrategy = ArtistPlaylistSortStrategy.MB_RELEASE_DATE
     ): PlatformUUID
+
+    @RpcDoc(
+        "Make a user playlist public or private. A public playlist can be found and opened by every user, a private one only by its owner and the users it is shared with. Returns false when the playlist does not exist.",
+        errors = ["UnauthorizedException"]
+    )
+    suspend fun setPublic(
+        @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("Whether the playlist is public.") isPublic: Boolean
+    ): Boolean
+
+    @RpcDoc(
+        "Share a user playlist with a user, or change the access of a user it is already shared with. Only the owner can do this, and the owner cannot be given a share.",
+        errors = ["IllegalArgumentException", "UnauthorizedException"]
+    )
+    suspend fun setShare(
+        @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("The unique identifier of the user to share the playlist with.") userId: PlatformUUID,
+        @RpcParamDoc("What the user may do with the playlist.") access: PlaylistAccess
+    )
+
+    @RpcDoc(
+        "Stop sharing a user playlist with a user. The owner can remove any share, and a user can remove their own to leave the playlist. Returns false when the playlist was not shared with that user.",
+        errors = ["UnauthorizedException"]
+    )
+    suspend fun removeShare(
+        @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("The unique identifier of the user to remove.") userId: PlatformUUID
+    ): Boolean
+
+    @RestGet
+    @RpcDoc("Get the user playlists that other users shared with the current user.")
+    suspend fun sharedPlaylists(
+        @RpcParamDoc("Page index.") page: Int = 0,
+        @RpcParamDoc("Number of items per page.") pageSize: Int = 50
+    ): PaginatedResponse<UserPlaylist>
+
+    @RpcDoc(
+        "Hand a user playlist over to another user. The previous owner keeps write access through a share. Returns false when the playlist or the new owner does not exist or the user already owns the playlist.",
+        errors = ["UnauthorizedException"]
+    )
+    suspend fun transferOwnership(
+        @RpcParamDoc("The playlist unique identifier.") id: PlatformUUID,
+        @RpcParamDoc("The unique identifier of the user who becomes the owner.") newOwnerId: PlatformUUID
+    ): Boolean
 }

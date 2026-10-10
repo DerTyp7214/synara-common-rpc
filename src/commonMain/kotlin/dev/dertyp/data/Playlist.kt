@@ -77,7 +77,30 @@ data class UserPlaylist(
     val modifiedAt: PlatformDate? = null,
     @FieldDoc("Where the cover image came from. Null when there is no cover.")
     val imageSource: ImageSource? = null,
+    @FieldDoc("Whether every user can find and open the playlist. A playlist that is not public is visible only to its owner and the users it is shared with.")
+    val isPublic: Boolean = false,
+    @FieldDoc("The users the playlist is shared with. Empty for a caller who is neither the owner nor one of these users.")
+    val shares: List<PlaylistShare> = emptyList(),
 ) : BasePlaylist()
+
+@Serializable
+@ModelDoc("What a user a playlist is shared with may do with it.")
+enum class PlaylistAccess {
+    @FieldDoc("The user can find, open and play the playlist.")
+    READ,
+
+    @FieldDoc("The user can also add and remove songs.")
+    WRITE
+}
+
+@Serializable
+@ModelDoc("Grants a single user access to a user playlist.")
+data class PlaylistShare(
+    @FieldDoc("The unique identifier of the user the playlist is shared with.")
+    val userId: PlatformUUID,
+    @FieldDoc("What the user may do with the playlist.")
+    val access: PlaylistAccess,
+)
 
 @Serializable
 @ModelDoc("Contains raw binary data for a cover image in a backup.")

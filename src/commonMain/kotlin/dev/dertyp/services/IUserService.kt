@@ -7,6 +7,7 @@ import dev.dertyp.data.AuthenticationRequest
 import dev.dertyp.data.RequiresAdmin
 import dev.dertyp.data.User
 import dev.dertyp.data.UserCapability
+import dev.dertyp.data.UserProfile
 import dev.dertyp.rpc.annotations.RestGet
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
@@ -34,6 +35,9 @@ interface IUserService {
     @RequiresAdmin
     @RpcDoc("List all users on the server.", errors = ["IllegalStateException"])
     suspend fun allUsers(): List<User>
+
+    @RpcDoc("List the name and avatar of every user on the server, ordered by username.")
+    suspend fun allProfiles(): List<UserProfile>
 
     @RpcDoc("Update the current user's avatar.")
     suspend fun setProfileImage(

@@ -1304,6 +1304,42 @@ pub struct IUserPlaylistServiceCreatePlaylistFromArtistsArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUserPlaylistServiceSetPublicArgs {
+    pub id: PlatformUUID,
+    #[serde(rename = "isPublic")]
+    pub is_public: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUserPlaylistServiceSetShareArgs {
+    pub id: PlatformUUID,
+    #[serde(rename = "userId")]
+    pub user_id: PlatformUUID,
+    pub access: PlaylistAccess,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUserPlaylistServiceRemoveShareArgs {
+    pub id: PlatformUUID,
+    #[serde(rename = "userId")]
+    pub user_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUserPlaylistServiceSharedPlaylistsArgs {
+    pub page: i32,
+    #[serde(rename = "pageSize")]
+    pub page_size: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUserPlaylistServiceTransferOwnershipArgs {
+    pub id: PlatformUUID,
+    #[serde(rename = "newOwnerId")]
+    pub new_owner_id: PlatformUUID,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IUserServiceSetCapabilitiesArgs {
     pub id: PlatformUUID,
     pub capabilities: Vec<UserCapability>,
@@ -2341,6 +2377,9 @@ pub struct UserPlaylist {
     pub modified_at: Option<PlatformDate>,
     #[serde(rename = "imageSource")]
     pub image_source: Option<ImageSource>,
+    #[serde(rename = "isPublic")]
+    pub is_public: bool,
+    pub shares: Vec<PlaylistShare>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -2351,6 +2390,21 @@ pub struct UserPlaylistSong {
     pub added_at: i64,
     #[serde(rename = "musicBrainzId")]
     pub music_brainz_id: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PlaylistShare {
+    #[serde(rename = "userId")]
+    pub user_id: PlatformUUID,
+    pub access: PlaylistAccess,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum PlaylistAccess {
+    #[serde(rename = "READ")]
+    Read,
+    #[serde(rename = "WRITE")]
+    Write,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -4234,6 +4288,18 @@ pub enum ArtistPlaylistSortStrategy {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserProfile {
+    pub id: PlatformUUID,
+    pub username: String,
+    #[serde(rename = "displayName")]
+    pub display_name: Option<String>,
+    #[serde(rename = "profileImageId")]
+    pub profile_image_id: Option<PlatformUUID>,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct AuthenticationRequest {
     pub username: String,
     pub password: String,
@@ -4994,6 +5060,11 @@ pub trait IUserPlaylistService {
     fn remove_from_playlist<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, song_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<i32, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_playlist_image<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, image_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn create_playlist_from_artists<'life0, 'async_trait>(&'life0 self, user_id: PlatformUUID, name: String, artist_ids: Vec<PlatformUUID>, max_songs_per_artist: i32, sort_strategy: ArtistPlaylistSortStrategy) -> Pin<Box<dyn std::future::Future<Output = Result<PlatformUUID, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_public<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, is_public: bool) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_share<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, user_id: PlatformUUID, access: PlaylistAccess) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn remove_share<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, user_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn shared_playlists<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserPlaylist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn transfer_ownership<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, new_owner_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait IUserService {
@@ -5001,6 +5072,7 @@ pub trait IUserService {
     fn by_username<'life0, 'async_trait>(&'life0 self, username: String) -> Pin<Box<dyn std::future::Future<Output = Result<Option<User>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn me<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<User, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn all_users<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<User>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn all_profiles<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserProfile>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_profile_image<'life0, 'async_trait>(&'life0 self, bytes: serde_bytes::ByteBuf) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_display_name<'life0, 'async_trait>(&'life0 self, name: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn set_capabilities<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, capabilities: Vec<UserCapability>) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -7143,6 +7215,36 @@ impl IUserPlaylistService for RpcClient {
             self.call("IUserPlaylistService", "createPlaylistFromArtists", &args).await
         })
     }
+    fn set_public<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, is_public: bool) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUserPlaylistServiceSetPublicArgs { id, is_public };
+            self.call("IUserPlaylistService", "setPublic", &args).await
+        })
+    }
+    fn set_share<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, user_id: PlatformUUID, access: PlaylistAccess) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUserPlaylistServiceSetShareArgs { id, user_id, access };
+            self.call("IUserPlaylistService", "setShare", &args).await
+        })
+    }
+    fn remove_share<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, user_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUserPlaylistServiceRemoveShareArgs { id, user_id };
+            self.call("IUserPlaylistService", "removeShare", &args).await
+        })
+    }
+    fn shared_playlists<'life0, 'async_trait>(&'life0 self, page: i32, page_size: i32) -> Pin<Box<dyn std::future::Future<Output = Result<PaginatedResponse<UserPlaylist>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUserPlaylistServiceSharedPlaylistsArgs { page, page_size };
+            self.call("IUserPlaylistService", "sharedPlaylists", &args).await
+        })
+    }
+    fn transfer_ownership<'life0, 'async_trait>(&'life0 self, id: PlatformUUID, new_owner_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<bool, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUserPlaylistServiceTransferOwnershipArgs { id, new_owner_id };
+            self.call("IUserPlaylistService", "transferOwnership", &args).await
+        })
+    }
 }
 impl IUserService for RpcClient {
     fn by_id<'life0, 'async_trait>(&'life0 self, id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<User>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
@@ -7163,6 +7265,11 @@ impl IUserService for RpcClient {
     fn all_users<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<User>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IUserService", "allUsers", &()).await
+        })
+    }
+    fn all_profiles<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserProfile>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IUserService", "allProfiles", &()).await
         })
     }
     fn set_profile_image<'life0, 'async_trait>(&'life0 self, bytes: serde_bytes::ByteBuf) -> Pin<Box<dyn std::future::Future<Output = Result<(), String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
