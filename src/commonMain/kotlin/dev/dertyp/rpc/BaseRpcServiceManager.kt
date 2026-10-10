@@ -24,7 +24,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMessageBuilder
 import io.ktor.client.request.header
 import io.ktor.client.request.url
-import io.ktor.http.Url
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -224,12 +223,7 @@ abstract class BaseRpcServiceManager(
             true
         } catch (e: Throwable) {
             if (isSslException(e)) {
-                if (sslConfirmed) {
-                    _sessionSslOverride.value = false
-                } else {
-                    val url = Url(baseUrl)
-                    setRpcUrl(url.host, url.port, false, url.encodedPath)
-                }
+                _sessionSslOverride.value = false
                 clear()
                 sslChecked = true
                 return@withContext false

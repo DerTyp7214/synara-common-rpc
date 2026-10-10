@@ -89,6 +89,12 @@ kotlin {
             }
         }
 
+        jvmTest {
+            dependencies {
+                implementation(libs.ktor.client.cio)
+            }
+        }
+
         val nativeMain by getting {
             kotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/kotlin"))
             kotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/resources"))
