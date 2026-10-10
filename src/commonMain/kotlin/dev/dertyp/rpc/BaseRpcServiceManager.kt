@@ -239,6 +239,7 @@ abstract class BaseRpcServiceManager(
         useSsl: Boolean = true
     ): ServerValidationResult = withContext(ioDispatcher) {
         val schemes = if (useSsl) listOf("wss", "ws") else listOf("ws")
+        var tlsFailed = false
 
         for (s in schemes) {
             try {
@@ -255,14 +256,15 @@ abstract class BaseRpcServiceManager(
                     try {
                         val statsService = rpcClient.withService<IServerStatsService>()
                         if (statsService.health()) {
-                            ServerValidationResult(validated = true, useSsl = s == "wss")
+                            ServerValidationResult(validated = true, useSsl = s == "wss", tlsFailed = tlsFailed)
                         } else null
                     } finally {
                         rpcClient.close()
                     }
                 }
                 if (result != null) return@withContext result
-            } catch (_: Throwable) {
+            } catch (e: Throwable) {
+                if (s == "wss") tlsFailed = isSslException(e)
             }
         }
         ServerValidationResult(validated = false, useSsl = false)

@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ServerValidationResult(
     val validated: Boolean,
-    val useSsl: Boolean
+    val useSsl: Boolean,
+    val tlsFailed: Boolean = false
 )
