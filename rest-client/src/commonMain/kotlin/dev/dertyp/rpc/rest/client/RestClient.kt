@@ -21,7 +21,7 @@ import io.ktor.http.takeFrom
 import io.ktor.utils.io.readAvailable
 import io.ktor.utils.io.readLine
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
@@ -53,7 +53,7 @@ class RestClient(private val config: RestClientConfig) {
     suspend fun bytesOrNull(request: RestRequest): ByteArray? =
         call<ByteArray?>(request, onNotFound = { null }) { it.bodyAsBytes() }
 
-    fun <T> sse(serializer: KSerializer<T>, request: RestRequest): Flow<T> = flow {
+    fun <T> sse(serializer: KSerializer<T>, request: RestRequest): Flow<T> = channelFlow {
         call(request, configure = { accept(ContentType.Text.EventStream) }) { response ->
             val channel = response.bodyAsChannel()
             val data = StringBuilder()
@@ -61,7 +61,7 @@ class RestClient(private val config: RestClientConfig) {
             while (true) {
                 val line = channel.readLine() ?: break
                 if (line.isEmpty()) {
-                    if (hasData) emit(AppJson.decodeFromString(serializer, data.toString()))
+                    if (hasData) send(AppJson.decodeFromString(serializer, data.toString()))
                     data.clear()
                     hasData = false
                     continue
@@ -80,19 +80,19 @@ class RestClient(private val config: RestClientConfig) {
     inline fun <reified T> sse(request: RestRequest): Flow<T> =
         sse(AppJson.serializersModule.serializer<T>(), request)
 
-    fun byteFlow(request: RestRequest): Flow<ByteArray> = flow {
+    fun byteFlow(request: RestRequest): Flow<ByteArray> = channelFlow {
         call(request) { response ->
             val channel = response.bodyAsChannel()
             val buffer = ByteArray(DEFAULT_CHUNK_SIZE)
             while (true) {
                 val read = channel.readAvailable(buffer)
                 if (read < 0) break
-                if (read > 0) emit(buffer.copyOf(read))
+                if (read > 0) send(buffer.copyOf(read))
             }
         }
     }
 
-    fun file(request: RestRequest, offset: Long?, chunkSize: Int?): Flow<ByteArray> = flow {
+    fun file(request: RestRequest, offset: Long?, chunkSize: Int?): Flow<ByteArray> = channelFlow {
         val size = (chunkSize ?: DEFAULT_CHUNK_SIZE).coerceAtLeast(1)
         val range = offset?.takeIf { it > 0 }?.let { "bytes=$it-" }
         call(request, configure = { range?.let { headers[HttpHeaders.Range] = it } }) { response ->
@@ -104,11 +104,11 @@ class RestClient(private val config: RestClientConfig) {
                 if (read < 0) break
                 filled += read
                 if (filled == size) {
-                    emit(buffer.copyOf())
+                    send(buffer.copyOf())
                     filled = 0
                 }
             }
-            if (filled > 0) emit(buffer.copyOf(filled))
+            if (filled > 0) send(buffer.copyOf(filled))
         }
     }
 

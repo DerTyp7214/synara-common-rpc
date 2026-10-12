@@ -191,7 +191,7 @@ abstract class BaseRpcServiceManager(
     open suspend fun getAuthService(): IAuthService = withContext(ioDispatcher) {
         checkSslSupport()
         val baseUrl = getRpcUrl()
-        val rpcClient = createReconnectingClient(baseUrl, "auth")
+        val rpcClient = createReconnectingClient(baseUrl, "auth", getAuthToken())
         rpcClient.withService<IAuthService>()
     }
 
@@ -268,6 +268,12 @@ abstract class BaseRpcServiceManager(
             }
         }
         ServerValidationResult(validated = false, useSsl = false)
+    }
+
+    suspend fun accessToken(forceRefresh: Boolean): String? {
+        if (!isAuthenticated()) return null
+        ensureAuthenticated(forceRefresh)
+        return getAuthToken()
     }
 
     private suspend fun ensureAuthenticated(force: Boolean = false) {
