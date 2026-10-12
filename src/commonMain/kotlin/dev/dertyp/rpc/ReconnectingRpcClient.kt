@@ -9,7 +9,9 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ClosedSendChannelException
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -59,13 +61,14 @@ class ReconnectingRpcClient(
                 delegate.call<T>(call).also { release(delegate) }
             } catch (e: Throwable) {
                 release(delegate)
-                if (e is CancellationException) throw e
+                if (e is CancellationException) currentCoroutineContext().ensureActive()
                 attempts++
-                if (isRetriable(e) && attempts < maxRetries) {
+                if ((e is CancellationException || isRetriable(e)) && attempts < maxRetries) {
                     onCancel(delegate)
                     delay((delayMs * attempts).milliseconds)
                     continue
                 }
+                if (e is CancellationException) throw IOException("RPC client was cancelled", e)
                 if (e.isTransportFailure()) onFailure()
                 throw e
             }
@@ -83,7 +86,7 @@ class ReconnectingRpcClient(
                 release(delegate)
             }
         }.retryWhen { e, attempt ->
-            if (isRetriable(e) && attempt < maxRetries) {
+            if ((e is CancellationException || isRetriable(e)) && attempt < maxRetries) {
                 failed?.let { onCancel(it) }
                 delay((delayMs * 2).milliseconds)
                 true
