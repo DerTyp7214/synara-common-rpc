@@ -40,24 +40,14 @@ kotlin {
         }
     }
 
-    val nativeTargets = listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64(),
-        macosArm64("macosarm"),
-        tvosArm64(),
-        tvosSimulatorArm64(),
-        mingwX64("windows"),
-        linuxX64("linux")
-    )
-
-    nativeTargets.forEach { target ->
-        target.binaries {
-            staticLib {
-                baseName = "common_rpc"
-            }
-        }
-    }
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+    macosArm64("macosarm")
+    tvosArm64()
+    tvosSimulatorArm64()
+    mingwX64("windows")
+    linuxX64("linux")
 
     sourceSets {
         all {
@@ -71,6 +61,7 @@ kotlin {
         }
 
         commonMain {
+            kotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/kotlin"))
             dependencies {
                 api(libs.kotlinx.rpc.core)
                 api(libs.kotlinx.rpc.krpc.ktor.client)
@@ -94,24 +85,6 @@ kotlin {
                 implementation(libs.ktor.client.cio)
             }
         }
-
-        val nativeMain by getting {
-            kotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/kotlin"))
-            kotlin.srcDir(layout.buildDirectory.dir("generated/ksp/metadata/commonMain/resources"))
-            dependencies {
-                implementation(libs.ktor.client.cio)
-            }
-        }
-    }
-
-    targets.all {
-        if (name in nativeTargets.map { it.name }) {
-            compilations.all {
-                compileTaskProvider.configure {
-                    dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
-                }
-            }
-        }
     }
 
     compilerOptions {
@@ -121,7 +94,10 @@ kotlin {
 }
 
 dependencies {
-    add("kspJvm", project(":common-rpc:compiler"))
     add("kspCommonMainMetadata", project(":common-rpc:compiler"))
     add("kspCommonMainMetadata", project(":common-rpc:doc-compiler"))
+}
+
+tasks.matching { it.name.startsWith("compile") && it.name.contains("Kotlin") }.configureEach {
+    dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
 }

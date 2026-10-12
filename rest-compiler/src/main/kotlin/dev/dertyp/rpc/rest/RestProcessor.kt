@@ -15,6 +15,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.ksp.writeTo
+import java.io.File
 
 private const val RPC_ANNOTATION = "kotlinx.rpc.annotations.Rpc"
 private const val REST_FILE_RESPONSE_ANNOTATION = "dev.dertyp.rpc.annotations.RestFileResponse"
@@ -46,6 +47,17 @@ class RestProcessor(
         val types = TypeClassifier(restPackage)
         val derivation = RestDerivation(types, logger)
         val services = interfaces.map { derivation.derive(it) }
+
+        if (options["rest.mode"] == "client") {
+            val clientPackage = options["rest.client.package"]
+            if (clientPackage.isNullOrBlank()) {
+                logger.error("[rest-compiler] rest.mode=client needs rest.client.package")
+                return emptyList()
+            }
+            val clientEmitter = KotlinClientEmitter(clientPackage)
+            services.forEach { clientEmitter.emit(it).writeTo(codeGenerator, Dependencies(aggregating = true)) }
+            return emptyList()
+        }
 
         if (options["rest.dumpManifest"] == "true") dumpManifest(services)
 
@@ -88,7 +100,23 @@ class RestProcessor(
                 found
             }
 
-        return (fromSource + fromPackages + explicit)
+        val fromFile = options["rest.interfacesFile"]?.takeIf { it.isNotBlank() }?.let { path ->
+            val file = File(path)
+            if (!file.isFile) {
+                logger.error("[rest-compiler] rest.interfacesFile: $path does not exist")
+                return@let emptyList()
+            }
+            file.readLines()
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .mapNotNull { fqn ->
+                    val found = resolver.getClassDeclarationByName(resolver.getKSNameFromString(fqn))
+                    if (found == null) logger.error("[rest-compiler] rest.interfacesFile: $fqn not found")
+                    found
+                }
+        }.orEmpty()
+
+        return (fromSource + fromPackages + explicit + fromFile)
             .filter { it.classKind == ClassKind.INTERFACE }
             .distinctBy { it.qualifiedName?.asString() ?: it.simpleName.asString() }
             .sortedBy { it.qualifiedName?.asString() ?: it.simpleName.asString() }

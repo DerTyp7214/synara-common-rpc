@@ -4,7 +4,6 @@ plugins {
 
 dependencies {
     implementation(libs.symbol.processing.api)
-    implementation(project(":common-rpc"))
 
     testImplementation(libs.junit.jupiter.api)
     testImplementation(libs.kotlin.test)

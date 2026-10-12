@@ -27,243 +27,46 @@ class RpcProcessor(
         val sourceFiles = symbols.mapNotNull { it.containingFile }.toTypedArray()
         val dependencies = Dependencies(false, *sourceFiles)
 
-        generateKotlinDispatchers(symbols, dependencies)
+        generateServiceRegistry(symbols, Dependencies.ALL_FILES)
+        generateInterfaceList(symbols, Dependencies.ALL_FILES)
         generateRustBridge(resolver, symbols, dependencies)
 
         return symbols.filterNot { it.validate() }
     }
 
-    private fun generateKotlinDispatchers(symbols: List<KSClassDeclaration>, dependencies: Dependencies) {
+    private fun generateServiceRegistry(symbols: List<KSClassDeclaration>, dependencies: Dependencies) {
         val file = codeGenerator.createNewFile(
             dependencies,
             "dev.dertyp.rpc",
-            "NativeDispatchers"
+            "ServiceRegistry"
         )
 
         file.use { out ->
-            out.writeLine("@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)")
-            out.writeLine("@file:kotlinx.serialization.UseContextualSerialization(dev.dertyp.PlatformUUID::class)")
-            out.writeLine("@file:Suppress(\"USELESS_CAST\", \"KotlinUnreachableCode\", \"unused\", \"UNCHECKED_CAST\", \"DEPRECATION\")")
-            out.writeLine("")
             out.writeLine("package dev.dertyp.rpc")
             out.writeLine("")
-            out.writeLine("import dev.dertyp.rpc.BaseRpcServiceManager")
-            out.writeLine("import dev.dertyp.serializers.*")
-            out.writeLine("import kotlinx.serialization.*")
-            out.writeLine("import kotlinx.serialization.builtins.*")
-            out.writeLine("import kotlinx.coroutines.flow.Flow")
-            out.writeLine("import kotlinx.coroutines.Job")
-            out.writeLine("import kotlinx.coroutines.launch")
-            out.writeLine("import kotlinx.coroutines.CoroutineScope")
-            out.writeLine("import dev.dertyp.*")
-            out.writeLine("import kotlinx.serialization.ExperimentalSerializationApi")
-            out.writeLine("import kotlinx.serialization.serializer")
-            out.writeLine("import kotlin.time.Duration")
-
             symbols.forEach { symbol ->
                 out.writeLine("import ${symbol.qualifiedName?.asString()}")
             }
-
             out.writeLine("")
-            out.writeLine("private object PlatformDateListSerializer : KSerializer<List<PlatformDate>> by ListSerializer(DateSerializer)")
-            out.writeLine("private object PlatformLocalDateListSerializer : KSerializer<List<PlatformLocalDate>> by ListSerializer(LocalDateSerializer)")
-            out.writeLine("private object PlatformLocalDateTimeListSerializer : KSerializer<List<PlatformLocalDateTime>> by ListSerializer(LocalDateTimeSerializer)")
-            out.writeLine("private object PlatformOffsetDateTimeListSerializer : KSerializer<List<PlatformOffsetDateTime>> by ListSerializer(OffsetDateTimeSerializer)")
-            out.writeLine("private object DurationListSerializer : KSerializer<List<Duration>> by ListSerializer(DurationSerializer)")
-            out.writeLine("private object PlatformInstantListSerializer : KSerializer<List<PlatformInstant>> by ListSerializer(InstantSerializer)")
-
-            out.writeLine("")
-            out.writeLine("suspend fun dispatchService(manager: BaseRpcServiceManager, service: String, method: String, args: ByteArray): ByteArray {")
-            out.writeLine("    return when (service) {")
-            symbols.forEach { symbol ->
-                val name = symbol.simpleName.asString()
-                out.writeLine("        \"$name\" -> dispatch$name(manager, method, args)")
-            }
-            out.writeLine($$"        else -> throw IllegalArgumentException(\"Unknown service: $service\")")
-            out.writeLine("    }")
-            out.writeLine("}")
-
-            out.writeLine("")
-            out.writeLine("fun subscribeService(scope: CoroutineScope, manager: BaseRpcServiceManager, service: String, method: String, args: ByteArray, onEach: (ByteArray) -> Unit): Job {")
-            out.writeLine("    return when (service) {")
-            symbols.forEach { symbol ->
-                val name = symbol.simpleName.asString()
-                out.writeLine("        \"$name\" -> subscribe$name(scope, manager, method, args, onEach)")
-            }
-            out.writeLine($$"        else -> throw IllegalArgumentException(\"Unknown service: $service\")")
-            out.writeLine("    }")
-            out.writeLine("}")
-
-            out.writeLine("")
-            out.writeLine("actual fun initializeServiceRegistry() {")
+            out.writeLine("fun initializeServiceRegistry() {")
             symbols.forEach { symbol ->
                 val name = symbol.simpleName.asString()
                 out.writeLine("    registerServiceClass(\"$name\", $name::class)")
             }
             out.writeLine("}")
-
-            symbols.forEach { symbol ->
-                generateServiceDispatcher(out, symbol)
-            }
         }
     }
 
-    private fun generateServiceDispatcher(out: OutputStream, symbol: KSClassDeclaration) {
-        val name = symbol.simpleName.asString()
-        val allFunctions = symbol.getAllFunctions().filter {
-            it.isPublic() && it.simpleName.asString() !in listOf("<init>", "equals", "hashCode", "toString")
-        }.toList()
+    private fun generateInterfaceList(symbols: List<KSClassDeclaration>, dependencies: Dependencies) {
+        val file = codeGenerator.createNewFile(
+            dependencies,
+            "dev.dertyp.rpc",
+            "rpc-interfaces",
+            "txt"
+        )
 
-        val serviceExpr = when (name) {
-            "IAuthService" -> "manager.getAuthService()"
-            "IServerStatsService" -> "manager.getServerStatsService()"
-            else -> "manager.getService<$name>()"
-        }
-
-        out.writeLine("")
-        out.writeLine("private suspend fun dispatch$name(manager: BaseRpcServiceManager, method: String, args: ByteArray): ByteArray {")
-        out.writeLine("    val service = $serviceExpr")
-        out.writeLine("    return when (method) {")
-        allFunctions.filter { it.modifiers.contains(Modifier.SUSPEND) }.forEach { func ->
-            val funcName = func.simpleName.asString()
-            val params = func.parameters.map { (it.name?.asString() ?: "arg") to it.type.toTypeString() }
-
-            if (params.isEmpty()) {
-                out.writeLine("        \"$funcName\" -> {")
-                out.writeLine("            val res = service.$funcName()")
-                val retType = func.returnType?.resolve()?.toTypeString() ?: "Unit"
-                val serializer = getSerializerForType(retType)
-                if (serializer != null) out.writeLine("            AppCbor.encodeToByteArray($serializer, res)")
-                else out.writeLine("            AppCbor.encodeToByteArray(res)")
-                out.writeLine("        }")
-            } else if (params.size == 1) {
-                out.writeLine("        \"$funcName\" -> {")
-                val (_, pType) = params[0]
-                val serializer = getSerializerForType(pType)
-                if (serializer != null) out.writeLine("            val a = AppCbor.decodeFromByteArray($serializer, args)")
-                else out.writeLine("            val a = AppCbor.decodeFromByteArray<$pType>(args)")
-                out.writeLine("            val res = service.$funcName(a)")
-                val retType = func.returnType?.resolve()?.toTypeString() ?: "Unit"
-                val retSerializer = getSerializerForType(retType)
-                if (retSerializer != null) out.writeLine("            AppCbor.encodeToByteArray($retSerializer, res)")
-                else out.writeLine("            AppCbor.encodeToByteArray(res)")
-                out.writeLine("        }")
-            } else {
-                val argsClassName = "${name}${funcName.replaceFirstChar { it.uppercase() }}Args"
-                out.writeLine("        \"$funcName\" -> {")
-                out.writeLine("            val a = AppCbor.decodeFromByteArray<$argsClassName>(args)")
-                val callParams = params.joinToString(", ") { "a.${it.first}" }
-                out.writeLine("            val res = service.$funcName($callParams)")
-                val retType = func.returnType?.resolve()?.toTypeString() ?: "Unit"
-                val retSerializer = getSerializerForType(retType)
-                if (retSerializer != null) out.writeLine("            AppCbor.encodeToByteArray($retSerializer, res)")
-                else out.writeLine("            AppCbor.encodeToByteArray(res)")
-                out.writeLine("        }")
-            }
-        }
-        out.writeLine($$"        else -> throw IllegalArgumentException(\"Unknown method: $method\")")
-        out.writeLine("    }")
-        out.writeLine("}")
-
-        out.writeLine("")
-        out.writeLine("private fun subscribe$name(scope: CoroutineScope, manager: BaseRpcServiceManager, method: String, args: ByteArray, onEach: (ByteArray) -> Unit): Job {")
-        out.writeLine("    return scope.launch {")
-        out.writeLine("        val service = $serviceExpr")
-        out.writeLine("        val flow = when (method) {")
-        allFunctions.filter { !it.modifiers.contains(Modifier.SUSPEND) && it.returnType?.resolve()?.declaration?.simpleName?.asString() == "Flow" }
-            .forEach { func ->
-                val funcName = func.simpleName.asString()
-                val params = func.parameters.map { (it.name?.asString() ?: "arg") to it.type.toTypeString() }
-                if (params.isEmpty()) {
-                    out.writeLine("            \"$funcName\" -> service.$funcName()")
-                } else if (params.size == 1) {
-                    val (_, pType) = params[0]
-                    val serializer = getSerializerForType(pType)
-                    if (serializer != null) out.writeLine("            \"$funcName\" -> service.$funcName(AppCbor.decodeFromByteArray($serializer, args))")
-                    else out.writeLine("            \"$funcName\" -> service.$funcName(AppCbor.decodeFromByteArray<$pType>(args))")
-                } else {
-                    val argsClassName = "${name}${funcName.replaceFirstChar { it.uppercase() }}Args"
-                    val callParams = params.joinToString(", ") { "a.${it.first}" }
-                    out.writeLine("            \"$funcName\" -> {")
-                    out.writeLine("                val a = AppCbor.decodeFromByteArray<$argsClassName>(args)")
-                    out.writeLine("                service.$funcName($callParams)")
-                    out.writeLine("            }")
-                }
-            }
-        out.writeLine($$"            else -> throw IllegalArgumentException(\"Unknown method: $method\")")
-        out.writeLine("        } as Flow<Any>")
-        out.writeLine("        flow.collect { item ->")
-        out.writeLine("            val serializer = when (method) {")
-        allFunctions.filter { !it.modifiers.contains(Modifier.SUSPEND) && it.returnType?.resolve()?.declaration?.simpleName?.asString() == "Flow" }
-            .forEach { func ->
-                val funcName = func.simpleName.asString()
-                val flowType = func.returnType?.resolve()?.arguments?.firstOrNull()?.type?.toTypeString() ?: "Any"
-                val serializer = getSerializerForType(flowType)
-                if (serializer != null) out.writeLine("                \"$funcName\" -> $serializer")
-                else out.writeLine("                \"$funcName\" -> AppCbor.serializersModule.serializer<$flowType>()")
-            }
-        out.writeLine("                else -> AppCbor.serializersModule.serializer<Any>()")
-        out.writeLine("            } as KSerializer<Any>")
-        out.writeLine("            onEach(AppCbor.encodeToByteArray(serializer, item))")
-        out.writeLine("        }")
-        out.writeLine("    }")
-        out.writeLine("}")
-
-        // Generate Args classes for multi-param methods
-        allFunctions.forEach { func ->
-            val params = func.parameters.map { (it.name?.asString() ?: "arg") to it.type.toTypeString() }
-            if (params.size > 1) {
-                val funcName = func.simpleName.asString()
-                val argsClassName = "${name}${funcName.replaceFirstChar { it.uppercase() }}Args"
-                out.writeLine("")
-                out.writeLine("@Serializable")
-                out.writeLine("data class $argsClassName(")
-                params.forEachIndexed { index, (pName, pType) ->
-                    val comma = if (index < params.size - 1) "," else ""
-                    val ann = getSerializerAnnotation(pType)
-                    out.writeLine("    $ann val $pName: $pType$comma")
-                }
-
-                val hasArray = params.any { it.second.contains("Array") }
-                if (hasArray) {
-                    out.writeLine(") {")
-                    out.writeLine("    override fun equals(other: Any?): Boolean {")
-                    out.writeLine("        if (this === other) return true")
-                    out.writeLine("        if (other !is $argsClassName) return false")
-                    params.forEach { (pName, pType) ->
-                        if (pType.contains("Array")) {
-                            if (pType.endsWith("?")) {
-                                out.writeLine("        if (!(this.$pName?.contentEquals(other.$pName) ?: (other.$pName == null))) return false")
-                            } else {
-                                out.writeLine("        if (!this.$pName.contentEquals(other.$pName)) return false")
-                            }
-                        } else {
-                            out.writeLine("        if (this.$pName != other.$pName) return false")
-                        }
-                    }
-                    out.writeLine("        return true")
-                    out.writeLine("    }")
-                    out.writeLine("")
-                    out.writeLine("    override fun hashCode(): Int {")
-                    params.forEachIndexed { index, (pName, pType) ->
-                        val hash = if (pType.contains("Array")) {
-                            if (pType.endsWith("?")) "this.$pName?.contentHashCode() ?: 0" else "this.$pName.contentHashCode()"
-                        } else {
-                            if (pType.endsWith("?")) "this.$pName?.hashCode() ?: 0" else "this.$pName.hashCode()"
-                        }
-                        if (index == 0) {
-                            out.writeLine("        var result = $hash")
-                        } else {
-                            out.writeLine("        result = 31 * result + ($hash)")
-                        }
-                    }
-                    out.writeLine("        return result")
-                    out.writeLine("    }")
-                    out.writeLine("}")
-                } else {
-                    out.writeLine(")")
-                }
-            }
+        file.use { out ->
+            symbols.mapNotNull { it.qualifiedName?.asString() }.sorted().forEach { out.writeLine(it) }
         }
     }
 
@@ -738,30 +541,7 @@ class RpcProcessor(
         return if (snake == "type") "r#type" else snake
     }
 
-    private fun getSerializerAnnotation(type: String) =
-        getSerializerForType(type)?.let { "@Serializable(with = $it::class) " } ?: ""
-
-    private fun getSerializerForType(type: String): String? {
-        return when (val base = type.removeSuffix("?").substringAfterLast(".")) {
-            "PlatformDate" -> "DateSerializer"
-            "PlatformLocalDate" -> "LocalDateSerializer"
-            "PlatformLocalDateTime" -> "LocalDateTimeSerializer"
-            "PlatformOffsetDateTime" -> "OffsetDateTimeSerializer"
-            "Duration" -> "DurationSerializer"
-            "PlatformInstant" -> "InstantSerializer"
-            else -> if (type.contains("List<Platform")) "${base}ListSerializer" else null
-        }
-    }
-
     private fun OutputStream.writeLine(str: String) = this.write((str + "\n").toByteArray())
-    private fun KSTypeReference.toTypeString(): String = resolve().toTypeString()
-    private fun KSType.toTypeString(): String {
-        val name = declaration.qualifiedName?.asString() ?: return "Any"
-        val nullability = if (isMarkedNullable) "?" else ""
-        if (arguments.isEmpty()) return "$name$nullability"
-        val args = arguments.joinToString(", ") { it.type?.resolve()?.toTypeString() ?: "Any" }
-        return "$name<$args>$nullability"
-    }
 }
 
 class RpcProcessorProvider : SymbolProcessorProvider {

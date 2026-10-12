@@ -47,5 +47,3 @@ fun getServiceClass(name: String): KClass<*>? {
 fun getAllServiceClasses(): Collection<KClass<*>> {
     return serviceClassRegistry.values
 }
-
-expect fun initializeServiceRegistry()

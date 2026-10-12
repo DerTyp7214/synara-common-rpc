@@ -19,7 +19,8 @@ class RestParam(
     val nullable: Boolean,
     val hasDefault: Boolean,
     val source: ParamSource,
-    val description: String?
+    val description: String?,
+    val elementEncoder: CodeBlock?
 ) {
     val required: Boolean get() = !hasDefault
 
@@ -54,7 +55,10 @@ class RestRoute(
     val summary: String?,
     val errors: List<String>,
     val needsProbe: Boolean,
-    val multiBody: Boolean
+    val multiBody: Boolean,
+    val returnsNullable: Boolean,
+    val clientWireType: TypeName?,
+    val clientTransform: CodeBlock?
 )
 
 class ProbeFunction(
@@ -78,4 +82,5 @@ class RestService(
     val defaultsObjectName: String get() = "${simpleName}Defaults"
     val registerFunctionName: String get() = "register${simpleName}Rest"
     val fileName: String get() = "${simpleName}Rest"
+    val clientClassName: String get() = "Rest${simpleName.removePrefix("I")}"
 }

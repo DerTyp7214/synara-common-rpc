@@ -140,6 +140,17 @@ class RestDerivation(
             null
         }
 
+        val clientSource = when (responseKind) {
+            ResponseKind.JSON -> returnType?.makeNotNullable()
+            ResponseKind.SSE -> flowItem?.makeNotNullable()
+            else -> null
+        }
+        val clientReceiver = CodeBlock.of(if (responseKind == ResponseKind.SSE) "item" else "result")
+        val clientTransform = clientSource?.let { types.clientTransform(it, clientReceiver, 0) }
+        val clientWireType = clientSource?.let {
+            if (clientTransform != null) types.wireType(it) else types.declaredTypeName(it)
+        }
+
         val doc = function.annotation(RPC_DOC)
         val summary = doc?.let { it.argument("description") as? String }
         val errors = doc?.let { annotation ->
@@ -169,7 +180,10 @@ class RestDerivation(
             summary = summary,
             errors = errors,
             needsProbe = needsProbe,
-            multiBody = restParams.count { it.source == ParamSource.BODY } > 1
+            multiBody = restParams.count { it.source == ParamSource.BODY } > 1,
+            returnsNullable = returnType?.isMarkedNullable == true,
+            clientWireType = clientWireType,
+            clientTransform = clientTransform
         )
     }
 
@@ -212,6 +226,14 @@ class RestDerivation(
             else -> null
         }
 
+        val elementEncoder = when (source) {
+            ParamSource.PATH, ParamSource.QUERY -> types.encoderFor(type)
+            ParamSource.QUERY_LIST, ParamSource.QUERY_SET ->
+                types.firstArgument(type)?.let { types.encoderFor(it) } ?: types.encoderFor(type)
+
+            else -> null
+        }
+
         return RestParam(
             index = index,
             name = name,
@@ -221,7 +243,8 @@ class RestDerivation(
             nullable = type.isMarkedNullable,
             hasDefault = parameter.hasDefault,
             source = source,
-            description = parameter.annotation(RPC_PARAM_DOC)?.argument("description") as? String
+            description = parameter.annotation(RPC_PARAM_DOC)?.argument("description") as? String,
+            elementEncoder = elementEncoder
         )
     }
 

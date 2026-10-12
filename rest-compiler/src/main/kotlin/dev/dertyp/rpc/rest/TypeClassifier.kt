@@ -9,6 +9,7 @@ import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.LIST
+import com.squareup.kotlinpoet.MAP as MAP_TYPE
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.STAR
@@ -55,6 +56,7 @@ class TypeClassifier(private val restPackage: String) {
 
     private val restConvert = ClassName(restPackage, "RestConvert")
     val flowMap = MemberName("kotlinx.coroutines.flow", "map")
+    private val formatIso = MemberName("dev.dertyp", "formatISO")
 
     fun expand(type: KSType): KSType {
         var current = type
@@ -228,6 +230,110 @@ class TypeClassifier(private val restPackage: String) {
             val className = (declaration as? KSClassDeclaration)?.toClassName() ?: return null
             return CodeBlock.of(
                 "%T(data = %L.data.map { %L -> %L }, page = %L.page, total = %L.total, pageSize = %L.pageSize, hasNextPage = %L.hasNextPage)",
+                className,
+                receiver,
+                item,
+                inner,
+                receiver,
+                receiver,
+                receiver,
+                receiver
+            )
+        }
+
+        return null
+    }
+
+    fun encoderFor(type: KSType): CodeBlock {
+        val expanded = expand(type)
+        val declaration = expanded.declaration
+        val qualified = declaration.qualifiedName?.asString()
+        val simple = declaration.simpleName.asString()
+        return when {
+            qualified == "kotlin.String" -> CodeBlock.of("")
+            simple == "Instant" || simple == "PlatformInstant" -> CodeBlock.of("%M()", formatIso)
+            simple == "MetadataType" -> CodeBlock.of("value")
+            (declaration as? KSClassDeclaration)?.classKind == ClassKind.ENUM_CLASS -> CodeBlock.of("name")
+            else -> CodeBlock.of("toString()")
+        }
+    }
+
+    fun wireType(type: KSType): TypeName {
+        val expanded = expand(type)
+        val declaration = expanded.declaration
+        val nullable = expanded.isMarkedNullable
+
+        if (declaration.simpleName.asString() == "MetadataType") return STRING.copy(nullable = nullable)
+
+        if (isSubclassOf(declaration, ITERABLE, ITERABLE_NAMES)) {
+            val item = expanded.arguments.firstOrNull()?.type?.resolve() ?: return expanded.toTypeName()
+            return LIST.parameterizedBy(wireType(item)).copy(nullable = nullable)
+        }
+
+        if (isSubclassOf(declaration, MAP, MAP_NAMES)) {
+            val key = expanded.arguments.getOrNull(0)?.type?.resolve() ?: return expanded.toTypeName()
+            val value = expanded.arguments.getOrNull(1)?.type?.resolve() ?: return expanded.toTypeName()
+            return MAP_TYPE.parameterizedBy(wireType(key), wireType(value)).copy(nullable = nullable)
+        }
+
+        if (declaration.simpleName.asString() == "PaginatedResponse") {
+            val item = expanded.arguments.firstOrNull()?.type?.resolve() ?: return expanded.toTypeName()
+            val className = (declaration as? KSClassDeclaration)?.toClassName() ?: return expanded.toTypeName()
+            return className.parameterizedBy(wireType(item)).copy(nullable = nullable)
+        }
+
+        return expanded.toTypeName()
+    }
+
+    fun clientTransform(type: KSType, receiver: CodeBlock, depth: Int): CodeBlock? {
+        val expanded = expand(type)
+        val declaration = expanded.declaration
+        val simple = declaration.simpleName.asString()
+        val safeCall = if (expanded.isMarkedNullable) "?." else "."
+        val item = "item$depth"
+        val key = "key$depth"
+
+        if (simple == "MetadataType") {
+            val className = (declaration as? KSClassDeclaration)?.toClassName() ?: return null
+            return if (expanded.isMarkedNullable) {
+                CodeBlock.of("%L?.let·{·%L·->·%T(%L)·}", receiver, item, className, item)
+            } else {
+                CodeBlock.of("%T(%L)", className, receiver)
+            }
+        }
+
+        if (isSubclassOf(declaration, ITERABLE, ITERABLE_NAMES)) {
+            val argument = expanded.arguments.firstOrNull()?.type?.resolve() ?: return null
+            val inner = clientTransform(argument, CodeBlock.of("%L", item), depth + 1) ?: return null
+            val mapped = CodeBlock.of("%L%Lmap·{·%L·->·%L·}", receiver, safeCall, item, inner)
+            return if (isSet(expanded)) CodeBlock.of("%L%LtoSet()", mapped, safeCall) else mapped
+        }
+
+        if (isSubclassOf(declaration, MAP, MAP_NAMES)) {
+            val keyType = expanded.arguments.getOrNull(0)?.type?.resolve() ?: return null
+            val valueType = expanded.arguments.getOrNull(1)?.type?.resolve() ?: return null
+            val keyInner = clientTransform(keyType, CodeBlock.of("%L", key), depth + 1)
+            val valueInner = clientTransform(valueType, CodeBlock.of("%L", item), depth + 1)
+            if (keyInner == null && valueInner == null) return null
+            return CodeBlock.of(
+                "%L%Lentries%Lassociate·{·(%L,·%L)·->·%L·to·%L·}",
+                receiver,
+                safeCall,
+                safeCall,
+                key,
+                item,
+                keyInner ?: CodeBlock.of("%L", key),
+                valueInner ?: CodeBlock.of("%L", item)
+            )
+        }
+
+        if (simple == "PaginatedResponse") {
+            val argument = expanded.arguments.firstOrNull()?.type?.resolve() ?: return null
+            val inner = clientTransform(argument, CodeBlock.of("%L", item), depth + 1) ?: return null
+            val className = (declaration as? KSClassDeclaration)?.toClassName() ?: return null
+            return CodeBlock.of(
+                "%T(data·=·%L.data.map·{·%L·->·%L·},·page·=·%L.page,·total·=·%L.total,·" +
+                    "pageSize·=·%L.pageSize,·hasNextPage·=·%L.hasNextPage)",
                 className,
                 receiver,
                 item,
