@@ -1,5 +1,6 @@
 package dev.dertyp.rpc.rest
 
+import com.google.devtools.ksp.processing.KSPLogger
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
@@ -9,24 +10,41 @@ import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LONG
 import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.STRING
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 
 private const val CLIENT_PROPERTY = "rest"
 private const val OFFSET_PARAMETER = "offset"
 private const val CHUNK_SIZE_PARAMETER = "chunkSize"
+private const val REQUEST_SUFFIX = "Request"
+private const val URL_SUFFIX = "Url"
 
 private val UNSUPPORTED_OPERATION = ClassName("kotlin", "UnsupportedOperationException")
 private val FLOW_MAP = MemberName("kotlinx.coroutines.flow", "map")
 
-class KotlinClientEmitter(private val clientPackage: String) {
+class KotlinClientEmitter(private val clientPackage: String, private val logger: KSPLogger) {
 
     private val configType = ClassName(clientPackage, "RestClientConfig")
     private val clientType = ClassName(clientPackage, "RestClient")
     private val requestType = ClassName(clientPackage, "RestRequest")
 
-    fun emit(service: RestService): FileSpec {
+    fun emit(service: RestService): FileSpec? {
         val routes = service.routes.associateBy { it.functionName }
+        val names = service.probeFunctions.map { it.name }.toSet()
+
+        val clashes = routes.keys.flatMap { name ->
+            listOf(name + URL_SUFFIX, name + REQUEST_SUFFIX).filter { it in names }.map { name to it }
+        }
+        clashes.forEach { (name, generated) ->
+            logger.error(
+                "[rest-compiler] ${service.simpleName}.$name: the generated client member $generated clashes with " +
+                    "${service.simpleName}.$generated"
+            )
+        }
+        if (clashes.isNotEmpty()) return null
 
         val type = TypeSpec.classBuilder(service.clientClassName)
             .addSuperinterface(service.className)
@@ -38,11 +56,12 @@ class KotlinClientEmitter(private val clientPackage: String) {
             )
 
         service.probeFunctions.forEach { function ->
+            val deprecation = function.deprecationMessage?.let {
+                AnnotationSpec.builder(Deprecated::class).addMember("%S", it).build()
+            }
             val spec = FunSpec.builder(function.name).addModifiers(KModifier.OVERRIDE)
             if (function.isSuspend) spec.addModifiers(KModifier.SUSPEND)
-            function.deprecationMessage?.let {
-                spec.addAnnotation(AnnotationSpec.builder(Deprecated::class).addMember("%S", it).build())
-            }
+            deprecation?.let { spec.addAnnotation(it) }
             function.parameters.forEach { spec.addParameter(it.first, it.second) }
             spec.returns(function.returnType)
 
@@ -53,10 +72,13 @@ class KotlinClientEmitter(private val clientPackage: String) {
                     UNSUPPORTED_OPERATION,
                     "${service.simpleName}.${function.name} is not available over REST"
                 )
+                type.addFunction(spec.build())
             } else {
-                spec.addCode(routeBody(service, route))
+                spec.addCode(routeBody(route))
+                type.addFunction(requestFunction(service, route))
+                type.addFunction(spec.build())
+                type.addFunction(urlFunction(route, deprecation))
             }
-            type.addFunction(spec.build())
         }
 
         return FileSpec.builder(clientPackage, service.clientClassName)
@@ -65,8 +87,44 @@ class KotlinClientEmitter(private val clientPackage: String) {
             .build()
     }
 
-    private fun routeBody(service: RestService, route: RestRoute): CodeBlock {
-        val request = requestExpression(service, route)
+    private fun requestFunction(service: RestService, route: RestRoute): FunSpec {
+        val spec = FunSpec.builder(route.functionName + REQUEST_SUFFIX)
+            .addModifiers(KModifier.PRIVATE)
+            .returns(requestType)
+        urlParams(route).forEach { spec.addParameter(it.name, urlType(it)) }
+        return spec.addCode("return·%L\n", requestExpression(service, route)).build()
+    }
+
+    private fun urlFunction(route: RestRoute, deprecation: AnnotationSpec?): FunSpec {
+        val spec = FunSpec.builder(route.functionName + URL_SUFFIX)
+            .addModifiers(KModifier.PUBLIC, KModifier.SUSPEND)
+            .returns(STRING)
+        deprecation?.let { spec.addAnnotation(it) }
+        urlParams(route).forEach { param ->
+            val parameter = ParameterSpec.builder(param.name, urlType(param))
+            if (param.hasDefault) parameter.defaultValue("null")
+            spec.addParameter(parameter.build())
+        }
+        return spec.addCode(
+            "return·this.%N.url(\n⇥%L\n⇤).toString()\n",
+            CLIENT_PROPERTY,
+            requestCall(route)
+        ).build()
+    }
+
+    private fun urlParams(route: RestRoute): List<RestParam> = route.params.filter { it.source != ParamSource.BODY }
+
+    private fun urlType(param: RestParam): TypeName =
+        param.declaredType.copy(nullable = param.nullable || param.hasDefault)
+
+    private fun requestCall(route: RestRoute): CodeBlock = CodeBlock.of(
+        "%N(%L)",
+        route.functionName + REQUEST_SUFFIX,
+        urlParams(route).joinToCode(",·") { CodeBlock.of("%N", it.name) }
+    )
+
+    private fun routeBody(route: RestRoute): CodeBlock {
+        val request = bodyExpression(route)
         val call = when (route.responseKind) {
             ResponseKind.UNIT -> CodeBlock.of("this.%N.unit(\n%L\n)", CLIENT_PROPERTY, request)
             ResponseKind.BYTES -> CodeBlock.of(
@@ -132,6 +190,22 @@ class KotlinClientEmitter(private val clientPackage: String) {
         }
     }
 
+    private fun bodyExpression(route: RestRoute): CodeBlock {
+        val builder = CodeBlock.builder()
+        builder.add("⇥%L", requestCall(route))
+        builder.add("⇥")
+        route.params.filter { it.source == ParamSource.BODY }.forEach { param ->
+            val bodyType = param.declaredType.copy(nullable = false)
+            if (route.multiBody) {
+                builder.add("\n.field<%T>(%S,·%N)", bodyType, param.name, param.name)
+            } else {
+                builder.add("\n.body<%T>(%N)", bodyType, param.name)
+            }
+        }
+        builder.add("⇤⇤")
+        return builder.build()
+    }
+
     private fun requestExpression(service: RestService, route: RestRoute): CodeBlock {
         val pathParams = route.params.filter { it.source == ParamSource.PATH }.associateBy { "{${it.name}}" }
         val segments = "${service.prefix}/${route.localPath}".split("/").joinToCode(",·") { segment ->
@@ -139,26 +213,24 @@ class KotlinClientEmitter(private val clientPackage: String) {
         }
 
         val builder = CodeBlock.builder()
-        builder.add("⇥%T(%S,·%L,·%L)", requestType, route.method, route.isPublic, segments)
+        builder.add("%T(%S,·%L,·%L)", requestType, route.method, route.isPublic, segments)
         builder.add("⇥")
         route.params.forEach { param ->
-            val bodyType = param.declaredType.copy(nullable = false)
             when (param.source) {
-                ParamSource.PATH -> Unit
+                ParamSource.PATH, ParamSource.BODY -> Unit
                 ParamSource.QUERY -> builder.add("\n.query(%S,·%L)", param.name, scalar(param))
                 ParamSource.QUERY_LIST, ParamSource.QUERY_SET ->
                     builder.add("\n.queryAll(%S,·%L)", param.name, collection(param))
 
-                ParamSource.QUERY_JSON -> builder.add("\n.queryJson<%T>(%S,·%N)", bodyType, param.name, param.name)
-                ParamSource.BODY ->
-                    if (route.multiBody) {
-                        builder.add("\n.field<%T>(%S,·%N)", bodyType, param.name, param.name)
-                    } else {
-                        builder.add("\n.body<%T>(%N)", bodyType, param.name)
-                    }
+                ParamSource.QUERY_JSON -> builder.add(
+                    "\n.queryJson<%T>(%S,·%N)",
+                    param.declaredType.copy(nullable = false),
+                    param.name,
+                    param.name
+                )
             }
         }
-        builder.add("⇤⇤")
+        builder.add("⇤")
         return builder.build()
     }
 
@@ -166,7 +238,7 @@ class KotlinClientEmitter(private val clientPackage: String) {
         val encoder = param.elementEncoder!!
         return when {
             encoder.isEmpty() -> CodeBlock.of("%N", param.name)
-            param.nullable -> CodeBlock.of("%N?.%L", param.name, encoder)
+            param.nullable || param.hasDefault -> CodeBlock.of("%N?.%L", param.name, encoder)
             else -> CodeBlock.of("%N.%L", param.name, encoder)
         }
     }
@@ -175,7 +247,7 @@ class KotlinClientEmitter(private val clientPackage: String) {
         val encoder = param.elementEncoder!!
         return when {
             encoder.isEmpty() -> CodeBlock.of("%N", param.name)
-            param.nullable -> CodeBlock.of("%N?.map·{·it.%L·}", param.name, encoder)
+            param.nullable || param.hasDefault -> CodeBlock.of("%N?.map·{·it.%L·}", param.name, encoder)
             else -> CodeBlock.of("%N.map·{·it.%L·}", param.name, encoder)
         }
     }

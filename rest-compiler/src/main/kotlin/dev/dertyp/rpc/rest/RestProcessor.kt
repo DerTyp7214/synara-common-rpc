@@ -54,8 +54,8 @@ class RestProcessor(
                 logger.error("[rest-compiler] rest.mode=client needs rest.client.package")
                 return emptyList()
             }
-            val clientEmitter = KotlinClientEmitter(clientPackage)
-            services.forEach { clientEmitter.emit(it).writeTo(codeGenerator, Dependencies(aggregating = true)) }
+            val clientEmitter = KotlinClientEmitter(clientPackage, logger)
+            services.forEach { clientEmitter.emit(it)?.writeTo(codeGenerator, Dependencies(aggregating = true)) }
             return emptyList()
         }
 

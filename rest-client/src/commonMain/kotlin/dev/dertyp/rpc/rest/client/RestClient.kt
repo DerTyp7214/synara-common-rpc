@@ -14,6 +14,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
+import io.ktor.http.URLBuilder
+import io.ktor.http.Url
 import io.ktor.http.appendEncodedPathSegments
 import io.ktor.http.content.TextContent
 import io.ktor.http.encodeURLPathPart
@@ -29,6 +31,12 @@ private const val DEFAULT_CHUNK_SIZE = 4096
 private const val SSE_DATA_FIELD = "data"
 
 private class Outcome<R>(val value: R)
+
+private fun URLBuilder.locate(baseUrl: String, request: RestRequest) {
+    takeFrom(baseUrl)
+    appendEncodedPathSegments(request.path.map { it.encodeURLPathPart() })
+    request.query.forEach { (name, value) -> parameters.append(name, value) }
+}
 
 class RestClient(private val config: RestClientConfig) {
 
@@ -112,6 +120,8 @@ class RestClient(private val config: RestClientConfig) {
         }
     }
 
+    suspend fun url(request: RestRequest): Url = URLBuilder().apply { locate(config.baseUrl(), request) }.build()
+
     private suspend fun <R> call(
         request: RestRequest,
         configure: HttpRequestBuilder.() -> Unit = {},
@@ -137,11 +147,7 @@ class RestClient(private val config: RestClientConfig) {
         val statement = config.httpClient.prepareRequest {
             method = HttpMethod.parse(request.method)
             expectSuccess = false
-            url {
-                takeFrom(baseUrl)
-                appendEncodedPathSegments(request.path.map { it.encodeURLPathPart() })
-                request.query.forEach { (name, value) -> parameters.append(name, value) }
-            }
+            url { locate(baseUrl, request) }
             config.headers(this)
             headers[ApiVersion.HEADER] = ApiVersion.CURRENT.toString()
             token?.let { headers[HttpHeaders.Authorization] = "Bearer $it" }
