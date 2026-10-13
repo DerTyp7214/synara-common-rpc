@@ -279,14 +279,16 @@ abstract class BaseRpcServiceManager(
     private suspend fun ensureAuthenticated(force: Boolean = false) {
         if (!force && !isTokenExpired()) return
 
+        val tokenAtEntry = getAuthToken()
         val result: Any? = mutex.withLock {
             if (!force && !isTokenExpired()) return@withLock null
+            if (force && getAuthToken() != tokenAtEntry && !isTokenExpired()) return@withLock null
 
             val refreshToken = getRefreshToken()
             if (refreshToken != null) {
                 try {
                     val authService = getAuthService()
-                    authService.refreshToken(refreshToken)
+                    authService.refreshToken(refreshToken).also { updateAuth(it) }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Throwable) {
@@ -301,7 +303,6 @@ abstract class BaseRpcServiceManager(
 
         if (result is AuthenticationResponse) {
             clear()
-            updateAuth(result)
         } else if (result is Throwable) {
             val genuineRejection = result is SessionExpiredException ||
                 isAuthException(result) ||
