@@ -43,7 +43,6 @@ kotlin {
     macosArm64("macosarm")
     tvosArm64()
     tvosSimulatorArm64()
-    watchosArm64()
     watchosDeviceArm64()
     watchosSimulatorArm64()
     mingwX64("windows")
