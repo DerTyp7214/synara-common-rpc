@@ -336,6 +336,15 @@ data class UserSong(
 ) : BaseSong()
 
 @Serializable
+@ModelDoc("The download size of a song for a requested quality and format.")
+data class SongDownloadSize(
+    @FieldDoc("The song unique identifier.")
+    val songId: PlatformUUID,
+    @FieldDoc("The size of the download in bytes.")
+    val size: Long,
+)
+
+@Serializable
 @ModelDoc("Additional audio analysis data for a song.")
 data class SongAudioData(
     @FieldDoc("The beats per minute (BPM) of the song.")

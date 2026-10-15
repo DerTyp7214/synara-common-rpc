@@ -218,6 +218,13 @@ interface ISongService {
         @RpcParamDoc("The target audio format.") format: AudioFormat = AudioFormat.OPUS
     ): Long
 
+    @RpcDoc("Get the recorded download sizes of songs for a quality and format, without transcoding. Songs without a recorded size are left out.")
+    suspend fun getDownloadSizes(
+        @RpcParamDoc("The song unique identifiers.") ids: List<PlatformUUID>,
+        @RpcParamDoc("The requested quality in kbps, or a value <= 0 for the original file.") quality: Int,
+        @RpcParamDoc("The target audio format.") format: AudioFormat = AudioFormat.OPUS
+    ): List<SongDownloadSize>
+
     @RpcDoc("Stream all song IDs with optional filtering.")
     fun allSongIds(
         @RpcParamDoc("Whether to include explicit content.") explicit: Boolean,
