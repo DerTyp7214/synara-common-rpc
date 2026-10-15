@@ -536,6 +536,14 @@ pub struct IListeningStatsServiceGetStatsArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IListeningStatsServiceGetTopSongsArgs {
+    pub range: StatsRange,
+    pub timezone: String,
+    pub limit: i32,
+    pub order: TopOrder,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsSearchSearchLyricsArgs {
     pub artist: String,
     pub title: String,
@@ -4770,6 +4778,7 @@ pub trait IListenBrainzService {
 
 pub trait IListeningStatsService {
     fn get_stats<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, top_limit: i32, top_order: TopOrder) -> Pin<Box<dyn std::future::Future<Output = Result<ListeningStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_top_songs<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, limit: i32, order: TopOrder) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn link_unmatched_track<'life0, 'async_trait>(&'life0 self, request: LinkUnmatchedTrackRequest) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
@@ -6041,6 +6050,12 @@ impl IListeningStatsService for RpcClient {
         Box::pin(async move {
             let args = IListeningStatsServiceGetStatsArgs { range, timezone, top_limit, top_order };
             self.call("IListeningStatsService", "getStats", &args).await
+        })
+    }
+    fn get_top_songs<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, limit: i32, order: TopOrder) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IListeningStatsServiceGetTopSongsArgs { range, timezone, limit, order };
+            self.call("IListeningStatsService", "getTopSongs", &args).await
         })
     }
     fn link_unmatched_track<'life0, 'async_trait>(&'life0 self, request: LinkUnmatchedTrackRequest) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
