@@ -1398,6 +1398,13 @@ pub struct IImportServiceSearchArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ILinkResolverServiceResolvePlatformLinksArgs {
+    pub urls: Vec<String>,
+    pub isrc: Option<String>,
+    pub upc: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IMetadataServiceSearchArtistsArgs {
     #[serde(rename = "type")]
     pub r#type: MetadataType,
@@ -5127,6 +5134,10 @@ pub trait IImportService {
     fn search<'life0, 'async_trait>(&'life0 self, query: Option<String>, title: Option<String>, artist: Option<String>, count: i32) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<ImportSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
+pub trait ILinkResolverService {
+    fn resolve_platform_links<'life0, 'async_trait>(&'life0 self, urls: Vec<String>, isrc: Option<String>, upc: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<String>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
 pub trait IMetadataService {
     fn get_supported_features<'life0, 'async_trait>(&'life0 self, r#type: MetadataType) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<Feature>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn all_metadata_types<'life0, 'async_trait>(&'life0 self, features: Vec<Feature>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<MetadataType>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -7435,6 +7446,14 @@ impl IImportService for RpcClient {
         Box::pin(async move {
             let args = IImportServiceSearchArgs { query, title, artist, count };
             self.call("IImportService", "search", &args).await
+        })
+    }
+}
+impl ILinkResolverService for RpcClient {
+    fn resolve_platform_links<'life0, 'async_trait>(&'life0 self, urls: Vec<String>, isrc: Option<String>, upc: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<String>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ILinkResolverServiceResolvePlatformLinksArgs { urls, isrc, upc };
+            self.call("ILinkResolverService", "resolvePlatformLinks", &args).await
         })
     }
 }
