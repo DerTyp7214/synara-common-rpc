@@ -369,6 +369,8 @@ interface IMetadataService {
         val albumTitle: String? = null,
         @FieldDoc("The International Standard Recording Code.")
         val isrc: String? = null,
+        @FieldDoc("Whether the track is marked explicit. Null when unknown.")
+        val explicit: Boolean? = null,
     ) : BaseMetadata()
 
     @Serializable

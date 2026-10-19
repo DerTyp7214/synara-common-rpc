@@ -4004,6 +4004,7 @@ pub struct Track {
     #[serde(rename = "albumTitle")]
     pub album_title: Option<String>,
     pub isrc: Option<String>,
+    pub explicit: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -4426,6 +4427,7 @@ pub struct ImportSong {
     pub title: String,
     pub artists: Vec<String>,
     pub cover: std::collections::HashMap<i32, String>,
+    pub explicit: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

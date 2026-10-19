@@ -303,5 +303,7 @@ data class ImportSong(
     @FieldDoc("Collection of artist names.")
     val artists: List<String>,
     @FieldDoc("Map of cover image sizes to URLs.")
-    val cover: Map<Int, String>
+    val cover: Map<Int, String>,
+    @FieldDoc("Whether the track is marked explicit. Null when unknown.")
+    val explicit: Boolean? = null,
 )
