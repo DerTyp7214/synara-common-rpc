@@ -10,14 +10,27 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseContextualSerialization
 
 @Serializable
+@ModelDoc("A reference to a server image shown next to a row or option.")
+data class UiImageRef(
+    @FieldDoc("Id of a server image.")
+    val imageId: PlatformUUID,
+    @FieldDoc("Blur hash shown while the image loads.")
+    val blurHash: String? = null,
+    @FieldDoc("Whether to render the image as a circle.")
+    val rounded: Boolean = true,
+)
+
+@Serializable
 @ModelDoc("A selectable option of a Select field.")
 data class UiOption(
     @FieldDoc("Value submitted when selected.")
     val value: String,
     @FieldDoc("Display label.")
     val label: String,
-    @FieldDoc("Optional icon.")
+    @FieldDoc("Optional icon. Shown when there is no image.")
     val icon: UiIcon? = null,
+    @FieldDoc("Optional image shown instead of the icon.")
+    val image: UiImageRef? = null,
 )
 
 @Serializable
@@ -82,8 +95,10 @@ sealed class UiComponent {
         val title: String? = null,
         @FieldDoc("Header subtitle.")
         val subtitle: String? = null,
-        @FieldDoc("Semantic icon name shown in the header.")
+        @FieldDoc("Semantic icon name shown in the header. Shown when there is no image.")
         val icon: UiIcon? = null,
+        @FieldDoc("Optional image shown in the header instead of the icon.")
+        val image: UiImageRef? = null,
         @FieldDoc("Tone of the card.")
         val tone: UiTone = UiTone.DEFAULT,
         @FieldDoc("Action elements (typically Buttons) rendered in the card footer.")
@@ -236,12 +251,14 @@ sealed class UiComponent {
         val title: String,
         @FieldDoc("Subtitle.")
         val subtitle: String? = null,
-        @FieldDoc("Semantic icon name.")
+        @FieldDoc("Semantic icon name. Shown when there is no image.")
         val icon: UiIcon? = null,
         @FieldDoc("Trailing text.")
         val trailing: String? = null,
         @FieldDoc("Action performed when activated.")
         val action: UiAction? = null,
+        @FieldDoc("Optional image shown instead of the icon.")
+        val image: UiImageRef? = null,
     ) : UiComponent()
 
     @Serializable

@@ -4268,6 +4268,16 @@ pub struct UiOption {
     pub value: String,
     pub label: String,
     pub icon: Option<UiIcon>,
+    pub image: Option<UiImageRef>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiImageRef {
+    #[serde(rename = "imageId")]
+    pub image_id: PlatformUUID,
+    #[serde(rename = "blurHash")]
+    pub blur_hash: Option<String>,
+    pub rounded: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

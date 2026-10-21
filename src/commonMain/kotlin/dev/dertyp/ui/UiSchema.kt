@@ -35,5 +35,14 @@ object UiSchema {
         UiComponent.SearchField::class to 3,
     )
 
+    val fieldIntroducedIn: Map<KClass<*>, Map<String, Int>> = mapOf(
+        UiComponent.ListItem::class to mapOf("image" to 3),
+        UiComponent.Card::class to mapOf("image" to 3),
+        UiOption::class to mapOf("image" to 3),
+    )
+
+    fun fieldVersionOf(owner: KClass<*>, field: String): Int =
+        fieldIntroducedIn[owner]?.get(field) ?: UiSchemaVersion.CURRENT
+
     fun versionOf(component: UiComponent): Int = introducedIn[component::class] ?: UiSchemaVersion.CURRENT
 }
