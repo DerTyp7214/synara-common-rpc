@@ -2,6 +2,7 @@ package dev.dertyp.services
 
 import dev.dertyp.PlatformUUID
 import dev.dertyp.rpc.annotations.RestGet
+import dev.dertyp.rpc.annotations.RestPath
 import dev.dertyp.rpc.annotations.RestPost
 import dev.dertyp.rpc.annotations.RpcDoc
 import dev.dertyp.rpc.annotations.RpcParamDoc
@@ -18,6 +19,7 @@ import dev.dertyp.ui.UiHookKind
 import dev.dertyp.ui.UiInvokePayload
 import dev.dertyp.ui.UiInvokeResult
 import dev.dertyp.ui.UiLiveUpdate
+import dev.dertyp.ui.UiOption
 import dev.dertyp.ui.UiRender
 import dev.dertyp.ui.UiSlotRender
 import kotlinx.coroutines.flow.Flow
@@ -98,6 +100,19 @@ interface IUiService {
         @RpcParamDoc("Action id from UiAction.Invoke.") actionId: String,
         @RpcParamDoc("Values and context.") payload: UiInvokePayload,
     ): UiInvokeResult
+
+    @RestPost
+    @RestPath("search")
+    @RpcDoc(
+        "Options for a SearchField of a contribution that match the typed query, at most 50.",
+        errors = ["IllegalArgumentException", "UnauthorizedException"]
+    )
+    suspend fun search(
+        @RpcParamDoc("Id of the contribution that rendered the SearchField.") contributionId: String,
+        @RpcParamDoc("Key of the SearchField.") key: String,
+        @RpcParamDoc("Text typed by the user.") query: String,
+        @RpcParamDoc("Host context the contribution was rendered with.") context: UiContext,
+    ): List<UiOption>
 
     @RestPost
     @RpcDoc("Forward an app-level event (e.g. a shared URL). Returns every contribution offering to handle it. Perform the single action directly or let the user choose. An empty list means no server-side handler. Fall back to native behaviour then.")

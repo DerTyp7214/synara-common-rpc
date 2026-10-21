@@ -382,6 +382,32 @@ sealed class UiComponent {
     ) : UiComponent()
 
     @Serializable
+    @SerialName("searchField")
+    @ModelDoc("Search-as-you-type picker. While the user types at least minChars characters, clients call IUiService.search(contributionId, key, query, context) with the contribution that rendered the field and show the returned options. The value of the picked option is submitted under key with the enclosing Form. Clients without search field support receive a query TextField, a Search button and a Select of the results.")
+    data class SearchField(
+        @FieldDoc("Payload key, also passed to IUiService.search.")
+        val key: String,
+        @FieldDoc("Label.")
+        val label: String,
+        @FieldDoc("Currently selected option. Its label is shown until the user picks another one.")
+        val value: UiOption? = null,
+        @FieldDoc("Placeholder.")
+        val placeholder: String? = null,
+        @FieldDoc("Helper text.")
+        val helper: String? = null,
+        @FieldDoc("Validation error to display.")
+        val error: String? = null,
+        @FieldDoc("Whether a value is required.")
+        val required: Boolean = false,
+        @FieldDoc("Whether the field is editable.")
+        val enabled: Boolean = true,
+        @FieldDoc("Minimum number of typed characters before clients search.")
+        val minChars: Int = 2,
+        @FieldDoc("Keyboard accessory toolbar shown above the on-screen keyboard while the field is focused. Items are trailing-aligned. Buttons, Icons and Native portals.")
+        val toolbar: List<UiComponent> = emptyList(),
+    ) : UiComponent()
+
+    @Serializable
     @SerialName("numberField")
     @ModelDoc("Numeric input.")
     data class NumberField(

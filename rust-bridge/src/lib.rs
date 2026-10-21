@@ -1216,6 +1216,15 @@ pub struct IUiServiceInvokeArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IUiServiceSearchArgs {
+    #[serde(rename = "contributionId")]
+    pub contribution_id: String,
+    pub key: String,
+    pub query: String,
+    pub context: UiContext,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IUiServiceIntakeArgs {
     pub items: Vec<IntakeItem>,
     #[serde(rename = "resolverId")]
@@ -4255,6 +4264,13 @@ pub struct UiAction {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UiOption {
+    pub value: String,
+    pub label: String,
+    pub icon: Option<UiIcon>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UiHookEvent {
     pub kind: UiHookKind,
 }
@@ -5109,6 +5125,7 @@ pub trait IUiService {
     fn subscribe_with_context(&self, contribution_id: String, context: UiContext) -> RpcStream<UiRender>;
     fn subscribe_live_with_context(&self, contribution_id: String, key: String, context: UiContext) -> RpcStream<UiLiveUpdate>;
     fn invoke<'life0, 'async_trait>(&'life0 self, contribution_id: String, action_id: String, payload: UiInvokePayload) -> Pin<Box<dyn std::future::Future<Output = Result<UiInvokeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn search<'life0, 'async_trait>(&'life0 self, contribution_id: String, key: String, query: String, context: UiContext) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiOption>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn dispatch_hook<'life0, 'async_trait>(&'life0 self, event: UiHookEvent) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn list_hook_handlers<'life0, 'async_trait>(&'life0 self, kind: Option<UiHookKind>) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandlerInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn intake<'life0, 'async_trait>(&'life0 self, items: Vec<IntakeItem>, resolver_id: Option<String>) -> Pin<Box<dyn std::future::Future<Output = Result<UiIntakeResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
@@ -7169,6 +7186,12 @@ impl IUiService for RpcClient {
         Box::pin(async move {
             let args = IUiServiceInvokeArgs { contribution_id, action_id, payload };
             self.call("IUiService", "invoke", &args).await
+        })
+    }
+    fn search<'life0, 'async_trait>(&'life0 self, contribution_id: String, key: String, query: String, context: UiContext) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiOption>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IUiServiceSearchArgs { contribution_id, key, query, context };
+            self.call("IUiService", "search", &args).await
         })
     }
     fn dispatch_hook<'life0, 'async_trait>(&'life0 self, event: UiHookEvent) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UiHookHandler>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {

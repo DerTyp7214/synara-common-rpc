@@ -6,7 +6,7 @@ import dev.dertyp.rpc.annotations.ModelDoc
 object UiSchemaVersion {
     const val NONE = 0
 
-    const val CURRENT = 2
+    const val CURRENT = 3
 
     const val HEADER = "X-Ui-Schema-Version"
 }
