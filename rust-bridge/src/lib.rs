@@ -544,6 +544,15 @@ pub struct IListeningStatsServiceGetTopSongsArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IListeningStatsServiceRelinkSongArgs {
+    #[serde(rename = "fromSongId")]
+    pub from_song_id: PlatformUUID,
+    #[serde(rename = "toSongId")]
+    pub to_song_id: PlatformUUID,
+    pub groups: Option<Vec<LinkedListenGroupKey>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsSearchSearchLyricsArgs {
     pub artist: String,
     pub title: String,
@@ -3006,6 +3015,44 @@ pub struct LinkUnmatchedTrackResult {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LinkedListenGroup {
+    pub key: LinkedListenGroupKey,
+    #[serde(rename = "trackName")]
+    pub track_name: Option<String>,
+    #[serde(rename = "artistName")]
+    pub artist_name: Option<String>,
+    #[serde(rename = "releaseName")]
+    pub release_name: Option<String>,
+    #[serde(rename = "listenCount")]
+    pub listen_count: i64,
+    #[serde(rename = "listenedMs")]
+    pub listened_ms: i64,
+    #[serde(rename = "lastListenedAt")]
+    pub last_listened_at: i64,
+    #[serde(rename = "linkedManually")]
+    pub linked_manually: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LinkedListenGroupKey {
+    pub source: ListenGroupSource,
+    #[serde(rename = "playedSongId")]
+    pub played_song_id: Option<PlatformUUID>,
+    #[serde(rename = "recordingMbid")]
+    pub recording_mbid: Option<PlatformUUID>,
+    #[serde(rename = "recordingMsid")]
+    pub recording_msid: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum ListenGroupSource {
+    #[serde(rename = "LOCAL")]
+    Local,
+    #[serde(rename = "LISTENBRAINZ")]
+    Listenbrainz,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SyncedLyrics {
     pub lines: Vec<LyricLine>,
 }
@@ -4789,6 +4836,8 @@ pub trait IListeningStatsService {
     fn get_stats<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, top_limit: i32, top_order: TopOrder) -> Pin<Box<dyn std::future::Future<Output = Result<ListeningStats, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_top_songs<'life0, 'async_trait>(&'life0 self, range: StatsRange, timezone: String, limit: i32, order: TopOrder) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<UserSong>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn link_unmatched_track<'life0, 'async_trait>(&'life0 self, request: LinkUnmatchedTrackRequest) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_linked_listen_groups<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<LinkedListenGroup>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn relink_song<'life0, 'async_trait>(&'life0 self, from_song_id: PlatformUUID, to_song_id: PlatformUUID, groups: Option<Vec<LinkedListenGroupKey>>) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
 }
 
 pub trait ILyricsSearch {
@@ -6074,6 +6123,17 @@ impl IListeningStatsService for RpcClient {
     fn link_unmatched_track<'life0, 'async_trait>(&'life0 self, request: LinkUnmatchedTrackRequest) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
         Box::pin(async move {
             self.call("IListeningStatsService", "linkUnmatchedTrack", &request).await
+        })
+    }
+    fn get_linked_listen_groups<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<LinkedListenGroup>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("IListeningStatsService", "getLinkedListenGroups", &song_id).await
+        })
+    }
+    fn relink_song<'life0, 'async_trait>(&'life0 self, from_song_id: PlatformUUID, to_song_id: PlatformUUID, groups: Option<Vec<LinkedListenGroupKey>>) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = IListeningStatsServiceRelinkSongArgs { from_song_id, to_song_id, groups };
+            self.call("IListeningStatsService", "relinkSong", &args).await
         })
     }
 }

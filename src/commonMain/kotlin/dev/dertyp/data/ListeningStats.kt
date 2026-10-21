@@ -132,6 +132,44 @@ data class LinkUnmatchedTrackResult(
 )
 
 @Serializable
+@ModelDoc("The kind of listens in a linked listen group. LOCAL groups hold plays on this server. LISTENBRAINZ groups hold listens imported from ListenBrainz.")
+enum class ListenGroupSource { LOCAL, LISTENBRAINZ }
+
+@Serializable
+@ModelDoc("Identifies a group of listens linked to a library song. LOCAL groups are keyed by the song that was actually played. LISTENBRAINZ groups are keyed by recording MBID, or by recording MSID when there is no MBID. A LISTENBRAINZ key with neither holds the listens that carry no recording identity.")
+data class LinkedListenGroupKey(
+    @FieldDoc("The kind of listens in the group.")
+    val source: ListenGroupSource,
+    @FieldDoc("The library song that was actually played, for LOCAL groups. Null for LISTENBRAINZ groups.")
+    val playedSongId: PlatformUUID? = null,
+    @FieldDoc("The MusicBrainz recording MBID of a LISTENBRAINZ group, or null.")
+    val recordingMbid: PlatformUUID? = null,
+    @FieldDoc("The ListenBrainz recording MSID of a LISTENBRAINZ group without a recording MBID, or null.")
+    val recordingMsid: PlatformUUID? = null,
+)
+
+@Serializable
+@ModelDoc("A group of the user's listens that is linked to a library song.")
+data class LinkedListenGroup(
+    @FieldDoc("The key that identifies the group, to pass to relinkSong.")
+    val key: LinkedListenGroupKey,
+    @FieldDoc("The track name of the most recent listen in the group, or null if unknown.")
+    val trackName: String? = null,
+    @FieldDoc("The artist name of the most recent listen in the group, or null if unknown.")
+    val artistName: String? = null,
+    @FieldDoc("The release name of the most recent listen in the group, or null if unknown.")
+    val releaseName: String? = null,
+    @FieldDoc("Number of listens in the group.")
+    val listenCount: Long,
+    @FieldDoc("Total milliseconds listened across the group.")
+    val listenedMs: Long,
+    @FieldDoc("Time of the most recent listen in the group (epoch milliseconds).")
+    val lastListenedAt: Long,
+    @FieldDoc("True when the group was linked to the song by the user rather than automatically.")
+    val linkedManually: Boolean,
+)
+
+@Serializable
 @ModelDoc("Listening statistics for a time range over the user's unified listen history, deduplicated across local scrobbles and ListenBrainz imports.")
 data class ListeningStats(
     @FieldDoc("The requested time range.")
