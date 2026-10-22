@@ -10,8 +10,29 @@ import kotlin.time.Duration
 @ModelDoc("A collection of time-synced lyrics for a song.")
 data class SyncedLyrics(
     @FieldDoc("List of individual lyric lines.")
-    val lines: List<LyricLine>
+    val lines: List<LyricLine>,
+    @FieldDoc("The singers of the lyrics by voice id, used by duets and backing vocals.")
+    val voices: Map<String, LyricVoice> = emptyMap()
 )
+
+@Serializable
+@ModelDoc("A singer that lyric lines can be assigned to.")
+data class LyricVoice(
+    @FieldDoc("The display name of the singer.")
+    val name: String,
+    @FieldDoc("Whether the voice is a single person or a group.")
+    val type: LyricVoiceType = LyricVoiceType.PERSON
+)
+
+@Serializable
+@ModelDoc("Kind of singer behind a voice.")
+enum class LyricVoiceType {
+    @FieldDoc("A single person.")
+    PERSON,
+
+    @FieldDoc("A group of singers.")
+    GROUP
+}
 
 @Serializable
 @ModelDoc("A single line of lyrics with timing information.")
@@ -23,7 +44,15 @@ data class LyricLine(
     @FieldDoc("Timestamp of when the line ends.")
     val endTime: Duration,
     @FieldDoc("Collection of individual words in the line.")
-    val words: List<LyricWord>
+    val words: List<LyricWord>,
+    @FieldDoc("The full text of the line. When set, the word texts joined without a separator equal it exactly. When null, the words are joined with a space.")
+    val text: String? = null,
+    @FieldDoc("The id of the voice singing the line, as a key of the voices of the lyrics.")
+    val voice: String? = null,
+    @FieldDoc("Whether the line is a backing vocal.")
+    val background: Boolean = false,
+    @FieldDoc("Identifier shared by a lead line and the backing vocal lines that were split from the same line.")
+    val group: Int = 0
 )
 
 @Serializable

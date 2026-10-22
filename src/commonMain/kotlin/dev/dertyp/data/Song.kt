@@ -16,6 +16,7 @@ import dev.dertyp.PlatformUUID
 import dev.dertyp.core.contentEquals
 import dev.dertyp.nowAsPlatformDate
 import dev.dertyp.rpc.annotations.FieldDoc
+import dev.dertyp.rpc.annotations.LegacyWireField
 import dev.dertyp.rpc.annotations.ModelDoc
 import dev.dertyp.serializers.DateSerializer
 import dev.dertyp.serializers.LocalDateSerializer
@@ -50,6 +51,12 @@ enum class SongTag {
 
     @FieldDoc("The song has associated lyrics.")
     HAS_LYRICS,
+
+    @FieldDoc("The song has lyrics synced per line or per word.")
+    HAS_SYNCED_LYRICS,
+
+    @FieldDoc("The song has lyrics synced per word.")
+    HAS_WORD_SYNCED_LYRICS,
 
     @FieldDoc("The song was manually uploaded by a user.")
     CUSTOM_UPLOAD,
@@ -174,7 +181,6 @@ abstract class BaseSong() {
 
     @Serializable(with = LocalDateSerializer::class)
     abstract val releaseDate: PlatformLocalDate?
-    abstract val lyrics: String
     abstract val path: String
     abstract val originalUrl: String
     abstract val trackNumber: Int
@@ -195,6 +201,7 @@ abstract class BaseSong() {
 }
 
 @Serializable
+@LegacyWireField("lyrics", untilApiVersion = 10)
 @ModelDoc("Contains core metadata about a track that is common for all users.")
 data class Song(
     @FieldDoc("The song unique identifier.")
@@ -212,8 +219,6 @@ data class Song(
     @Serializable(with = LocalDateSerializer::class)
     @FieldDoc("Original release date of the track.")
     override val releaseDate: PlatformLocalDate? = null,
-    @FieldDoc("The plain text lyrics of the song.")
-    override val lyrics: String = "",
     @FieldDoc("Internal server path to the audio file.")
     override val path: String,
     @FieldDoc("The URL to the item on its original platform.")
@@ -251,11 +256,15 @@ data class Song(
     @FieldDoc("Version markers split off the title, e.g. remix, live or featuring, in order of extraction. The title never contains them.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val tags: List<TitleTag> = emptyList(),
+    @FieldDoc("Summary of the lyrics available for this song.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val lyricsInfo: SongLyricsInfo? = null,
     @Transient
     val atmosVariantPath: String? = null,
 ) : BaseSong()
 
 @Serializable
+@LegacyWireField("lyrics", untilApiVersion = 10)
 @ModelDoc("Extends track metadata with user-specific information like favorite status.")
 data class UserSong(
     @FieldDoc("The song unique identifier.")
@@ -273,8 +282,6 @@ data class UserSong(
     @Serializable(with = LocalDateSerializer::class)
     @FieldDoc("Original release date of the track.")
     override val releaseDate: PlatformLocalDate? = null,
-    @FieldDoc("The plain text lyrics of the song.")
-    override val lyrics: String = "",
     @FieldDoc("Internal server path to the audio file.")
     override val path: String,
     @FieldDoc("The URL to the item on its original platform.")
@@ -312,6 +319,9 @@ data class UserSong(
     @FieldDoc("Version markers split off the title, e.g. remix, live or featuring, in order of extraction. The title never contains them.")
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     override val tags: List<TitleTag> = emptyList(),
+    @FieldDoc("Summary of the lyrics available for this song.")
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val lyricsInfo: SongLyricsInfo? = null,
     @Transient
     val atmosVariantPath: String? = null,
 

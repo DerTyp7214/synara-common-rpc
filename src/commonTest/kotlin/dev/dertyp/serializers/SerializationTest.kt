@@ -177,7 +177,6 @@ class SerializationTest {
         duration = 1000,
         explicit = false,
         releaseDate = null,
-        lyrics = "",
         path = "path",
         originalUrl = "",
         trackNumber = 1,

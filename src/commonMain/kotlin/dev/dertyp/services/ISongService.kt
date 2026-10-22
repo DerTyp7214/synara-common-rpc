@@ -39,7 +39,7 @@ interface ISongService {
     ): UserSong?
 
     @RequiresCapability(UserCapability.EDIT)
-    @RpcDoc("Update a song's editable metadata (title, artists and their credited names, MusicBrainz link, album, lyrics, release date, track and disc number).")
+    @RpcDoc("Update a song's editable metadata (title, artists and their credited names, MusicBrainz link, album, release date, track and disc number).")
     suspend fun updateSong(
         @RpcParamDoc("The song with its updated editable fields.") song: Song
     ): UserSong?

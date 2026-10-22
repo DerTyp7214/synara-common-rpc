@@ -553,6 +553,69 @@ pub struct IListeningStatsServiceRelinkSongArgs {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ILyricsCandidateServiceGetLyricsArgs {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    #[serde(rename = "candidateId")]
+    pub candidate_id: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ILyricsCandidateServiceFindLyricsArgs {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    pub providers: Option<Vec<String>>,
+    pub refresh: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ILyricsCandidateServiceFindLyricsByQueryArgs {
+    pub title: String,
+    pub artist: String,
+    pub album: Option<String>,
+    #[serde(rename = "durationMs")]
+    pub duration_ms: Option<i64>,
+    pub providers: Option<Vec<String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ILyricsCandidateServiceGetLyricsCandidatesArgs {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    #[serde(rename = "includeContent")]
+    pub include_content: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ILyricsCandidateServiceSetSyncedLyricsArgs {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    pub lyrics: Option<SyncedLyrics>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ILyricsCandidateServiceImportSyncedLyricsArgs {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    pub file: LyricsImport,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ILyricsCandidateServiceSetPreferredLyricsArgs {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    #[serde(rename = "candidateId")]
+    pub candidate_id: Option<PlatformUUID>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ILyricsCandidateServiceStreamLyricsArgs {
+    #[serde(rename = "songId")]
+    pub song_id: PlatformUUID,
+    pub providers: Option<Vec<String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ILyricsSearchSearchLyricsArgs {
     pub artist: String,
     pub title: String,
@@ -2285,7 +2348,6 @@ pub struct UserSong {
     pub explicit: bool,
     #[serde(rename = "releaseDate")]
     pub release_date: Option<PlatformDateTime>,
-    pub lyrics: String,
     pub path: String,
     #[serde(rename = "originalUrl")]
     pub original_url: String,
@@ -2313,6 +2375,8 @@ pub struct UserSong {
     #[serde(rename = "audioStartMs")]
     pub audio_start_ms: Option<i64>,
     pub tags: Vec<TitleTag>,
+    #[serde(rename = "lyricsInfo")]
+    pub lyrics_info: Option<SongLyricsInfo>,
     #[serde(rename = "isFavourite")]
     pub is_favourite: Option<bool>,
     #[serde(rename = "userSongCreatedAt")]
@@ -2339,6 +2403,31 @@ pub struct AudioInfo {
     #[serde(rename = "fileSize")]
     pub file_size: i64,
     pub channels: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SongLyricsInfo {
+    pub available: bool,
+    #[serde(rename = "syncLevel")]
+    pub sync_level: Option<LyricsSyncLevel>,
+    pub levels: Vec<LyricsSyncLevel>,
+    pub instrumental: bool,
+    #[serde(rename = "defaultCandidateId")]
+    pub default_candidate_id: Option<PlatformUUID>,
+    #[serde(rename = "defaultProvider")]
+    pub default_provider: Option<String>,
+    #[serde(rename = "candidateCount")]
+    pub candidate_count: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum LyricsSyncLevel {
+    #[serde(rename = "PLAIN")]
+    Plain,
+    #[serde(rename = "LINE")]
+    Line,
+    #[serde(rename = "WORD")]
+    Word,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -3062,8 +3151,46 @@ pub enum ListenGroupSource {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LyricsCandidate {
+    pub id: PlatformUUID,
+    #[serde(rename = "songId")]
+    pub song_id: Option<PlatformUUID>,
+    pub provider: LyricsProviderInfo,
+    #[serde(rename = "syncLevel")]
+    pub sync_level: LyricsSyncLevel,
+    pub instrumental: bool,
+    pub match: LyricsMatch,
+    #[serde(rename = "durationGapSec")]
+    pub duration_gap_sec: Option<i32>,
+    pub rank: i32,
+    pub preferred: bool,
+    #[serde(rename = "fetchedAt")]
+    pub fetched_at: PlatformDate,
+    pub plain: String,
+    pub lyrics: Option<SyncedLyrics>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LyricsProviderInfo {
+    pub id: String,
+    pub name: String,
+    pub url: Option<String>,
+    pub enabled: bool,
+    pub priority: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum LyricsMatch {
+    #[serde(rename = "VERIFIED")]
+    Verified,
+    #[serde(rename = "PROVIDER")]
+    Provider,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SyncedLyrics {
     pub lines: Vec<LyricLine>,
+    pub voices: std::collections::HashMap<String, LyricVoice>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -3073,6 +3200,10 @@ pub struct LyricLine {
     #[serde(rename = "endTime")]
     pub end_time: String,
     pub words: Vec<LyricWord>,
+    pub text: Option<String>,
+    pub voice: Option<String>,
+    pub background: bool,
+    pub group: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -3092,6 +3223,45 @@ pub struct LyricChar {
     pub start_time: String,
     #[serde(rename = "endTime")]
     pub end_time: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LyricVoice {
+    pub name: String,
+    #[serde(rename = "type")]
+    pub r#type: LyricVoiceType,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum LyricVoiceType {
+    #[serde(rename = "PERSON")]
+    Person,
+    #[serde(rename = "GROUP")]
+    Group,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LyricsSearchResult {
+    pub candidates: Vec<LyricsCandidate>,
+    #[serde(rename = "defaultCandidateId")]
+    pub default_candidate_id: Option<PlatformUUID>,
+    pub pending: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LyricsImport {
+    pub format: LyricsImportFormat,
+    pub content: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum LyricsImportFormat {
+    #[serde(rename = "LRC")]
+    Lrc,
+    #[serde(rename = "TTML")]
+    Ttml,
+    #[serde(rename = "LYRICSFILE")]
+    Lyricsfile,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -3118,7 +3288,6 @@ pub struct Song {
     pub explicit: bool,
     #[serde(rename = "releaseDate")]
     pub release_date: Option<PlatformDateTime>,
-    pub lyrics: String,
     pub path: String,
     #[serde(rename = "originalUrl")]
     pub original_url: String,
@@ -3146,6 +3315,8 @@ pub struct Song {
     #[serde(rename = "audioStartMs")]
     pub audio_start_ms: Option<i64>,
     pub tags: Vec<TitleTag>,
+    #[serde(rename = "lyricsInfo")]
+    pub lyrics_info: Option<SongLyricsInfo>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -4077,6 +4248,10 @@ pub enum SongTag {
     B24,
     #[serde(rename = "HAS_LYRICS")]
     HasLyrics,
+    #[serde(rename = "HAS_SYNCED_LYRICS")]
+    HasSyncedLyrics,
+    #[serde(rename = "HAS_WORD_SYNCED_LYRICS")]
+    HasWordSyncedLyrics,
     #[serde(rename = "CUSTOM_UPLOAD")]
     CustomUpload,
     #[serde(rename = "HAS_MUSICBRAINZ_ID")]
@@ -4864,6 +5039,20 @@ pub trait IListeningStatsService {
     fn link_unmatched_track<'life0, 'async_trait>(&'life0 self, request: LinkUnmatchedTrackRequest) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn get_linked_listen_groups<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<LinkedListenGroup>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
     fn relink_song<'life0, 'async_trait>(&'life0 self, from_song_id: PlatformUUID, to_song_id: PlatformUUID, groups: Option<Vec<LinkedListenGroupKey>>) -> Pin<Box<dyn std::future::Future<Output = Result<LinkUnmatchedTrackResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+}
+
+pub trait ILyricsCandidateService {
+    fn get_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, candidate_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<LyricsCandidate>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_lyrics_info<'life0, 'async_trait>(&'life0 self, song_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<PlatformUUID, SongLyricsInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn find_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, providers: Option<Vec<String>>, refresh: bool) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn find_lyrics_by_query<'life0, 'async_trait>(&'life0 self, title: String, artist: String, album: Option<String>, duration_ms: Option<i64>, providers: Option<Vec<String>>) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_lyrics_candidates<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, include_content: bool) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_lyrics_candidate<'life0, 'async_trait>(&'life0 self, candidate_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<LyricsCandidate>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_synced_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, lyrics: Option<SyncedLyrics>) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn import_synced_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, file: LyricsImport) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn set_preferred_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, candidate_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn get_lyrics_providers<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<LyricsProviderInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait;
+    fn stream_lyrics(&self, song_id: PlatformUUID, providers: Option<Vec<String>>) -> RpcStream<LyricsCandidate>;
 }
 
 pub trait ILyricsSearch {
@@ -6162,6 +6351,69 @@ impl IListeningStatsService for RpcClient {
             let args = IListeningStatsServiceRelinkSongArgs { from_song_id, to_song_id, groups };
             self.call("IListeningStatsService", "relinkSong", &args).await
         })
+    }
+}
+impl ILyricsCandidateService for RpcClient {
+    fn get_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, candidate_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<Option<LyricsCandidate>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ILyricsCandidateServiceGetLyricsArgs { song_id, candidate_id };
+            self.call("ILyricsCandidateService", "getLyrics", &args).await
+        })
+    }
+    fn get_lyrics_info<'life0, 'async_trait>(&'life0 self, song_ids: Vec<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<std::collections::HashMap<PlatformUUID, SongLyricsInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ILyricsCandidateService", "getLyricsInfo", &song_ids).await
+        })
+    }
+    fn find_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, providers: Option<Vec<String>>, refresh: bool) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ILyricsCandidateServiceFindLyricsArgs { song_id, providers, refresh };
+            self.call("ILyricsCandidateService", "findLyrics", &args).await
+        })
+    }
+    fn find_lyrics_by_query<'life0, 'async_trait>(&'life0 self, title: String, artist: String, album: Option<String>, duration_ms: Option<i64>, providers: Option<Vec<String>>) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ILyricsCandidateServiceFindLyricsByQueryArgs { title, artist, album, duration_ms, providers };
+            self.call("ILyricsCandidateService", "findLyricsByQuery", &args).await
+        })
+    }
+    fn get_lyrics_candidates<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, include_content: bool) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ILyricsCandidateServiceGetLyricsCandidatesArgs { song_id, include_content };
+            self.call("ILyricsCandidateService", "getLyricsCandidates", &args).await
+        })
+    }
+    fn get_lyrics_candidate<'life0, 'async_trait>(&'life0 self, candidate_id: PlatformUUID) -> Pin<Box<dyn std::future::Future<Output = Result<Option<LyricsCandidate>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ILyricsCandidateService", "getLyricsCandidate", &candidate_id).await
+        })
+    }
+    fn set_synced_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, lyrics: Option<SyncedLyrics>) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ILyricsCandidateServiceSetSyncedLyricsArgs { song_id, lyrics };
+            self.call("ILyricsCandidateService", "setSyncedLyrics", &args).await
+        })
+    }
+    fn import_synced_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, file: LyricsImport) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ILyricsCandidateServiceImportSyncedLyricsArgs { song_id, file };
+            self.call("ILyricsCandidateService", "importSyncedLyrics", &args).await
+        })
+    }
+    fn set_preferred_lyrics<'life0, 'async_trait>(&'life0 self, song_id: PlatformUUID, candidate_id: Option<PlatformUUID>) -> Pin<Box<dyn std::future::Future<Output = Result<LyricsSearchResult, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            let args = ILyricsCandidateServiceSetPreferredLyricsArgs { song_id, candidate_id };
+            self.call("ILyricsCandidateService", "setPreferredLyrics", &args).await
+        })
+    }
+    fn get_lyrics_providers<'life0, 'async_trait>(&'life0 self, ) -> Pin<Box<dyn std::future::Future<Output = Result<Vec<LyricsProviderInfo>, String>> + Send + 'async_trait>> where 'life0: 'async_trait, Self: 'async_trait {
+        Box::pin(async move {
+            self.call("ILyricsCandidateService", "getLyricsProviders", &()).await
+        })
+    }
+    fn stream_lyrics(&self, song_id: PlatformUUID, providers: Option<Vec<String>>) -> RpcStream<LyricsCandidate> {
+        let args = ILyricsCandidateServiceStreamLyricsArgs { song_id, providers };
+        self.subscribe("ILyricsCandidateService", "streamLyrics", &args)
     }
 }
 impl ILyricsSearch for RpcClient {

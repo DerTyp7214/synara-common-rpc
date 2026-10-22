@@ -19,6 +19,7 @@ object TaskKeys {
     const val FETCH_METADATA_THEAUDIODB = "fetch-metadata-theaudiodb"
     const val AUTO_TRANSCODING = "auto-transcoding"
     const val LYRICS_SYNC_WORKER = "lyrics-sync-worker"
+    const val LYRICS_PROVIDER_WORKER = "lyrics-provider-worker"
     const val LRCLIB_WORKER = "lrclib-worker"
     const val RECENT_RELEASE_WORKER = "recent-release-worker"
     const val APPLE_MUSIC_RELEASE_WORKER = "apple-music-release-worker"
