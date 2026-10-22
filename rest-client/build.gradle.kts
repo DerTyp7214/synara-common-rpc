@@ -95,3 +95,7 @@ tasks.matching { it.name == "kspCommonMainKotlinMetadata" }.configureEach {
 tasks.matching { it.name.startsWith("compile") && it.name.contains("Kotlin") }.configureEach {
     dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
 }
+
+tasks.matching { it.name.startsWith("ksp") && it.name.endsWith("Jvm") }.configureEach {
+    dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
+}
