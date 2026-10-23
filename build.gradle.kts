@@ -101,7 +101,11 @@ dependencies {
     add("kspCommonMainMetadata", project(":common-rpc:doc-compiler"))
 }
 
-tasks.matching { it.name.startsWith("compile") && it.name.contains("Kotlin") }.configureEach {
+tasks.matching {
+    (it.name.startsWith("compile") && it.name.contains("Kotlin")) ||
+        it.name == "compileAndroidMain" ||
+        it.name.startsWith("koverGenerateArtifact")
+}.configureEach {
     dependsOn(tasks.matching { it.name == "kspCommonMainKotlinMetadata" })
 }
 
