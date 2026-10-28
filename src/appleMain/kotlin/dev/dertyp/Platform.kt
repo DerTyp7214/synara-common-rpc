@@ -1,5 +1,6 @@
 @file:OptIn(
     ExperimentalForeignApi::class,
+    UnsafeNumber::class,
     ExperimentalNativeApi::class,
     ExperimentalUuidApi::class,
     DelicateCoroutinesApi::class
@@ -9,6 +10,7 @@
 package dev.dertyp
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.UnsafeNumber
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +40,7 @@ private fun utcFormatter(format: String) = NSDateFormatter().apply {
     timeZone = utc
 }
 
-private fun isoFormatter(options: ULong) = NSISO8601DateFormatter().apply {
+private fun isoFormatter(options: NSISO8601DateFormatOptions) = NSISO8601DateFormatter().apply {
     formatOptions = options
     timeZone = utc
 }
